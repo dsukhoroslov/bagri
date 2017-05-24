@@ -18,7 +18,7 @@ public class CollectionPredicate implements Predicate<DocumentKey, Document>, Id
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3363497246879761975L;
+	private static final long serialVersionUID = 1L;
 	
 	private int clnId;
 	

@@ -1112,6 +1112,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		} 
 		PagingPredicate pager = null;
 		Predicate<DocumentKey, Document> query = new DocVisiblePredicate();
+		((DocVisiblePredicate) query).setRepository(repo);
 		if (collection == null) {
 			if (pageSize > 0) {
 				pager = new PagingPredicate(query, pageSize);
@@ -1127,7 +1128,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				pager = new PagingPredicate(query, pageSize);
 				query = pager;
 			}
-			// TODO: investigate it; the localKeySet returns extra empty key for some reason!
 		}
 		
 		//Projection pro = Projections.singleAttribute(fnUri);

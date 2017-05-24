@@ -13,7 +13,7 @@ public class MemberPredicate<K, V> implements Predicate<K, V> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7718023577992911275L;
+	private static final long serialVersionUID = 1L;
 	
 	private PartitionService partService;
 	private Member member;

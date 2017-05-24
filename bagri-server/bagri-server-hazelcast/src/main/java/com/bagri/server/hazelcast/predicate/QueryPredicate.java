@@ -22,7 +22,7 @@ public class QueryPredicate implements Predicate<DataKey, Elements>, IdentifiedD
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2796783159287994964L;
+	private static final long serialVersionUID = 1L;
 
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryPredicate.class);
 	

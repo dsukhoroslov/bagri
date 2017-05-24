@@ -21,7 +21,7 @@ public class ResultsQueryPredicate implements Predicate<Long, QueryResult>, Iden
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3453742834708403277L;
+	private static final long serialVersionUID = 1L;
 	
 	private Set<Integer> queryIds = new HashSet<>();
 	

@@ -17,7 +17,7 @@ public class ResultsDocPredicate implements Predicate<Long, QueryResult>, Identi
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8874751974148908253L;
+	private static final long serialVersionUID = 1L;
 	//private static final transient Logger logger = LoggerFactory.getLogger(ResultsDocPredicate.class);
 	
 	private Long docId;

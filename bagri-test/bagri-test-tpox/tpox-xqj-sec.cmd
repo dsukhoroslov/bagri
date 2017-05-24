@@ -18,7 +18,7 @@ rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app
 
 rem perform queries loopig by user count
 for /l %%x in (5, 1, 10) do (
-	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -u %%x -r 10 -pc 95 -cl 99
+	"%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -u %%x -r 10 -pc 95 -cl 99 -ti 180
 )
 
 rem "%java_exec%" -server %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" net.sf.tpox.workload.core.WorkloadDriver -w queries/XQJ/securities.xml -tr 1 

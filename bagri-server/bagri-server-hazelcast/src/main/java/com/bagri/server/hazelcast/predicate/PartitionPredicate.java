@@ -11,7 +11,7 @@ public class PartitionPredicate<K, V> implements Predicate<K, V> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5033489770883082993L;
+	private static final long serialVersionUID = 1L;
 	
 	private PartitionService partService;
 	private Set<Integer> partitions;

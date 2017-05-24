@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.serialize;
 
 import com.bagri.client.hazelcast.GroupCountPredicate;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
+import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.server.hazelcast.predicate.QueryPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
@@ -153,7 +154,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_ResultsDocPredicate: return new ResultsDocPredicate();
 			case cli_ResultsQueryPredicate: return new ResultsQueryPredicate();
 			case cli_CollectionPredicate: return new CollectionPredicate();
-			//case cli_ApplyQueryTask: return new QueryPredicate(); ??!
+			case cli_DocVisiblePredicate: return new DocVisiblePredicate(); 
 			case cli_ProvideCollectionDocumentsTask: return new CollectionDocumentsProvider();
 			case cli_RemoveCollectionDocumentsTask: return new CollectionDocumentsRemover();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();

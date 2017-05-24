@@ -39,6 +39,7 @@ import com.bagri.support.idgen.SimpleIdGenerator;
 import com.bagri.support.stats.StatisticsProvider;
 import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.Cluster;
+import com.hazelcast.core.EntryView;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -276,8 +277,11 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 			txIsolation = TransactionIsolation.readCommited;
 		}
 		
-		xTx = txCache.get(txId);
-		boolean commited = xTx == null || xTx.getTxState() == TransactionState.commited;
+		//xTx = txCache.get(txId);
+		//boolean commited = xTx == null || xTx.getTxState() == TransactionState.commited;
+		EntryView<Long, Transaction> eTx = txCache.getEntryView(txId);
+		boolean commited = eTx == null || eTx.getValue() == null || 
+				eTx.getValue().getTxState() == TransactionState.commited;
 		if (txIsolation == TransactionIsolation.readCommited) {
 			return commited;
 		}

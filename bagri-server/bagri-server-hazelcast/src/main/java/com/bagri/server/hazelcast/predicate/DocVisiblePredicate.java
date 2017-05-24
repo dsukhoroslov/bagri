@@ -7,6 +7,8 @@ import static com.bagri.core.api.TransactionManagement.TX_NO;
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.DocumentKey;
@@ -27,6 +29,7 @@ public class DocVisiblePredicate implements Predicate<DocumentKey, Document>, Id
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final transient Logger logger = LoggerFactory.getLogger(DocVisiblePredicate.class);
 	
 	private TransactionManagementImpl txMgr;
 
