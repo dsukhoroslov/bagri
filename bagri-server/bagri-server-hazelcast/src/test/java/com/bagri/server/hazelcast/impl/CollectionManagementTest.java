@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_collections;
@@ -138,6 +139,15 @@ public class CollectionManagementTest extends BagriManagementTest {
 		}
 		assertEquals(4, cnt);
 		props = null;
+	}
+
+	@Test
+	public void pageCollectionDocumentsTest() throws Exception {
+		addDocumentsToCollectionTest();
+		Properties props = new Properties();
+		props.setProperty(pn_client_fetchSize, "2");
+		java.util.Collection<String> ids = this.getDocManagement().getCollectionDocumentUris("CLN_Custom", props);
+		assertEquals(4, ids.size());
 	}
 
 	@Test

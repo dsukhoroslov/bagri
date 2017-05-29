@@ -124,6 +124,12 @@
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="10">
+				<hz:indexes>
+					<hz:index attribute="docId"/>
+				</hz:indexes>
+				<hz:attributes>
+					<hz:attribute name="docId" extractor="com.bagri.server.hazelcast.predicate.ResultsQueryExtractor" />
+				</hz:attributes>
 			</hz:map>
 			
 			<hz:topic name="xdm-health">

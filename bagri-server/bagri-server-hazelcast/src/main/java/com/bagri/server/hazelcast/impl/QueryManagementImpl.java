@@ -191,33 +191,48 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	public Set<Integer> getQueriesForPaths(Collection<Integer> pathIds, boolean checkIndexed) {
 		// TODO: also specify: do we care about unique indexes or not..
-		logger.debug("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
+		logger.trace("getQueriesForPaths.enter; got pathIds: {}; query cache size: {}", pathIds, xqCache.size());
 		Set<Integer> result = new HashSet<>();
 		for (Map.Entry<Integer, Query> e: xqCache.entrySet()) {
-			for (ExpressionContainer ec: e.getValue().getXdmQuery().getContainers()) {
-				boolean foundPath = false;
-				for (Expression ex: ec.getBuilder().getExpressions()) {
-					if (!foundPath && ex.isCached()) {
-						QueriedPath qp = ((PathExpression) ex).getCachedPath();
-						if (checkIndexed && !qp.isIndexed()) {
-							continue;
-						}
-						for (Integer pid: pathIds) {
-							if (qp.getPathIds().contains(pid)) {
-								foundPath = true;
-								break;
-							}
-						}
-					}
-				}
-				if (foundPath) {
-					result.add(e.getKey());
-					break;
-				}
+			if (intersects(e.getValue(), pathIds, checkIndexed)) {
+				result.add(e.getKey());
 			}
 		}
 		logger.trace("getQueriesForPaths.exit; returning: {}", result);
 		return result;
+	}
+	
+	private boolean intersects(Query query, Collection<Integer> pathIds, boolean checkIndexed) {
+		if (checkIndexed) {
+			for (ExpressionContainer ec: query.getXdmQuery().getContainers()) {
+				for (Expression ex: ec.getBuilder().getExpressions()) {
+					if (ex.isCached()) {
+						QueriedPath qp = ((PathExpression) ex).getCachedPath();
+						if (qp.isIndexed()) {
+							for (Integer pid: pathIds) {
+								if (qp.getPathIds().contains(pid)) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		} else {
+			for (ExpressionContainer ec: query.getXdmQuery().getContainers()) {
+				for (Expression ex: ec.getBuilder().getExpressions()) {
+					if (ex.isCached()) {
+						QueriedPath qp = ((PathExpression) ex).getCachedPath();
+						for (Integer pid: pathIds) {
+							if (qp.getPathIds().contains(pid)) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	void addQueryResults(final String query, final Map<String, Object> params, final Properties props, 
@@ -297,31 +312,29 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 	
-	void invalidateQueryResults(Set<Integer> paths) {
-		Set<Integer> qKeys = getQueriesForPaths(paths, false);
-		if (!qKeys.isEmpty()) {
-			removeQueryResults(qKeys);
+	void invalidateQueryResults(Set<Integer> pathIds) {
+		if (xqCache.size() > 0) {
+			Set<Integer> qKeys = getQueriesForPaths(pathIds, false);
+			if (!qKeys.isEmpty()) {
+				removeQueryResults(qKeys);
+			}
 		}
 	}
 	
 	void removeQueryResults(long docId) {
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
-		Predicate rdp = new ResultsDocPredicate(docId);
-		Set<Long> rdKeys = xrCache.keySet(rdp);
-		for (Long rdKey: rdKeys) {
-			xrCache.delete(rdKey);
-		}
-		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", rdKeys.size(), docId);
+		int size = xrCache.size(); 
+		xrCache.removeAll(new ResultsDocPredicate(docId));
+		size = size - xrCache.size(); 
+		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", size, docId);
 	}
 
 	void removeQueryResults(Collection<Integer> queryIds) {
 		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, xrCache.size());
-		Predicate rqp = new ResultsQueryPredicate(queryIds);
-		Set<Long> rqKeys = xrCache.keySet(rqp);
-		for (Long rqKey: rqKeys) {
-			xrCache.delete(rqKey);
-		}
-		logger.trace("removeQueryResults.exit; deleted {} results", rqKeys.size());
+		int size = xrCache.size(); 
+		xrCache.removeAll(new ResultsQueryPredicate(queryIds));
+		size = size - xrCache.size(); 
+		logger.trace("removeQueryResults.exit; deleted {} results", size);
 	}
 	
 	@Override

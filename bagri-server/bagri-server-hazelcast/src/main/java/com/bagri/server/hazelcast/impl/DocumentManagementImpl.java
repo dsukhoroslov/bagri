@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -935,8 +936,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
-		// invalidate cached query results.
-
     	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
     	Set<Integer> pathIds = new HashSet<>(paths.size());
 		for (Path path: paths) {
@@ -949,6 +948,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				pathIds.add(path.getPathId());
 			}
 		}
+
+		// invalidate cached query results.
 		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 		
 		logger.trace("storeDocument.exit; returning: {}", newDoc);
@@ -1006,13 +1007,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    Document doc = getDocument(docKey);
 	    boolean cleaned = false;
 	    if (doc != null) {
+	    	// TODO: clean via EntryProcessor..
 			cntCache.delete(docKey);
-			//srcCache.remove(docKey);
 	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeRoot());
-	    	java.util.Collection<Integer> pathIds = indexManager.getTypeIndexes(doc.getTypeRoot(), true);
-	    	for (int pathId: pathIds) {
-	    		deindexElements(docKey.getKey(), pathId);
-	    	}
 	    	if (complete) {
 	    		xddCache.delete(docKey);
 	    	}
@@ -1033,7 +1030,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public void evictDocument(DocumentKey xdmKey, Document xdmDoc) {
 		logger.trace("evictDocument.enter; xdmKey: {}, xdmDoc: {}", xdmKey, xdmDoc);
 		cntCache.delete(xdmKey);
-		//srcCache.remove(xdmKey);
     	int size = deleteDocumentElements(xdmDoc.getFragments(), xdmDoc.getTypeRoot());
 
     	//Collection<Integer> pathIds = indexManager.getTypeIndexes(xdmDoc.getTypeId(), true);
@@ -1054,7 +1050,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private int deleteDocumentElements(long[] fragments, String root) {
 
     	int cnt = 0;
-    	//Set<XDMDataKey> localKeys = xdmCache.localKeySet();
     	java.util.Collection<Path> allPaths = model.getTypePaths(root);
 		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}", 
 				allPaths.size(), xdmCache.size());
@@ -1105,7 +1100,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public java.util.Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException {
-		Set<DocumentKey> docKeys;
 		int pageSize = 100;
 		if (props != null) {
 			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
@@ -1130,26 +1124,37 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 		
-		//Projection pro = Projections.singleAttribute(fnUri);
-		docKeys = xddCache.localKeySet(query);
-		List<String> result = new ArrayList<>(docKeys.size());
+		List<String> result = new ArrayList<>(); 
 		if (pager != null) {
-			fillUris(docKeys, result);
-			pager.nextPage();
-			// ok, what to do next?? how to know the last page?
+			int size;
+			do {
+				size = result.size(); 
+				fillUris(query, result);
+				pager.nextPage();
+			} while (result.size() > size);
 		} else {
-			fillUris(docKeys, result);
+			fillUris(query, result);
 		}
+		
+		// does not work because of a bug in HZ
+		//Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
+		//if (pager != null) {
+		//	int size;
+		//	do {
+		//		size = result.size();  
+		//		result.addAll(xddCache.project(pro, query));
+		//		pager.nextPage();
+		//	} while (result.size() > size);
+		//} else {
+		//	result.addAll(xddCache.project(pro, query));
+		//}
 		return result;
 	}
 	
-	private void fillUris(Set<DocumentKey> keys, java.util.Collection<String> uris) throws BagriException {
-		Map<DocumentKey, Document> docs = xddCache.getAll(keys);
-		for (Document doc: docs.values()) {
-		    //if (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())) {
-				// check doc visibility via
-		    	uris.add(doc.getUri());
-			//}
+	private void fillUris(Predicate query, java.util.Collection<String> uris) throws BagriException {
+		java.util.Collection<Document> docs = xddCache.values(query);
+		for (Document doc: docs) {
+	    	uris.add(doc.getUri());
 		}
 	}
 
