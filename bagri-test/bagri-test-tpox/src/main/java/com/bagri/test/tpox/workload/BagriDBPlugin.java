@@ -3,6 +3,7 @@ package com.bagri.test.tpox.workload;
 import static com.bagri.core.Constants.pn_client_bufferSize;
 import static com.bagri.core.Constants.pn_client_connectAttempts;
 import static com.bagri.core.Constants.pn_client_loginTimeout;
+import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_schema_address;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_password;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
@@ -234,8 +236,11 @@ public class BagriDBPlugin extends BagriTPoXPlugin {
 
 	private static class TPoXQueryManagerTest extends ClientQueryManagementTest {
 		
+		private Properties props = new Properties();
+		
 		TPoXQueryManagerTest(SchemaRepository xRepo) {
 			this.xRepo = xRepo;
+			this.props.setProperty(pn_document_data_format, "XML");
 		}
 		
 		void close() {
@@ -247,7 +252,7 @@ public class BagriDBPlugin extends BagriTPoXPlugin {
 		}
 		
 		Document storeDocument(String uri, String xml) throws Exception {
-			return xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, null);
+			return xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, props);
 		}
 		
 	}

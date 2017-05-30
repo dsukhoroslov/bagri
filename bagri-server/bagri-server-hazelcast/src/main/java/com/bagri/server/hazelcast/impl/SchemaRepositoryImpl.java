@@ -219,21 +219,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	}
 	
 	private ContentHandler getHandler(String dataFormat) {
+		logger.trace("getHandler.enter; got dataFormat: {}", dataFormat); 
 		ContentHandler ch = handlers.get(dataFormat);
 		if (ch == null) {
 			DataFormat df = getDataFormat(dataFormat);
 			if (df != null) {
-				ch = instantiateClass(df.getHandlerClass());
-			}
-			if (ch == null) {
-				logger.info("getHandler; no handler found for dataFormat: {}", dataFormat); 
-				String defaultFormat = this.xdmSchema.getProperty(pn_schema_format_default);
-				if ("json".equalsIgnoreCase(defaultFormat)) {
-					ch = new JsonpHandler(getModelManagement());
-				} else if ("xml".equalsIgnoreCase(defaultFormat)) {
-					ch = new XmlHandler(getModelManagement());
-				} else if ("map".equalsIgnoreCase(defaultFormat)) {
-					ch = new MapHandler(getModelManagement());
+				dataFormat = df.getName();
+				ch = handlers.get(dataFormat);
+				if (ch == null) {
+					ch = instantiateClass(df.getHandlerClass());
 				}
 			}
 			if (ch != null) {
@@ -241,8 +235,8 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 				handlers.putIfAbsent(dataFormat, ch);
 			}
 		}
+		logger.trace("getHandler.exit; returning handler {} for dataFormat: {}", ch, dataFormat); 
 		return ch;
-		
 	}
 	
 	@Override
