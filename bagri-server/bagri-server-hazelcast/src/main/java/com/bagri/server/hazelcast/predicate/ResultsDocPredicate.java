@@ -5,14 +5,18 @@ import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.
 
 import java.io.IOException;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.bagri.core.model.QueryResult;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import com.hazelcast.query.IndexAwarePredicate;
 import com.hazelcast.query.Predicate;
+import com.hazelcast.query.impl.Index;
+import com.hazelcast.query.impl.QueryContext;
 
-public class ResultsDocPredicate implements Predicate<Long, QueryResult>, IdentifiedDataSerializable { 
+public class ResultsDocPredicate implements IndexAwarePredicate<Long, QueryResult>, IdentifiedDataSerializable { 
 	
 	/**
 	 * 
@@ -45,6 +49,17 @@ public class ResultsDocPredicate implements Predicate<Long, QueryResult>, Identi
 		return resEntry.getValue().getDocIds().contains(docId);
 	}
 	
+	@Override
+	public Set filter(QueryContext queryContext) {
+		Index idx = queryContext.getIndex("docId");
+		return idx.getRecords(docId);
+	}
+
+	@Override
+	public boolean isIndexed(QueryContext queryContext) {
+		return true;
+	}
+
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		docId = in.readLong();

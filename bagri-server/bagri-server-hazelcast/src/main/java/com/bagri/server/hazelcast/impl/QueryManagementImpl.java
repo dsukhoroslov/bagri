@@ -325,6 +325,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
 		int size = xrCache.size(); 
 		xrCache.removeAll(new ResultsDocPredicate(docId));
+		//xrCache.removeAll(Predicates.equal("docId", docId));
 		size = size - xrCache.size(); 
 		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", size, docId);
 	}

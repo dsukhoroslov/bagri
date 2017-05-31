@@ -42,13 +42,13 @@ public class DocVisiblePredicate implements Predicate<DocumentKey, Document>, Id
 	@Override
 	public boolean apply(Entry<DocumentKey, Document> docEntry) {
 		Document doc = docEntry.getValue();
-		//try {
+		try {
 			// TODO: check start tx too?
-			return doc.getTxFinish() == TX_NO; // || !txMgr.isTxVisible(doc.getTxFinish());
-		//} catch (BagriException e) {
-			// TODO: log it!
-		//	return false;
-		//} 
+			return doc.getTxFinish() == TX_NO || !txMgr.isTxVisible(doc.getTxFinish());
+		} catch (BagriException ex) {
+			logger.error("apply.error;", ex);
+			return false;
+		} 
 	}
 
 	@Override
