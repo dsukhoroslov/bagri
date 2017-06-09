@@ -164,7 +164,7 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 							stream.write(data.getName(), (Long) data.getValue());
 							break;
 						default:
-							stream.write(data.getName(), (String) data.getValue());
+							stream.write(data.getName(), data.getValue().toString());
 					}
 				}
 				break;
@@ -193,7 +193,7 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 							stream.write((Long) data.getValue());
 							break;
 						default:
-							stream.write((String) data.getValue());
+							stream.write(data.getValue().toString());
 					}
 				}
 				break;

@@ -218,7 +218,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		this.xdmFactory = factory;
 	}
 	
-	private ContentHandler getHandler(String dataFormat) {
+	ContentHandler getHandler(String dataFormat) {
 		logger.trace("getHandler.enter; got dataFormat: {}", dataFormat); 
 		ContentHandler ch = handlers.get(dataFormat);
 		if (ch == null) {

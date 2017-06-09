@@ -28,7 +28,7 @@ public abstract class DocumentManagementBase extends com.bagri.core.api.impl.Doc
 		this.model = model;
 	}
 
-    public abstract Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, Object> params) throws BagriException;
+    //public abstract Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, Object> params) throws BagriException;
 
 	public Data getDataRoot(List<Data> elements) {
 		for (Data data: elements) {

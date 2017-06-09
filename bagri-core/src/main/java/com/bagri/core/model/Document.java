@@ -26,7 +26,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	private long documentKey;
 	private String uri;
 	private String root;
-	private String encoding;
+	private String format;
 	private long txStart;
 	private long txFinish;
 	private long createdAt;
@@ -53,7 +53,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	 * @param elts the size of document in elements
 	 */
 	public Document(long docKey, String uri, String root, String owner, long txId, int bytes, int elts) {
-		this(docKey, uri, root, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+		this(docKey, uri, root, txId, 0, new Date(), owner, "XML/" + def_encoding, bytes, elts);
 	}
 
 	/**
@@ -65,12 +65,12 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	 * @param txFinish the transaction id finished the document
 	 * @param createdAt the date/time when the document was created
 	 * @param createdBy the document's owner
-	 * @param encoding the document's encoding
+	 * @param format the document's format
 	 * @param bytes the size of document in bytes
 	 * @param elts the size of document in elements
 	 */
 	public Document(long docKey, String uri, String root, long txStart, long txFinish, Date createdAt, 
-			String createdBy, String encoding, int bytes, int elts) {
+			String createdBy, String format, int bytes, int elts) {
 		this.documentKey = docKey; //toKey(hash, revision, version);
 		this.uri = uri;
 		this.root = root;
@@ -78,7 +78,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 		this.txFinish = txFinish;
 		this.createdAt = createdAt.getTime();
 		this.createdBy = createdBy.intern();
-		this.encoding = encoding.intern();
+		this.format = format.intern();
 		this.bytes = bytes;
 		this.elements = elts;
 	}
@@ -126,10 +126,34 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	}
 
 	/**
-	 * @return the document's encoding
+	 * @return the document's content type
+	 */
+	public String getContentType() {
+		int pos = format.indexOf("/");
+		if (pos > 0) {
+			return format.substring(0, pos);
+		} else if (pos == 0 && format.length() > 1) {
+			return format.substring(1);
+		}
+		return format;
+	}
+	
+	/**
+	 * @return the document's content type
 	 */
 	public String getEncoding() {
-		return encoding;
+		int pos = format.indexOf("/");
+		if (pos >= 0) {
+			return format.substring(pos + 1);
+		}
+		return format;
+	}
+	
+	/**
+	 * @return the document's format
+	 */
+	public String getFormat() {
+		return format;
 	}
 	
 	/**
@@ -267,7 +291,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 		result.put("bytes", bytes);
 		result.put("elements", elements);
 		result.put("root", root);
-		result.put("encoding", encoding);
+		result.put("format", format);
 		result.put("txStart", txStart);
 		result.put("txFinish", txFinish);
 		result.put("created at", getCreatedAt().toString());
@@ -285,7 +309,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	public String toString() {
 		return "Document [key=" + documentKey + ", version=" + getVersion()
 				+ ", uri=" + uri + ", root=" + root + ", createdAt=" + getCreatedAt()
-				+ ", createdBy=" + createdBy + ", encoding=" + encoding + ", bytes=" + bytes  
+				+ ", createdBy=" + createdBy + ", format=" + format + ", bytes=" + bytes  
 				+ ", txStart=" + txStart + ", txFinish=" + txFinish + ", elements=" + elements 
 				+ ", number of fragments=" + getFragments().length
 				+ ", collections=" + Arrays.toString(getCollections()) + "]";

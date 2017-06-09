@@ -21,6 +21,11 @@ public class JsonpHandler extends ContentHandlerBase implements ContentHandler {
 	public String getDataFormat() {
 		return "JSON";
 	}
+	
+	@Override
+	public boolean isStringFormat() {
+		return true;
+	}
 
 	@Override
 	public ContentBuilder<String> getBuilder() {

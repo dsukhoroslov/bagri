@@ -96,7 +96,7 @@
         <xstream.version>1.4.9</xstream.version>
         <xerces.version>2.11.0</xerces.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <saxon.version>9.7.0-15</saxon.version>
+        <saxon.version>9.7.0-18</saxon.version>
         <json.version>1.0</json.version>
         <json.ri.version>1.0.4</json.ri.version>
         <jackson.version>2.5.2</jackson.version>

@@ -45,7 +45,7 @@ public class DocumentSerializer implements StreamSerializer<Document> {
 		out.writeLong(xDoc.getTxFinish());
 		out.writeLong(xDoc.getCreatedAt().getTime());
 		out.writeUTF(xDoc.getCreatedBy());
-		out.writeUTF(xDoc.getEncoding());
+		out.writeUTF(xDoc.getFormat());
 		out.writeInt(xDoc.getBytes());
 		out.writeInt(xDoc.getElements());
 		out.writeIntArray(xDoc.getCollections());

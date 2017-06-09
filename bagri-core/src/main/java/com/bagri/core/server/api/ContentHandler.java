@@ -12,6 +12,12 @@ public interface ContentHandler {
 	
 	/**
 	 * 
+	 * @return true if content is a String, false otherwise
+	 */
+	boolean isStringFormat();
+	
+	/**
+	 * 
 	 * @return Builder which is used to build content with corresponding data format 
 	 */
 	ContentBuilder<?> getBuilder();

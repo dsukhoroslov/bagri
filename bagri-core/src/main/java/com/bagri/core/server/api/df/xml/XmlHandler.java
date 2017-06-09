@@ -23,6 +23,11 @@ public class XmlHandler extends ContentHandlerBase implements ContentHandler {
 	}
 
 	@Override
+	public boolean isStringFormat() {
+		return true;
+	}
+
+	@Override
 	public ContentBuilder<String> getBuilder() {
 		if (cb == null) {
 			cb = new XmlBuilder(modelMgr);

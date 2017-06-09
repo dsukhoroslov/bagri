@@ -23,6 +23,11 @@ public class MapHandler extends ContentHandlerBase implements ContentHandler {
 	}
 
 	@Override
+	public boolean isStringFormat() {
+		return false;
+	}
+
+	@Override
 	public ContentBuilder<Map<String, Object>> getBuilder() {
 		if (cb == null) {
 			cb = new MapBuilder(modelMgr);

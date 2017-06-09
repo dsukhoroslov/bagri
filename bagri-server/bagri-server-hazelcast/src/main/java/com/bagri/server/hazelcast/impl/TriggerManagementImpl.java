@@ -46,7 +46,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 
 	private HazelcastInstance hzInstance;
 	//private IMap<Integer, TriggerDefinition> trgDict;
-    private Map<String, List<TriggerContainer>> triggers = new HashMap<>();
+    private Map<String, List<TriggerContainer<DocumentTrigger>>> triggers = new HashMap<>();
 	private IExecutorService execService;
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -84,9 +84,9 @@ public class TriggerManagementImpl implements TriggerManagement {
     void applyTrigger(final Document xDoc, final Order order, final Scope scope) throws BagriException {
     	//
 		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
-    	List<TriggerContainer> impls = triggers.get(key);
+    	List<TriggerContainer<DocumentTrigger>> impls = triggers.get(key);
     	if (impls != null) {
-    		for (TriggerContainer impl: impls) {
+    		for (TriggerContainer<DocumentTrigger> impl: impls) {
 				logger.trace("applyTrigger; about to fire trigger {}, on document: {}", impl, key);
 				final DocumentTrigger trigger = impl.getImplementation(); 
 				if (impl.isSynchronous()) {
@@ -108,9 +108,9 @@ public class TriggerManagementImpl implements TriggerManagement {
     public void runTrigger(Order order, Scope scope, Document xDoc, int index, String clientId) throws BagriException {
 
 		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
-    	List<TriggerContainer> impls = triggers.get(key);
+    	List<TriggerContainer<DocumentTrigger>> impls = triggers.get(key);
     	if (impls != null) {
-    		TriggerContainer impl = impls.get(index);
+    		TriggerContainer<DocumentTrigger> impl = impls.get(index);
     		repo.getXQProcessor(clientId);
     		runTrigger(order, scope, xDoc, impl.getImplementation());
     	}    	
@@ -167,7 +167,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 			if (impl != null) {
 				for (TriggerAction action: trigger.getActions()) {
 					String key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
-					List<TriggerContainer> impls = triggers.get(key);
+					List<TriggerContainer<DocumentTrigger>> impls = triggers.get(key);
 					if (impls == null) {
 						impls = new LinkedList<>();
 						triggers.put(key, impls);
@@ -178,7 +178,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 								index, impls.size());
 						index = impls.size();
 					}
-					TriggerContainer cont = new TriggerContainer(index, trigger.isSynchronous(), impl);
+					TriggerContainer<DocumentTrigger> cont = new TriggerContainer<>(index, trigger.isSynchronous(), impl);
 					impls.add(index, cont);
 				}
 				result = true;
@@ -283,7 +283,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 		int cnt = 0;
 		for (TriggerAction action: trigger.getActions()) {
 			String key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
-			List<TriggerContainer> impls = triggers.get(key);
+			List<TriggerContainer<DocumentTrigger>> impls = triggers.get(key);
 			if (impls != null) {
 				impls.remove(trigger.getIndex());
 				cnt++;

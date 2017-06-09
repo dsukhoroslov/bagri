@@ -13,7 +13,7 @@ public class Null implements Comparable {
 	
 	@Override
 	public String toString() {
-		return "";
+		return "null"; 
 	}
 	
 }

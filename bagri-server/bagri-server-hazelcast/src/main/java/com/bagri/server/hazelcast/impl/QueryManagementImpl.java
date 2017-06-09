@@ -4,9 +4,10 @@ import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_client_id;
 import static com.bagri.core.Constants.pn_query_command;
 import static com.bagri.core.Constants.pn_xqj_scrollability;
+import static com.bagri.core.Constants.pn_schema_fetch_size;
+import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.support.util.XQUtils.getAtomicValue;
 import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
-import static com.bagri.core.Constants.pn_schema_fetch_size;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -569,7 +570,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		Collection<Long> docKeys = getDocumentIds(query);
 		if (docKeys.size() > 0) {
-			return docMgr.buildDocument(new HashSet<>(docKeys), template, params);
+			return docMgr.buildContent(new HashSet<>(docKeys), template, params, df_xml);
 		}
 		return Collections.emptyList();
 	}

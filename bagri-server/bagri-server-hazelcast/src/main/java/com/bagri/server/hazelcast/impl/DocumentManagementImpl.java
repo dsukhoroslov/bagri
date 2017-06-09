@@ -41,6 +41,7 @@ import com.bagri.core.model.Elements;
 import com.bagri.core.model.FragmentedDocument;
 import com.bagri.core.model.Path;
 import com.bagri.core.model.Transaction;
+import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.impl.DocumentManagementBase;
@@ -58,9 +59,6 @@ import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.impl.recordstore.RecordStore;
-import com.hazelcast.projection.Projection;
-import com.hazelcast.projection.Projections;
 import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -369,19 +367,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return uris;
 	}
 
-	@Override
-	public java.util.Collection<String> buildDocument(Set<Long> docKeys, String template, Map<String, Object> params) throws BagriException {
-        logger.trace("buildDocument.enter; docKeys: {}", docKeys.size());
-		long stamp = System.currentTimeMillis();
-        java.util.Collection<String> result = new ArrayList<String>(docKeys.size());
+	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {
 		
+        logger.trace("buildContent.enter; docKeys: {}", docKeys.size());
+        ContentBuilder builder = repo.getBuilder(dataFormat);
+        if (builder == null) {
+			logger.info("buildContent.exit; no Handler found for dataFormat {}", dataFormat);
+        	return null;
+        }
+        
+		long stamp = System.currentTimeMillis();
+        java.util.Collection<String> result = new ArrayList<>(docKeys.size());
+		
+        
         String root = null;
 		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
 			DocumentKey docKey = factory.newDocumentKey(itr.next());
 			if (ddSvc.isLocalKey(docKey)) {
 				Document doc = xddCache.get(docKey);
 				if (doc == null) {
-					logger.info("buildDocument; lost document for key {}", docKey);
+					logger.info("buildContent; lost document for key {}", docKey);
 					continue;
 				}
 
@@ -389,21 +394,24 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				for (Map.Entry<String, Object> param: params.entrySet()) {
 					String key = param.getKey();
 					String path = param.getValue().toString();
-					String content = null;
+					Object content = null;
 					if (path.equals(root)) {
 						// TODO: get and convert to string?
-						content = (String) cntCache.get(docKey);
+						content = cntCache.get(docKey);
 					}
 					if (content == null) {
-				        logger.trace("buildDocument; no content found for doc key: {}", docKey);
-						content = buildElement(path, doc.getFragments());
+				        logger.trace("buildContent; no content found for doc key: {}", docKey);
+						content = buildElement(path, doc.getFragments(), builder);
 					}
-					int pos = 0;
-					while (true) {
-						int idx = buff.indexOf(key, pos);
-						if (idx < 0) break;
-						buff.replace(idx, idx + key.length(), content);
-						pos = idx + content.length();
+					if (content != null) {
+						String str = content.toString();
+						int pos = 0;
+						while (true) {
+							int idx = buff.indexOf(key, pos);
+							if (idx < 0) break;
+							buff.replace(idx, idx + key.length(), str);
+							pos = idx + str.length();
+						}
 					}
 				}
 				result.add(buff.toString());
@@ -421,14 +429,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
     
 	@SuppressWarnings("unchecked")
-	private String buildElement(String path, long[] fragments) throws BagriException {
-        logger.trace("buildElement.enter; got path: {}", path); 
+	private Object buildElement(String path, long[] fragments, ContentBuilder<?> builder) throws BagriException {
     	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
-    	// TODO: it can be other format...
-    	String dataFormat = df_xml;
-    	String content = (String) repo.getBuilder(dataFormat).buildContent(xdmCache.getAll(xdKeys));
-        logger.trace("buildXml.exit; returning xml length: {}", content.length()); 
-       	return content;
+    	return builder.buildContent(xdmCache.getAll(xdKeys));
     }
     
 	@Override
@@ -501,33 +504,48 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public String getDocumentAsString(DocumentKey docKey, Properties props) throws BagriException {
 		
-		// TODO: get and convert to string
-		String content = (String) cntCache.get(docKey);
+		Document doc = getDocument(docKey);
+		if (doc == null) {
+			logger.info("getDocumentAsString; no document found for key: {}", docKey);
+			return null;
+		}
+
+		String docFormat = doc.getContentType();
+		String dataFormat = null;
+		if (props != null) {
+			props.getProperty(pn_document_data_format);
+		}
+		if (dataFormat == null) {
+			dataFormat = docFormat;
+		}
+		if (!repo.getHandler(dataFormat).isStringFormat()) {
+			logger.info("getDocumentAsString; no String format specified for document {}", docKey);
+			return null;
+		}
+
+		Object content = null;
+		boolean sameFormat = dataFormat.equals(docFormat); 
+		if (sameFormat) {
+			// no need for conversion
+			content = cntCache.get(docKey);
+		}
 		if (content == null) {
-			Document doc = getDocument(docKey);
-			if (doc == null) {
-				logger.info("getDocumentAsString; no document found for key: {}", docKey);
-				return null;
-			}
-			// TODO: check Properties for document content production!
-			// get Builder type from props, for instance..
-			
 			// if docId is not local then buildDocument returns null!
 			// query docId owner node for the XML instead
 			if (ddSvc.isLocalKey(docKey)) {
 				Map<String, Object> params = new HashMap<>();
 				params.put(":doc", doc.getTypeRoot());
-				java.util.Collection<String> results = buildDocument(Collections.singleton(docKey.getKey()), ":doc", params);
-				if (!results.isEmpty()) {
+				java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
+				if (sameFormat && !results.isEmpty()) {
 					content = results.iterator().next();
 					cntCache.set(docKey, content);
 				}
 			} else {
 				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), txManager.getCurrentTxId(), doc.getUri(), props); 
-				content = (String) xddCache.executeOnKey(docKey, xp);
+				content = xddCache.executeOnKey(docKey, xp);
 			}
 		}
-		return content;
+		return (String) content;
 	}
 
 	@Override
@@ -611,6 +629,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		List<Data> data;
 		int length = 0;
+		dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		try {
 			data = parser.parse(content);
@@ -630,9 +649,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		String root = data.get(0).getDataPath().getRoot();
 		Document doc;
 		if (fragments.size() == 0) {
-			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, length, data.size());
+			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, dataFormat + "/" + def_encoding, length, data.size());
 		} else {
-			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, def_encoding, length, data.size());
+			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, dataFormat + "/" + def_encoding, length, data.size());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=0; i < fragments.size(); i++) {
@@ -768,7 +787,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		int length = 0; // get it from parser somehow
 		String root = data.get(0).getDataPath().getRoot();
 		Set<Integer> ids = processElements(key, data);
-		Document newDoc = new Document(key, uri, root, txId, TX_NO, new Date(), repo.getUserName(), def_encoding, length, data.size());
+		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
+		Document newDoc = new Document(key, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());
 
 		String collections = props == null ? null : props.getProperty(pn_document_collections);
 		if (collections != null) {
@@ -906,9 +926,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (dataFormat == null) {
 			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
 		}
-		
+		dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		List<Data> data = parser.parse(content);
+		if (props == null) {
+			props = new Properties();
+		}
+		props.setProperty(pn_document_data_format, dataFormat);
 		
 		// if fragmented document - process it in the old style!
 		

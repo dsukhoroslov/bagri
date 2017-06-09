@@ -8,6 +8,7 @@ public class DocumentBean {
 	public String uri;
 	public long createdAt;
 	public String createdBy;
+	public String format;
 	public String encoding;
 	public int size;
 
@@ -15,11 +16,12 @@ public class DocumentBean {
     	//
     }
     
-    public DocumentBean(String uri, long createdAt, String createdBy, String encoding, int size) {
+    public DocumentBean(String uri, long createdAt, String createdBy, String format, String encoding, int size) {
 		super();
 		this.uri = uri;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
+		this.format = format;
 		this.encoding = encoding;
 		this.size = size;
 	}
