@@ -120,7 +120,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 		// provide builder's copy here.
 		exCont = query.getContainer(collectId);
-		ResourceCollection result = new ResourceCollectionImpl(collectionURI, repo, exCont);
+		ResourceCollection result = new ResourceCollectionImpl(context.getConfiguration(), collectionURI, repo, exCont);
 		logger.trace("findCollection. returning result: {} for collection ID: {}", result, collectId);
 		return result;
 	}

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Properties;
 
 import javax.xml.transform.stream.StreamSource;
 
@@ -24,6 +25,7 @@ import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.QueryManagement;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
 import net.sf.saxon.lib.ResourceCollection;
@@ -34,6 +36,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	
     private static final Logger logger = LoggerFactory.getLogger(ResourceCollectionImpl.class);
 	
+    private Configuration config;
 	private String uri;
     private SchemaRepository repo;
 	private ExpressionContainer query;
@@ -41,13 +44,15 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	private Iterator<Long> iter = null;
 	
 	
-	public ResourceCollectionImpl(String uri, Collection<Long> docIds) {
+	public ResourceCollectionImpl(Configuration config, String uri, Collection<Long> docIds) {
+		this.config = config;
 		this.uri = uri;
 		this.docIds = new ArrayList<>(docIds);
 		this.iter = docIds.iterator();
 	}
 
-	public ResourceCollectionImpl(String uri, SchemaRepository repo, ExpressionContainer query) {
+	public ResourceCollectionImpl(Configuration config, String uri, SchemaRepository repo, ExpressionContainer query) {
+		this.config = config;
 		this.uri = uri;
 		this.repo = repo;
 		this.query = query;
@@ -145,14 +150,18 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		public Resource next() {
 			Long docKey = ResourceCollectionImpl.this.next();
 			if (docKey != null) {
-				String content;
 				try {
-					content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey, null);
+					String type = ((DocumentManagement) repo.getDocumentManagement()).getDocumentContentType(docKey);
+					if ("MAP".equals(type)) {
+				        return new MapResourceImpl(config, (DocumentManagement) repo.getDocumentManagement(), docKey);
+					}
+					
+					Properties props = null;
+					String content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey, props);
 					if (content != null && !content.isEmpty()) {
 						logger.trace("next; got content: {}", content.length());
 						String xref = bg_schema + ":/" + docKey;
-						String type = ((DocumentManagement) repo.getDocumentManagement()).getDocumentContentType(docKey);
-						if (mt_json.equals(type)) {
+						if ("JSON".equals(type) || mt_json.equals(type)) {
 							try {
 								InputStream is = new ByteArrayInputStream(content.getBytes(def_encoding));
 								return new JSONResource(xref, is);

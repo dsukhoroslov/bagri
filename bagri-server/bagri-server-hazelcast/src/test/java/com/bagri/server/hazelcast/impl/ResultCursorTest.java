@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
@@ -174,6 +175,43 @@ public class ResultCursorTest extends BagriManagementTest {
 		
 		th1.start();
 		th2.start();
-		
 	}
+	
+	@Test
+	public void fetchMapTest() throws Exception {
+	    Properties props = new Properties();
+		props.setProperty(pn_document_data_format, "MAP");
+		long txId = xRepo.getTxManagement().beginTransaction();
+		for (int i=0; i < 100; i++) {
+			Map<String, Object> map = new HashMap<>();
+			map.put("intProp", i); 
+			map.put("boolProp", i % 2 == 0);
+			map.put("strProp", "XYZ" + i);
+			Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test_" + i, map, props);
+			assertNotNull(mDoc);
+			assertEquals(txId, mDoc.getTxStart());
+			uris.add(mDoc.getUri());
+		}
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				//"declare variable $value external;\n" +
+				"for $doc in fn:collection()\n" +
+				"where m:get($doc, 'intProp') >= 20\n" +
+				"return serialize($doc, map{'method': 'json'})";
+
+		props.setProperty(pn_xqj_scrollability, "1");
+		props.setProperty(pn_client_fetchSize, "5");
+		Map<String, Object> params = new HashMap<>();
+		//params.put("value", 1);
+		try (ResultCursor results = query(query, params, props)) {
+			for (int i=0; i < 5; i++) {
+				assertTrue(results.next());
+				String text = results.getString();
+				assertNotNull(text);
+			}
+			assertFalse(results.next());
+		}
+	}
+	
 }
