@@ -277,9 +277,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return content; 
 	}
 
+	@Override
+	public String getDocumentContentType(long docKey) throws BagriException {
+		Document doc = getDocument(docKey);
+		if (doc != null) {
+			return doc.getContentType();
+		}
+		
+		String def = repo.getSchema().getProperty(pn_schema_format_default);
+		DataFormat df = repo.getDataFormat(def);
+		if (df == null) {
+			return mt_xml;
+		}
+		return df.getType();
+	}
+	
     private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
-    	//Set<DocumentKey> keys = xddCache.localKeySet(Predicates.equal(fnUri, uri));
-    	//if (keys.isEmpty()) {
     	DocumentKey last = ddSvc.getLastKeyForUri(uri);
     	if (last == null) {
 			DocumentKey key = factory.newDocumentKey(uri, 0, dvFirst);
@@ -446,18 +459,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
 		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
-		//RecordStore<?> rs = svc.getRecordStore(uri, CN_XDM_CONTENT);
-		//Set<com.hazelcast.nio.serialization.Data> keys = rs.keySet();
-		//int partId = svc.getPartitionId(uri.hashCode());
-		//DocumentKey docKey = getDocumentKey(uri, false, false);
-		//logger.info("getDocumentAsMap; got uri: {}, hash: {}; uri partId: {}, docKey partId: {}", 
-		//		uri, uri.hashCode(), partId, svc.getPartitionId(docKey));
-		
-		Map<String, Object> result = getDocumentAsMap(docKey, props);  
-		if (result == null) {
-			logger.info("getDocumentAsMap; no document found for uri: {}; key: {}", uri, docKey);
-		}
-		return result;
+		return getDocumentAsMap(docKey, props);  
+	}
+
+	@Override
+	public Map<String, Object> getDocumentAsMap(long docKey, Properties props) throws BagriException {
+		DocumentKey xdmKey = factory.newDocumentKey(docKey);
+		return getDocumentAsMap(xdmKey, props);
 	}
 
 	@Override
@@ -548,17 +556,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return (String) content;
 	}
 
-	@Override
-	public String getDocumentContentType(long docKey) throws BagriException {
-		// TODO: get it from the document itself?
-		String def = repo.getSchema().getProperty(pn_schema_format_default);
-		DataFormat df = repo.getDataFormat(def);
-		if (df == null) {
-			return mt_xml;
-		}
-		return df.getType();
-	}
-	
 	private Collection getTypedCollection(Schema schema, String typePath) {
 		for (Collection collect: schema.getCollections()) {
 			String cPath = collect.getDocumentType();

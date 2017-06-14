@@ -811,7 +811,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			count = qc.serialize(repo.getHzInstance());
 			xqCursor = qc;
 		}
-		logger.trace("createCursor.exit; serialized: {} results", count);
+		logger.info("createCursor.exit; serialized: {} results", count);
 		return xqCursor;
 	}
 	

@@ -84,7 +84,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 				}
 				if (!commit) {
 					// just delete the doc and all its relatives: elements, content, source, cached result
-					docMgr.cleanDocument(dk, true); //false);
+					docMgr.cleanDocument(dk, true); 
 				} 
 			}
 			for (DocumentKey dk: dkFinished) {
@@ -95,7 +95,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 				} else {
 					// deleted
 					result.updateCounters(0, 0, 1);
-					logger.debug("call: found deleted documents; started: {}; finished: {}; newkey: {}", dkStarted, dkFinished, nk);
+					logger.trace("call: found deleted documents; started: {}; finished: {}; newkey: {}", dkStarted, dkFinished, nk);
 				}
 				if (commit) {
 					// just delete doc relatives: elements, content, source, cached result

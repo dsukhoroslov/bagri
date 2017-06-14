@@ -20,6 +20,16 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	/**
 	 * provides XDM Document content for the internal document key
 	 * 
+	 * @param docKey the internal Document key represented as long 
+	 * @param props result production properties
+	 * @return Map&lt;String, Object&gt; representing the XDM document
+	 * @throws BagriException in case of any error
+	 */
+	Map<String, Object> getDocumentAsMap(long docKey, Properties props) throws BagriException;
+	
+	/**
+	 * provides XDM Document content for the internal document key
+	 * 
 	 * @param docKey the internal Document key 
 	 * @param props result production properties
 	 * @return Map&lt;String, Object&gt; representing the XDM document
