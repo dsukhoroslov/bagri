@@ -1,5 +1,7 @@
 package com.bagri.core.server.api.df.map;
 
+import static com.bagri.support.util.XQUtils.getBaseTypeForObject;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
@@ -7,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQException;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
@@ -35,9 +37,15 @@ public class MapParser extends ContentParserBase implements ContentParser<Map<St
 		ctx.addData("map"); 
 		ctx.addElement(); 
 		// very simple map.
-		// implement nested maps, proper datatypes, arrays, etc..
-		for (Map.Entry<String, Object> e: source.entrySet()) {
-			ctx.addData("@" + e.getKey(), NodeKind.attribute, e.getValue(), XQItemType.XQBASETYPE_STRING, Occurrence.zeroOrOne);
+		// implement nested maps, arrays, etc..
+		try {
+			for (Map.Entry<String, Object> e: source.entrySet()) {
+				int baseType = getBaseTypeForObject(e.getValue());
+				ctx.addData("@" + e.getKey(), NodeKind.attribute, e.getValue(), baseType, Occurrence.zeroOrOne);
+			}
+		} catch (XQException ex) {
+			// TODO Auto-generated catch block
+			ex.printStackTrace();
 		}
 		ctx.endElement();
 		return ctx.getDataList();

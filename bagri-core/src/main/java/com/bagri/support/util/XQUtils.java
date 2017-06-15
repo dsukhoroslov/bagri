@@ -477,31 +477,43 @@ public class XQUtils {
 			return getTypeForNode(factory, (org.w3c.dom.Node) value);
 		}
 		
-		int baseType = XQBASETYPE_ANYATOMICTYPE; //XQBASETYPE_ANYTYPE;
+		int baseType = getBaseTypeForObject(value);
+		return factory.createAtomicType(baseType, getTypeName(baseType), null);
+	}
+	
+    /**
+     * finds XQJ item type XQBASETYPE constant for the {@code value} specified
+     * 
+     * @param value the value to get item type from
+     * @return XQBASETYPE constant item type 
+     * @throws XQException in case of resolution error
+     */
+	public static int getBaseTypeForObject(Object value) throws XQException {
+		
 		if (value instanceof XQItem) {
 			value = ((XQItem) value).getObject();
 		}
 		
 		if (value instanceof Integer) {
-			baseType = XQBASETYPE_INT; 
+			return XQBASETYPE_INT; 
 		} else if (value instanceof Long) {
-			baseType = XQBASETYPE_LONG;
+			return XQBASETYPE_LONG;
 		} else if (value instanceof Double) {
-			baseType = XQBASETYPE_DOUBLE;
+			return XQBASETYPE_DOUBLE;
 		} else if (value instanceof Boolean) {
-			baseType = XQBASETYPE_BOOLEAN;
+			return XQBASETYPE_BOOLEAN;
 		} else if (value instanceof Short) {
-			baseType = XQBASETYPE_SHORT;
+			return XQBASETYPE_SHORT;
 		} else if (value instanceof Float) {
-			baseType = XQBASETYPE_FLOAT;
+			return XQBASETYPE_FLOAT;
 		} else if (value instanceof Byte) {
-			baseType = XQBASETYPE_BYTE;
+			return XQBASETYPE_BYTE;
 		} else if (value instanceof String) {
-			baseType = XQBASETYPE_STRING;
+			return XQBASETYPE_STRING;
 		} else if (value instanceof java.math.BigDecimal) {
-			baseType = XQBASETYPE_DECIMAL;
+			return XQBASETYPE_DECIMAL;
 		} else if (value instanceof java.math.BigInteger) {
-			baseType = XQBASETYPE_INTEGER;
+			return XQBASETYPE_INTEGER;
 		} else if (value instanceof javax.xml.datatype.Duration) {
 			javax.xml.datatype.Duration d = (javax.xml.datatype.Duration) value;
 			boolean setYM = d.isSet(YEARS) || d.isSet(MONTHS);
@@ -509,12 +521,12 @@ public class XQUtils {
 					d.isSet(MINUTES) || d.isSet(SECONDS);
 			if (setYM) {
 				if (setDT) {
-					baseType = XQBASETYPE_DURATION;
+					return XQBASETYPE_DURATION;
 				} else {
-					baseType = XQBASETYPE_YEARMONTHDURATION;
+					return XQBASETYPE_YEARMONTHDURATION;
 				}
 			} else {
-				baseType = XQBASETYPE_DAYTIMEDURATION;
+				return XQBASETYPE_DAYTIMEDURATION;
 			}
 		} else if (value instanceof javax.xml.datatype.XMLGregorianCalendar) {
 			javax.xml.datatype.XMLGregorianCalendar c = (javax.xml.datatype.XMLGregorianCalendar) value;
@@ -528,29 +540,29 @@ public class XQUtils {
 				if (setMonth) {
 					if (setDay) {
 						if (setHour || setMinute || setSecond) {
-							baseType = XQBASETYPE_DATETIME;
+							return XQBASETYPE_DATETIME;
 						} else {
-							baseType = XQBASETYPE_DATE;
+							return XQBASETYPE_DATE;
 						}
 					} else {
-						baseType = XQBASETYPE_GYEARMONTH;
+						return XQBASETYPE_GYEARMONTH;
 					}
 				} else {
-					baseType = XQBASETYPE_GYEAR;
+					return XQBASETYPE_GYEAR;
 				}
 			} else {
 				if (setMonth) {
 					if (setDay) {
-						baseType = XQBASETYPE_GMONTHDAY;
+						return XQBASETYPE_GMONTHDAY;
 					} else {
-						baseType = XQBASETYPE_GMONTH;
+						return XQBASETYPE_GMONTH;
 					}
 				} else {
 					if (setDay) {
-						baseType = XQBASETYPE_GDAY;
+						return XQBASETYPE_GDAY;
 					} else {
 						if (setHour || setMinute || setSecond) {
-							baseType = XQBASETYPE_TIME;
+							return XQBASETYPE_TIME;
 						} else {
 							throw new XQException("Unknown Calendar type: " + c);
 						}
@@ -558,11 +570,14 @@ public class XQUtils {
 				}
 			}
 		} else if (value instanceof javax.xml.namespace.QName) {
-			baseType = XQBASETYPE_QNAME;
+			return XQBASETYPE_QNAME;
+		} else if (value instanceof org.w3c.dom.Node) { //??
+			return XQBASETYPE_ANYTYPE;
 		}
 
-		return factory.createAtomicType(baseType, getTypeName(baseType), null);
+		return XQBASETYPE_ANYATOMICTYPE; 
 	}
+
 
     /**
      * constructs XQJ item type for the w3c {@link Node} instance provided

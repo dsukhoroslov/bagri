@@ -13,7 +13,7 @@ import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.trans.XPathException;
 
-public class XQIterator implements Iterator {
+public class XQIterator implements Iterator<Object> {
 
 	private static final Logger logger = LoggerFactory.getLogger(XQIterator.class);
 	

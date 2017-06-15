@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQQueryException;

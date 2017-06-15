@@ -48,6 +48,7 @@ public class XQSequenceIterator implements SequenceIterator {
 
 	@Override
 	public SequenceIterator getAnother() throws XPathException {
+		logger.trace("getAnother; requested new iterator instance");
 		return null; // new XQSequenceIterator(xqs, config); //??
 	}
 

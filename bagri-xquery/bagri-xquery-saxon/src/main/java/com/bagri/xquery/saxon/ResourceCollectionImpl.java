@@ -1,20 +1,11 @@
 package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.bg_schema;
-import static com.bagri.core.Constants.mt_json;
-import static com.bagri.support.util.FileUtils.def_encoding;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Properties;
-
-import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +16,15 @@ import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.QueryManagement;
 
-import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
 import net.sf.saxon.lib.ResourceCollection;
-import net.sf.saxon.resource.JSONResource;
 import net.sf.saxon.trans.XPathException;
 
 public class ResourceCollectionImpl implements ResourceCollection {
 	
     private static final Logger logger = LoggerFactory.getLogger(ResourceCollectionImpl.class);
 	
-    private Configuration config;
 	private String uri;
     private SchemaRepository repo;
 	private ExpressionContainer query;
@@ -44,26 +32,23 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	private Iterator<Long> iter = null;
 	
 	
-	public ResourceCollectionImpl(Configuration config, String uri, Collection<Long> docIds) {
-		this.config = config;
+	public ResourceCollectionImpl(String uri, Collection<Long> docIds) {
 		this.uri = uri;
 		this.docIds = new ArrayList<>(docIds);
 		this.iter = docIds.iterator();
 	}
 
-	public ResourceCollectionImpl(Configuration config, String uri, SchemaRepository repo, ExpressionContainer query) {
-		this.config = config;
+	public ResourceCollectionImpl(String uri, SchemaRepository repo, ExpressionContainer query) {
 		this.uri = uri;
 		this.repo = repo;
 		this.query = query;
 	}
 	
-	private void loadData() { //throws XPathException {
+	private void loadData() { 
 		try {
 			docIds = ((QueryManagement) repo.getQueryManagement()).getDocumentIds(query);
 		} catch (BagriException ex) {
 			logger.error("loadData.error;", ex);
-			//throw new XPathException(ex);
 			docIds = Collections.emptyList();
 		}
 		logger.trace("loadData; got {} document ids", docIds.size());
@@ -79,7 +64,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		return result;
 	}
 	
-	private Long next() { //throws XPathException {
+	private Long next() { 
 		logger.trace("next.enter");
 		if (docIds == null) {
 			loadData();
@@ -117,7 +102,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	}
 	
 	public class UriIterator implements Iterator<String> {
-
+		
 		@Override
 		public boolean hasNext() {
 			return ResourceCollectionImpl.this.hasNext();
@@ -151,33 +136,16 @@ public class ResourceCollectionImpl implements ResourceCollection {
 			Long docKey = ResourceCollectionImpl.this.next();
 			if (docKey != null) {
 				try {
-					String type = ((DocumentManagement) repo.getDocumentManagement()).getDocumentContentType(docKey);
+					DocumentManagement docMgr = (DocumentManagement) repo.getDocumentManagement(); 
+					String type = docMgr.getDocumentContentType(docKey);
 					if ("MAP".equals(type)) {
-				        return new MapResourceImpl(config, (DocumentManagement) repo.getDocumentManagement(), docKey);
+						logger.trace("ResourceIterator.next; returning new MapResource for docKey {}", docKey);
+				        return new MapResourceImpl(docMgr, docKey);
+					} else if ("JSON".equals(type)) {
+				        return new JsonResourceImpl(docMgr, docKey);
+					} else {
+						return new XmlResourceImpl(docMgr, docKey);
 					}
-					
-					Properties props = null;
-					String content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey, props);
-					if (content != null && !content.isEmpty()) {
-						logger.trace("next; got content: {}", content.length());
-						String xref = bg_schema + ":/" + docKey;
-						if ("JSON".equals(type) || mt_json.equals(type)) {
-							try {
-								InputStream is = new ByteArrayInputStream(content.getBytes(def_encoding));
-								return new JSONResource(xref, is);
-							} catch (UnsupportedEncodingException ex) {
-								logger.error("next.error", ex);
-								return null;
-							}
-						}
-						
-						StreamSource ss = new StreamSource(new StringReader(content));
-						ss.setSystemId(xref);
-						// an attempt to cache source here?
-						//mgr.storeDocumentSource(docId, ss);
-						return new ResourceImpl(ss);
-					}
-					logger.trace("next. got empty content'");
 				} catch (BagriException ex) {
 					logger.error("next.error", ex);
 				}

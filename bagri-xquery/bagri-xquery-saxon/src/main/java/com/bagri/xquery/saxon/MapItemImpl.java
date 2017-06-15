@@ -2,6 +2,7 @@ package com.bagri.xquery.saxon;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -199,7 +200,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		Object value = source.get(key.getStringValue());
 		if (value != null) {
 			try {
-				SaxonUtils.objectToItem(value, config);
+				return SaxonUtils.objectToItem(value, config);
 			} catch (XPathException ex) {
 				logger.error("get.error; key: {}", key, ex); 
 			}
@@ -291,7 +292,16 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 		@Override
 		public AtomicValue next() {
-			return new StringValue(keys.next());
+			String key = null;
+			try {
+				key = keys.next();
+			} catch (NoSuchElementException ex) {
+				// noop
+			}
+			if (key != null) {
+				return new StringValue(key);
+			}
+			return null;
 		}
 
 		@Override
@@ -316,14 +326,21 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 		@Override
 		public KeyValuePair next() {
-			Map.Entry<String, Object> pair = pairs.next(); 
-			try {
-				Item value = SaxonUtils.objectToItem(pair.getValue(), config);
-				return new KeyValuePair(new StringValue(pair.getKey()), value); 
-			} catch (XPathException ex) {
-				logger.error("next.error;", ex);
+			Map.Entry<String, Object> pair = pairs.next();
+			if (pair != null) {
+				try {
+					Item value = SaxonUtils.objectToItem(pair.getValue(), config);
+					return new KeyValuePair(new StringValue(pair.getKey()), value); 
+				} catch (XPathException ex) {
+					logger.error("MapKeyValueIterator.next.error;", ex);
+				}
 			}
 			return null;
+		}
+
+		@Override
+		public void remove() {
+	        throw new UnsupportedOperationException("remove is not supported");
 		}
 		
 	}
