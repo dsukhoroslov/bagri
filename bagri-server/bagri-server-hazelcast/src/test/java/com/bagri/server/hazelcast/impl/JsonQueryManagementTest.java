@@ -159,8 +159,13 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void queryJsonDocumentsTest() throws Exception {
 	
-		String query = "for $uri in fn:uri-collection(\"securities\")\n" +
-				"let $map := fn:json-doc($uri)\n" +
+		//String query = "for $uri in fn:uri-collection(\"securities\")\n" +
+		//		"let $map := fn:json-doc($uri)\n" +
+		//		"let $sec := get($map, 'Security')\n" +
+		//		"where get($sec, 'id') = 5621\n" +
+		//		"return fn:serialize($map, map{'method': 'json'})";
+		
+		String query = "for $map in fn:collection(\"securities\")\n" +
 				"let $sec := get($map, 'Security')\n" +
 				"where get($sec, 'id') = 5621\n" +
 				"return fn:serialize($map, map{'method': 'json'})";

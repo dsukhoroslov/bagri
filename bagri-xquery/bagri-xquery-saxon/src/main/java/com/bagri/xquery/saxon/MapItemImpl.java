@@ -197,13 +197,19 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public Sequence get(AtomicValue key) {
-		Object value = source.get(key.getStringValue());
+		String sKey = key.getStringValue();
+		if (sKey.startsWith("@")) {
+			sKey = sKey.substring(1);
+		}
+		Object value = source.get(sKey);
 		if (value != null) {
 			try {
 				return SaxonUtils.objectToItem(value, config);
 			} catch (XPathException ex) {
 				logger.error("get.error; key: {}", key, ex); 
 			}
+		} else if ("map".equals(sKey)) {
+			return this;
 		}
 		return null;
 	}

@@ -40,7 +40,7 @@ public class MapParserTest {
 		List<Data> elts = parser.parse(content);
 		//System.out.println(elts);
 		assertNotNull(elts);
-		assertEquals(5, elts.size()); 
+		assertEquals(4, elts.size()); 
 	}
 
 	@Test

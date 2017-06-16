@@ -197,7 +197,7 @@ public class ResultCursorTest extends BagriManagementTest {
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 				//"declare variable $value external;\n" +
 				"for $doc in fn:collection()\n" +
-				"where m:get($doc, 'intProp') >= 20\n" +
+				"where m:get($doc, '@intProp') >= 20\n" +
 				"return serialize($doc, map{'method': 'json'})";
 
 		props.setProperty(pn_xqj_scrollability, "1");

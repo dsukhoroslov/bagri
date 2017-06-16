@@ -33,9 +33,10 @@ public class MapParser extends ContentParserBase implements ContentParser<Map<St
 	@Override
 	public List<Data> parse(Map<String, Object> source) throws BagriException {
 		ParserContext ctx = initContext();
-		ctx.addDocument("/map");
-		ctx.addData("map"); 
-		ctx.addElement(); 
+		//ctx.addDocument("/map");
+		//ctx.addData("map"); 
+		//ctx.addElement(); 
+		ctx.addDocument("/");
 		// very simple map.
 		// implement nested maps, arrays, etc..
 		try {

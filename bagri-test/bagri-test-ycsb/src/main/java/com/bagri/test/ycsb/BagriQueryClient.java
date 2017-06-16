@@ -117,9 +117,9 @@ public class BagriQueryClient extends DB {
 	private static String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 			"declare variable $startKey external;\n" +
 			"for $doc in fn:collection(\"usertable\")\n" +
-			"where m:get($doc, 'map/@key') >= $startKey\n" + 
-			"return fn:serialize($doc, map{'method': 'json'})";
-			//"return $doc";
+			"where m:get($doc, '@key') >= $startKey\n" + 
+			//"return fn:serialize($doc, map{'method': 'json'})";
+			"return $doc";
 
 	@Override
 	public Status scan(final String table, final String startkey, final int recordcount,
@@ -141,9 +141,9 @@ public class BagriQueryClient extends DB {
 			result.ensureCapacity(recordcount);
 			int count = 0;
 			while (cursor.next()) {
-				String xml = cursor.getString();
-				//Map<String, Object> map = (Map<String, Object>) cursor.getObject(); // XMLUtils.mapFromXML(xml);
-				//logger.trace("scan; got map: {} for XML: {}", map, xml);
+				Object value = cursor.getObject();
+				//Map<String, Object> map = (Map<String, Object>) ; // XMLUtils.mapFromXML(xml);
+				logger.trace("scan; got value: {}", value);
 				HashMap<String, ByteIterator> doc = new HashMap<>(); //map.size());
 				//populateResult(map, fields, doc);
 				result.add(doc);
