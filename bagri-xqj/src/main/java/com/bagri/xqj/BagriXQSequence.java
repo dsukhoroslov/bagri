@@ -1,5 +1,6 @@
 package com.bagri.xqj;
 
+import static com.bagri.xqj.BagriXQErrors.ex_item_closed;
 import static com.bagri.xqj.BagriXQErrors.ex_sequence_closed;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import javax.xml.transform.Result;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
 
 import org.xml.sax.ContentHandler;
@@ -35,6 +37,18 @@ public abstract class BagriXQSequence extends BagriXQItemAccessor implements XQS
 		return new BagriXQItem(getXQProcessor(), type, value);
 	}
 
+	//@Override
+	//public XQItemType getItemType() throws XQException {
+		
+	//	if (closed) {
+	//		throw new XQException(ex_item_closed);
+	//	}
+		//if (!positioned) {
+		//	throw new XQException("not positioned on the Item");
+		//}
+	//	return type;
+	//}
+	
 	@Override
 	public XMLStreamReader getSequenceAsStream() throws XQException {
 

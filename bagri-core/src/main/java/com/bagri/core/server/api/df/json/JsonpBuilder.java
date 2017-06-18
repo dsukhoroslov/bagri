@@ -115,6 +115,7 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 	}
 
 	private void writeElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
+		endElement(dataStack, stream, data);
 		switch (data.getNodeKind()) {
 			case document: { // this must be the first row..
 				stream.writeStartObject();
@@ -131,7 +132,6 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 				break;
 			}
 			case element: {
-				endElement(dataStack, stream, data);
 				// must call writeStartObject() in array!
 				Data top = dataStack.peek();
 				if (top != null && top.getNodeKind() == NodeKind.array) {
@@ -144,7 +144,6 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 			}
 			case array: {
 				//..
-				endElement(dataStack, stream, data);
 				stream.writeStartArray(data.getName());
 				dataStack.push(data);
 				break;
@@ -178,7 +177,6 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 				break;
 			}
 			case text: {
-				endElement(dataStack, stream, data);
 				if (data.isNull()) {
 					stream.writeNull();
 				} else {

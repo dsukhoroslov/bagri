@@ -1,10 +1,13 @@
 package com.bagri.core.server.api.df.map;
 
+import static javax.xml.xquery.XQItemType.*;
 import static com.bagri.support.util.XQUtils.getBaseTypeForObject;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -35,21 +38,65 @@ public class MapParser extends ContentParserBase implements ContentParser<Map<St
 		ParserContext ctx = initContext();
 		//ctx.addDocument("/map");
 		//ctx.addData("map"); 
-		//ctx.addElement(); 
 		ctx.addDocument("/");
-		// very simple map.
-		// implement nested maps, arrays, etc..
-		try {
-			for (Map.Entry<String, Object> e: source.entrySet()) {
-				int baseType = getBaseTypeForObject(e.getValue());
-				ctx.addData("@" + e.getKey(), NodeKind.attribute, e.getValue(), baseType, Occurrence.zeroOrOne);
-			}
-		} catch (XQException ex) {
-			// TODO Auto-generated catch block
-			ex.printStackTrace();
-		}
-		ctx.endElement();
+		parseMap(ctx, source);
 		return ctx.getDataList();
+	}
+	
+	private void parseMap(ParserContext ctx, Map content) throws BagriException {
+		try {
+			for (Object o: content.entrySet()) {
+				Map.Entry e = (Map.Entry) o;
+				String key = e.getKey().toString();
+				Object value = e.getValue();
+				int baseType = getBaseTypeForObject(value);
+				if (baseType == XQBASETYPE_ANYTYPE) {
+					// null
+					ctx.addData(key);
+					ctx.addValue();
+				} else if (baseType == XQBASETYPE_ANYATOMICTYPE) {
+					if (value instanceof Map) {
+						ctx.addData(key);
+						ctx.addElement(); 
+						parseMap(ctx, (Map) value);
+						ctx.endElement();
+					} else if (value instanceof Collection) {
+						if (((Collection) value).isEmpty()) {
+							ctx.addData(key);
+							ctx.addArray();
+							ctx.endElement();
+						} else {
+							Object first = ((Collection) value).iterator().next();
+							baseType = getBaseTypeForObject(first);
+							if (baseType == XQBASETYPE_ANYATOMICTYPE) {
+								ctx.addData(key);
+								ctx.addArray();
+								if (first instanceof Map) {
+									Iterator itr = ((Collection) value).iterator();
+									while (itr.hasNext()) {
+										ctx.addElement();
+										parseMap(ctx, (Map) itr.next());
+										ctx.endElement();
+									}
+								} else {
+									// ??
+								}
+								ctx.endElement();
+							} else {
+								ctx.addData("@" + key, NodeKind.attribute, value, baseType, Occurrence.zeroOrMany);
+							}
+						}
+					}
+					//Class<?> cls = value.getClass();
+					//if (cls.isArray()) {
+					//}
+				} else {
+					ctx.addData("@" + key, NodeKind.attribute, value, baseType, Occurrence.zeroOrOne);
+				}
+			}
+		} catch (XQException | BagriException ex) {
+			logger.error("parseMap.error", ex);
+		}
 	}
 
 	@Override

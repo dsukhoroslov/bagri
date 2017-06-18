@@ -1,9 +1,14 @@
 package com.bagri.core.api.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
+import javax.xml.xquery.XQSequence;
 
 import org.w3c.dom.Node;
 
@@ -108,6 +113,31 @@ public abstract class ResultCursorBase implements ResultCursor {
 		XQItemAccessor ci = checkCurrent();
 		try {
 			return ci.getLong();
+		} catch (XQException ex) {
+			throw new BagriException(ex, BagriException.ecQuery);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, Object> getMap() throws BagriException {
+		XQSequence cs = (XQSequence) checkCurrent();
+		try {
+			if (cs.isScrollable()) {
+				cs.beforeFirst();
+			}
+			Map<String, Object> result = new HashMap<>();
+			while (cs.next()) {
+				XQSequence pair = (XQSequence) cs.getObject();
+				pair.next();
+				String key = pair.getAtomicValue();
+				pair.next();
+				Object value = pair.getObject();
+				result.put(key, value);
+			}
+        	return result;
 		} catch (XQException ex) {
 			throw new BagriException(ex, BagriException.ecQuery);
 		}

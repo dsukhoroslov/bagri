@@ -6,12 +6,13 @@ import java.util.List;
 
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQSequence;
 
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.support.util.XQUtils;
 
-public class ScrollableXQSequence extends BagriXQSequence implements XQSequence {
+public class ScrollableXQSequence extends BagriXQSequence { 
 	
 	private List<?> sequence;
 	private int position;
@@ -29,6 +30,12 @@ public class ScrollableXQSequence extends BagriXQSequence implements XQSequence 
 			if (current instanceof XQItem) {
 				XQItem item = (XQItem) current;
 				setCurrent(item.getItemType(), item.getObject());
+			} else if (current instanceof XQSequence) {
+				XQSequence sequence = (XQSequence) current;
+				if (!sequence.isOnItem()) {
+					sequence.first();
+				}
+				setCurrent(sequence.getItemType(), sequence);
 			} else {
 				setCurrent(XQUtils.getTypeForObject(xqFactory, current), current);
 			}

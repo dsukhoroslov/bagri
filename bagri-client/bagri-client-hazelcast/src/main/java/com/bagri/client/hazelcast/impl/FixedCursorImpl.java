@@ -79,11 +79,21 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		setValues((List<Object>) in.readObject());
+		//int size = in.readInt();
+		//List<Object> list = new ArrayList<>(size);
+		//for (int i=0; i < size; i++) {
+		//	list.add(in.readObject());
+		//}
+		//setValues(list);
+		setValues((List) in.readObject());
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
+		//out.writeInt(values.size());
+		//for (int i=0; i < values.size(); i++) {
+		//	out.writeObject(values.get(i));
+		//}
 		out.writeObject(values);
 	}
 

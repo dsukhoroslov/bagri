@@ -32,6 +32,18 @@ public class BagriQueryClient extends DB {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriClient.class);
 
+	private static String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+			"declare variable $startKey external;\n" +
+			"for $doc in fn:collection(\"usertable\")\n" +
+			"where m:get($doc, '@key') >= $startKey\n" + 
+			"return $doc";
+
+	private static String qRead = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+			"declare variable $key external;\n" +
+			"for $doc in fn:collection(\"usertable\")\n" +
+			"where m:get($doc, '@key') = $key\n" + 
+			"return $doc";
+    
 	private int counter = 0;
 	private AtomicLong timer = new AtomicLong(0);
 	private AtomicLong timer2 = new AtomicLong(0);
@@ -74,7 +86,7 @@ public class BagriQueryClient extends DB {
 			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
 			return Status.OK;
 		} catch (Exception ex) {
-			logger.error("insert.error", ex);
+			logger.error("insert.error; key: {}", key, ex);
 			return Status.ERROR;
 		}
 	}
@@ -100,27 +112,27 @@ public class BagriQueryClient extends DB {
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
 		//logger.debug("read.enter; table: {}; startKey: {}; fields: {}",	new Object[] {table, key, fields});
-		try {
-			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key, null);
-			if (map == null) {
+
+		Map<String, Object> params = new HashMap<>(1);
+		params.put("key", key);
+		Properties props = new Properties();
+		//props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
+		props.setProperty(pn_document_data_format, "MAP");
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, props)) {
+			if (cursor.next()) {
+				Map<String, Object> map = cursor.getMap();
+				populateResult(map, fields, result);
+				return Status.OK;
+			} else {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;
 			}
-			populateResult(map, fields, result);
-			return Status.OK;
 		} catch (Exception ex) {
-			logger.error("read.error; key: " + key, ex);
+			logger.error("read.error; key: {}", key, ex);
 			return Status.ERROR;
 		}
 	}
 	
-	private static String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-			"declare variable $startKey external;\n" +
-			"for $doc in fn:collection(\"usertable\")\n" +
-			"where m:get($doc, '@key') >= $startKey\n" + 
-			//"return fn:serialize($doc, map{'method': 'json'})";
-			"return $doc";
-
 	@Override
 	public Status scan(final String table, final String startkey, final int recordcount,
 			final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
@@ -133,25 +145,22 @@ public class BagriQueryClient extends DB {
 		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
 		props.setProperty(pn_document_data_format, "MAP");
 		props.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-		try {
-			long stamp = System.currentTimeMillis();
-			ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, params, props);
-			
+		long stamp = System.currentTimeMillis();
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qScan, params, props)) {
 			timer2.addAndGet(System.currentTimeMillis() - stamp);
 			result.ensureCapacity(recordcount);
 			int count = 0;
+			HashMap<String, ByteIterator> doc = null;
 			while (cursor.next()) {
-				Object value = cursor.getObject();
-				//Map<String, Object> map = (Map<String, Object>) ; // XMLUtils.mapFromXML(xml);
-				logger.trace("scan; got value: {}", value);
-				HashMap<String, ByteIterator> doc = new HashMap<>(); //map.size());
-				//populateResult(map, fields, doc);
+				Map<String, Object> map = cursor.getMap();
+				logger.trace("scan; got map: {}", map);
+				doc = new HashMap<>(map.size());
+				populateResult(map, fields, doc);
 				result.add(doc);
 				if (++count >= recordcount) {
 					break;
 				}
 			}
-			cursor.close();
 			//logger.info("scan; got uris: {}; returning documents: {}; time taken: {}", uris.size(), result.size(), stamp);
 			timer.addAndGet(System.currentTimeMillis() - stamp);
 			counter++;
@@ -177,7 +186,7 @@ public class BagriQueryClient extends DB {
 			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
 			return Status.OK;
 		} catch (Exception ex) {
-			logger.error("update.error", ex);
+			logger.error("update.error; key: {}", key, ex);
 			return Status.ERROR;
 		}
 	}
@@ -188,7 +197,7 @@ public class BagriQueryClient extends DB {
 			xRepo.getDocumentManagement().removeDocument(key);
 			return Status.OK;
 		} catch (Exception ex) {
-			logger.error("delete.error", ex);
+			logger.error("delete.error; key: {}", key, ex);
 			return Status.ERROR;
 		}
 	}

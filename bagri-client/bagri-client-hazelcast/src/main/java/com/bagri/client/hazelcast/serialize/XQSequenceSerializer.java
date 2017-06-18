@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
 
@@ -43,9 +44,9 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 	public XQSequence read(ObjectDataInput in) throws IOException {
 		try {
 			//XQItemType type = in.readObject();
-			List list = (List) in.readObject();
-			logger.trace("read; got list: {}", list);
-			return xqFactory.createSequence(list.iterator());
+			List<XQItemAccessor> items = (List<XQItemAccessor>) in.readObject();
+			logger.trace("read; got items: {}", items);
+			return xqFactory.createSequence(items.iterator());
 		} catch (XQException ex) {
 			throw new IOException(ex);
 		}
@@ -54,20 +55,20 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 	@Override
 	public void write(ObjectDataOutput out, XQSequence sequence) throws IOException {
 		try {
-			XQItemType type = null;
-			boolean typeSerialized = false;
-			List list = new ArrayList();
-			while (sequence.next()) {
-				// what if sequence contains different types ?!
-				if (!typeSerialized) {
-					type = sequence.getItemType();
-					//out.writeObject(type);
-					typeSerialized = true;
-				}
-				list.add(sequence.getItem());
+			if (sequence.isScrollable()) {
+				sequence.beforeFirst();
 			}
-			logger.trace("write; got type: {}; list: {}", type, list);
-			out.writeObject(list);
+			List<XQItemAccessor> items = new ArrayList<>();
+			while (sequence.next()) {
+				Object value = sequence.getObject();
+				if (value instanceof XQItemAccessor) {
+					items.add((XQItemAccessor) value);
+				} else {
+					items.add(sequence.getItem());
+				}
+			}
+			logger.trace("write; writing items: {}", items);
+			out.writeObject(items);
 		} catch (XQException ex) {
 			throw new IOException(ex);
 		}

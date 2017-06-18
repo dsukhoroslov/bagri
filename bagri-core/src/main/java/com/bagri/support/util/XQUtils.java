@@ -320,7 +320,6 @@ public class XQUtils {
     					URI.create(sval);
     					return true;
     				} catch (Exception ex) {
-    					//
     				}
     			}
     			return false;
@@ -332,7 +331,6 @@ public class XQUtils {
     					Boolean.parseBoolean(sval);
     					return true;
     				} catch (Exception e) {
-    					//
     				}
     			}
     			return false;
@@ -490,11 +488,17 @@ public class XQUtils {
      */
 	public static int getBaseTypeForObject(Object value) throws XQException {
 		
+		if (value == null) {
+			return XQBASETYPE_ANYTYPE;
+		}
+		
 		if (value instanceof XQItem) {
 			value = ((XQItem) value).getObject();
 		}
 		
-		if (value instanceof Integer) {
+		if (value instanceof String) {
+			return XQBASETYPE_STRING;
+		} else if (value instanceof Integer) {
 			return XQBASETYPE_INT; 
 		} else if (value instanceof Long) {
 			return XQBASETYPE_LONG;
@@ -508,8 +512,8 @@ public class XQUtils {
 			return XQBASETYPE_FLOAT;
 		} else if (value instanceof Byte) {
 			return XQBASETYPE_BYTE;
-		} else if (value instanceof String) {
-			return XQBASETYPE_STRING;
+		} else if (value instanceof byte[]) {
+			return XQBASETYPE_BASE64BINARY;
 		} else if (value instanceof java.math.BigDecimal) {
 			return XQBASETYPE_DECIMAL;
 		} else if (value instanceof java.math.BigInteger) {
@@ -517,8 +521,7 @@ public class XQUtils {
 		} else if (value instanceof javax.xml.datatype.Duration) {
 			javax.xml.datatype.Duration d = (javax.xml.datatype.Duration) value;
 			boolean setYM = d.isSet(YEARS) || d.isSet(MONTHS);
-			boolean setDT = d.isSet(DAYS) || d.isSet(HOURS) ||
-					d.isSet(MINUTES) || d.isSet(SECONDS);
+			boolean setDT = d.isSet(DAYS) || d.isSet(HOURS) || d.isSet(MINUTES) || d.isSet(SECONDS);
 			if (setYM) {
 				if (setDT) {
 					return XQBASETYPE_DURATION;
@@ -572,7 +575,14 @@ public class XQUtils {
 		} else if (value instanceof javax.xml.namespace.QName) {
 			return XQBASETYPE_QNAME;
 		} else if (value instanceof org.w3c.dom.Node) { //??
-			return XQBASETYPE_ANYTYPE;
+			return XQBASETYPE_UNTYPED;
+		} else if (value instanceof URI) {
+			return XQBASETYPE_ANYURI;
+		}
+		
+		Class<?> cls = value.getClass();
+		if (cls.isEnum()) {
+			return XQBASETYPE_STRING;
 		}
 
 		return XQBASETYPE_ANYATOMICTYPE; 

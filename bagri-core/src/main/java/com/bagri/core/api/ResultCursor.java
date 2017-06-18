@@ -1,6 +1,7 @@
 package com.bagri.core.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.xquery.XQItemAccessor;
@@ -91,6 +92,13 @@ public interface ResultCursor extends AutoCloseable {
 	 * @throws BagriException in case of list access error
 	 */
 	List<Object> getList() throws BagriException;
+	
+	/**
+	 * 
+	 * @return the selected Map
+	 * @throws BagriException in case of list access error
+	 */
+	Map<String, Object> getMap() throws BagriException;
 	
 	/**
 	 * 

@@ -21,6 +21,7 @@ import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQSequence;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
@@ -741,7 +742,7 @@ public class SaxonUtils {
         	AtomicValue key;
         	MapItem mi = (MapItem) item;
         	AtomicIterator itr = mi.keys();
-        	List<List<XQItemAccessor>> pairs = new ArrayList<>(); 
+        	List<XQSequence> pairs = new ArrayList<>(); 
         	while ((key = itr.next()) != null) {
         		Sequence val = mi.get(key);
         		List<XQItemAccessor> pair = new ArrayList<>();
@@ -751,7 +752,9 @@ public class SaxonUtils {
         		} else {
         			pair.add(xqFactory.createSequence(new XQIterator(xqFactory, val.iterate())));
         		}
-        		pairs.add(pair);
+        		XQSequence sq = xqFactory.createSequence(pair.iterator());
+        		pairs.add(sq);
+        		//System.out.println("pair: " + sq + "; is SQ: " + (sq instanceof XQSequence));
         	}
         	return xqFactory.createSequence(pairs.iterator());
         } else if (item instanceof Sequence) {

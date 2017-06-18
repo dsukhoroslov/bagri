@@ -182,6 +182,40 @@ public class ResultCursorTest extends BagriManagementTest {
 	    Properties props = new Properties();
 		props.setProperty(pn_document_data_format, "MAP");
 		long txId = xRepo.getTxManagement().beginTransaction();
+		Map<String, Object> map = new HashMap<>();
+		map.put("intProp", 10); 
+		map.put("boolProp", true);
+		map.put("strProp", "ABC");
+		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test", map, props);
+		assertNotNull(mDoc);
+		assertEquals(txId, mDoc.getTxStart());
+		uris.add(mDoc.getUri());
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				//"declare variable $value external;\n" +
+				"for $doc in fn:collection()\n" +
+				"where m:get($doc, '@intProp') = 10\n" +
+				"return $doc";
+
+		try (ResultCursor results = query(query, null, null)) {
+			assertTrue(results.next());
+			Map<String, Object> doc = results.getMap();
+			assertNotNull(doc);
+			System.out.println(doc);
+			assertEquals(10, doc.get("intProp"));
+			assertEquals(true, doc.get("boolProp"));
+			assertEquals("ABC", doc.get("strProp"));
+			assertFalse(results.next());
+		}
+	}
+	
+	
+	@Test
+	public void fetchMapsTest() throws Exception {
+	    Properties props = new Properties();
+		props.setProperty(pn_document_data_format, "MAP");
+		long txId = xRepo.getTxManagement().beginTransaction();
 		for (int i=0; i < 100; i++) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("intProp", i); 
