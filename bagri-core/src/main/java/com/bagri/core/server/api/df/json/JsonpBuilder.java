@@ -116,6 +116,7 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 
 	private void writeElement(Deque<Data> dataStack, JsonGenerator stream, Data data) {
 		endElement(dataStack, stream, data);
+		String name = data.getName();
 		switch (data.getNodeKind()) {
 			case document: { // this must be the first row..
 				stream.writeStartObject();
@@ -124,7 +125,6 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 			}
 			case namespace: {
 				String ns = "xmlns";
-				String name = data.getName();
 				if (name != null && name.trim().length() > 0) {
 					ns += ":" + name;
 				}
@@ -137,33 +137,33 @@ public class JsonpBuilder extends ContentBuilderBase<String> implements ContentB
 				if (top != null && top.getNodeKind() == NodeKind.array) {
 					stream.writeStartObject();
 				} else {
-					stream.writeStartObject(data.getName());
+					stream.writeStartObject(name);
 				}
 				dataStack.push(data);
    				break;
 			}
 			case array: {
 				//..
-				stream.writeStartArray(data.getName());
+				stream.writeStartArray(name);
 				dataStack.push(data);
 				break;
 			}
 			case attribute: {
 				if (data.isNull()) {
-					stream.writeNull(data.getName());
+					stream.writeNull(name);
 				} else {
 					switch (data.getDataPath().getDataType()) {
 						case XQBASETYPE_BOOLEAN: 
-							stream.write(data.getName(), (Boolean) data.getValue());
+							stream.write(name, (Boolean) data.getValue());
 							break;
 						case XQBASETYPE_DECIMAL:
-							stream.write(data.getName(), (BigDecimal) data.getValue());
+							stream.write(name, (BigDecimal) data.getValue());
 							break;
 						case XQBASETYPE_LONG:
-							stream.write(data.getName(), (Long) data.getValue());
+							stream.write(name, (Long) data.getValue());
 							break;
 						default:
-							stream.write(data.getName(), data.getValue().toString());
+							stream.write(name, data.getValue().toString());
 					}
 				}
 				break;

@@ -15,7 +15,7 @@ import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.trans.XPathException;
 
-public class JsonResourceImpl extends BaseResourceImpl {
+public class JsonResourceImpl extends ResourceImplBase {
 	
 	private String json; 
 

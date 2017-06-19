@@ -61,6 +61,10 @@ public class Data implements Comparable<Data> {
     	return element.getPosition().length;
     }
     
+    /**
+     * 
+     * @return the internal path
+     */
     public Path getDataPath() {
     	return this.path;
     }
@@ -87,7 +91,7 @@ public class Data implements Comparable<Data> {
      */
     public int getPos() {
     	int[] pos = element.getPosition();
-       if (pos.length > 0) {
+        if (pos.length > 0) {
             return pos[pos.length - 1];
         }
         return 0;
@@ -147,16 +151,33 @@ public class Data implements Comparable<Data> {
     
     /**
      * 
+     * @return the path's root
+     */
+    public String getRoot() {
+    	return path.getRoot();
+    }
+    
+    /**
+     * 
      * @return the element's value
      */
     public Object getValue() {
     	return element.getValue();
     }
     
+    /**
+     * 
+     * @return true if element's value is Null, false otherwise
+     */
     public boolean isNull() {
     	return element.getValue() == Null._null;
     }
     
+    /**
+     * 
+     * @param path the path 
+     * @param element the element
+     */
     public void setData(Path path, Element element) {
         this.path = path;
         this.element = element;

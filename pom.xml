@@ -97,8 +97,7 @@
         <xerces.version>2.11.0</xerces.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <saxon.version>9.7.0-18</saxon.version>
-        <json.version>1.0</json.version>
-        <json.ri.version>1.0.4</json.ri.version>
+        <json.version>1.0.4</json.version>
         <jackson.version>2.5.2</jackson.version>
         <aalto.version>1.0.0</aalto.version>
 
@@ -246,16 +245,23 @@
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
                 <version>${saxon.version}</version>
+                <!--exclusions>
+                    <exclusion>
+                        <groupId>net.sf.saxon</groupId>
+                        <artifactId>Saxon-HE</artifactId>
+                        <classifier>xqj</classifier>
+                    </exclusion>
+                </exclusions-->
             </dependency>
-            <dependency>
+            <!--dependency>
                 <groupId>javax.json</groupId>
                 <artifactId>javax.json-api</artifactId>
                 <version>${json.version}</version>
-            </dependency>
+            </dependency-->
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.json</artifactId>
-                <version>${json.ri.version}</version>
+                <version>${json.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -379,6 +385,10 @@
                     <exclusion>
                         <groupId>org.codehaus.woodstox</groupId>
                         <artifactId>stax2-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.ws.rs</groupId>
+                        <artifactId>jsr311-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

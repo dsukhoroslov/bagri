@@ -19,9 +19,6 @@ public class Path implements Comparable<Path> {
 	private int dataType;
 	private Occurrence occurrence = Occurrence.zeroOrOne;
 	
-	// cache it!
-	private String name = null; 
-	
 	/**
 	 * default constructor
 	 */
@@ -42,7 +39,6 @@ public class Path implements Comparable<Path> {
 	 */
 	public Path(String path, String root, NodeKind kind, int pathId, int parentId, int postId, 
 			int dataType, Occurrence occurrence) {
-		super();
 		this.path = path;
 		this.root = root;
 		this.kind = kind;
@@ -92,63 +88,6 @@ public class Path implements Comparable<Path> {
 		return path;
 	}
 
-	/**
-	 * @return the last path portion
-	 */
-	public String getXmlName() {
-		if (kind == NodeKind.document || kind == NodeKind.comment) {
-			return null;
-		}
-		
-		if (name == null) {
-			String last = null;
-			String[] segments = path.split("[\\{/\\}]+");
-			if (segments.length > 0) {
-				last = segments[segments.length - 1];
-			}
-	
-			switch (kind) {
-				case attribute: //@ 
-					if (last.startsWith("@")) {
-						name = last.substring(1);
-					} else {
-						name = last;
-					}
-					break;
-				case namespace: //#
-					if (last.startsWith("#")) {
-						name = last.substring(1);
-					} else {
-						name = last;
-					}
-					break;
-				case pi: //?
-					if (last.startsWith("?")) {
-						name = last.substring(1);
-					} else {
-						name = last;
-					}
-					break;
-				case text: 
-					name = segments[segments.length-2];
-					break;
-				case array: //[] ??
-				case element:
-					if (segments.length > 0) {
-						name = segments[segments.length-1];
-					} else {
-						name = path;
-					}
-					break;
-				//case document:
-				//case comment:
-				default:
-					return null;
-			}
-		}
-		return name;
-	}
-	
 	/**
 	 * @return the node kind
 	 */

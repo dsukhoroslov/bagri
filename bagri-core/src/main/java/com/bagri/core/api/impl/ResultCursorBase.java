@@ -1,15 +1,15 @@
 package com.bagri.core.api.impl;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQSequence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.bagri.core.api.ResultCursor;
@@ -23,6 +23,8 @@ import com.bagri.core.api.BagriException;
  */
 public abstract class ResultCursorBase implements ResultCursor {
 
+    protected Logger logger = LoggerFactory.getLogger(getClass());
+	
 	public static final int ONE = 1;
 	public static final int EMPTY = 0;
 	public static final int ONE_OR_MORE = -1;
@@ -125,18 +127,22 @@ public abstract class ResultCursorBase implements ResultCursor {
 	public Map<String, Object> getMap() throws BagriException {
 		XQSequence cs = (XQSequence) checkCurrent();
 		try {
+			logger.trace("getMap.enter; sequence: {}; count: {}", cs, cs.count()); 
 			if (cs.isScrollable()) {
 				cs.beforeFirst();
 			}
 			Map<String, Object> result = new HashMap<>();
 			while (cs.next()) {
 				XQSequence pair = (XQSequence) cs.getObject();
+				logger.trace("getMap; pair: {}; count: {}", pair, pair.count());
+				pair.beforeFirst();
 				pair.next();
 				String key = pair.getAtomicValue();
 				pair.next();
 				Object value = pair.getObject();
 				result.put(key, value);
 			}
+			logger.trace("getMap.exit; result: {}", result); 
         	return result;
 		} catch (XQException ex) {
 			throw new BagriException(ex, BagriException.ecQuery);

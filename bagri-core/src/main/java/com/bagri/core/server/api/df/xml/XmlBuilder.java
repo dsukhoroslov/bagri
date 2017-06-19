@@ -14,6 +14,7 @@ import javax.xml.stream.XMLOutputFactory;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.NodeKind;
+import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ContentBuilderBase;
@@ -80,7 +81,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 				if (writeIdent) {
 					addIdents(top, buff, prefix);
 				}
-				buff.append("</").append(top.getDataPath().getXmlName()).append(">");
+				buff.append("</").append(getXmlName(top.getDataPath())).append(">");
 			}
 			if (pretty) {
 				buff.append(EOL);
@@ -101,7 +102,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 			}
 			case namespace: { 
 				buff.append(" ").append("xmlns");
-				String name = data.getDataPath().getXmlName();
+				String name = getXmlName(data.getDataPath());
 				if (name != null && name.trim().length() > 0) {
 					buff.append(":").append(name);
 				}
@@ -113,13 +114,13 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 				dataStack.push(data);
 				// don't add idents if we're in mixed content (text)!
 				addIdents(data, buff, prefix);
-   				buff.append("<").append(data.getDataPath().getXmlName()); 
+   				buff.append("<").append(getXmlName(data.getDataPath())); 
    				eltOpen = true;
    				break;
 			}
 			case attribute: { 
 				if (!dataStack.isEmpty()) {
-					buff.append(" ").append(data.getDataPath().getXmlName()).append("=\"").append(data.getValue()).append("\"");
+					buff.append(" ").append(getXmlName(data.getDataPath())).append("=\"").append(data.getValue()).append("\"");
 				} else {
 					buff.append(data.getValue());
 				}
@@ -137,7 +138,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 			case pi: { 
 				eltOpen = endElement(dataStack, buff, data, eltOpen, prefix);
 				addIdents(data, buff, prefix);
-				buff.append("<?").append(data.getDataPath().getXmlName()).append(" ");
+				buff.append("<?").append(getXmlName(data.getDataPath())).append(" ");
 				buff.append(data.getValue()).append("?>"); 
 				if (dataStack.isEmpty() && pretty) {
 					buff.append(EOL);
@@ -182,7 +183,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 						if (writeIdent) {
 							addIdents(top, buff, prefix);
 						}
-						buff.append("</").append(top.getDataPath().getXmlName()).append(">");
+						buff.append("</").append(getXmlName(top.getDataPath())).append(">");
 					}
 					if (pretty) {
 						buff.append(EOL);
@@ -203,5 +204,51 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 			}
 		}
 	}
-    
+	
+	private String getXmlName(Path path) {
+		NodeKind kind = path.getNodeKind();
+		if (kind == NodeKind.document || kind == NodeKind.comment) {
+			return null;
+		}
+		
+		String last = null;
+		String[] segments = path.getPath().split("[\\{/\\}]+");
+		if (segments.length > 0) {
+			last = segments[segments.length - 1];
+		} else {
+			last = path.getPath();
+		}
+	
+		switch (kind) {
+			case attribute: //@ 
+				if (last.startsWith("@")) {
+					return last.substring(1);
+				} else {
+					return last;
+				}
+			case namespace: //#
+				if (last.startsWith("#")) {
+					return last.substring(1);
+				} else {
+					return last;
+				}
+			case pi: //?
+				if (last.startsWith("?")) {
+					return last.substring(1);
+				} else {
+					return last;
+				}
+			case text: 
+				return segments[segments.length-2];
+			case element:
+				return last;
+			//case array: //[] ??
+			//case document:
+			//case comment:
+			default:
+				return null;
+		}
+	}
+	
+	
 }

@@ -643,7 +643,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("invalid document", BagriException.ecDocument);
 		} 
 
-		String root = data.get(0).getDataPath().getRoot();
+		String root = data.get(0).getRoot();
 		Document doc;
 		if (fragments.size() == 0) {
 			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, dataFormat + "/" + def_encoding, length, data.size());
@@ -699,7 +699,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		long stamp = System.currentTimeMillis();
 		Data dRoot = getDataRoot(data);
 		if (dRoot != null) {
-			String root = dRoot.getDataPath().getRoot();
+			String root = dRoot.getRoot();
 			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
 			
 			Set<Integer> fragments = new HashSet<>();
@@ -782,7 +782,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		long key = docKey.getKey();
 		int length = 0; // get it from parser somehow
-		String root = data.get(0).getDataPath().getRoot();
+		String root = data.get(0).getRoot();
 		Set<Integer> ids = processElements(key, data);
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
 		Document newDoc = new Document(key, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());

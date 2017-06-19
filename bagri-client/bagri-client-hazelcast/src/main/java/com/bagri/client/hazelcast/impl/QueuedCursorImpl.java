@@ -28,8 +28,6 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedDataSerializable { 
 	
-    private static final transient Logger logger = LoggerFactory.getLogger(QueuedCursorImpl.class);
-
 	private int batchSize;
 	private int queueSize;
 	private String clientId;

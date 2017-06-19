@@ -25,6 +25,7 @@ public class MapBuilder extends ContentBuilderBase<Map> implements ContentBuilde
 	@Override
 	public Map<String, Object> buildContent(Collection<Data> elements) throws BagriException {
 		Map<String, Object> result = new HashMap<>(elements.size());
+		// TODO: build nested maps, arrays..
 		for (Data data: elements) {
 			result.put(data.getName(), data.getValue());
 		}

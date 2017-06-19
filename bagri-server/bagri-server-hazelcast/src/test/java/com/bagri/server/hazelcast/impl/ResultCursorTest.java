@@ -33,7 +33,7 @@ public class ResultCursorTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
-		//System.setProperty(pn_log_level, "trace");
+		System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
@@ -202,7 +202,7 @@ public class ResultCursorTest extends BagriManagementTest {
 			assertTrue(results.next());
 			Map<String, Object> doc = results.getMap();
 			assertNotNull(doc);
-			System.out.println(doc);
+			//System.out.println(doc);
 			assertEquals(10, doc.get("intProp"));
 			assertEquals(true, doc.get("boolProp"));
 			assertEquals("ABC", doc.get("strProp"));

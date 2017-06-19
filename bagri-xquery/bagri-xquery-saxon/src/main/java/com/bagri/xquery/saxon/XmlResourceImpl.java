@@ -15,7 +15,7 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.trans.XPathException;
 
-public class XmlResourceImpl extends BaseResourceImpl {
+public class XmlResourceImpl extends ResourceImplBase {
 
 	private String xml;
 	

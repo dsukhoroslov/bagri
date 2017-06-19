@@ -9,7 +9,7 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.trans.XPathException;
 
-public class MapResourceImpl extends BaseResourceImpl {
+public class MapResourceImpl extends ResourceImplBase {
 	
 	private Map<String, Object> map;
 	
