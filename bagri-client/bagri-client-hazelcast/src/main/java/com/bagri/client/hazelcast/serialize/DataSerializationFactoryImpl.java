@@ -123,7 +123,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_ProcessQueryTask = 125;
 	//public static final int cli_ApplyQueryTask = 126;
 	public static final int cli_FetchResultsTask = 127;
-	public static final int cli_ProcessXQCommandTask = 128;
+	//public static final int cli_ProcessXQCommandTask = 128;
 	public static final int cli_BuildQueryXMLTask = 129;
 	public static final int cli_ExecQueryTask = 130;
 	public static final int cli_ProvideQueryUrisTask = 131;

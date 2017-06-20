@@ -1,72 +1,55 @@
 package com.bagri.server.hazelcast.task.query;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProcessQueryTask;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-
-import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 
-import com.bagri.core.DataKey;
-import com.bagri.core.model.Elements;
-import com.bagri.core.query.PathExpression;
-import com.hazelcast.core.ReadOnly;
-import com.hazelcast.map.EntryBackupProcessor;
-import com.hazelcast.map.EntryProcessor;
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@SuppressWarnings("serial")
-public class QueryProcessor implements EntryProcessor<DataKey, Elements>, ReadOnly, IdentifiedDataSerializable { 
-	
+import com.bagri.core.api.BagriException;
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.model.QueryResult;
+import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.server.hazelcast.impl.QueryManagementImpl;
+import com.hazelcast.spring.context.SpringAware;
+
+@SpringAware
+public class QueryProcessor extends com.bagri.client.hazelcast.task.query.QueryProcessor {
+
 	//private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
-	//private Set<String> threads = new HashSet<String>();
 	
-	private PathExpression pex;
-	private Object value;
+	private transient QueryManagementImpl queryMgr;
 	
 	public QueryProcessor() {
-		// for de-serialization
+		super();
 	}
 	
-	public QueryProcessor(PathExpression pex, Object value) {
-		this.pex = pex;
-		this.value = value;
+	public QueryProcessor(boolean readOnly, String query, Map<String, Object> params, Properties props) {
+		super(readOnly, query, params, props);
 	}
-
-	@Override
-	public int getFactoryId() {
-		return factoryId;
+	
+    @Autowired
+	public void setRepository(SchemaRepository repo) {
+		//this.repo = repo;
+		this.queryMgr = (QueryManagementImpl) repo.getQueryManagement();
 	}
 	
 	@Override
-	public int getId() {
-		return cli_ProcessQueryTask;
+	public void processBackup(Entry<Long, QueryResult> entry) {
+		// ??
 	}
 
 	@Override
-	public EntryBackupProcessor getBackupProcessor() {
-		return null;
-	}
-
-	@Override
-	public Object process(Entry<DataKey, Elements> entry) {
-		if (entry.getValue().apply(pex, value)) {
-			return true;
+	public ResultCursor process(Entry<Long, QueryResult> entry) {
+		try {
+			return queryMgr.executeQuery(query, params, props);
+		} catch (BagriException ex) {
+			// already logged?
+			//logger.error();
 		}
 		return null;
-	}
-
-	@Override
-	public void readData(ObjectDataInput in) throws IOException {
-		pex = in.readObject();
-		value = in.readObject();
-	}
-
-	@Override
-	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeObject(pex);
-		out.writeObject(value);
 	}
 
 }

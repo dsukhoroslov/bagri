@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
@@ -18,7 +19,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.bagri.core.DocumentKey;
+import com.bagri.core.KeyFactory;
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.model.QueryResult;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.ExpressionContainer;
@@ -32,7 +36,10 @@ import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.server.hazelcast.task.query.QueryProcessor;
 import com.bagri.support.util.JMXUtils;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 public class QueryManagementImplTest extends BagriManagementTest {
 
@@ -371,4 +378,43 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		rc.close();
 	}
 	
+	@Test
+	public void processSequrityQueryTest() throws Exception {
+		storeSecurityTest();
+		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+			"declare variable $sym external;\n" + 
+			//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
+			"for $sec in fn:collection()/s:Security\n" +
+	  		"where $sec/s:Symbol=$sym\n" + 
+			"return \n" +
+			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
+		Map<String, Object> params = new HashMap<>();
+		params.put("sym", "VFINX");
+		Properties props = new Properties();
+		//props.setProperty(pn_client_id, "1");
+		//props.setProperty(pn_client_fetchSize, "5");
+		//props.setProperty(pn_xqj_defaultElementTypeNamespace, "");
+		KeyFactory f = context.getBean(KeyFactory.class);
+		HazelcastInstance hz = context.getBean(HazelcastInstance.class);
+		IMap qrCache = hz.getMap(CN_XDM_RESULT);
+		QueryProcessor qp = new QueryProcessor(true, query, params, props);
+		//Long key = new Long("security1500.xml".hashCode());
+		int hc = "security1500.xml".hashCode();
+		long ch = hc;
+		Long key = ch;
+		DocumentKey dk = f.newDocumentKey("security1500.xml", 0, 1);
+		ch = dk.getHash();
+		key = ch;
+		System.out.println("uri partition: " + hz.getPartitionService().getPartition(key).getPartitionId() +
+				"; doc partition: " + hz.getPartitionService().getPartition(dk).getPartitionId() +
+				"; hash partition: " + hz.getPartitionService().getPartition(dk.getHash()).getPartitionId());
+
+		ResultCursor rc = (ResultCursor) qrCache.executeOnKey(dk.getHash(), qp);
+		assertNotNull(rc);
+		assertTrue(rc.next());
+		String text = rc.getString();
+		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
+		assertFalse(rc.next());
+		rc.close();
+	}
 }

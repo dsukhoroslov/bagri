@@ -255,9 +255,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
 		//execService.execute(new Runnable() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
+		//new Thread(new Runnable() {
+		//	@Override
+		//	public void run() {
 				long qpKey = getResultsKey(query, params);
 				if (cursor != null) {
 					if (!cursor.isFixed()) {
@@ -267,20 +267,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					CollectionUtils.copyIterator(results, resList);
 				}
 
-				if (resList.size() == 0 && ctx.getDocKeys().size() > 0) {
-					logger.warn("addQueryResults; got empty results but docs were found: {}", ctx.getDocKeys());
+				if (resList.size() > 0 && ctx.getDocKeys().size() == 0) {
+					logger.warn("addQueryResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
+							params, ctx.getDocKeys(), resList);
+				} else {
+					QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+					// what is better to use here: putAsync or set ?
+					xrCache.set(qpKey, xqr);
+					updateStats(query, 1, resList.size());
+					logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
 				}
-				QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-				// what is better to use here: putAsync or set ?
-				xrCache.set(qpKey, xqr);
-				updateStats(query, 1, resList.size());
-					
-				//String clientId = props.getProperty(pn_client_id);
-				//XQProcessor xqp = repo.getXQProcessor(clientId);
-				//xqp.setResults(cursor);
-				logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
-			}
-		}).start();
+		//	}
+		//}).start();
 	}
 	
 	List<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
@@ -697,7 +695,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					}
 				}
 			} catch (XQException ex) {
-				throw new BagriException(ex.getMessage(), ex, BagriException.ecQuery);
+				String em = ex.getMessage();
+				if (em == null) {
+					em = ex.getClass().getName();
+				}
+				throw new BagriException(em, ex, BagriException.ecQuery);
 			}
 		} else {
 			// already cached

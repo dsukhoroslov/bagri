@@ -41,7 +41,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
-		//System.setProperty(pn_log_level, "trace");
+		System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
@@ -112,44 +112,13 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));
-/*
-		m2.put("intProp", 2); 
-		m2.put("boolProp", Boolean.TRUE);
-		m2.put("strProp", "ABC");
-		txId = xRepo.getTxManagement().beginTransaction();
-		mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test2.xml", m2, props);
-		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
-		uris.add(mDoc.getUri());
-		xRepo.getTxManagement().commitTransaction(txId);
-		
-		String query = //"declare default element namespace \"\";\n" + 
-				"declare variable $value external;\n" +
-				"for $doc in fn:collection()/map\n" +
-				//"where $doc/intProp = $value\n" +
-				"where $doc[intProp = $value]\n" +
-				"return $doc/strProp/text()";
-		
-		Map<String, Object> params = new HashMap<>();
-		params.put("value", 0);
-		ResultCursor results = query(query, params, null);
-		assertFalse(results.next());
-		results.close();
-		
-		params.put("value", 1);
-		results = query(query, params, null);
-		assertTrue(results.next());
-		
-		props = new Properties();
-		props.setProperty("method", "text");
-		XQItem item = (XQItem) results.getXQItem();
-		String text = item.getItemAsString(props);
-		assertEquals("XYZ", text);
-		assertFalse(results.next());
-		results.close();
-*/		
 	}
-		
+	
+	private String qDoc = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+			"for $doc in fn:collection('maps')\n" +
+			"where m:get($doc, '@intProp') = 2\n" +
+			"return fn:serialize($doc, map{'method': 'json'})";
+	
 	@Test
 	public void queryMapDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
@@ -185,23 +154,10 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-				//"declare variable $value external;\n" +
-				"for $doc in fn:collection('maps')\n" +
-				//"let $map := m:get($doc, 'map')\n" +
-				"where m:get($doc, '@intProp') = 2\n" +
-				"return fn:serialize($doc, map{'method': 'json'})";
-		
-		Map<String, Object> params = new HashMap<>();
-		//params.put("value", "CDE");
-		//params.put("value", 2);
-		try (ResultCursor results = query(query, params, null)) {
+		try (ResultCursor results = query(qDoc, null, null)) {
 			assertTrue(results.next());
-			//String text = results.getString();
-			//assertNotNull(text);
 			Object value = results.getObject();
 			assertNotNull(value);
-			//assertEquals("{\"boolProp\":false,\"intProp\":2,\"strProp\":\"CDE\"}", text);
 			assertFalse(results.next());
 		}
 	}
@@ -233,21 +189,42 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		xRepo.getTxManagement().commitTransaction(txId);
 		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-				//"declare variable $value external;\n" +
 				"for $doc in fn:collection('maps')\n" +
 				"where m:get($doc, 'intProp') = 2\n" +
 				"return fn:serialize($doc, map{'method': 'json'})";
 		
-		Map<String, Object> params = new HashMap<>();
-		//params.put("value", "CDE");
-		//params.put("value", 2);
-		try (ResultCursor results = query(query, params, null)) {
+		try (ResultCursor results = query(query, null, null)) {
 			assertTrue(results.next());
-			//String text = results.getString();
-			//assertNotNull(text);
 			Object value = results.getObject();
 			assertNotNull(value);
-			//assertEquals("{\"boolProp\":false,\"intProp\":2,\"strProp\":\"CDE\"}", text);
+			assertFalse(results.next());
+		}
+	}
+	
+	@Test
+	public void updateMapDocumentTest() throws Exception {
+		queryMapDocumentTest();
+		
+		long txId = xRepo.getTxManagement().beginTransaction();
+		Map<String, Object> m1 = new HashMap<>();
+		m1.put("intProp", 2); 
+		m1.put("boolProp", Boolean.TRUE);
+		m1.put("strProp", "CDE10");
+	    Properties props = new Properties();
+		props.setProperty(pn_document_collections, "maps");
+		props.setProperty(pn_document_data_format, "MAP");
+		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test3", m1, props);
+		assertNotNull(mDoc);
+		assertEquals(txId, mDoc.getTxStart());
+		//uris.add(mDoc.getUri());
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		try (ResultCursor results = query(qDoc, null, null)) {
+			assertTrue(results.next());
+			String value = results.getString();
+			assertNotNull(value);
+			assertTrue(value.indexOf("\"boolProp\":true") > 0);
+			assertTrue(value.indexOf("\"strProp\":\"CDE10\"") > 0);
 			assertFalse(results.next());
 		}
 	}

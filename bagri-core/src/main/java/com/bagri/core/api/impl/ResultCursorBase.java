@@ -127,20 +127,25 @@ public abstract class ResultCursorBase implements ResultCursor {
 	public Map<String, Object> getMap() throws BagriException {
 		XQSequence cs = (XQSequence) checkCurrent();
 		try {
-			logger.trace("getMap.enter; sequence: {}; count: {}", cs, cs.count()); 
-			if (cs.isScrollable()) {
-				cs.beforeFirst();
-			}
-			Map<String, Object> result = new HashMap<>();
-			while (cs.next()) {
-				XQSequence pair = (XQSequence) cs.getObject();
-				logger.trace("getMap; pair: {}; count: {}", pair, pair.count());
-				pair.beforeFirst();
-				pair.next();
-				String key = pair.getAtomicValue();
-				pair.next();
-				Object value = pair.getObject();
-				result.put(key, value);
+			logger.trace("getMap.enter; sequence: {}", cs);
+			Map<String, Object> result;
+			synchronized (cs) {
+				if (cs.isScrollable()) {
+					cs.beforeFirst();
+					result = new HashMap<>(cs.count());
+				} else {
+					result = new HashMap<>();
+				}
+				while (cs.next()) {
+					XQSequence pair = (XQSequence) cs.getObject();
+					//logger.trace("getMap; pair: {}; count: {}", pair, pair.count());
+					pair.beforeFirst();
+					pair.next();
+					String key = pair.getAtomicValue();
+					pair.next();
+					Object value = pair.getObject();
+					result.put(key, value);
+				}
 			}
 			logger.trace("getMap.exit; result: {}", result); 
         	return result;

@@ -19,10 +19,13 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.client.hazelcast.task.doc.DocumentBeanProvider;
 import com.bagri.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.client.hazelcast.task.query.QueryUrisProvider;
+import com.bagri.client.hazelcast.task.query.QueryProcessor;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.model.Query;
@@ -117,7 +120,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 
 		props.setProperty(pn_client_id, repo.getClientId());
-		//props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
+		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
@@ -128,8 +131,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		} else if (pv_client_submitTo_member.equalsIgnoreCase(runOn)) {
 			Member member = repo.getHazelcastClient().getPartitionService().getPartition(qKey).getOwner();
 			future = execService.submitToMember(task, member);
-		} else {
+		} else if (pv_client_submitTo_any.equalsIgnoreCase(runOn)) {
 			future = execService.submit(task);
+		} else {
+			Long partKey = new Long(runOn.hashCode());
+			//future = execService.submitToKeyOwner(task, partKey);
+			QueryProcessor qp = new QueryProcessor(true, query, params, props);
+			return (ResultCursor) resCache.executeOnKey(partKey, qp);
 		}
 		execution = future;
 

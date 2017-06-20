@@ -180,6 +180,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_ProvideDocumentMapTask: return new DocumentMapProvider(); 
 			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider(); 
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();
+			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_ExecQueryTask: return new QueryExecutor();
 			case cli_ProvideQueryUrisTask: return new QueryUrisProvider(); 
@@ -187,7 +188,6 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_CollectStatisticTotalsTask: return new StatisticTotalsCollector();
 			case cli_ResetStatisticsTask: return new StatisticsReseter();
 			case cli_CountUpdatingDocumentsTask: return new DocumentQueueCounter();
-			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_KillNodeTask: return new NodeKiller();
 			case cli_SetNodeOptionTask: return new NodeOptionSetter();
 			case cli_AggregateSchemaInfoTask: return new SchemaStatsAggregator();

@@ -55,16 +55,21 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 	@Override
 	public void write(ObjectDataOutput out, XQSequence sequence) throws IOException {
 		try {
-			if (sequence.isScrollable()) {
-				sequence.beforeFirst();
-			}
-			List<XQItemAccessor> items = new ArrayList<>();
-			while (sequence.next()) {
-				Object value = sequence.getObject();
-				if (value instanceof XQItemAccessor) {
-					items.add((XQItemAccessor) value);
+			List<XQItemAccessor> items;
+			synchronized (sequence) {
+				if (sequence.isScrollable()) {
+					sequence.beforeFirst();
+					items = new ArrayList<>(sequence.count());
 				} else {
-					items.add(sequence.getItem());
+					items = new ArrayList<>();
+				}
+				while (sequence.next()) {
+					Object value = sequence.getObject();
+					if (value instanceof XQItemAccessor) {
+						items.add((XQItemAccessor) value);
+					} else {
+						items.add(sequence.getItem());
+					}
 				}
 			}
 			logger.trace("write; writing items: {}", items);
