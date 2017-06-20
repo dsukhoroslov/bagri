@@ -2,13 +2,12 @@ package com.bagri.test.ycsb;
 
 import static com.bagri.core.Constants.*;
 
-import java.util.Collection;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.xquery.XQConstants;
 
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessor;
-import com.bagri.support.util.XMLUtils;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.saxon.XQProcessorClient;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
@@ -47,7 +45,14 @@ public class BagriQueryClient extends DB {
 	private static String qDelete = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 			"declare variable $uri external;\n" + 
 			"let $uri := bgdb:remove-document($uri)\n" + 
-			"return $uri\n";
+			"return $uri";
+
+	private static String qStore = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+			"declare variable $uri external;\n" + 
+			"declare variable $content external;\n" + 
+			"declare variable $props external;\n" + 
+			"let $uri := bgdb:store-document($uri, $content, $props)\n" +
+			"return $uri";
 	
     private SchemaRepository xRepo;
 	
@@ -71,25 +76,29 @@ public class BagriQueryClient extends DB {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
-		//logger.debug("insert.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
 
-		//String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
-		//		"declare variable $uri external;\n" + 
-		//		"declare variable $xml external;\n" + 
-				//"declare variable $props external;\n" + 
-				//"let $uri := bgdb:store-document($uri, $xml, $props)\n" +
-		//		"let $uri := bgdb:store-document($uri, $xml)\n" +
-		//		"return $uri\n";
-		
 		Properties props = new Properties();
 		props.setProperty(pn_document_collections, table);
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
+		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
 		props.setProperty(pn_document_data_format, "MAP");
-		HashMap fields = StringByteIterator.getStringMap(values);
-		fields.put("key", key);
-		try {
-			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
-			return Status.OK;
+		props.setProperty(pn_client_fetchSize, "1");
+		//props.setProperty(pn_client_submitTo, key);
+
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("uri", URI.create(key));
+		HashMap content = StringByteIterator.getStringMap(values);
+		content.put("key", key);
+		params.put("content", content);
+		params.put("props", props);
+		
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, props)) {
+			if (cursor.next()) {
+				return Status.OK;
+			} else {
+				logger.debug("insert; document was not created for some reason; key: {}", key);
+				return Status.UNEXPECTED_STATE;
+			}
 		} catch (Exception ex) {
 			logger.error("insert.error; key: {}", key, ex);
 			return Status.ERROR;
@@ -116,21 +125,22 @@ public class BagriQueryClient extends DB {
 	@Override
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
-		//logger.debug("read.enter; table: {}; startKey: {}; fields: {}",	new Object[] {table, key, fields});
+
+		Properties props = new Properties();
+		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
+		props.setProperty(pn_document_data_format, "1");
+		//props.setProperty(pn_client_submitTo, key);
 
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("key", key);
-		Properties props = new Properties();
-		//props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		props.setProperty(pn_document_data_format, "MAP");
-		//props.setProperty(pn_client_submitTo, key);
+
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, props)) {
 			if (cursor.next()) {
 				Map<String, Object> map = cursor.getMap();
 				populateResult(map, fields, result);
 				return Status.OK;
 			} else {
-				logger.info("read; not found document for key: {}; table: {}", key, table);
+				logger.debug("read; not found document for key: {}", key);
 				return Status.NOT_FOUND;
 			}
 		} catch (Exception ex) {
@@ -143,12 +153,14 @@ public class BagriQueryClient extends DB {
 	public Status scan(final String table, final String startkey, final int recordcount,
 			final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
 		
-		Map<String, Object> params = new HashMap<>(1);
-		params.put("startKey", startkey);
 		Properties props = new Properties();
 		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
 		props.setProperty(pn_document_data_format, "MAP");
 		props.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
+
+		Map<String, Object> params = new HashMap<>(1);
+		params.put("startKey", startkey);
+
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qScan, params, props)) {
 			result.ensureCapacity(recordcount);
 			int count = 0;
@@ -162,7 +174,7 @@ public class BagriQueryClient extends DB {
 				count++;
 			}
 			if (count > recordcount) {
-				logger.info("scan; got more records then expected; expected: {}, got: {}", recordcount, count);
+				logger.info("scan; got more records then expected; expected: {}, got: {}; list: {}", recordcount, count, cursor.getList());
 			}
 			return Status.OK;
 		} catch (Exception ex) {
@@ -174,18 +186,29 @@ public class BagriQueryClient extends DB {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
-		//logger.debug("update.enter; table: {}; startKey: {}; values: {}", new Object[] {table, key, values});
-		// probably, we should do merge here: update only fields specified in the values map!
+
 		Properties props = new Properties();
 		props.setProperty(pn_document_collections, table);
 		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);
-		props.setProperty(pn_client_txTimeout, "100");
+		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
 		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_submitTo, key);
-		HashMap fields = StringByteIterator.getStringMap(values);
-		try {
-			xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, props);
-			return Status.OK;
+		props.setProperty(pn_client_fetchSize, "1");
+		//props.setProperty(pn_client_submitTo, key);
+
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("uri", URI.create(key));
+		HashMap content = StringByteIterator.getStringMap(values);
+		content.put("key", key);
+		params.put("content", content);
+		params.put("props", props);
+		
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, props)) {
+			if (cursor.next()) {
+				return Status.OK;
+			} else {
+				logger.debug("update; document was not updated for some reason; key: {}", key);
+				return Status.UNEXPECTED_STATE;
+			}
 		} catch (Exception ex) {
 			logger.error("update.error; key: {}", key, ex);
 			return Status.ERROR;
@@ -195,17 +218,19 @@ public class BagriQueryClient extends DB {
 	@Override
 	public Status delete(final String table, final String key) {
 
-		HashMap<String, Object> params = new HashMap<>();
-		params.put("uri", key);
 		Properties props = new Properties();
 		props.setProperty(pn_document_collections, table);
 		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_submitTo, key);
+		//props.setProperty(pn_client_submitTo, key);
+
+		HashMap<String, Object> params = new HashMap<>();
+		params.put("uri", URI.create(key));
+
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qDelete, params, props)) {
 			if (cursor.next()) {
 				return Status.OK;
 			} else {
-				logger.info("delete; not found document for key: {}; table: {}", key, table);
+				logger.debug("delete; not found document for key: {}", key, table);
 				return Status.NOT_FOUND;
 			}
 		} catch (Exception ex) {

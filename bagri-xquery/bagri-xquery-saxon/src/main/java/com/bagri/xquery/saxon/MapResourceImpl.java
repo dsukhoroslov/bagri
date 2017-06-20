@@ -26,7 +26,10 @@ public class MapResourceImpl extends ResourceImplBase {
 				throw new XPathException(ex);
 			}
 		}
-    	return new MapItemImpl(map, context.getConfiguration());
+		if (map != null) {
+    		return new MapItemImpl(map, context.getConfiguration());
+		}
+		return null;
 	}
 
 }

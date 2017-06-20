@@ -18,7 +18,7 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class QueryProcessor extends com.bagri.client.hazelcast.task.query.QueryProcessor {
 
-	//private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	
 	private transient QueryManagementImpl queryMgr;
 	
@@ -47,7 +47,7 @@ public class QueryProcessor extends com.bagri.client.hazelcast.task.query.QueryP
 			return queryMgr.executeQuery(query, params, props);
 		} catch (BagriException ex) {
 			// already logged?
-			//logger.error();
+			logger.error("process.error;", ex);
 		}
 		return null;
 	}

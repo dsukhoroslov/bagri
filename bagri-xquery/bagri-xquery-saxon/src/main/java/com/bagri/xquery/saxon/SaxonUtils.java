@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
@@ -46,8 +47,6 @@ import net.sf.saxon.evpull.StaxToEventBridge;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
-import net.sf.saxon.ma.map.HashTrieMap;
-import net.sf.saxon.ma.map.KeyValuePair;
 import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
@@ -235,6 +234,8 @@ public class SaxonUtils {
                 return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
             } else if (value instanceof URI) {
             	return new AnyURIValue(value.toString());
+            } else if (value instanceof Map) {
+            	return new MapItemImpl((Map) value, config);
             } else {
             	return new ObjectValue(value);
             }
@@ -745,16 +746,14 @@ public class SaxonUtils {
         	List<XQSequence> pairs = new ArrayList<>(); 
         	while ((key = itr.next()) != null) {
         		Sequence val = mi.get(key);
-        		List<XQItemAccessor> pair = new ArrayList<>();
+        		List<XQItemAccessor> pair = new ArrayList<>(2);
         		pair.add(itemToXQItem(key, xqFactory));
         		if (val instanceof Item) {
         			pair.add(itemToXQItem((Item) val, xqFactory));
         		} else {
         			pair.add(xqFactory.createSequence(new XQIterator(xqFactory, val.iterate())));
         		}
-        		XQSequence sq = xqFactory.createSequence(pair.iterator());
-        		pairs.add(sq);
-        		//System.out.println("pair: " + sq + "; is SQ: " + (sq instanceof XQSequence));
+        		pairs.add(xqFactory.createSequence(pair.iterator()));
         	}
         	return xqFactory.createSequence(pairs.iterator());
         } else if (item instanceof Sequence) {

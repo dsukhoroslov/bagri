@@ -7,6 +7,10 @@ import static javax.xml.xquery.XQItemType.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.datatype.Duration;
@@ -15,7 +19,9 @@ import javax.xml.namespace.QName;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
+import javax.xml.xquery.XQSequence;
 import javax.xml.xquery.XQStaticContext;
 
 import org.apache.xerces.impl.dv.util.Base64;
@@ -760,5 +766,40 @@ public class XQUtils {
 			ctx.setScrollability(Integer.valueOf(prop));
 		}
 	}
+	
+	public static Map<String, Object> sequenceToMap(XQSequence sequence) throws XQException {
+		Map<String, Object> result;
+		synchronized (sequence) {
+			if (sequence.isScrollable()) {
+				result = new HashMap<>(sequence.count());
+				sequence.beforeFirst();
+			} else {
+				result = new HashMap<>();
+			}
+			while (sequence.next()) {
+				XQSequence pair = (XQSequence) sequence.getObject();
+				pair.beforeFirst();
+				if (pair.next()) {
+					String key = pair.getAtomicValue();
+					if (pair.next()) {
+						Object value = pair.getObject();
+						result.put(key, value);
+					}
+				}
+			}
+		}
+       	return result;
+	}
+	
+	public static XQSequence mapToSequence(XQDataFactory factory, Map<String, Object> map) throws XQException {
 
+    	List<XQSequence> pairs = new ArrayList<>(); 
+    	for (Map.Entry<String, Object> e: map.entrySet()) {
+    		List<XQItemAccessor> pair = new ArrayList<>(2);
+    		pair.add(factory.createItemFromString(e.getKey(), factory.createAtomicType(XQBASETYPE_STRING)));
+    		pair.add(factory.createItemFromObject(e.getValue(), factory.createAtomicType(getBaseTypeForObject(e.getValue()))));
+    		pairs.add(factory.createSequence(pair.iterator()));
+    	}
+    	return factory.createSequence(pairs.iterator());
+	}
 }

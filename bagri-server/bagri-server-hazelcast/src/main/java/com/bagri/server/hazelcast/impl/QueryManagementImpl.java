@@ -795,6 +795,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 			// if RS < BS -> put them to FixedCursor
 			// else -> serialize them in QueuedCursor
+			//if (results.size() < batchSize) {
+			//	fixed = true;
+			//} else {
+			//	fixed = iter.hasNext();
+			//}
 			fixed = results.size() <= batchSize;
 		}
 
@@ -813,7 +818,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			count = qc.serialize(repo.getHzInstance());
 			xqCursor = qc;
 		}
-		logger.trace("createCursor.exit; serialized: {} results", count);
+		if (count > batchSize) {
+			logger.info("createCursor.exit; requested: {}; serialized: {}; results: {}", batchSize, count, results);
+		} else {
+			logger.trace("createCursor.exit; requested: {}; serialized: {} results", batchSize, count);
+		}
 		return xqCursor;
 	}
 	

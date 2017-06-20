@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
+import static com.bagri.core.Constants.pn_client_storeMode;
+import static com.bagri.core.Constants.pn_client_submitTo;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_data_format;
@@ -7,11 +9,13 @@ import static com.bagri.core.Constants.pn_document_collections;
 import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_node_instance;
 import static com.bagri.core.Constants.pn_schema_format_default;
+import static com.bagri.core.Constants.pv_client_storeMode_insert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -229,4 +233,51 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		}
 	}
 	
+	private static String qDelete = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+			"declare variable $uri external;\n" + 
+			"let $uri := bgdb:remove-document($uri)\n" + 
+			"return $uri";
+
+	private static String qStore = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+			"declare variable $uri external;\n" + 
+			"declare variable $content external;\n" + 
+			"declare variable $props external;\n" + 
+			"let $uri := bgdb:store-document($uri, $content, $props)\n" +
+			//"let $uri := bgdb:store-document($uri, $content)\n" +
+			"return $uri";
+
+	@Test
+	public void storeMapDocumentTest() throws Exception {
+
+		String uri = "map_test_0";
+		long txId = xRepo.getTxManagement().beginTransaction();
+		Map<String, Object> m1 = new HashMap<>();
+		m1.put("intProp", 1); 
+		m1.put("boolProp", Boolean.FALSE);
+		m1.put("strProp", "XYZ");
+	    Properties props = new Properties();
+		props.setProperty(pn_document_collections, "maps");
+		props.setProperty(pn_document_data_format, "MAP");
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("uri", URI.create(uri));
+		params.put("content", m1);
+		params.put("props", props);
+
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, props)) {
+			assertTrue(cursor.next());
+			assertEquals(uri, cursor.getString());
+			assertFalse(cursor.next());
+		}
+		
+		//assertNotNull(mDoc);
+		//assertEquals(txId, mDoc.getTxStart());
+		uris.add(uri);
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAsMap(uri, props);
+		assertEquals(m1.get("intProp"), m2.get("intProp"));
+		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
+		assertEquals(m1.get("strProp"), m2.get("strProp"));
+	}
 }

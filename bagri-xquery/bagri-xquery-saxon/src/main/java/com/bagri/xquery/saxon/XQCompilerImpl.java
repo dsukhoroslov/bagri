@@ -53,6 +53,7 @@ import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
 import com.bagri.xquery.saxon.ext.doc.StoreDocument;
+import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
 import com.bagri.xquery.saxon.ext.http.HttpGet;
 import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
 import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
@@ -257,6 +258,7 @@ public class XQCompilerImpl implements XQCompiler {
         config.registerExtensionFunction(new GetDocumentContent(null));
         config.registerExtensionFunction(new RemoveDocument(null));
         config.registerExtensionFunction(new StoreDocument(null));
+        config.registerExtensionFunction(new StoreDocumentFromMap(null));
         config.registerExtensionFunction(new RemoveCollectionDocuments(null));
         config.registerExtensionFunction(new QueryDocumentUris(null));
         config.registerExtensionFunction(new BeginTransaction(null));
