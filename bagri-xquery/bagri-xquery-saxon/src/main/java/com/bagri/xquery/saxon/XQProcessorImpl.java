@@ -380,7 +380,9 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     // because it is used in QueryBuilder where params identified by plain Strings
     protected Map<String, Object> getObjectParams() throws XPathException {
     	GlobalParameterSet params = dqc.getParameters();
-    	Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
+    	// got params.getNumberOfKeys() = -1 at one test!
+    	//Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
+    	Map<String, Object> bindings = new HashMap<>();
     	for (StructuredQName name: params.getKeys()) {
     		Object value = params.get(name);
     		if (value instanceof EmptySequence) {

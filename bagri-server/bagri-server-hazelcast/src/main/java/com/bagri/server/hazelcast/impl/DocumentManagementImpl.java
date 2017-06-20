@@ -917,7 +917,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
 	    	// do this asynch after tx?
-	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+	    	//((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		}
 
 		if (dataFormat == null) {

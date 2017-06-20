@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -379,6 +380,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	@Test
+	@Ignore
 	public void processSequrityQueryTest() throws Exception {
 		storeSecurityTest();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +

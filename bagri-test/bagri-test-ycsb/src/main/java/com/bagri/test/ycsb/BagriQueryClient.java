@@ -123,7 +123,7 @@ public class BagriQueryClient extends DB {
 		Properties props = new Properties();
 		//props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
 		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_submitTo, key);
+		//props.setProperty(pn_client_submitTo, key);
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, props)) {
 			if (cursor.next()) {
 				Map<String, Object> map = cursor.getMap();
