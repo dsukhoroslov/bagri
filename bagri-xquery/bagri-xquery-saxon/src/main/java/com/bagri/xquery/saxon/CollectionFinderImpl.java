@@ -21,6 +21,7 @@ import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 
 import net.sf.saxon.expr.Atomizer;
+import net.sf.saxon.expr.AttributeGetter;
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.BinaryExpression;
 import net.sf.saxon.expr.Binding;
@@ -43,6 +44,7 @@ import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
 import net.sf.saxon.om.AxisInfo;
+import net.sf.saxon.om.FingerprintedQName;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
@@ -355,6 +357,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 			path.addPathSegment(axis, namespace, segment);
 		}
 
+		if (ex instanceof AttributeGetter) {
+			FingerprintedQName an = ((AttributeGetter) ex).getAttributeName();
+			path.addPathSegment(AxisType.ATTRIBUTE, an.getURI(), an.getLocalPart());
+		}
+		
 		int exIndex = -1;
 		if (ex instanceof BooleanExpression) {
 			Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
