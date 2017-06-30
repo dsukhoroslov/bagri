@@ -2,6 +2,7 @@ package com.bagri.xquery.saxon.ext.tx;
 
 import static com.bagri.core.Constants.bg_ns;
 import static com.bagri.core.Constants.bg_schema;
+import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_INT;
 
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
@@ -40,7 +41,7 @@ public class CommitTransaction extends ExtensionFunctionDefinition {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_INT}; 
+		return new SequenceType[] {SINGLE_INT}; 
 	}
 	
 	@Override

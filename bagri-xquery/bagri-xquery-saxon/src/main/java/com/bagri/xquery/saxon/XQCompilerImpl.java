@@ -4,17 +4,12 @@ import static com.bagri.xquery.saxon.SaxonUtils.*;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
-import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
@@ -24,15 +19,14 @@ import org.slf4j.LoggerFactory;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.instruct.UserFunction;
 import net.sf.saxon.expr.instruct.UserFunctionParameter;
-import net.sf.saxon.functions.ExecutableFunctionLibrary;
 import net.sf.saxon.functions.FunctionLibrary;
 import net.sf.saxon.functions.FunctionLibraryList;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.UnfailingErrorListener;
 import net.sf.saxon.lib.Validation;
-import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.Annotation;
+import net.sf.saxon.query.AnnotationList;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.query.XQueryFunction;
@@ -162,7 +156,7 @@ public class XQCompilerImpl implements XQCompiler {
 			@Override
 			public String extractFunction(UserFunction fn) {
 				String decl = getFunctionDeclaration(fn); 
-				List<Annotation> atns = fn.getAnnotations(); 
+				AnnotationList atns = fn.getAnnotations(); 
 				logger.trace("lookupFunctions; fn annotations: {}", atns);
 				StringBuffer buff = new StringBuffer();
 				for (Annotation atn: atns) {
@@ -354,7 +348,7 @@ public class XQCompilerImpl implements XQCompiler {
 			@Override
 			public Function extractFunction(UserFunction fn) {
 				logger.trace("extractFunction.enter; function: {}", fn);
-				List<Annotation> atns = fn.getAnnotations();
+				AnnotationList atns = fn.getAnnotations(); 
 				if (!hasRestAnnotations(atns)) {
 					logger.debug("extractFunction; no REST annotations found for function {}, skipping it", fn.getFunctionName().getDisplayName());
 					return null;
@@ -390,7 +384,7 @@ public class XQCompilerImpl implements XQCompiler {
 		return result;
     }
 	
-	private boolean hasRestAnnotations(List<Annotation> annotations) {
+	private boolean hasRestAnnotations(AnnotationList annotations) {
 		for (Annotation atn: annotations) {
 			if ("rest".equalsIgnoreCase(atn.getAnnotationQName().getPrefix())) {
 				return true;

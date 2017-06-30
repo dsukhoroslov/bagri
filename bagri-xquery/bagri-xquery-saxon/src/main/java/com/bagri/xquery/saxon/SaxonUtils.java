@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import javax.xml.datatype.DatatypeConstants;
@@ -17,6 +16,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
+import javax.xml.transform.stax.StAXSource;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
@@ -39,11 +39,8 @@ import com.bagri.support.util.XQUtils;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DOMObjectModel;
 import net.sf.saxon.dom.NodeOverNodeInfo;
-import net.sf.saxon.event.Builder;
 import net.sf.saxon.event.PipelineConfiguration;
 import net.sf.saxon.event.Sender;
-import net.sf.saxon.evpull.PullEventSource;
-import net.sf.saxon.evpull.StaxToEventBridge;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
@@ -56,6 +53,7 @@ import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StandardNames;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AtomicIterator;
+import net.sf.saxon.tree.tiny.Statistics;
 import net.sf.saxon.tree.tiny.TinyBuilder;
 import net.sf.saxon.type.AtomicType;
 import net.sf.saxon.type.BuiltInAtomicType;
@@ -69,6 +67,12 @@ public class SaxonUtils {
 	
 	public static final int saxon_xquery_version = 31;
 
+    public static final SequenceType SINGLE_ANY_URI = 
+    		SequenceType.makeSequenceType(BuiltInAtomicType.ANY_URI, StaticProperty.EXACTLY_ONE);
+    
+    public static final SequenceType SINGLE_INT =
+    		SequenceType.makeSequenceType(BuiltInAtomicType.INT, StaticProperty.EXACTLY_ONE);
+	
     public static Object itemToObject(Item item) throws XPathException {
         if (item instanceof AtomicValue) {
             AtomicValue p = ((AtomicValue) item).asAtomic(); // ((AtomicValue)item);
@@ -189,7 +193,7 @@ public class SaxonUtils {
             } else if (value instanceof String) {
                 return new StringValue((String)value);
             } else if (value instanceof BigDecimal) {
-                return new DecimalValue((BigDecimal)value);
+                return new BigDecimalValue((BigDecimal)value);
             } else if (value instanceof BigInteger) {
                 return new BigIntegerValue((BigInteger)value);
             } else if (value instanceof SaxonDuration) {
@@ -266,7 +270,7 @@ public class SaxonUtils {
             } else if (value instanceof String) {
                 return new StringValue((String)value, type);
             } else if (value instanceof BigDecimal) {
-                return new DecimalValue((BigDecimal)value);
+                return new BigDecimalValue((BigDecimal)value);
             } else if (value instanceof BigInteger) {
                 return new BigIntegerValue((BigInteger)value, type);
             } else if (value instanceof SaxonDuration) {
@@ -359,26 +363,22 @@ public class SaxonUtils {
 	        //return Value.asItem(DOMObjectModel.getInstance().convertObjectToXPathValue(value, config));
 	        return SequenceTool.asItem(jp.convert(value, new EarlyEvaluationContext(config)));
 	    } else if (value instanceof Source) {
-	        // Saxon extension to the XQJ specification
-	        PipelineConfiguration pipe = config.makePipelineConfiguration();
-	        Builder b = new TinyBuilder(pipe);
-	        Sender.send((Source)value, b, null);
-	        NodeInfo node = b.getCurrentRoot();
-	        b.reset();
-	        return node;
+	    	return sourceToNode((Source) value, config);
 	    } else if (value instanceof XMLStreamReader) {
-	        // Saxon extension to the XQJ specification
-	        StaxToEventBridge bridge = new StaxToEventBridge();
-	        bridge.setXMLStreamReader((XMLStreamReader)value);
-	        PipelineConfiguration pipe = config.makePipelineConfiguration();
-	        bridge.setPipelineConfiguration(pipe);
-	        Builder b = new TinyBuilder(pipe);
-	        Sender.send(new PullEventSource(bridge), b, null);
-	        NodeInfo node = b.getCurrentRoot();
-	        b.reset();
-	        return node;
+	    	return sourceToNode(new StAXSource((XMLStreamReader)value), config);
 	    }
     	return null;
+    }
+    
+    private static NodeInfo sourceToNode(Source src, Configuration cfg) throws XPathException {
+        // Saxon extension to the XQJ specification
+        PipelineConfiguration pipe = cfg.makePipelineConfiguration();
+        TinyBuilder b = new TinyBuilder(pipe);
+        b.setStatistics(Statistics.SOURCE_DOCUMENT_STATISTICS);
+        Sender.send(src, b, null);
+        NodeInfo node = b.getCurrentRoot();
+        b.reset();
+        return node;
     }
     
 	public static Item convertXQItem(XQItem xqItem, Configuration config) throws XQException, XPathException {

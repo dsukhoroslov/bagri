@@ -28,7 +28,6 @@ import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
-import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
@@ -41,7 +40,6 @@ import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.parser.Token;
-import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
 import net.sf.saxon.om.AxisInfo;
@@ -237,7 +235,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterateParams(e, ctx);
 		}
 
-		if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
+		if (ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Object value = null;
 			String pName = null;
@@ -384,12 +382,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterate(e, ctx);
 		}
 
-		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { // GeneralComparison20
-			// ||
-			// ex
-			// instanceof
-			// ValueComparison)
-			// {
+		if (ex instanceof ComparisonExpression) { // GeneralComparison20 || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Object value = null;
 			String pName = null;
@@ -454,10 +447,10 @@ public class CollectionFinderImpl implements CollectionFinder {
 			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
 		}
 
-		if (ex instanceof IntegratedFunctionCall) {
-			IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
-			if ("map:get".equals(ifc.getDisplayName())) {
-				Expression arg = ifc.getArg(1);
+		if (ex instanceof SystemFunctionCall) {
+			SystemFunctionCall sfc = (SystemFunctionCall) ex;
+			if ("map:get".equals(sfc.getDisplayName())) {
+				Expression arg = sfc.getArg(1);
 				if (arg instanceof StringLiteral) {
 					String namespace = null;
 					String segment = ((StringLiteral) arg).getStringValue();
@@ -477,6 +470,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				}
 			}
 		}
+		
 		// if (ex instanceof SystemFunctionCall) {
 		// add FunctionExpression..?
 		// }
@@ -485,8 +479,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 			Atomizer at = (Atomizer) ex;
 			logger.trace("iterate; atomizing: {}", at.getBaseExpression());
 			if ((at.getBaseExpression() instanceof BindingReference) ||
-				(at.getBaseExpression() instanceof IntegratedFunctionCall && 
-						"map:get".equals(((IntegratedFunctionCall) at.getBaseExpression()).getDisplayName()))) {
+					(at.getBaseExpression() instanceof SystemFunctionCall && 
+							"map:get".equals(((SystemFunctionCall) at.getBaseExpression()).getDisplayName()))) {
 				// logger.trace("iterate; got base ref: {}",
 				// at.getBaseExpression());
 			} else {

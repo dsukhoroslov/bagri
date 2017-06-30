@@ -96,7 +96,8 @@
         <xstream.version>1.4.9</xstream.version>
         <xerces.version>2.11.0</xerces.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <saxon.version>9.7.0-18</saxon.version>
+        <!--saxon.version>9.7.0-18</saxon.version-->
+        <saxon.version>9.8.0-2</saxon.version>
         <json.version>1.0.4</json.version>
         <jackson.version>2.5.2</jackson.version>
         <aalto.version>1.0.0</aalto.version>
@@ -245,19 +246,7 @@
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
                 <version>${saxon.version}</version>
-                <!--exclusions>
-                    <exclusion>
-                        <groupId>net.sf.saxon</groupId>
-                        <artifactId>Saxon-HE</artifactId>
-                        <classifier>xqj</classifier>
-                    </exclusion>
-                </exclusions-->
             </dependency>
-            <!--dependency>
-                <groupId>javax.json</groupId>
-                <artifactId>javax.json-api</artifactId>
-                <version>${json.version}</version>
-            </dependency-->
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.json</artifactId>

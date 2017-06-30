@@ -19,6 +19,7 @@ import com.bagri.core.server.api.QueryManagement;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
 import net.sf.saxon.lib.ResourceCollection;
+import net.sf.saxon.om.SpaceStrippingRule;
 import net.sf.saxon.trans.XPathException;
 
 public class ResourceCollectionImpl implements ResourceCollection {
@@ -97,6 +98,12 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	}
 
 	@Override
+	public boolean stripWhitespace(SpaceStrippingRule rules) {
+		logger.trace("stripWhitespace.enter; rules: {}", rules);
+		return false;
+	}
+
+	@Override
 	public String toString() {
 		return "ResourceCollectionImpl [query=" + query	+ ", docIds=" + docIds  + "]";
 	}
@@ -159,4 +166,5 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		}
 		
 	}
+
 }

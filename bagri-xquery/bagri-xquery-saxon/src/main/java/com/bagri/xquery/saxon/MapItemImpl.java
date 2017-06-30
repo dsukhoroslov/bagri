@@ -23,12 +23,14 @@ import net.sf.saxon.om.GroundedValue;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.query.AnnotationList;
 import net.sf.saxon.trace.ExpressionPresenter;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AtomicIterator;
 import net.sf.saxon.type.AtomicType;
 import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.type.FunctionItemType;
+import net.sf.saxon.type.TypeHierarchy;
 import net.sf.saxon.type.UType;
 import net.sf.saxon.value.AtomicValue;
 import net.sf.saxon.value.EmptySequence;
@@ -47,6 +49,11 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 	public MapItemImpl(Map<String, Object> source, Configuration config) {
 		this.source = source;
 		this.config = config;
+	}
+
+	@Override
+	public AnnotationList getAnnotations() {
+        return AnnotationList.EMPTY;
 	}
 
 	//@Override
@@ -234,17 +241,17 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		return new MapKeyValueIterator(source.entrySet()); 
 	}
 
-	//@Override
-	//public MapItem addEntry(AtomicValue key, Sequence value) {
-	//	try {
-	//		String sKey = key.getStringValue();
-	//		Object sVal = SaxonUtils.itemToObject((Item) value);
-	//		source.put(sKey, sVal);
-	//	} catch (XPathException ex) {
-	//		logger.error("addEntry.error; key: {}, value: {}", key, value, ex);
-	//	}
-	//	return this;
-	//}
+	@Override
+	public MapItem addEntry(AtomicValue key, Sequence value) {
+		try {
+			String sKey = key.getStringValue();
+			Object sVal = SaxonUtils.itemToObject((Item) value);
+			source.put(sKey, sVal);
+		} catch (XPathException ex) {
+			logger.error("addEntry.error; key: {}, value: {}", key, value, ex);
+		}
+		return this;
+	}
 
 	@Override
 	public MapItem remove(AtomicValue key) {
@@ -252,30 +259,35 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		return this;
 	}
 
-	//@Override
-	//public boolean conforms(AtomicType keyType, SequenceType valueType, TypeHierarchy th) {
-	//	if (keyType.getUType() != UType.STRING) {
-	//		return false;
-	//	}
-	//	if (valueType.getPrimaryType().getUType() != UType.ANY_ATOMIC) {
-	//		return false;
-	//	}
-	//	return true;
-	//}
+	@Override
+	public boolean conforms(AtomicType keyType, SequenceType valueType, TypeHierarchy th) {
+		if (keyType.getUType() != UType.STRING) {
+			return false;
+		}
+		if (valueType.getPrimaryType().getUType() != UType.ANY_ATOMIC) {
+			return false;
+		}
+		return true;
+	}
 
 	@Override
 	public UType getKeyUType() {
 		return UType.STRING;
 	}
 
-	@Override
-	public AtomicType getKeyType() {
-		return BuiltInAtomicType.STRING;
-	}
+	//@Override
+	//public AtomicType getKeyType() {
+	//	return BuiltInAtomicType.STRING;
+	//}
+
+	//@Override
+	//public SequenceType getValueType() {
+	//	return SequenceType.ATOMIC_SEQUENCE;
+	//}
 
 	@Override
-	public SequenceType getValueType() {
-		return SequenceType.ATOMIC_SEQUENCE;
+	public MapType getItemType(TypeHierarchy th) {
+		return type;
 	}
 
 
@@ -310,10 +322,10 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 			return null;
 		}
 
-		@Override
-		public AtomicIterator getAnother() {
-			return null;
-		}
+		//@Override
+		//public AtomicIterator getAnother() {
+		//	return null;
+		//}
 		
 	};
 	

@@ -1,6 +1,7 @@
 package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.cmd_remove_cln_documents;
+import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_ANY_URI;
 
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.BagriException;
@@ -25,7 +26,7 @@ public class RemoveCollectionDocuments extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI}; 
+		return new SequenceType[] {SINGLE_ANY_URI}; 
 	}
 
 	@Override 

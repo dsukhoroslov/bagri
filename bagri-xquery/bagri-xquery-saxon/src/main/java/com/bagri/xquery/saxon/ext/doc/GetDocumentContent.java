@@ -2,6 +2,7 @@ package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.cmd_get_document;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
+import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_ANY_URI;
 
 import java.util.Properties;
 
@@ -29,7 +30,7 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.STRING_SEQUENCE}; 
+		return new SequenceType[] {SINGLE_ANY_URI, SequenceType.STRING_SEQUENCE}; 
 	}
 
 	@Override 

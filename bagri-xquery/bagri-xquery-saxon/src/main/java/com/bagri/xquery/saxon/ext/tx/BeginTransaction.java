@@ -2,8 +2,7 @@ package com.bagri.xquery.saxon.ext.tx;
 
 import static com.bagri.core.Constants.bg_ns;
 import static com.bagri.core.Constants.bg_schema;
-
-import java.util.UUID;
+import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_INT;
 
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionManagement;
@@ -48,7 +47,7 @@ public class BeginTransaction extends ExtensionFunctionDefinition {
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.SINGLE_INT; 
+		return SINGLE_INT; 
 	}
 
 	@Override
