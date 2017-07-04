@@ -31,13 +31,14 @@ set java_opts=%java_opts% -Dbdb.schema.password=password
 rem possible values are: member, owner, any
 set java_opts=%java_opts% -Dbdb.client.submitTo=owner
 set java_opts=%java_opts% -Dbdb.client.bufferSize=32
-set java_opts=%java_opts% -Dbdb.client.fetchSize=1
+set java_opts=%java_opts% -Dbdb.client.fetchSize=10
 set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
 set java_opts=%java_opts% -Dbdb.client.loginTimeout=30
 set java_opts=%java_opts% -Dbdb.client.smart=true
 set java_opts=%java_opts% -Dbdb.client.poolSize=50
 set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
-set java_opts=%java_opts% -Dbdb.client.queryCache=false
+set java_opts=%java_opts% -Dbdb.client.queryCache=true
+set java_opts=%java_opts% -Dbdb.client.customAuth=true
 
 rem set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

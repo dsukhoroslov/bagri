@@ -705,6 +705,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			// already cached
 			cursor = createCursor(resList, null, props);
 		}
+		//logger.info("executeQuery.exit; params: {}; props: {}; cursor: {}", params, props, cursor.getList().size());
 		xqp.setResults(cursor);
 		logger.trace("executeQuery.exit; returning: {}", cursor);
 		return cursor;

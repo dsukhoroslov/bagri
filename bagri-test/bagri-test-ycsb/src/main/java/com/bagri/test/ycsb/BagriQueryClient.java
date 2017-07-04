@@ -174,7 +174,7 @@ public class BagriQueryClient extends DB {
 				count++;
 			}
 			if (count > recordcount) {
-				logger.info("scan; got more records then expected; expected: {}, got: {}; list: {}", recordcount, count, cursor.getList());
+				logger.info("scan; got more records then expected; expected: {}, got: {}; filter: {}", recordcount, count, startkey);
 			}
 			return Status.OK;
 		} catch (Exception ex) {

@@ -43,7 +43,8 @@ maxscanlength=100
 
 scanlengthdistribution=uniform
 
-db=com.bagri.test.ycsb.BagriClient
+#db=com.bagri.test.ycsb.BagriClient
+db=com.bagri.test.ycsb.BagriQueryClient
 schema=YCSB
 address=localhost:10150
 user=guest

@@ -28,6 +28,7 @@ import com.hazelcast.map.impl.query.QueryResult;
 import com.hazelcast.map.impl.query.QueryResultRow;
 import com.hazelcast.map.impl.query.Result;
 import com.hazelcast.map.impl.recordstore.RecordStore;
+import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.NodeEngine;
@@ -96,10 +97,12 @@ public class DataDistributionService implements ManagedService {
 		return getRecordStore(partId, storeName);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public DocumentKey getLastKeyForUri(String uri) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		//Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("hash", uri.hashCode()), IterationType.KEY, Aggregators.integerMax("version"), null);
+		//Query query = new Query(CN_XDM_DOCUMENT, new PartitionPredicate(uri.hashCode(), Predicates.equal("uri", uri)), IterationType.KEY, null, null);
 		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("uri", uri), IterationType.KEY, null, null);
 		try {
 			DocumentKey last = null; 
@@ -118,6 +121,8 @@ public class DataDistributionService implements ManagedService {
 			return last;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("", ex);
+		} catch (Exception ex) {
+			logger.error("error: ", ex);
 		}
 		return null;
 	}
