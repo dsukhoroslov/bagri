@@ -2,7 +2,6 @@ package com.bagri.xquery.saxon.ext.tx;
 
 import static com.bagri.core.Constants.bg_ns;
 import static com.bagri.core.Constants.bg_schema;
-import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_INT;
 
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionManagement;
@@ -14,6 +13,7 @@ import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.Int64Value;
 import net.sf.saxon.value.SequenceType;
 
@@ -47,7 +47,7 @@ public class BeginTransaction extends ExtensionFunctionDefinition {
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SINGLE_INT; 
+		return BuiltInAtomicType.INT.one(); 
 	}
 
 	@Override

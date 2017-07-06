@@ -67,12 +67,6 @@ public class SaxonUtils {
 	
 	public static final int saxon_xquery_version = 31;
 
-    public static final SequenceType SINGLE_ANY_URI = 
-    		SequenceType.makeSequenceType(BuiltInAtomicType.ANY_URI, StaticProperty.EXACTLY_ONE);
-    
-    public static final SequenceType SINGLE_INT =
-    		SequenceType.makeSequenceType(BuiltInAtomicType.INT, StaticProperty.EXACTLY_ONE);
-	
     public static Object itemToObject(Item item) throws XPathException {
         if (item instanceof AtomicValue) {
             AtomicValue p = ((AtomicValue) item).asAtomic(); // ((AtomicValue)item);

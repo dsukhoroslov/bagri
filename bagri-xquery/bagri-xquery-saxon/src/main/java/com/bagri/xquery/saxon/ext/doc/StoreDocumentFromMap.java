@@ -2,7 +2,6 @@ package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.cmd_store_document;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToObject;
-import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_ANY_URI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +18,7 @@ import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AtomicIterator;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.AnyURIValue;
 import net.sf.saxon.value.AtomicValue;
 import net.sf.saxon.value.SequenceType;
@@ -38,12 +38,12 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SINGLE_ANY_URI, MapType.OPTIONAL_MAP_ITEM, MapType.OPTIONAL_MAP_ITEM}; //SequenceType.ATOMIC_SEQUENCE}; //STRING_SEQUENCE};
+		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), MapType.OPTIONAL_MAP_ITEM, MapType.OPTIONAL_MAP_ITEM}; //SequenceType.ATOMIC_SEQUENCE}; //STRING_SEQUENCE};
 	}
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SINGLE_ANY_URI;
+		return BuiltInAtomicType.ANY_URI.one();
 	}
 
 	@Override 

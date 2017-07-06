@@ -2,10 +2,10 @@ package com.bagri.xquery.saxon.ext.http;
 
 import static com.bagri.core.Constants.bg_ns;
 import static com.bagri.core.Constants.bg_schema;
-import static com.bagri.xquery.saxon.SaxonUtils.SINGLE_ANY_URI;
 
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.SequenceType;
 
 public abstract class HttpRequest extends ExtensionFunctionDefinition {
@@ -29,7 +29,7 @@ public abstract class HttpRequest extends ExtensionFunctionDefinition {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SINGLE_ANY_URI, SequenceType.STRING_SEQUENCE, SequenceType.STRING_SEQUENCE}; 
+		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), SequenceType.STRING_SEQUENCE, SequenceType.STRING_SEQUENCE}; 
 	}
 	
 	@Override

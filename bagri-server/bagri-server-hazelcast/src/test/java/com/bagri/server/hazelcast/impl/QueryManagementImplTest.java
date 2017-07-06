@@ -380,7 +380,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void processSecurityQueryTest() throws Exception {
 		storeSecurityTest();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
