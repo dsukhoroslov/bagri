@@ -1,5 +1,6 @@
 package com.bagri.xquery.saxon;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -39,7 +40,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 	
     private static final Logger logger = LoggerFactory.getLogger(MapItemImpl.class);
 	
-    private static final MapType type = new MapType(BuiltInAtomicType.STRING, SequenceType.ATOMIC_SEQUENCE); 
+    private static final MapType type = new MapType(BuiltInAtomicType.STRING, SequenceType.ANY_SEQUENCE); 
     
 	private Map<String, Object> source;
 	private Configuration config;
@@ -47,6 +48,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 	public MapItemImpl(Map<String, Object> source, Configuration config) {
 		this.source = source;
 		this.config = config;
+		logger.trace("<init>. created MapItem from map: {}", source);
 	}
 
 	//@Override
@@ -67,11 +69,12 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public FunctionItemType getFunctionItemType() {
-        return type; //MapType.ANY_MAP_TYPE;
+        return type; 
 	}
 
 	@Override
 	public StructuredQName getFunctionName() {
+		logger.trace("getFunctionName.enter; returning null");
 		return null;
 	}
 
@@ -87,6 +90,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public Sequence call(XPathContext context, Sequence[] args) throws XPathException {
+		logger.trace("call.enter; got args: {}", args == null ? null : Arrays.toString(args));
         AtomicValue key = (AtomicValue) args[0].head();
         Sequence value = get(key);
         if (value == null) {
@@ -98,8 +102,8 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public boolean deepEquals(Function other, XPathContext context, AtomicComparer comparer, int flags) throws XPathException {
-        if (other instanceof MapItem &&
-                ((MapItem) other).size() == size()) {
+		logger.trace("deepEquals.enter; other: {}; comparer: {}; flags: {}", other, comparer, flags);
+        if (other instanceof MapItem && ((MapItem) other).size() == size()) {
             AtomicIterator keys = keys();
             AtomicValue key;
             while ((key = keys.next()) != null) {
@@ -108,8 +112,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
                 if (otherValue == null) {
                     return false;
                 }
-                if (!DeepEqual.deepEqual(otherValue.iterate(),
-                    thisValue.iterate(), comparer, context, flags)) {
+                if (!DeepEqual.deepEqual(otherValue.iterate(), thisValue.iterate(), comparer, context, flags)) {
                     return false;
                 }
             }
@@ -125,6 +128,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public void export(ExpressionPresenter out) throws XPathException {
+		logger.trace("export.enter; out: {}", out);
         out.startElement("map");
         out.emitAttribute("size", size() + "");
         out.endElement();
@@ -158,6 +162,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public Item itemAt(int n) {
+		logger.trace("getItemAt.enter; n: {}", n);
         return n == 0 ? this : null;
 		//int idx = 0;
 		//for (Map.Entry<String, Object> e: source.entrySet()) {
@@ -197,6 +202,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public Sequence get(AtomicValue key) {
+		logger.trace("get.enter; key: {}", key);
 		String sKey = key.getStringValue();
 		if (sKey.startsWith("@")) {
 			sKey = sKey.substring(1);
@@ -216,6 +222,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public int size() {
+		logger.trace("size.enter; size: {}", source.size());
 		return source.size();
 	}
 
@@ -226,11 +233,13 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public AtomicIterator keys() {
+		logger.trace("keys.enter");
 		return new MapKeyIterator(source.keySet());
 	}
 
 	@Override
 	public Iterator<KeyValuePair> iterator() {
+		logger.trace("iterator.enter");
 		return new MapKeyValueIterator(source.entrySet()); 
 	}
 
@@ -248,6 +257,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public MapItem remove(AtomicValue key) {
+		logger.trace("remove.enter; key: {}", key);
 		source.remove(key.getStringValue());
 		return this;
 	}
@@ -275,10 +285,13 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public SequenceType getValueType() {
-		return SequenceType.ATOMIC_SEQUENCE;
+		return SequenceType.ANY_SEQUENCE;
 	}
 
-
+	Map<String, Object> getSource() {
+		return source;
+	}
+	
 	private class MapKeyIterator implements AtomicIterator {
 		
 		private Iterator<String> keys;
@@ -298,6 +311,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 		@Override
 		public AtomicValue next() {
+			logger.trace("MapKeyIterator.next.enter");
 			String key = null;
 			try {
 				key = keys.next();
@@ -332,6 +346,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 		@Override
 		public KeyValuePair next() {
+			logger.trace("MapKeyValueIterator.next.enter");
 			Map.Entry<String, Object> pair = pairs.next();
 			if (pair != null) {
 				try {

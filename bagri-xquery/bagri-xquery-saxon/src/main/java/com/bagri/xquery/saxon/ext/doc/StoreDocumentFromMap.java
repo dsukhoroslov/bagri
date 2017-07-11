@@ -1,10 +1,9 @@
 package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.cmd_store_document;
-import static com.bagri.xquery.saxon.SaxonUtils.itemToObject;
+import static com.bagri.xquery.saxon.SaxonUtils.itemToMap;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -18,9 +17,7 @@ import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.tree.iter.AtomicIterator;
 import net.sf.saxon.value.AnyURIValue;
-import net.sf.saxon.value.AtomicValue;
 import net.sf.saxon.value.SequenceType;
 
 public class StoreDocumentFromMap extends DocumentFunctionExtension {
@@ -69,8 +66,7 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 				Map<String, Object> map = itemToMap(item);
 				Properties props = null; 
 				if (arguments.length > 2) {
-					props = new Properties();
-					props.putAll(itemToMap((MapItem) arguments[2].head()));
+					props = sequence2Properties(arguments[2]);
 				}
 				try {
 					Document doc = xdm.storeDocumentFromMap(uri, map, props);
@@ -83,19 +79,7 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 		};
 	} 
 	
-	
-	private Map<String, Object> itemToMap(MapItem mi) throws XPathException {
-		
-    	AtomicValue key;
-    	AtomicIterator itr = mi.keys();
-		Map<String, Object> result = new HashMap<>();
-    	while ((key = itr.next()) != null) {
-    		Sequence value = mi.get(key);
-    		result.put(key.getStringValue(), itemToObject(value.head().atomize().head()));
-    	}
-    	return result;
-	}
-	
+
 
 }
 

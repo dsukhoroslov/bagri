@@ -207,7 +207,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	@Override
 	public String toString() {
-		return "XQProcessorServer[" + getRepository().getClientId() + "]";
+		SchemaRepository repo = getRepository();
+		return "XQProcessorServer[" + (repo == null ? "unknown" : repo.getClientId()) + "]";
 	}
 	
     private XQException convertXPathException(XPathException xpe) {

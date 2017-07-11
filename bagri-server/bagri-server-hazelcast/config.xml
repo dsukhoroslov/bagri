@@ -640,7 +640,7 @@
                 <entry name="bdb.schema.thread.pool">16</entry>
                 <entry name="bdb.schema.data.cache">NEVER</entry>
                 <entry name="bdb.schema.data.stats.enabled">false</entry>
-                <entry name="bdb.schema.query.cache">false</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
                 <entry name="bdb.schema.ports.first">10150</entry>
                 <entry name="bdb.schema.format.default">MAP</entry>
                 <entry name="bdb.schema.ports.last">10160</entry>
@@ -697,8 +697,8 @@
                     <version>1</version>
                     <createdAt>2017-03-13T13:36:26.965+03:00</createdAt>
                     <createdBy>SDV</createdBy>
-                    <docType>/map</docType>
-                    <path>/map/key/text()</path>
+                    <docType>/</docType>
+                    <path>/@key</path>
                     <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
                     <range>true</range>
                     <unique>false</unique>

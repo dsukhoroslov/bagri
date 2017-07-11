@@ -6,9 +6,9 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import javax.xml.datatype.DatatypeConstants;
@@ -63,6 +63,7 @@ import net.sf.saxon.type.ItemType;
 import net.sf.saxon.value.*;
 
 import static net.sf.saxon.om.StandardNames.*;
+import static com.bagri.xquery.saxon.SaxonUtils.itemToMap;
 import static javax.xml.xquery.XQItemType.*;
 
 public class SaxonUtils {
@@ -149,11 +150,6 @@ public class SaxonUtils {
             }
         } else if (item instanceof NodeInfo) {
             return NodeOverNodeInfo.wrap((NodeInfo)item);
-            //try {
-				//return QueryResult.serialize((NodeInfo)item);
-			//} catch (XPathException ex) {
-			//	throw new XQException(ex.getMessage());
-			//}
         } else if (item instanceof ObjectValue) {
         	Object value = ((ObjectValue) item).getObject();
         	if (value instanceof XQItem) {
@@ -161,6 +157,10 @@ public class SaxonUtils {
         		//return ((XQItem) value).getObject();
         		return value;
         	}
+        } else if (item instanceof MapItemImpl) {
+        	return ((MapItemImpl) item).getSource();
+        } else if (item instanceof MapItem) {
+        	return itemToMap((MapItem) item);
         }
         return item;
     }
@@ -169,157 +169,155 @@ public class SaxonUtils {
         if (value == null) {
             return null;
         }
+
         // convert to switch..
-            if (value instanceof Boolean) {
-                return BooleanValue.get(((Boolean)value).booleanValue());
-            } else if (value instanceof byte[]) {
-                return new HexBinaryValue((byte[])value);
-            } else if (value instanceof Byte) {
-                return new Int64Value(((Byte)value).byteValue(), BuiltInAtomicType.BYTE, false);
-            } else if (value instanceof Float) {
-                return new FloatValue(((Float)value).floatValue());
-            } else if (value instanceof Double) {
-                return new DoubleValue(((Double)value).doubleValue());
-            } else if (value instanceof Integer) {
-                return new Int64Value(((Integer)value).intValue(), BuiltInAtomicType.INT, false);
-            } else if (value instanceof Long) {
-                return new Int64Value(((Long)value).longValue(), BuiltInAtomicType.LONG, false);
-            } else if (value instanceof Short) {
-                return new Int64Value(((Short)value).shortValue(), BuiltInAtomicType.SHORT, false);
-            } else if (value instanceof String) {
-                return new StringValue((String)value);
-            } else if (value instanceof BigDecimal) {
-                return new DecimalValue((BigDecimal)value);
-            } else if (value instanceof BigInteger) {
-                return new BigIntegerValue((BigInteger)value);
-            } else if (value instanceof SaxonDuration) {
-                return ((SaxonDuration)value).getDurationValue();
-            } else if (value instanceof Duration) {
-                // this is simpler and safer (but perhaps slower) than extracting all the components
-                //return DurationValue.makeDuration(value.toString()).asAtomic();
-            	Duration dv = (Duration) value;
-            	return new DurationValue(dv.getSign() >= 0, dv.getYears(), dv.getMonths(), dv.getDays(), 
-            			dv.getHours(), dv.getMinutes(), dv.getSeconds(), 0); // take correct millis..
-            } else if (value instanceof SaxonXMLGregorianCalendar) {
-                return ((SaxonXMLGregorianCalendar)value).toCalendarValue();
-            } else if (value instanceof XMLGregorianCalendar) {
-                XMLGregorianCalendar g = (XMLGregorianCalendar)value;
-                QName gtype = g.getXMLSchemaType();
-                if (gtype.equals(DatatypeConstants.DATETIME)) {
-                    return DateTimeValue.makeDateTimeValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.DATE)) {
-                    return DateValue.makeDateValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.TIME)) {
-                    return TimeValue.makeTimeValue(value.toString()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GYEAR)) {
-                    return GYearValue.makeGYearValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GYEARMONTH)) {
-                    return GYearMonthValue.makeGYearMonthValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GMONTH)) {
-                	// a workaround for X3C schema bug
-                	String val = value.toString();
-                	if (val.endsWith("--")) {
-                		val = val.substring(0, val.length() - 2);
-                	}
-                    return GMonthValue.makeGMonthValue(val).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
-                    return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GDAY)) {
-                    return GDayValue.makeGDayValue(value.toString()).asAtomic();
-                } else {
-                    throw new AssertionError("Unknown Gregorian date type");
-                }
-            } else if (value instanceof QName) {
-                QName q = (QName)value;
-                return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
-            } else if (value instanceof URI) {
-            	return new AnyURIValue(value.toString());
-            } else if (value instanceof Map) {
-            	return new MapItemImpl((Map) value, config);
+        if (value instanceof Boolean) {
+            return BooleanValue.get(((Boolean)value).booleanValue());
+        } else if (value instanceof byte[]) {
+            return new HexBinaryValue((byte[])value);
+        } else if (value instanceof Byte) {
+            return new Int64Value(((Byte)value).byteValue(), BuiltInAtomicType.BYTE, false);
+        } else if (value instanceof Float) {
+            return new FloatValue(((Float)value).floatValue());
+        } else if (value instanceof Double) {
+            return new DoubleValue(((Double)value).doubleValue());
+        } else if (value instanceof Integer) {
+            return new Int64Value(((Integer)value).intValue(), BuiltInAtomicType.INT, false);
+        } else if (value instanceof Long) {
+            return new Int64Value(((Long)value).longValue(), BuiltInAtomicType.LONG, false);
+        } else if (value instanceof Short) {
+            return new Int64Value(((Short)value).shortValue(), BuiltInAtomicType.SHORT, false);
+        } else if (value instanceof String) {
+            return new StringValue((String)value);
+        } else if (value instanceof BigDecimal) {
+            return new DecimalValue((BigDecimal)value);
+        } else if (value instanceof BigInteger) {
+            return new BigIntegerValue((BigInteger)value);
+        } else if (value instanceof SaxonDuration) {
+            return ((SaxonDuration)value).getDurationValue();
+        } else if (value instanceof Duration) {
+            // this is simpler and safer (but perhaps slower) than extracting all the components
+            //return DurationValue.makeDuration(value.toString()).asAtomic();
+          	Duration dv = (Duration) value;
+          	return new DurationValue(dv.getSign() >= 0, dv.getYears(), dv.getMonths(), dv.getDays(), 
+          			dv.getHours(), dv.getMinutes(), dv.getSeconds(), 0); // take correct millis..
+        } else if (value instanceof SaxonXMLGregorianCalendar) {
+            return ((SaxonXMLGregorianCalendar)value).toCalendarValue();
+        } else if (value instanceof XMLGregorianCalendar) {
+            XMLGregorianCalendar g = (XMLGregorianCalendar)value;
+            QName gtype = g.getXMLSchemaType();
+            if (gtype.equals(DatatypeConstants.DATETIME)) {
+                return DateTimeValue.makeDateTimeValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.DATE)) {
+                return DateValue.makeDateValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.TIME)) {
+                return TimeValue.makeTimeValue(value.toString()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GYEAR)) {
+                return GYearValue.makeGYearValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GYEARMONTH)) {
+                return GYearMonthValue.makeGYearMonthValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GMONTH)) {
+             	// a workaround for W3C schema bug
+               	String val = value.toString();
+               	if (val.endsWith("--")) {
+               		val = val.substring(0, val.length() - 2);
+               	}
+                return GMonthValue.makeGMonthValue(val).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
+                return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GDAY)) {
+                return GDayValue.makeGDayValue(value.toString()).asAtomic();
             } else {
-            	return new ObjectValue(value);
+                throw new AssertionError("Unknown Gregorian date type");
             }
+        } else if (value instanceof QName) {
+            QName q = (QName)value;
+            return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
+        } else if (value instanceof URI) {
+          	return new AnyURIValue(value.toString());
+        } else if (value instanceof Map) {
+           	return new MapItemImpl((Map) value, config);
+        } else {
+           	return new ObjectValue(value);
+        }
     }
     
 	public static Item convertToItem(Object value, Configuration config, BuiltInAtomicType type) throws XPathException {
         if (value == null) {
             return null;
         }
+
         // convert to switch..
-        //try {
-            if (value instanceof Boolean) {
-                return BooleanValue.get(((Boolean)value).booleanValue());
-            } else if (value instanceof byte[]) {
-                return new HexBinaryValue((byte[])value);
-            } else if (value instanceof Byte) {
-                return new Int64Value(((Byte)value).byteValue(), type, false); //BuiltInAtomicType.BYTE, false);
-            } else if (value instanceof Float) {
-                return new FloatValue(((Float)value).floatValue(), type);
-            } else if (value instanceof Double) {
-                return new DoubleValue(((Double)value).doubleValue(), type);
-            } else if (value instanceof Integer) {
-                return new Int64Value(((Integer)value).intValue(), type, false); //BuiltInAtomicType.INT, false);
-            } else if (value instanceof Long) {
-                return new Int64Value(((Long)value).longValue(), type, false); //BuiltInAtomicType.LONG, false);
-            } else if (value instanceof Short) {
-                return new Int64Value(((Short)value).shortValue(), type, false); //BuiltInAtomicType.SHORT, false);
-            } else if (value instanceof String) {
-                return new StringValue((String)value, type);
-            } else if (value instanceof BigDecimal) {
-                return new DecimalValue((BigDecimal)value);
-            } else if (value instanceof BigInteger) {
-                return new BigIntegerValue((BigInteger)value, type);
-            } else if (value instanceof SaxonDuration) {
-                return ((SaxonDuration)value).getDurationValue();
-            } else if (value instanceof Duration) {
-                // this is simpler and safer (but perhaps slower) than extracting all the components
-                //return DurationValue.makeDuration(value.toString()).asAtomic();
-            	Duration dv = (Duration) value;
-            	return new DurationValue(dv.getSign() >= 0, dv.getYears(), dv.getMonths(), dv.getDays(), 
-            			dv.getHours(), dv.getMinutes(), dv.getSeconds(), 0, type); // take correct millis..
-            } else if (value instanceof SaxonXMLGregorianCalendar) {
-                return ((SaxonXMLGregorianCalendar)value).toCalendarValue();
-            } else if (value instanceof XMLGregorianCalendar) {
-                XMLGregorianCalendar g = (XMLGregorianCalendar)value;
-                QName gtype = g.getXMLSchemaType();
-                if (gtype.equals(DatatypeConstants.DATETIME)) {
-                    return DateTimeValue.makeDateTimeValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.DATE)) {
-                    return DateValue.makeDateValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.TIME)) {
-                    return TimeValue.makeTimeValue(value.toString()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GYEAR)) {
-                    return GYearValue.makeGYearValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GYEARMONTH)) {
-                    return GYearMonthValue.makeGYearMonthValue(value.toString(), config.getConversionRules()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GMONTH)) {
-                	// a workaround for X3C schema bug
-                	String val = value.toString();
-                	if (val.endsWith("--")) {
-                		val = val.substring(0, val.length() - 2);
-                	}
-                    return GMonthValue.makeGMonthValue(val).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
-                    return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
-                } else if (gtype.equals(DatatypeConstants.GDAY)) {
-                    return GDayValue.makeGDayValue(value.toString()).asAtomic();
-                } else {
-                    throw new AssertionError("Unknown Gregorian date type");
-                }
-            } else if (value instanceof QName) {
-                QName q = (QName)value;
-                return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type);
-                        //BuiltInAtomicType.QNAME, null);
-            } else if (value instanceof URI) {
-            	return new AnyURIValue(value.toString());
+        if (value instanceof Boolean) {
+            return BooleanValue.get(((Boolean)value).booleanValue());
+        } else if (value instanceof byte[]) {
+            return new HexBinaryValue((byte[])value);
+        } else if (value instanceof Byte) {
+            return new Int64Value(((Byte)value).byteValue(), type, false); //BuiltInAtomicType.BYTE, false);
+        } else if (value instanceof Float) {
+            return new FloatValue(((Float)value).floatValue(), type);
+        } else if (value instanceof Double) {
+            return new DoubleValue(((Double)value).doubleValue(), type);
+        } else if (value instanceof Integer) {
+            return new Int64Value(((Integer)value).intValue(), type, false); //BuiltInAtomicType.INT, false);
+        } else if (value instanceof Long) {
+            return new Int64Value(((Long)value).longValue(), type, false); //BuiltInAtomicType.LONG, false);
+        } else if (value instanceof Short) {
+            return new Int64Value(((Short)value).shortValue(), type, false); //BuiltInAtomicType.SHORT, false);
+        } else if (value instanceof String) {
+            return new StringValue((String)value, type);
+        } else if (value instanceof BigDecimal) {
+            return new DecimalValue((BigDecimal)value);
+        } else if (value instanceof BigInteger) {
+            return new BigIntegerValue((BigInteger)value, type);
+        } else if (value instanceof SaxonDuration) {
+            return ((SaxonDuration)value).getDurationValue();
+        } else if (value instanceof Duration) {
+            // this is simpler and safer (but perhaps slower) than extracting all the components
+            //return DurationValue.makeDuration(value.toString()).asAtomic();
+         	Duration dv = (Duration) value;
+           	return new DurationValue(dv.getSign() >= 0, dv.getYears(), dv.getMonths(), dv.getDays(), 
+           			dv.getHours(), dv.getMinutes(), dv.getSeconds(), 0, type); // take correct millis..
+        } else if (value instanceof SaxonXMLGregorianCalendar) {
+            return ((SaxonXMLGregorianCalendar)value).toCalendarValue();
+        } else if (value instanceof XMLGregorianCalendar) {
+            XMLGregorianCalendar g = (XMLGregorianCalendar)value;
+            QName gtype = g.getXMLSchemaType();
+            if (gtype.equals(DatatypeConstants.DATETIME)) {
+                return DateTimeValue.makeDateTimeValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.DATE)) {
+                return DateValue.makeDateValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.TIME)) {
+                return TimeValue.makeTimeValue(value.toString()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GYEAR)) {
+                return GYearValue.makeGYearValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GYEARMONTH)) {
+                return GYearMonthValue.makeGYearMonthValue(value.toString(), config.getConversionRules()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GMONTH)) {
+             	// a workaround for W3C schema bug
+               	String val = value.toString();
+               	if (val.endsWith("--")) {
+               		val = val.substring(0, val.length() - 2);
+               	}
+                return GMonthValue.makeGMonthValue(val).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GMONTHDAY)) {
+                return GMonthDayValue.makeGMonthDayValue(value.toString()).asAtomic();
+            } else if (gtype.equals(DatatypeConstants.GDAY)) {
+                return GDayValue.makeGDayValue(value.toString()).asAtomic();
             } else {
-                throw new XPathException("Java object cannot be converted to an XQuery value");
+                throw new AssertionError("Unknown Gregorian date type");
             }
-        //} catch (XPathException e) {
-        //    XQException xqe = new XQException(e.getMessage());
-        //    xqe.initCause(e);
-        //    throw xqe;
-        //}
+        } else if (value instanceof QName) {
+            QName q = (QName)value;
+            return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type);
+        } else if (value instanceof URI) {
+          	return new AnyURIValue(value.toString());
+        } else if (value instanceof Map) {
+           	return new MapItemImpl((Map) value, config);
+        } else {
+        	return new ObjectValue(value);
+            //throw new XPathException("Java object cannot be converted to an XQuery value");
+        }
     }
 
     public static Item convertToItem(Object value, Configuration config, int kind) throws XPathException {
@@ -448,6 +446,17 @@ public class SaxonUtils {
 			}
 		}
 		return null;
+	}
+	
+	public static Map<String, Object> itemToMap(MapItem mi) throws XPathException {
+    	AtomicValue key;
+    	AtomicIterator itr = mi.keys();
+		Map<String, Object> result = new HashMap<>();
+    	while ((key = itr.next()) != null) {
+    		Sequence value = mi.get(key);
+    		result.put(key.getStringValue(), itemToObject(value.head().atomize().head()));
+    	}
+    	return result;
 	}
 	
 	public static SequenceType type2Sequence(DataType type) {
@@ -763,20 +772,25 @@ public class SaxonUtils {
     }
     
 	public static Properties sequence2Properties(Sequence sq) throws XPathException {
-		SequenceIterator itr = sq.iterate();
 		Properties props = new Properties();
-		do {
-			Item item = itr.next();
-			if (item != null) {
-				String prop = item.getStringValue();
-				int pos = prop.indexOf("=");
-				if (pos > 0) {
-					props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
+		Item head = sq.head();
+		if (head instanceof MapItem) {
+			props.putAll(itemToMap((MapItem) head));
+		} else {
+			SequenceIterator itr = sq.iterate();
+			do {
+				Item item = itr.next();
+				if (item != null) {
+					String prop = item.getStringValue();
+					int pos = prop.indexOf("=");
+					if (pos > 0) {
+						props.setProperty(prop.substring(0, pos), prop.substring(pos + 1));
+					}
+				} else {
+					break;
 				}
-			} else {
-				break;
-			}
-		} while (true);
+			} while (true);
+		}
 		return props;
 	}
 	

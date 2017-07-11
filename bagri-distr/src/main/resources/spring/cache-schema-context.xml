@@ -55,9 +55,10 @@
 			<hz:queue name="client:*" async-backup-count="0" backup-count="0" />
 
 			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
-				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}">
-				<!--hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
-					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/-->
+				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}"
+				cache-deserialized-values="NEVER">
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
+					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/>
 				<hz:indexes>
 					<hz:index attribute="pathId" ordered="true"/>
 					<hz:index attribute="root"/>
@@ -124,6 +125,12 @@
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="10">
+				<!--hz:indexes>
+					<hz:index attribute="docId"/>
+				</hz:indexes>
+				<hz:attributes>
+					<hz:attribute name="docId" extractor="com.bagri.server.hazelcast.predicate.ResultsQueryExtractor" />
+				</hz:attributes-->
 			</hz:map>
 			
 			<hz:topic name="xdm-health">
