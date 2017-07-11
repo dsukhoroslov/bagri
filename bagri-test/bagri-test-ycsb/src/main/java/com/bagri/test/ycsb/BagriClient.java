@@ -44,12 +44,12 @@ public class BagriClient extends DB {
 		
 		insertProps.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		insertProps.setProperty(pn_document_collections, "usertable");
-		insertProps.setProperty(pn_document_data_format, "MAP");
+		insertProps.setProperty(pn_document_data_format, "XML");
 
 		updateProps.setProperty(pn_client_storeMode, pv_client_storeMode_update);
 		updateProps.setProperty(pn_client_txTimeout, "100");
 		updateProps.setProperty(pn_document_collections, "usertable");
-		updateProps.setProperty(pn_document_data_format, "MAP");
+		updateProps.setProperty(pn_document_data_format, "XML");
     }
 	
 	@Override

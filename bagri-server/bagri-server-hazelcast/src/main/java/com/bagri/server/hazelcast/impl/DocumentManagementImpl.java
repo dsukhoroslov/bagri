@@ -449,13 +449,29 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     
 	@Override
 	public Object getDocumentAsBean(String uri, Properties props) throws BagriException {
-		String xml = getDocumentAsString(uri, props);
-		if (xml == null) {
-			return null;
-		}
-		return beanFromXML(xml);
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		return getDocumentAsBean(docKey, props);  
 	}
 
+	public Object getDocumentAsBean(DocumentKey docKey, Properties props) throws BagriException {
+		Document doc = getDocument(docKey);
+		if (doc == null) {
+			logger.info("getDocumentAsBean; no document found for key: {}", docKey);
+			return null;
+		}
+
+		if (!"MAP".equalsIgnoreCase(doc.getContentType()) && !repo.getHandler(doc.getContentType()).isStringFormat()) {
+			return getDocumentContent(docKey);
+		}
+
+		String content = getDocumentAsString(docKey, props);
+		if (content == null) {
+			return null;
+		}
+		// TODO: convert from JSON as well!
+		return beanFromXML(content);
+	}
+	
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
 		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
@@ -471,13 +487,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws BagriException {
-		//String xml = getDocumentAsString(docKey, props);
-		//if (xml == null) {
-		//	return null;
-		//}
-		//return mapFromXML(xml);
-		// TODO: check props: if content is Map then take it directly as Map
-		return (Map<String, Object>) getDocumentContent(docKey);
+		Document doc = getDocument(docKey);
+		if (doc == null) {
+			logger.info("getDocumentAsMap; no document found for key: {}", docKey);
+			return null;
+		}
+
+		if ("MAP".equalsIgnoreCase(doc.getContentType())) {
+			return (Map<String, Object>) getDocumentContent(docKey);
+		}
+		
+		String content = getDocumentAsString(docKey, props);
+		if (content == null) {
+			return null;
+		}
+		// TODO: convert from JSON as well!
+		return mapFromXML(content);
 	}
 
 	public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
@@ -521,7 +546,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		String docFormat = doc.getContentType();
 		String dataFormat = null;
 		if (props != null) {
-			props.getProperty(pn_document_data_format);
+			dataFormat = props.getProperty(pn_document_data_format);
 		}
 		if (dataFormat == null) {
 			dataFormat = docFormat;
@@ -853,32 +878,54 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws BagriException {
-		String xml = beanToXML(bean);
-		if (xml == null || xml.trim().length() == 0) {
+		String dataFormat = null;
+		if (props != null) {
+			dataFormat = props.getProperty(pn_document_data_format);
+		}
+		if (dataFormat == null) {
+			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
+		}
+		if (!"MAP".equalsIgnoreCase(dataFormat) && !repo.getHandler(dataFormat).isStringFormat()) {
+			return storeDocument(uri, bean, props);
+		}
+		
+		// TODO: use JSON as well!
+		String content = beanToXML(bean);
+		if (content == null || content.trim().length() == 0) {
 			throw new BagriException("Can not convert bean [" + bean + "] to XML", BagriException.ecDocument);
 		}
-		logger.trace("storeDocumentFromBean; converted bean: {}", xml); 
-			
+		logger.trace("storeDocumentFromBean; converted bean: {}", content); 
+		
 		if (props != null) {
 			props.setProperty(pn_document_data_format, df_xml);
 		}
-		return storeDocumentFromString(uri, xml, props);
+		return storeDocumentFromString(uri, content, props);
 	}
 
 	@Override
 	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws BagriException {
-		//String xml = mapToXML(fields);
-		//if (xml == null || xml.trim().length() == 0) {
-		//	throw new BagriException("Can not convert map [" + fields + "] to XML", BagriException.ecDocument);
-		//}
-		//logger.trace("storeDocumentFromMap; converted map: {}", xml); 
+		String dataFormat = null;
+		if (props != null) {
+			dataFormat = props.getProperty(pn_document_data_format);
+		}
+		if (dataFormat == null) {
+			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
+		}
+		if ("MAP".equalsIgnoreCase(dataFormat)) {
+			return storeDocument(uri, fields, props);
+		}
 		
-		//if (props != null) {
-		//	props.setProperty(pn_document_data_format, df_xml);
-		//}
-		//return storeDocumentFromString(uri, xml, props);
-		Document result = storeDocument(uri, fields, props);
-		return result;
+		// TODO: use JSON as well!
+		String content = mapToXML(fields);
+		if (content == null || content.trim().length() == 0) {
+			throw new BagriException("Can not convert map [" + fields + "] to XML", BagriException.ecDocument);
+		}
+		logger.trace("storeDocumentFromMap; converted map: {}", content); 
+		
+		if (props != null) {
+			props.setProperty(pn_document_data_format, df_xml);
+		}
+		return storeDocumentFromString(uri, content, props);
 	}
 	
 	@Override
@@ -917,7 +964,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
 	    	// do this asynch after tx?
-	    	//((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		}
 
 		if (dataFormat == null) {

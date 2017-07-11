@@ -1,6 +1,7 @@
 package com.bagri.core.api.impl;
 
-import java.util.HashMap;
+import static com.bagri.support.util.XQUtils.mapFromSequence;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -128,25 +129,7 @@ public abstract class ResultCursorBase implements ResultCursor {
 		XQSequence cs = (XQSequence) checkCurrent();
 		try {
 			logger.trace("getMap.enter; sequence: {}", cs);
-			Map<String, Object> result;
-			synchronized (cs) {
-				if (cs.isScrollable()) {
-					cs.beforeFirst();
-					result = new HashMap<>(cs.count());
-				} else {
-					result = new HashMap<>();
-				}
-				while (cs.next()) {
-					XQSequence pair = (XQSequence) cs.getObject();
-					//logger.trace("getMap; pair: {}; count: {}", pair, pair.count());
-					pair.beforeFirst();
-					pair.next();
-					String key = pair.getAtomicValue();
-					pair.next();
-					Object value = pair.getObject();
-					result.put(key, value);
-				}
-			}
+			Map<String, Object> result = mapFromSequence(cs);
 			logger.trace("getMap.exit; result: {}", result); 
         	return result;
 		} catch (XQException ex) {

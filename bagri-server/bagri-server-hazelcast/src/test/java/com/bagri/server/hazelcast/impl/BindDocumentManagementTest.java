@@ -77,7 +77,9 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 	public void createBeanDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		SampleBean sb1 = new SampleBean(1, false, "XYZ");
-		Document bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test.xml", sb1, null);
+	    Properties props = new Properties();
+		props.setProperty(pn_document_data_format, "XML");
+		Document bDoc = xRepo.getDocumentManagement().storeDocumentFromBean("bean_test.xml", sb1, props);
 		assertNotNull(bDoc);
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);

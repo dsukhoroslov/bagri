@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
@@ -38,6 +39,7 @@ import org.xml.sax.InputSource;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessorBase;
 import com.bagri.support.util.XMLUtils;
+import com.bagri.support.util.XQUtils;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
@@ -332,7 +334,13 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 		} else if (item instanceof ObjectValue) {
 			return convertToString(((ObjectValue) item).getObject(), props);
 		} else if (item instanceof XQSequence) {
-			//return ((XQSequence) item).getSequenceAsString(props);
+			// TODO: do this via standard Saxon plugins?!
+			String method = props.getProperty(OutputKeys.METHOD);
+			if (method != null && method.equalsIgnoreCase("map")) {
+				Map<String, Object> result = XQUtils.mapFromSequence((XQSequence) item);
+				return result.toString();
+			}
+			
 			Writer writer = new StringWriter();
 			SequenceIterator itr = new XQSequenceIterator((XQSequence) item, config);
 			try {

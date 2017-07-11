@@ -22,12 +22,14 @@ import com.bagri.core.DocumentKey;
 import com.hazelcast.aggregation.Aggregators;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
+import com.hazelcast.map.impl.mapstore.MapDataStore;
 import com.hazelcast.map.impl.query.AggregationResult;
 import com.hazelcast.map.impl.query.Query;
 import com.hazelcast.map.impl.query.QueryResult;
 import com.hazelcast.map.impl.query.QueryResultRow;
 import com.hazelcast.map.impl.query.Result;
 import com.hazelcast.map.impl.recordstore.RecordStore;
+import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.spi.ManagedService;
@@ -63,15 +65,35 @@ public class DataDistributionService implements ManagedService {
 		String address = nodeEngine.getThisAddress().toString();
 		List<PartitionStatistics> stats = new ArrayList<>(parts.size());
 		for (int part: parts) {
+			int dsize = 0; long dcost = 0; 
 			RecordStore<?> drs = mapCtx.getExistingRecordStore(part, CN_XDM_DOCUMENT);
+			if (drs != null) {
+				dsize = drs.size(); dcost = drs.getOwnedEntryCost();
+			}
+			int csize = 0; long ccost = 0; 
 			RecordStore<?> crs = mapCtx.getExistingRecordStore(part, CN_XDM_CONTENT);
+			if (crs != null) {
+				csize = crs.size(); ccost = crs.getOwnedEntryCost();
+			}
+			int esize = 0; long ecost = 0; 
 			RecordStore<?> ers = mapCtx.getExistingRecordStore(part, CN_XDM_ELEMENT);
+			if (ers != null) {
+				esize = ers.size(); ecost = ers.getOwnedEntryCost();
+			}
+			int isize = 0; long icost = 0; 
 			RecordStore<?> irs = mapCtx.getExistingRecordStore(part, CN_XDM_INDEX);
+			if (irs != null) {
+				isize = irs.size(); icost = irs.getOwnedEntryCost();
+			}
+			int rsize = 0; long rcost = 0; 
 			RecordStore<?> rrs = mapCtx.getExistingRecordStore(part, CN_XDM_RESULT);
+			if (rrs != null) {
+				rsize = rrs.size(); rcost = rrs.getOwnedEntryCost();
+			}
+			MapDataStore<Data, Object> store = drs.getMapDataStore();
 			//mapCtx.getPartitionContainer(part).
-			stats.add(new PartitionStatistics(address, part, drs.size(), drs.getOwnedEntryCost(), drs.getMapDataStore().notFinishedOperationsCount(), 
-					crs.size(), crs.getOwnedEntryCost(), ers.size(), ers.getOwnedEntryCost(), irs.size(), irs.getOwnedEntryCost(), rrs.size(), 
-					rrs.getOwnedEntryCost()));
+			stats.add(new PartitionStatistics(address, part, dsize, dcost, store == null ? 0 : store.notFinishedOperationsCount(), 
+					csize, ccost, esize, ecost, isize, icost, rsize, rcost));
 		}
 		return stats;
 	}

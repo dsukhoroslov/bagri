@@ -802,4 +802,28 @@ public class XQUtils {
     	}
     	return factory.createSequence(pairs.iterator());
 	}
+	
+	public static Map<String, Object> mapFromSequence(XQSequence cs) throws XQException {
+		Map<String, Object> result;
+		synchronized (cs) {
+			if (cs.isScrollable()) {
+				cs.beforeFirst();
+				result = new HashMap<>(cs.count());
+			} else {
+				result = new HashMap<>();
+			}
+			
+			while (cs.next()) {
+				XQSequence pair = (XQSequence) cs.getObject();
+				pair.beforeFirst();
+				pair.next();
+				String key = pair.getAtomicValue();
+				pair.next();
+				Object value = pair.getObject();
+				result.put(key, value);
+			}
+		}
+       	return result;
+	}
+	
 }

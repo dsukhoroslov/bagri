@@ -63,7 +63,6 @@ import net.sf.saxon.type.ItemType;
 import net.sf.saxon.value.*;
 
 import static net.sf.saxon.om.StandardNames.*;
-import static com.bagri.xquery.saxon.SaxonUtils.itemToMap;
 import static javax.xml.xquery.XQItemType.*;
 
 public class SaxonUtils {
