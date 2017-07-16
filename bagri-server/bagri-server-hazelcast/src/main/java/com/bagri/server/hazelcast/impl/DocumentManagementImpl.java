@@ -7,6 +7,7 @@ import static com.bagri.core.model.Document.clnDefault;
 import static com.bagri.core.model.Document.dvFirst;
 import static com.bagri.core.query.PathBuilder.*;
 import static com.bagri.core.system.DataFormat.df_xml;
+import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.support.util.FileUtils.def_encoding;
 import static com.bagri.support.util.XMLUtils.*;
 
@@ -42,6 +43,7 @@ import com.bagri.core.model.FragmentedDocument;
 import com.bagri.core.model.Path;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.ContentBuilder;
+import com.bagri.core.server.api.ContentConverter;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.impl.DocumentManagementBase;
@@ -246,16 +248,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	private Document getDocument(DocumentKey docKey) {
-		return xddCache.get(docKey); 
+		//return xddCache.get(docKey);
+		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, true);
 	}
 
 	@Override
 	public Document getDocument(String uri) {
 		Document doc = null;
-		DocumentKey docKey = getDocumentKey(uri, false, false);
-		if (docKey != null) {
-			doc = getDocument(docKey);
-		}
+    	DocumentKey key = ddSvc.getLastKeyForUri(uri);
+    	if (key != null) {
+    		doc = getDocument(key);
+    		if (doc != null) {
+    			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
+    				logger.debug("getDocument; the latest document version is finished already: {}", doc);
+    				doc = null;
+    			}
+    		}
+    	}
 		return doc;
 	}
 	
@@ -270,7 +279,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	private Object getDocumentContent(DocumentKey docKey) {
-		Object content = cntCache.get(docKey);
+		//Object content = cntCache.get(docKey);
+		Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, false);
 		if (content == null) {
 			// build it with builder!
 		}
@@ -474,8 +484,28 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
-		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
-		return getDocumentAsMap(docKey, props);  
+		//DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		//return getDocumentAsMap(docKey, props);
+		Document doc = getDocument(uri);
+		if (doc == null) {
+			logger.info("getDocumentAsMap; no document found for uri: {}", uri);
+			return null;
+		}
+
+		String cType = doc.getContentType();
+		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
+		if ("MAP".equalsIgnoreCase(cType)) {
+			return (Map<String, Object>) getDocumentContent(docKey);
+		}
+		
+		ContentConverter<String, Map<String, Object>> cc = repo.getConverter(cType, Map.class);
+		if (cc != null) {
+			String content = getDocumentAsString(docKey, props);
+			if (content != null) {
+				return cc.convertTo(content);
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -493,16 +523,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return null;
 		}
 
-		if ("MAP".equalsIgnoreCase(doc.getContentType())) {
+		String cType = doc.getContentType();
+		if ("MAP".equalsIgnoreCase(cType)) {
 			return (Map<String, Object>) getDocumentContent(docKey);
 		}
 		
-		String content = getDocumentAsString(docKey, props);
-		if (content == null) {
-			return null;
+		ContentConverter<String, Map<String, Object>> cc = repo.getConverter(cType, Map.class);
+		if (cc != null) {
+			String content = getDocumentAsString(docKey, props);
+			if (content != null) {
+				return cc.convertTo(content);
+			}
 		}
-		// TODO: convert from JSON as well!
-		return mapFromXML(content);
+		return null;
 	}
 
 	public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
@@ -907,24 +940,28 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		String dataFormat = null;
 		if (props != null) {
 			dataFormat = props.getProperty(pn_document_data_format);
+		} else {
+			props = new Properties();
 		}
 		if (dataFormat == null) {
 			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
+		}
+		if (!props.containsKey(pn_document_data_format)) {
+			props.setProperty(pn_document_data_format, dataFormat);
 		}
 		if ("MAP".equalsIgnoreCase(dataFormat)) {
 			return storeDocument(uri, fields, props);
 		}
 		
-		// TODO: use JSON as well!
-		String content = mapToXML(fields);
-		if (content == null || content.trim().length() == 0) {
-			throw new BagriException("Can not convert map [" + fields + "] to XML", BagriException.ecDocument);
+		String content = null;
+		ContentConverter<String, Map<String, Object>> cc = repo.getConverter(dataFormat, Map.class);
+		if (cc != null) {
+			content = cc.convertFrom(fields);
+			if (content == null || content.trim().length() == 0) {
+				throw new BagriException("Can not convert map [" + fields + "] to " + dataFormat, BagriException.ecDocument);
+			}
 		}
 		logger.trace("storeDocumentFromMap; converted map: {}", content); 
-		
-		if (props != null) {
-			props.setProperty(pn_document_data_format, df_xml);
-		}
 		return storeDocumentFromString(uri, content, props);
 	}
 	
@@ -964,7 +1001,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
 	    	// do this asynch after tx?
-	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+	    	//((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		}
 
 		if (dataFormat == null) {

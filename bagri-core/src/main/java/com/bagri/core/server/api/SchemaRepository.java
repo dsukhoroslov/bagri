@@ -92,4 +92,11 @@ public interface SchemaRepository extends com.bagri.core.api.SchemaRepository {
 	 */
 	ContentModeler getModeler(String dataFormat);
 	
+	/**
+	 * 
+	 * @param dataFormat the name of dataFormat to search for
+	 * @param source the class of source data to convert from
+	 * @return the converter to convert source to data format
+	 */
+	ContentConverter getConverter(String dataFormat, Class source);
 }

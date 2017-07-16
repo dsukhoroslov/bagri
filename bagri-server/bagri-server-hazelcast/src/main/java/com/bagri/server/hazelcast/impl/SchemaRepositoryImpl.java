@@ -30,6 +30,7 @@ import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
 import com.bagri.core.server.api.ContentBuilder;
+import com.bagri.core.server.api.ContentConverter;
 import com.bagri.core.server.api.ContentHandler;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ContentParser;
@@ -253,6 +254,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		ContentHandler ch = getHandler(dataFormat);
 		if (ch != null) {
 			return ch.getBuilder();
+		}
+		return null;
+	}
+	
+	//@Override
+	public ContentConverter getConverter(String dataFormat, Class source) {
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getConverter(source);
 		}
 		return null;
 	}

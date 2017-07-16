@@ -15,20 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.api.SchemaRepository;
-import com.bagri.core.xquery.api.XQProcessor;
-import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xquery.saxon.XQProcessorClient;
-import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.Status;
 import com.yahoo.ycsb.StringByteIterator;
 
-public class BagriQueryClient extends DB {
+public class BagriQueryClient extends BagriClientBase {
 	
-    private static final Logger logger = LoggerFactory.getLogger(BagriClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(BagriQueryClient.class);
 
 	private static String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 			"declare variable $startKey external;\n" +
@@ -54,45 +48,39 @@ public class BagriQueryClient extends DB {
 			"let $uri := bgdb:store-document($uri, $content, $props)\n" +
 			"return $uri";
 	
-    private SchemaRepository xRepo;
-	
-	@Override
-	public void init() throws DBException {
-	    Properties props = getProperties();
-		XQProcessor proc = new XQProcessorClient();
-		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
-		xqFactory.setProcessor(proc);
-		props.put(pn_client_dataFactory, xqFactory);
-		xRepo = new SchemaRepositoryImpl(props);
-	    logger.info("init.exit; xRepo: {}", xRepo);
+    private static final Properties queryProps = new Properties();
+	static {
+		queryProps.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
+		queryProps.setProperty(pn_client_fetchSize, "1");
+		//queryProps.setProperty(pn_client_submitTo, key);
 	}
 
-	@Override
-	public void cleanup() {
-	    logger.info("cleanup; xRepo: {}", xRepo);
-	    xRepo.close();
+    @Override
+	protected Logger getLogger() {
+    	return logger;
+    }
+
+    @Override
+	public void init() throws DBException {
+		super.init();
+		scanProps.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
+    	String format = System.getProperty(pn_document_data_format);
+    	if (format == null) {
+    		format = "MAP";
+    	} 
+		scanProps.setProperty(pn_document_data_format, format);
 	}
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
-
-		Properties props = new Properties();
-		props.setProperty(pn_document_collections, table);
-		props.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
-		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_fetchSize, "1");
-		//props.setProperty(pn_client_submitTo, key);
-
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("uri", URI.create(key));
 		HashMap content = StringByteIterator.getStringMap(values);
 		content.put("key", key);
 		params.put("content", content);
-		params.put("props", props);
-		
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, props)) {
+		params.put("props", insertProps);
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, queryProps)) {
 			if (cursor.next()) {
 				return Status.OK;
 			} else {
@@ -105,36 +93,12 @@ public class BagriQueryClient extends DB {
 		}
 	}
 	
-	private void populateResult(final Map<String, Object> document, final Set<String> fields, 
-			final HashMap<String, ByteIterator> result) {
-		// fill results
-		if (fields == null) {
-			for (Map.Entry<String, Object> entry: document.entrySet()) {
-				result.put(entry.getKey(), new StringByteIterator(entry.getValue().toString()));
-			}
-		} else {
-			for (String field: fields) {
-				Object value = document.get(field);
-				if (value != null) {
-					result.put(field, new StringByteIterator(value.toString()));
-				}
-			}
-		}
-	}
-
 	@Override
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
-
-		Properties props = new Properties();
-		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		props.setProperty(pn_document_data_format, "1");
-		//props.setProperty(pn_client_submitTo, key);
-
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("key", key);
-
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, props)) {
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, queryProps)) {
 			if (cursor.next()) {
 				Map<String, Object> map = cursor.getMap();
 				populateResult(map, fields, result);
@@ -152,22 +116,17 @@ public class BagriQueryClient extends DB {
 	@Override
 	public Status scan(final String table, final String startkey, final int recordcount,
 			final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
-		
-		Properties props = new Properties();
-		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-
+		long stamp = System.currentTimeMillis();
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("startKey", startkey);
-
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qScan, params, props)) {
+		scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qScan, params, scanProps)) {
+			timer2.addAndGet(System.currentTimeMillis() - stamp);
 			result.ensureCapacity(recordcount);
 			int count = 0;
 			HashMap<String, ByteIterator> doc = null;
 			while (cursor.next()) {
 				Map<String, Object> map = cursor.getMap();
-				logger.trace("scan; got map: {}", map);
 				doc = new HashMap<>(map.size());
 				populateResult(map, fields, doc);
 				result.add(doc);
@@ -176,6 +135,8 @@ public class BagriQueryClient extends DB {
 			if (count > recordcount) {
 				logger.info("scan; got more records then expected; expected: {}, got: {}; filter: {}", recordcount, count, startkey);
 			}
+			timer.addAndGet(System.currentTimeMillis() - stamp);
+			counter++;
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("scan.error", ex);
@@ -186,23 +147,13 @@ public class BagriQueryClient extends DB {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
-
-		Properties props = new Properties();
-		props.setProperty(pn_document_collections, table);
-		props.setProperty(pn_client_storeMode, pv_client_storeMode_update);
-		props.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_fetchSize, "1");
-		//props.setProperty(pn_client_submitTo, key);
-
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("uri", URI.create(key));
 		HashMap content = StringByteIterator.getStringMap(values);
 		content.put("key", key);
 		params.put("content", content);
-		params.put("props", props);
-		
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, props)) {
+		params.put("props", updateProps);
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, queryProps)) {
 			if (cursor.next()) {
 				return Status.OK;
 			} else {
@@ -217,16 +168,9 @@ public class BagriQueryClient extends DB {
 
 	@Override
 	public Status delete(final String table, final String key) {
-
-		Properties props = new Properties();
-		props.setProperty(pn_document_collections, table);
-		props.setProperty(pn_document_data_format, "MAP");
-		//props.setProperty(pn_client_submitTo, key);
-
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("uri", URI.create(key));
-
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qDelete, params, props)) {
+		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qDelete, params, queryProps)) {
 			if (cursor.next()) {
 				return Status.OK;
 			} else {

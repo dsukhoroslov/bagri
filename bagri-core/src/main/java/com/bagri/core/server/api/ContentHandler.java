@@ -24,6 +24,13 @@ public interface ContentHandler {
 	
 	/**
 	 * 
+	 * @param source type of the data to convert from 
+	 * @return converter to convert from source class to Handler's format class
+	 */
+	ContentConverter<?, ?> getConverter(Class<?> source);
+	
+	/**
+	 * 
 	 * @return Modeler which process schemas for the data format
 	 */
 	ContentModeler getModeler();
