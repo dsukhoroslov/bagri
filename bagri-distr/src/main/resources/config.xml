@@ -635,15 +635,18 @@
     <dataFormats>
         <dataFormat name="XML">
             <version>1</version>
-            <createdAt>2016-05-31T16:17:20.542+03:00</createdAt>
+            <createdAt>2015-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
+            <library>java_library</library>
             <description>XML Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.core.server.api.df.xml.XmlStaxParser</parserClass>
-            <builderClass>com.bagri.core.server.api.df.xml.XmlBuilder</builderClass>
+            <handlerClass>com.bagri.core.server.api.df.xml.XmlHandler</handlerClass>
             <extensions>xml</extensions>
+            <type>application/xml</type>
             <properties>
 		<entry name="bdb.schema.parser.schemas"></entry>
+		<entry name="bdb.schema.builder.pretty">false</entry>
+		<entry name="bdb.schema.builder.ident">4</entry>
 		<entry name="javax.xml.stream.isValidating">false</entry>
 		<entry name="javax.xml.stream.isCoalescing">false</entry>
 		<entry name="javax.xml.stream.isNamespaceAware">true</entry>
@@ -656,16 +659,29 @@
         </dataFormat>
         <dataFormat name="JSON">
             <version>1</version>
-            <createdAt>2016-05-31T16:17:20.542+03:00</createdAt>
+            <createdAt>2015-05-31T16:17:20.542+03:00</createdAt>
             <createdBy>admin</createdBy>
+            <library>java_library</library>
             <description>JSON Parser/Builder</description>
             <enabled>true</enabled>
-            <parserClass>com.bagri.core.server.api.df.json.JsonApiParser</parserClass>
-            <builderClass>com.bagri.core.server.api.df.json.JsonBuilder</builderClass>
+            <handlerClass>com.bagri.core.server.api.df.json.JsonpHandler</handlerClass>
             <extensions>json</extensions>
+            <type>application/json</type>
             <properties>
+		<entry name="javax.json.spi.JsonProvider">org.glassfish.json.JsonProviderImpl</entry>
 		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
             </properties>
+        </dataFormat>
+        <dataFormat name="MAP">
+            <version>1</version>
+            <createdAt>2017-04-30T15:17:20.542+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>MAP Parser/Builder</description>
+            <enabled>true</enabled>
+            <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
+            <extensions></extensions>
+            <type></type>
+            <properties/>
         </dataFormat>
     </dataFormats>
     <dataStores>
