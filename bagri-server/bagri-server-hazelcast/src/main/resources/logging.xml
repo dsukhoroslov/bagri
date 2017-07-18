@@ -57,6 +57,10 @@
         <level value="${swagger.log.level:-info}"/>
     </logger>
 
+    <logger name="org.reflections">
+        <level value="${swagger.log.level:-info}"/>
+    </logger>
+
     <logger name="org.eclipse.jetty">
         <level value="${jetty.log.level:-info}"/>
     </logger>

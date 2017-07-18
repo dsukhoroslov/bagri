@@ -1,6 +1,7 @@
 package com.bagri.core.server.api.df.json;
 
-import java.util.Map;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
@@ -9,14 +10,17 @@ import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ContentHandlerBase;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class JsonpHandler extends ContentHandlerBase implements ContentHandler {
 	
 	private ContentBuilder<String> cb;
 	private ContentModeler cm;
 	private ContentParser<String> cp;
-	private ContentConverter<String, Object> bc = null;
-	private ContentConverter<String, Map<String, Object>> mc = null;
+	private ConcurrentHashMap<Class<?>, ContentConverter<String, Object>> ccs = new ConcurrentHashMap<>();
 	
 	public JsonpHandler(ModelManagement modelMgr) {
 		this.modelMgr = modelMgr;
@@ -43,17 +47,12 @@ public class JsonpHandler extends ContentHandlerBase implements ContentHandler {
 
 	@Override
 	public ContentConverter<?, ?> getConverter(Class<?> source) {
-		if (source.isAssignableFrom(Map.class)) {
-			if (mc == null) {
-				mc = new MapJsonConverter();
-			}
-			return mc;
-		} else {
-			if (bc == null) {
-				bc = new BeanJsonConverter();
-			}
-			return bc;
+		ContentConverter<String, Object> cc = ccs.get(source);
+		if (cc == null) {
+			cc = new JacksonConverter(source);
+			ccs.putIfAbsent(source, cc);
 		}
+		return cc;
 	}
 
 	@Override
@@ -74,31 +73,39 @@ public class JsonpHandler extends ContentHandlerBase implements ContentHandler {
 		return cp;
 	}
 
-	private static class BeanJsonConverter implements ContentConverter<String, Object> {
+	private static class JacksonConverter implements ContentConverter<String, Object> {
+		
+		private final ObjectReader r;
+		private final ObjectWriter w;
+
+		JacksonConverter(Class<?> source) {
+			ObjectMapper mapper = new ObjectMapper();
+			r = mapper.readerFor(source);
+			w = mapper.writerFor(source);
+		}
 
 		@Override
 		public String convertFrom(Object source) {
-			return null; //beanToXML(source);
+			try {
+				return w.writeValueAsString(source);
+			} catch (JsonProcessingException ex) {
+				// TODO log ex
+				ex.printStackTrace();
+				return null;
+			}
 		}
 
 		@Override
 		public Object convertTo(String content) {
-			return null; //beanFromXML(content);
+			try {
+				return r.readValue(content);
+			} catch (IOException ex) {
+				// TODO log ex
+				ex.printStackTrace();
+				return null;
+			} 
 		}
 		
 	}
 	
-	private static class MapJsonConverter implements ContentConverter<String, Map<String, Object>> {
-
-		@Override
-		public String convertFrom(Map<String, Object> source) {
-			return null; //mapToXML(source);
-		}
-
-		@Override
-		public Map<String, Object> convertTo(String content) {
-			return null; //mapFromXML(content);
-		}
-		
-	}
 }
