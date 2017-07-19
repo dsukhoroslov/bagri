@@ -3,6 +3,7 @@ package com.bagri.xquery.saxon.ext.doc;
 import static com.bagri.core.Constants.bg_ns;
 import static com.bagri.core.Constants.bg_schema;
 import static com.bagri.core.Constants.cmd_query_document_uris;
+import static com.bagri.xquery.saxon.SaxonUtils.itemToMap;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import com.bagri.core.api.BagriException;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
+import net.sf.saxon.ma.map.MapItem;
+import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.AtomicArray;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
@@ -53,7 +56,7 @@ public class QueryDocumentUris extends ExtensionFunctionDefinition {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_STRING, SequenceType.ANY_SEQUENCE, SequenceType.ATOMIC_SEQUENCE}; 
+		return new SequenceType[] {SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM, MapType.OPTIONAL_MAP_ITEM}; 
 	}
 	
 	@Override
@@ -90,7 +93,8 @@ public class QueryDocumentUris extends ExtensionFunctionDefinition {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				String query = arguments[0].head().getStringValue();
-				Map<String, Object> params = sequence2Params(arguments[1]);
+				MapItem item = (MapItem) arguments[1].head();
+				Map<String, Object> params = itemToMap(item);
 				Properties props = null; 
 				if (arguments.length > 2) {
 					props = sequence2Properties(arguments[2]);

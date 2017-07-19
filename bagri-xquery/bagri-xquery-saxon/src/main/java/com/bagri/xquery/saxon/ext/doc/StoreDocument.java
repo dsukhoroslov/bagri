@@ -11,7 +11,7 @@ import com.bagri.core.model.Document;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
-import net.sf.saxon.ma.map.HashTrieMap;
+import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AnyURIValue;
@@ -32,7 +32,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_STRING, SequenceType.ATOMIC_SEQUENCE}; //STRING_SEQUENCE};
+		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM}; 
 	}
 	
 	@Override
@@ -66,7 +66,6 @@ public class StoreDocument extends DocumentFunctionExtension {
 				}
 				try {
 					Document doc = xdm.storeDocumentFromString(uri, xml, props);
-					//HashTrieMap map = new HashTrieMap(context);
 					return new AnyURIValue(doc.getUri());
 				} catch (BagriException ex) {
 					throw new XPathException(ex);

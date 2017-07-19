@@ -10,6 +10,7 @@ import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
+import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.EmptySequence;
@@ -29,7 +30,7 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.STRING_SEQUENCE}; 
+		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, MapType.OPTIONAL_MAP_ITEM}; 
 	}
 
 	@Override 

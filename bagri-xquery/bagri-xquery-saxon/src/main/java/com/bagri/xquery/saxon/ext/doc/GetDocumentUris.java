@@ -12,6 +12,7 @@ import com.bagri.core.api.DocumentManagement;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
+import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.AtomicArray;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
@@ -32,7 +33,7 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_STRING, SequenceType.ATOMIC_SEQUENCE}; 
+		return new SequenceType[] {SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM}; 
 	}
 
 	@Override 
