@@ -828,22 +828,41 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		//boolean update = (old.getValue() != null); // && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 		DocumentKey docKey = old.getKey();
+		long docId = docKey.getKey();
 		if (old.getValue() != null) {
 	    	logger.trace("processDocument; going to update document: {}", old);
-	    	// we must finish old Document and create a new one!
-			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
 	    	Document updated = old.getValue();
-	    	updated.finishDocument(txId);
-		    old.setValue(updated);
-		    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); // docKey.getKey() + 1);
+	    	if (txId > TX_NO) {
+		    	// we must finish old Document and create a new one!
+				//triggerManager.applyTrigger(doc, Order.before, Scope.update);
+		    	updated.finishDocument(txId);
+			    old.setValue(updated);
+			    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); // docKey.getKey() + 1);
+	    	} else {
+		    	// we do changes inplace, no new version created
+	    		// delete old elements
+	    		Set<DataKey> dKeys = xdmCache.localKeySet(Predicates.equal("__key#documentKey", docId));
+	    		for (DataKey dKey: dKeys) {
+	    			int pathId = dKey.getPathId(); 
+		        	if (indexManager.isPathIndexed(pathId)) {
+			       		Elements elts = xdmCache.remove(dKey);
+			       		if (elts != null) {
+			       			for (Element elt: elts.getElements()) {
+			       				indexManager.removeIndex(docId, pathId, elt.getValue());
+			       			}
+			       		}
+		        	} else {
+		        		xdmCache.delete(dKey);
+		        	}
+	    		}
+	    	}
 		}
 
-		long key = docKey.getKey();
 		int length = 0; // get it from parser somehow
 		String root = data.get(0).getRoot();
-		Set<Integer> ids = processElements(key, data);
+		Set<Integer> ids = processElements(docId, data);
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
-		Document newDoc = new Document(key, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());
+		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());
 
 		String collections = props == null ? null : props.getProperty(pn_document_collections);
 		if (collections != null) {

@@ -71,7 +71,6 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 
 	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
-		//return null;
 		DocumentKey lastKey = ddSvc.getLastKeyForUri(uri);
 		long txStart = tx == null ? TX_NO : tx.getTxId();
 		if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
