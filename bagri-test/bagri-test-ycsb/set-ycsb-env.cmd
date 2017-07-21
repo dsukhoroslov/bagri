@@ -42,8 +42,8 @@ set java_opts=%java_opts% -Dbdb.client.customAuth=true
 
 rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
+set java_opts=%java_opts% -Dbdb.client.txLevel=txSkip
 set java_opts=%java_opts% -Dbdb.document.data.format=MAP
-
 
 rem set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 

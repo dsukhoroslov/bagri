@@ -1,5 +1,8 @@
 package com.bagri.server.hazelcast.task.doc;
 
+import static com.bagri.core.Constants.pn_client_txLevel;
+import static com.bagri.core.Constants.pv_client_txLevel_skip;
+
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,12 @@ public class DocumentBeanCreator extends com.bagri.client.hazelcast.task.doc.Doc
 
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.modify);
+    	
+    	String txLevel = props.getProperty(pn_client_txLevel);
+    	if (pv_client_txLevel_skip.equals(txLevel)) {
+    		// bypass tx stack completely!
+    		return docMgr.storeDocumentFromBean(uri, bean, props);
+    	}
     	
     	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
     		

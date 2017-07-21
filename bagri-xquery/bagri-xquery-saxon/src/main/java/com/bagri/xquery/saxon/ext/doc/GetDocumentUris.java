@@ -57,7 +57,7 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 				String pattern = arguments[0].head().getStringValue();
 				Properties props = null; 
 				if (arguments.length > 1) {
-					props = sequence2Properties(arguments[2]);
+					props = sequence2Properties(arguments[1]);
 				}
 				try {
 					Collection<String> uris = xdm.getDocumentUris(pattern, props);

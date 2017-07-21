@@ -48,6 +48,12 @@ public abstract class BagriClientBase extends DB {
 		} else {
 			insertProps.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		}
+
+		String txLevel = System.getProperty(pn_client_txLevel);
+		if (txLevel != null) {
+			insertProps.setProperty(pn_client_txLevel, txLevel);
+		}
+		
 		insertProps.setProperty(pn_document_collections, "usertable");
 		insertProps.setProperty(pn_document_data_format, format);
 
@@ -60,6 +66,11 @@ public abstract class BagriClientBase extends DB {
 		if (timeout != null) {
 			updateProps.setProperty(pn_client_txTimeout, timeout);
 		}
+
+		if (txLevel != null) {
+			updateProps.setProperty(pn_client_txLevel, txLevel);
+		}
+		
 		updateProps.setProperty(pn_document_collections, "usertable");
 		updateProps.setProperty(pn_document_data_format, format);
     }

@@ -1,11 +1,11 @@
 package com.bagri.server.hazelcast.task.doc;
 
-//import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext; 
+import static com.bagri.core.Constants.pn_client_txLevel;
+import static com.bagri.core.Constants.pv_client_txLevel_skip;
 
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.context.ApplicationContext;
 
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.model.Document;
@@ -31,13 +31,14 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
 	@Override
 	public Document call() throws Exception {
     	
-    	//final ApplicationContext ctx = getContext("default");
-    	//repo = ctx.getBean(SchemaRepository.bean_id, SchemaRepository.class);
-    	//final DocumentManagement docMgr = repo.getDocumentManagement();
-    	//final TransactionManagement txMgr = (TransactionManagement) repo.getTxManagement();
-
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.modify);
+    	
+    	String txLevel = props.getProperty(pn_client_txLevel);
+    	if (pv_client_txLevel_skip.equals(txLevel)) {
+    		// bypass tx stack completely!
+    		return docMgr.storeDocumentFromString(uri, content, props);
+    	}
     	
     	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
     		

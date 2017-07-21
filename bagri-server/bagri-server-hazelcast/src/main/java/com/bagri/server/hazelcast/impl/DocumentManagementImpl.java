@@ -1017,7 +1017,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		// if fragmented document - process it in the old style!
 		
-		Transaction tx = txManager.getTransaction(txManager.getCurrentTxId());
+		Transaction tx = null;
+    	String txLevel = props.getProperty(pn_client_txLevel);
+    	if (!pv_client_txLevel_skip.equals(txLevel)) {
+    		tx = txManager.getTransaction(txManager.getCurrentTxId()); 
+    	}
+		
 		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, data, props));
 		if (result instanceof Exception) {
 			logger.error("storeDocument.error; uri: {}", uri, result);
@@ -1031,10 +1036,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Document newDoc = (Document) result;
 		if (newDoc.getVersion() > dvFirst) {
 			scope = Scope.update;
-			txManager.updateCounters(0, 1, 0);
+			if (tx != null) {
+				txManager.updateCounters(0, 1, 0);
+			}
 		} else {
 			scope = Scope.insert;
-			txManager.updateCounters(1, 0, 0);
+			if (tx != null) {
+				txManager.updateCounters(1, 0, 0);
+			}
 		}
 		triggerManager.applyTrigger(newDoc, Order.after, scope);
 

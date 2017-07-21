@@ -41,6 +41,7 @@ import com.bagri.core.xquery.api.XQProcessorBase;
 import com.bagri.support.util.XMLUtils;
 import com.bagri.support.util.XQUtils;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
+import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
@@ -273,18 +274,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     @Override
     public void setRepository(SchemaRepository xRepo) {
     	super.setRepository(xRepo);
-        config.registerExtensionFunction(new GetUuid());
-        config.registerExtensionFunction(new LogOutput());
-        config.registerExtensionFunction(new HttpGet());
-        config.registerExtensionFunction(new GetDocumentContent(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new StoreDocumentFromMap(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new RemoveCollectionDocuments(xRepo.getDocumentManagement()));
-        config.registerExtensionFunction(new QueryDocumentUris(xRepo.getQueryManagement()));
-        config.registerExtensionFunction(new BeginTransaction(xRepo.getTxManagement()));
-        config.registerExtensionFunction(new CommitTransaction(xRepo.getTxManagement()));
-        config.registerExtensionFunction(new RollbackTransaction(xRepo.getTxManagement()));
+        registerExtensions(config, xRepo);
         if (xRepo instanceof com.bagri.core.server.api.SchemaRepository) {
         	logger.debug("setRepository; registering extensions"); 
         	XQCompilerImpl.registerExtensions(config, ((com.bagri.core.server.api.SchemaRepository) xRepo).getLibraries());

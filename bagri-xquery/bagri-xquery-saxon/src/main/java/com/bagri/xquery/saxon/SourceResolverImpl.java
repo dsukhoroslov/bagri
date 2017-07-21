@@ -64,28 +64,8 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 		URI uri = URI.create(original);
 		logger.trace("resolveSource. got {} URI: {}", uri.isAbsolute() ? "absolute" : "relative", uri);
 
-		String content = resolveContent(uri, config); 
+		String content = resolveContent(uri); 
 
-		//Source src = mgr.getDocumentAsSource(docId);
-		//if (src != null) {
-		//	logger.trace("resolveSource. got document from cache, returning: {}", src);
-		//	//if (source instanceof TinyDocumentImpl) {
-		//	((TinyDocumentImpl) src).getTree().setConfiguration(config);
-		//	return src;
-		//}
-		
-		// move this processing to a node (member)
-		// the document belongs to
-		//logger.debug("resolveSource; looking for documentId: {}", docId);
-		//String content;
-		//try {
-			// another bottleneck! takes 6.73 ms, even to get XML from cache! !?
-		//	content = repo.getDocumentManagement().getDocumentAsString(docId);
-			//content = content.replaceAll("&", "&amp;");
-		//} catch (XDMException ex) {
-		//	throw new XPathException(ex);
-		//}
-		 
 		if (content != null && content.trim().length() > 0) {
 			logger.trace("resolveSource; got content: {}", content.length());
 			StreamSource ss = new StreamSource(new StringReader(content));
@@ -111,34 +91,46 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 	@Override
 	public Reader resolve(URI absoluteURI, String encoding, Configuration config) throws XPathException {
 		logger.trace("resolve; uri: {}; encoding: {}", absoluteURI, encoding);
-		String content = resolveContent(absoluteURI, config); 
+		String content = resolveContent(absoluteURI); 
 		return new StringReader(content);
 	}
 	
-	private String resolveContent(URI uri, Configuration config) throws XPathException {
+	private Object resolveUri(URI uri) {
+		Object result;
+		if (bg_schema.equals(uri.getScheme())) {
+			// skip leading "/"
+			result = new Long(uri.getPath().substring(1));
+		} else {
+			String src = uri.toString();
+			if ("file".equals(uri.getScheme())) {
+				// here we search by fileName
+				src = FileUtils.getPathName(src);
+			}
+			result = src;
+		}
+		logger.debug("resolveUri; uri schema: {}, returning: {}", uri.getScheme(), result); 
+		return result;
+	}
+	
+	private String resolveContent(URI uri) throws XPathException {
 
 		String content;
 		try {
-			if (bg_schema.equals(uri.getScheme())) {
-				// skip leading "/"
-				long docKey = Long.parseLong(uri.getPath().substring(1));
-				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString(docKey, null);
+			Object key = resolveUri(uri);
+			if (key instanceof Long) {
+				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString((Long) key, null);
 			} else {
-				String src = uri.toString();
-				if ("file".equals(uri.getScheme())) {
-					// here we search by fileName
-					src = FileUtils.getPathName(src);
-				}
-				logger.debug("resolveContent; not a native schema {}, trying short uri: {}", uri.getScheme(), src); 
-				content = repo.getDocumentManagement().getDocumentAsString(src, null);
+				content = repo.getDocumentManagement().getDocumentAsString((String) key, null);
 			}
+			
+			// we want to get MAP here, not a String! need access to other parameters in context..
 
 			if (content == null) {
-				throw new XPathException("cannot resolve document for URI: " +  uri); //??
+				throw new XPathException("cannot resolve document for URI: " +  uri); 
 			}
 			return content;
 		} catch (BagriException ex) {
-			throw new XPathException("cannot resolve document for URI: " +  uri);
+			throw new XPathException("cannot resolve document for URI: " +  uri, ex);
 		}
 	}
 	

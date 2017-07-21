@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.task.doc;
 
 import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProcessDocumentTask;
+import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 import java.util.Properties;
 import java.util.List;
@@ -72,8 +73,9 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	public Object process(Entry<DocumentKey, Document> entry) {
 		//return null;
 		DocumentKey lastKey = ddSvc.getLastKeyForUri(uri);
+		long txStart = tx == null ? TX_NO : tx.getTxId();
 		if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
-			if (tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+			if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
 	    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri + 
 	    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
 			}
@@ -81,7 +83,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 			entry = new MapEntrySimple<DocumentKey, Document>(lastKey, lastDoc);
 		}
     	try {
-    		return docMgr.processDocument(entry, tx.getTxId(), uri, content, data, props);
+    		return docMgr.processDocument(entry, txStart, uri, content, data, props);
     	} catch (BagriException ex) {
     		return ex;
     	}

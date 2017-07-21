@@ -18,7 +18,10 @@ public class Constants {
 
 	public static final String pn_client_id = "bdb.client.id";
 	public static final String pn_client_txId = "bdb.client.txId";
+	public static final String pn_client_txLevel = "bdb.client.txLevel";
 	public static final String pn_client_txTimeout = "bdb.client.txTimeout";
+
+	public static final String pv_client_txLevel_skip = "txSkip";
 	
 	public static final String pn_client_smart = "bdb.client.smart";
 	public static final String pn_client_bufferSize = "bdb.client.bufferSize";

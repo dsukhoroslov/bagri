@@ -49,6 +49,7 @@ import com.bagri.core.system.Parameter;
 import com.bagri.core.system.XQueryTrigger;
 import com.bagri.core.xquery.api.XQCompiler;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
+import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
@@ -251,20 +252,7 @@ public class XQCompilerImpl implements XQCompiler {
         //config.setHostLanguage(Configuration.XQUERY);
         config.setSchemaValidationMode(Validation.STRIP);
         //config.setConfigurationProperty(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
-
-        config.registerExtensionFunction(new GetUuid());
-        config.registerExtensionFunction(new LogOutput());
-        config.registerExtensionFunction(new HttpGet());
-        config.registerExtensionFunction(new GetDocumentContent(null));
-        config.registerExtensionFunction(new RemoveDocument(null));
-        config.registerExtensionFunction(new StoreDocument(null));
-        config.registerExtensionFunction(new StoreDocumentFromMap(null));
-        config.registerExtensionFunction(new RemoveCollectionDocuments(null));
-        config.registerExtensionFunction(new QueryDocumentUris(null));
-        config.registerExtensionFunction(new BeginTransaction(null));
-        config.registerExtensionFunction(new CommitTransaction(null));
-        config.registerExtensionFunction(new RollbackTransaction(null));
-        
+        SaxonUtils.registerExtensions(config, null);
         if (libraries != null) {
         	registerExtensions(config, libraries);
         }

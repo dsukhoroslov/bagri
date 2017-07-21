@@ -24,24 +24,30 @@ public class BagriQueryClient extends BagriClientBase {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriQueryClient.class);
 
-	private static String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+	//private static final String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+	//		"declare variable $startKey external;\n" +
+	//		"for $doc in fn:collection(\"usertable\")\n" +
+	//		"where m:get($doc, '@key') >= $startKey\n" + 
+	//		"return $doc";
+	private static String qScan = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 			"declare variable $startKey external;\n" +
-			"for $doc in fn:collection(\"usertable\")\n" +
-			"where m:get($doc, '@key') >= $startKey\n" + 
-			"return $doc";
+			"declare variable $props external;\n" +
+			"for $uri in bgdb:get-document-uris('uri >= $startKey', $props)\n" +
+			//"return fn:json-doc($uri)";
+			"return fn:doc($uri)";
 
-	private static String qRead = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+	private static final String qRead = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 			"declare variable $key external;\n" +
 			"for $doc in fn:collection(\"usertable\")\n" +
 			"where m:get($doc, '@key') = $key\n" + 
 			"return $doc";
 
-	private static String qDelete = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+	private static final String qDelete = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 			"declare variable $uri external;\n" + 
 			"let $uri := bgdb:remove-document($uri)\n" + 
 			"return $uri";
 
-	private static String qStore = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+	private static final String qStore = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 			"declare variable $uri external;\n" + 
 			"declare variable $content external;\n" + 
 			"declare variable $props external;\n" + 
@@ -119,6 +125,7 @@ public class BagriQueryClient extends BagriClientBase {
 		long stamp = System.currentTimeMillis();
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("startKey", startkey);
+		params.put("props", scanProps);
 		scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qScan, params, scanProps)) {
 			timer2.addAndGet(System.currentTimeMillis() - stamp);

@@ -32,9 +32,23 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.system.DataType;
 import com.bagri.support.util.XMLUtils;
 import com.bagri.support.util.XQUtils;
+import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
+import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
+import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
+import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
+import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
+import com.bagri.xquery.saxon.ext.doc.StoreDocument;
+import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
+import com.bagri.xquery.saxon.ext.http.HttpGet;
+import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
+import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
+import com.bagri.xquery.saxon.ext.tx.RollbackTransaction;
+import com.bagri.xquery.saxon.ext.util.GetUuid;
+import com.bagri.xquery.saxon.ext.util.LogOutput;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DOMObjectModel;
@@ -793,6 +807,34 @@ public class SaxonUtils {
 		return props;
 	}
 	
+	public static void registerExtensions(Configuration config, SchemaRepository xRepo) {
+        config.registerExtensionFunction(new GetUuid());
+        config.registerExtensionFunction(new LogOutput());
+        config.registerExtensionFunction(new HttpGet());
+        if (xRepo == null) {
+            config.registerExtensionFunction(new GetDocumentContent(null));
+            config.registerExtensionFunction(new GetDocumentUris(null));
+            config.registerExtensionFunction(new RemoveDocument(null));
+            config.registerExtensionFunction(new StoreDocument(null));
+            config.registerExtensionFunction(new StoreDocumentFromMap(null));
+            config.registerExtensionFunction(new RemoveCollectionDocuments(null));
+            config.registerExtensionFunction(new QueryDocumentUris(null));
+            config.registerExtensionFunction(new BeginTransaction(null));
+            config.registerExtensionFunction(new CommitTransaction(null));
+            config.registerExtensionFunction(new RollbackTransaction(null));
+        } else {
+            config.registerExtensionFunction(new GetDocumentContent(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new GetDocumentUris(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new StoreDocumentFromMap(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new RemoveCollectionDocuments(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new QueryDocumentUris(xRepo.getQueryManagement()));
+            config.registerExtensionFunction(new BeginTransaction(xRepo.getTxManagement()));
+            config.registerExtensionFunction(new CommitTransaction(xRepo.getTxManagement()));
+            config.registerExtensionFunction(new RollbackTransaction(xRepo.getTxManagement()));
+        }
+	}
     
 	/*    
     public static int getBaseType(AtomicValue value) {
