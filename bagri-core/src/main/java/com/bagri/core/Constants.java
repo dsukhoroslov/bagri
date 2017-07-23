@@ -21,7 +21,7 @@ public class Constants {
 	public static final String pn_client_txLevel = "bdb.client.txLevel";
 	public static final String pn_client_txTimeout = "bdb.client.txTimeout";
 
-	public static final String pv_client_txLevel_skip = "txSkip";
+	public static final String pv_client_txLevel_skip = "skip";
 	
 	public static final String pn_client_smart = "bdb.client.smart";
 	public static final String pn_client_bufferSize = "bdb.client.bufferSize";
@@ -95,6 +95,7 @@ public class Constants {
     
     public static final String pn_document_collections = "bdb.document.collections";
     public static final String pn_document_data_format = "bdb.document.data.format";
+    public static final String pn_document_map_merge = "bdb.document.map.merge";
 
 	// XQJ configuration constants
 	public static final String pn_xqj_baseURI = "xqj.schema.baseUri";

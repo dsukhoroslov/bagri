@@ -317,7 +317,8 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 				throw new BagriException("no transaction found for TXID: " + txId, ecTransNotFound);
 			}
 		} else {
-			throw new BagriException("not in transaction", ecTransWrongState);
+			cTopic.publish(new Counter(true, created, updated, deleted));
+			//throw new BagriException("not in transaction", ecTransWrongState);
 		}
 	}
 	

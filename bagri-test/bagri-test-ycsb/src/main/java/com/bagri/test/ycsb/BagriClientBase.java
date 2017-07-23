@@ -73,6 +73,8 @@ public abstract class BagriClientBase extends DB {
 		
 		updateProps.setProperty(pn_document_collections, "usertable");
 		updateProps.setProperty(pn_document_data_format, format);
+		boolean merge = Boolean.parseBoolean(System.getProperty(pn_document_map_merge, "true"));
+		updateProps.setProperty(pn_document_map_merge, String.valueOf(merge));
     }
 	
 	@Override

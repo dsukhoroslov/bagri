@@ -61,9 +61,8 @@ public class DataDistributionService implements ManagedService {
 		logger.info("shutdown; terminate: {}", terminate); 
 	}
 	
-	public Object getCachedObject(String cacheName, Object key, boolean convert) {
-		int partId = nodeEngine.getPartitionService().getPartitionId(key); 
-		RecordStore<?> cache = getRecordStore(partId, cacheName);
+	public <T> T getCachedObject(String cacheName, Object key, boolean convert) {
+		RecordStore<?> cache = getRecordStore(key, cacheName);
 		if (cache == null) {
 			// nothing stored in this partition yet
 			return null;
@@ -76,7 +75,37 @@ public class DataDistributionService implements ManagedService {
 				data = nodeEngine.toObject(data);
 			}
 		}
-		return data;
+		return (T) data;
+	}
+
+	public void deleteCachedObject(String cacheName, Object key) {
+		RecordStore<?> cache = getRecordStore(key, cacheName);
+		if (cache == null) {
+			// nothing stored in this partition yet
+			return;
+		}
+		
+		Data dKey = nodeEngine.toData(key);
+		// will it delete backups?!
+		cache.delete(dKey);
+	}
+	
+	public <T> T removeCachedObject(String cacheName, Object key, boolean convert) {
+		RecordStore<?> cache = getRecordStore(key, cacheName);
+		if (cache == null) {
+			// nothing stored in this partition yet
+			return null;
+		}
+		
+		Data dKey = nodeEngine.toData(key);
+		// will it remove backups?!
+		Object data = cache.remove(dKey);
+		if (data != null) {
+			if (convert) {
+				data = nodeEngine.toObject(data);
+			}
+		}
+		return (T) data;
 	}
 	
 	public Collection<PartitionStatistics> getPartitionStatistics() {
@@ -128,16 +157,21 @@ public class DataDistributionService implements ManagedService {
 		return nodeEngine.getPartitionService().isPartitionOwner(partId);
 	}
 	
-	public RecordStore<?> getRecordStore(int partitionId, String storeName) {
-		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
-		MapServiceContext mapCtx = svc.getMapServiceContext();
-		return mapCtx.getExistingRecordStore(partitionId, storeName);
+	public RecordStore<?> getRecordStore(Object key, String storeName) {
+		int partId = nodeEngine.getPartitionService().getPartitionId(key); 
+		return getRecordStore(partId, storeName);
 	}
 	
 	public RecordStore<?> getRecordStore(String uri, String storeName) {
 		Integer hash = uri.hashCode();
 		int partId = getPartitionId(hash);
 		return getRecordStore(partId, storeName);
+	}
+	
+	private RecordStore<?> getRecordStore(int partitionId, String storeName) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		return mapCtx.getExistingRecordStore(partitionId, storeName);
 	}
 	
 	public DocumentKey getLastPartKeyForUri(String uri) {
@@ -154,7 +188,7 @@ public class DataDistributionService implements ManagedService {
 				}
 			}
 		}
-		logger.trace("getLastKeyForUri; uri: {}; returning: {}", uri, last);
+		logger.trace("getLastPartKeyForUri; uri: {}; returning: {}", uri, last);
 		return last;
 	}
 

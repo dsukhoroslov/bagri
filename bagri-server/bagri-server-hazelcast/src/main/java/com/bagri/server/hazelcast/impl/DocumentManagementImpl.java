@@ -62,6 +62,7 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.PagingPredicate;
+import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -838,21 +839,37 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		    	updated.finishDocument(txId);
 			    old.setValue(updated);
 			    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); // docKey.getKey() + 1);
+				docId = docKey.getKey();
 	    	} else {
 		    	// we do changes inplace, no new version created
 	    		// delete old elements
-	    		Set<DataKey> dKeys = xdmCache.localKeySet(Predicates.equal("__key#documentKey", docId));
-	    		for (DataKey dKey: dKeys) {
-	    			int pathId = dKey.getPathId(); 
+	    		boolean mergeElts = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
+	    		Set<DataKey> dKeys = xdmCache.keySet(new PartitionPredicate(uri.hashCode(), Predicates.equal("__key#documentKey", docId)));
+		    	Set<Integer> pIds = new HashSet<>(data.size());
+		    	for (Data dt: data) {
+		    		pIds.add(dt.getPathId());
+		    	}
+		    	logger.trace("processDocument; found {} element keys for docId {}; paths: {}", dKeys.size(), docId, pIds.size());
+		    	for (DataKey dKey: dKeys) {
+	    			int pathId = dKey.getPathId();
+	    			boolean oldPathId = pIds.contains(pathId); 
 		        	if (indexManager.isPathIndexed(pathId)) {
-			       		Elements elts = xdmCache.remove(dKey);
+		        		Elements elts;
+		        		if (mergeElts || oldPathId) {
+		        			//elts = xdmCache.get(dKey);
+		        			elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, true);
+		        		} else {
+			       			elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, true);
+		        		}
 			       		if (elts != null) {
 			       			for (Element elt: elts.getElements()) {
 			       				indexManager.removeIndex(docId, pathId, elt.getValue());
 			       			}
 			       		}
 		        	} else {
-		        		xdmCache.delete(dKey);
+		        		if (!mergeElts && !oldPathId) {
+		        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);
+		        		}
 		        	}
 	    		}
 	    	}
@@ -884,7 +901,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		updateStats(null, true, data.size(), 0);
 		
-		if (old.getValue() == null) {
+		if (old.getValue() == null || txId == TX_NO) {
 	    	old.setValue(newDoc);
 		} else {
 			xddCache.set(docKey, newDoc);
@@ -956,6 +973,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws BagriException {
+		logger.trace("storeDocumentFromMap; got map of size: {} for uri: {}", fields.size(), uri); 
 		String dataFormat = null;
 		if (props != null) {
 			dataFormat = props.getProperty(pn_document_data_format);
@@ -1055,14 +1073,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Document newDoc = (Document) result;
 		if (newDoc.getVersion() > dvFirst) {
 			scope = Scope.update;
-			if (tx != null) {
-				txManager.updateCounters(0, 1, 0);
-			}
+			txManager.updateCounters(0, 1, 0);
 		} else {
 			scope = Scope.insert;
-			if (tx != null) {
-				txManager.updateCounters(1, 0, 0);
-			}
+			txManager.updateCounters(1, 0, 0);
 		}
 		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
