@@ -97,7 +97,7 @@
         <xerces.version>2.11.0</xerces.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <!--saxon.version>9.7.0-18</saxon.version-->
-        <saxon.version>9.8.0-2</saxon.version>
+        <saxon.version>9.8.0-3</saxon.version>
         <json.version>1.0.4</json.version>
         <jackson.version>2.5.2</jackson.version>
         <aalto.version>1.0.0</aalto.version>
