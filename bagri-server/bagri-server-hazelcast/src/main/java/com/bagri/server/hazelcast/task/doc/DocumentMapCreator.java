@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
@@ -39,8 +40,14 @@ public class DocumentMapCreator extends com.bagri.client.hazelcast.task.doc.Docu
     		// bypass tx stack completely!
     		return docMgr.storeDocumentFromMap(uri, fields, props);
     	}
+    
+    	// do we have default isolation level?
+    	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
+    	if (txLevel != null) {
+    		tiLevel = TransactionIsolation.valueOf(txLevel);
+    	}
     	
-    	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
+    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<Document>() {
     		
 	    	public Document call() throws Exception {
 	    		//return new Document(0, uri, "", 0, 0, new java.util.Date(), "admin", "utf-8", 0, 0); 

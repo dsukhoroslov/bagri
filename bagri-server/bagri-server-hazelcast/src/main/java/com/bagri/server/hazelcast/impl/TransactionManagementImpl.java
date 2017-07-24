@@ -323,15 +323,14 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	}
 	
 	@Override
-	public <V> V callInTransaction(long txId, boolean readOnly, Callable<V> call) throws BagriException {
+	public <V> V callInTransaction(long txId, boolean readOnly, TransactionIsolation txLevel, Callable<V> call) throws BagriException {
 		
 		logger.trace("callInTransaction.enter; got txId: {}", txId);
 		boolean autoCommit = txId == TX_NO; 
 		if (autoCommit) {
 			// do not begin tx if it is read-only!
 			if (!readOnly) {
-				// get IsolationLevel from some Properties?
-				txId = beginTransaction();
+				txId = beginTransaction(txLevel);
 			}
 		} else {
 			thTx.set(txId);

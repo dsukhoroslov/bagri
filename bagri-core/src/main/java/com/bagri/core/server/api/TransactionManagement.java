@@ -3,6 +3,7 @@ package com.bagri.core.server.api;
 import java.util.concurrent.Callable;
 
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.TransactionIsolation;
 
 /**
  * XDM Transaction management server-side extension.
@@ -22,6 +23,6 @@ public interface TransactionManagement extends com.bagri.core.api.TransactionMan
 	 * @return the task execution result
 	 * @throws BagriException in case of any error
 	 */
-	<V> V callInTransaction(long txId, boolean readOnly, Callable<V> call) throws BagriException;	
+	<V> V callInTransaction(long txId, boolean readOnly, TransactionIsolation txLevel, Callable<V> call) throws BagriException;	
 
 }

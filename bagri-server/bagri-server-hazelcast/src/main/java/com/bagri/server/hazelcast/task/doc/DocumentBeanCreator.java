@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
@@ -40,7 +41,13 @@ public class DocumentBeanCreator extends com.bagri.client.hazelcast.task.doc.Doc
     		return docMgr.storeDocumentFromBean(uri, bean, props);
     	}
     	
-    	return txMgr.callInTransaction(txId, false, new Callable<Document>() {
+    	// do we have default isolation level?
+    	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
+    	if (txLevel != null) {
+    		tiLevel = TransactionIsolation.valueOf(txLevel);
+    	}
+    	
+    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<Document>() {
     		
 	    	public Document call() throws Exception {
 	    		return docMgr.storeDocumentFromBean(uri, bean, props);
