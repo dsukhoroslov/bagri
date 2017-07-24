@@ -72,21 +72,23 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 		return clients.toArray(new String[clients.size()]);
 	}
 
+	public String getClientUser(String clientId) {
+		Properties props = clientsCache.get(clientId);
+		if (props != null) {
+			return props.getProperty(pn_schema_user);
+		}
+		return null;
+	}
+	
 	@Override
 	public String getCurrentUser() {
 		String result = null;
 		String clientId = repo.getClientId();
 		logger.trace("getCurrentUser.enter; client: {}", clientId); 
 		if (clientId != null) {
-			Properties props = clientsCache.get(clientId);
-			logger.trace("getCurrentUser; props: {}; ", props);
-			if (props != null) {
-				result = props.getProperty(pn_schema_user);
-			} else {
-				logger.trace("getCurrentUser; cache: {}; ", clientsCache.keySet());
-			}
+			return getClientUser(clientId);
 		}
-		return result;
+		return null;
 	}
 	
 	@Override

@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContextAware;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.api.BindingManagement;
 import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
@@ -95,6 +96,12 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		hzInstance.getUserContext().put(ctx_repo, this);
 		setPopulationManagement((PopulationManagement) hzInstance.getUserContext().get(ctx_popService));
 		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
+	}
+
+	@Override
+	public void setAccessManagement(AccessManagement accessMgr) {
+		super.setAccessManagement(accessMgr);
+		((AccessManagementImpl) accessMgr).setRepository(this);
 	}
 	
 	@Override

@@ -169,6 +169,7 @@ public class Constants {
 	public static final String cmd_remove_document = "remove-document";
 	public static final String cmd_remove_cln_documents = "remove-collection-documents";
 	public static final String cmd_store_document = "store-document";
+	public static final String cmd_store_document_map = "store-document-map";
 	
 	// updating functions
 	public static final String bg_remove_document = bg_schema + ":" + cmd_remove_document;

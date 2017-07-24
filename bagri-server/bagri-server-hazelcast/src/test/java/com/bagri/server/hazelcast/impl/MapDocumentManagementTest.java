@@ -242,8 +242,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 			"declare variable $uri external;\n" + 
 			"declare variable $content external;\n" + 
 			"declare variable $props external;\n" + 
-			"let $uri := bgdb:store-document($uri, $content, $props)\n" +
-			//"let $uri := bgdb:store-document($uri, $content)\n" +
+			"let $uri := bgdb:store-document-map($uri, $content, $props)\n" +
 			"return $uri";
 
 	@Test

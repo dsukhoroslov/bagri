@@ -10,7 +10,7 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Permission;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -29,8 +29,7 @@ public class DocumentProvider extends com.bagri.client.hazelcast.task.doc.Docume
 	public Object process(Entry<DocumentKey, Document> entry) {
     	
     	try {
-	    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-	    	checkPermission(Permission.Value.read);
+        	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
 	    	
 			return docMgr.getDocument(uri);
     	} catch (BagriException ex) {

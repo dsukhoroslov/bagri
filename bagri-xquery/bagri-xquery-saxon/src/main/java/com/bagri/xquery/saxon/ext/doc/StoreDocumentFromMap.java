@@ -1,6 +1,6 @@
 package com.bagri.xquery.saxon.ext.doc;
 
-import static com.bagri.core.Constants.cmd_store_document;
+import static com.bagri.core.Constants.cmd_store_document_map;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToMap;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
@@ -30,7 +30,7 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 
 	@Override
 	public String getFunctionName() {
-		return cmd_store_document;
+		return cmd_store_document_map;
 	}
 
 	@Override

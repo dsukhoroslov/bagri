@@ -12,6 +12,7 @@ import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
+import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -31,8 +32,7 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
     @Override
 	public Document call() throws Exception {
 
-    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.Value.modify);
+    	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {

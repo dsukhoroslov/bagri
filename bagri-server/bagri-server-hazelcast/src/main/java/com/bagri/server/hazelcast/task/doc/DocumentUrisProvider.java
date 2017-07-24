@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Permission;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -26,8 +26,7 @@ public class DocumentUrisProvider extends com.bagri.client.hazelcast.task.doc.Do
 	public Collection<String> call() throws Exception {
     	
     	// not sure we have to check it at all..
-    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-    	checkPermission(Permission.Value.read);
+    	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
     	
     	Collection<String> uris = docMgr.getDocumentUris(pattern, props);
 		return new ArrayList<>(uris);

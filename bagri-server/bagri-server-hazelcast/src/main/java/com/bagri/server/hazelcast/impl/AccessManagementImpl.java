@@ -3,17 +3,14 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemContext;
 import static com.bagri.support.security.Encryptor.encrypt;
 
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 
 import com.bagri.core.api.AccessManagement;
+import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Permission;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 
 public class AccessManagementImpl implements AccessManagement, InitializingBean {
 
@@ -21,6 +18,7 @@ public class AccessManagementImpl implements AccessManagement, InitializingBean 
 	
 	private String schemaName;
 	private String schemaPass;
+	private SchemaRepositoryImpl repo;
 	private AccessManagementBridge bridge;
 
 	@Override
@@ -48,6 +46,10 @@ public class AccessManagementImpl implements AccessManagement, InitializingBean 
 		this.schemaPass = schemaPass;
 	}
 	
+    public void setRepository(SchemaRepositoryImpl repo) {
+    	this.repo = repo;
+    }	
+	
 	@Override
 	public boolean authenticate(String username, String password) {
 		Boolean result = null;
@@ -72,5 +74,14 @@ public class AccessManagementImpl implements AccessManagement, InitializingBean 
 		}
 		return false;
 	}
+
+	public void checkPermission(String clientId, Permission.Value perm) throws BagriException {
+    	//repo.getXQProcessor(clientId);
+    	String user = ((ClientManagementImpl) repo.getClientManagement()).getClientUser(clientId);
+    	if (!hasPermission(user, perm)) {
+    		throw new BagriException("User " + user + " has no permission to " + perm + " documents", BagriException.ecAccess);
+    	}
+	}
+
 	
 }
