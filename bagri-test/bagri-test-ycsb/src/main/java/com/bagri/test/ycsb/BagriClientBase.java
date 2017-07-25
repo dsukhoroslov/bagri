@@ -83,7 +83,7 @@ public abstract class BagriClientBase extends DB {
 		XQProcessor proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
-		props.put(pn_client_dataFactory,  xqFactory);
+		props.put(pn_client_dataFactory, xqFactory);
 		xRepo = new SchemaRepositoryImpl(props);
 	    getLogger().info("init.exit; xRepo: {}", xRepo);
 	}

@@ -39,7 +39,7 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
     @Override
 	public ResultCursor call() throws Exception {
     	
-    	logger.trace("call; context: {}", context);
+    	//logger.info("call.enter; context: {}; params: {}", context, params);
 
     	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	boolean readOnly = queryMgr.isQueryReadOnly(query, context);
@@ -60,12 +60,15 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
     		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
 
-    	return ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, tiLevel, new Callable<ResultCursor>() {
+    	ResultCursor rc = ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, tiLevel, new Callable<ResultCursor>() {
     		
 	    	public ResultCursor call() throws BagriException {
 				return queryMgr.executeQuery(query, params, context);
 	    	}
     	});
+    	
+    	//logger.info("call.exit; returning: {}; executor: {}", rc, this);
+    	return rc;
     }
 
 }

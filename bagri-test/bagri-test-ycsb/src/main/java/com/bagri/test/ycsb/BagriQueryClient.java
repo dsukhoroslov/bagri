@@ -54,12 +54,7 @@ public class BagriQueryClient extends BagriClientBase {
 			"let $uri := bgdb:store-document-map($uri, $content, $props)\n" +
 			"return $uri";
 	
-    private static final Properties queryProps = new Properties();
-	static {
-		queryProps.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		queryProps.setProperty(pn_client_fetchSize, "1");
-		//queryProps.setProperty(pn_client_submitTo, key);
-	}
+    private final Properties queryProps = new Properties();
 
     @Override
 	protected Logger getLogger() {
@@ -75,7 +70,11 @@ public class BagriQueryClient extends BagriClientBase {
     		format = "MAP";
     	} 
 		scanProps.setProperty(pn_document_data_format, format);
-	}
+
+		queryProps.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
+		queryProps.setProperty(pn_client_fetchSize, "1");
+		//queryProps.setProperty(pn_client_submitTo, key);
+    }
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })

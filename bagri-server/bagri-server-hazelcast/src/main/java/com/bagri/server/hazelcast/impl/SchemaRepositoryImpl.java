@@ -40,9 +40,6 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TriggerManagement;
-import com.bagri.core.server.api.df.map.MapHandler;
-import com.bagri.core.server.api.df.json.JsonpHandler;
-import com.bagri.core.server.api.df.xml.XmlHandler;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Index;
 import com.bagri.core.system.Library;
@@ -65,7 +62,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	};
 	
 	private KeyFactory xdmFactory; 
-	//private String instanceNum;
 	private Schema xdmSchema;
 	private Map<String, DataFormat> xdmFormats;
 	private Collection<Module> xdmModules;
@@ -206,8 +202,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 				processors.put(clientId, result);
 			}
 		}
-		logger.trace("getXQProcessor; returning: {}, factory: {}, repo: {}", 
-				result, result.getXQDataFactory(), result.getRepository());
+		logger.trace("getXQProcessor.exit; returning: {}, for client: {}", result, clientId); 
 		return result;
 	}
 	
