@@ -49,11 +49,11 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
     		checkPermission(Permission.Value.modify);
     	}
 
-    	if (txId == TX_NO && readOnly) {
+    	String txLevel = context.getProperty(pn_client_txLevel);
+    	if (pv_client_txLevel_skip.equals(txLevel) || (txId == TX_NO && readOnly)) {
 			return queryMgr.executeQuery(query, params, context);
     	}
 
-    	String txLevel = context.getProperty(pn_client_txLevel);
     	// do we have default isolation level?
     	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
     	if (txLevel != null) {

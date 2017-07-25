@@ -1,6 +1,7 @@
 package com.bagri.test.ycsb;
 
 import static com.bagri.core.Constants.*;
+import static javax.xml.xquery.XQConstants.SCROLLTYPE_FORWARD_ONLY;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -9,14 +10,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.xml.xquery.XQConstants;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCursor;
 import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.Status;
 import com.yahoo.ycsb.StringByteIterator;
 
@@ -24,17 +22,17 @@ public class BagriQueryClient extends BagriClientBase {
 	
     private static final Logger logger = LoggerFactory.getLogger(BagriQueryClient.class);
 
-	//private static final String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-	//		"declare variable $startKey external;\n" +
-	//		"for $doc in fn:collection(\"usertable\")\n" +
-	//		"where m:get($doc, '@key') >= $startKey\n" + 
-	//		"return $doc";
-	private static String qScan = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+	private static final String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 			"declare variable $startKey external;\n" +
-			"declare variable $props external;\n" +
-			"for $uri in bgdb:get-document-uris('uri >= $startKey', $props)\n" +
-			//"return fn:json-doc($uri)";
-			"return fn:doc($uri)";
+			"for $doc in fn:collection(\"usertable\")\n" +
+			"where m:get($doc, '@key') >= $startKey\n" + 
+			"return $doc";
+	//private static String qScan = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+	//		"declare variable $startKey external;\n" +
+	//		"declare variable $props external;\n" +
+	//		"for $uri in bgdb:get-document-uris('uri >= $startKey', $props)\n" +
+	//		//"return fn:json-doc($uri)";
+	//		"return fn:doc($uri)";
 
 	private static final String qRead = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 			"declare variable $key external;\n" +
@@ -56,26 +54,23 @@ public class BagriQueryClient extends BagriClientBase {
 	
     private final Properties queryProps = new Properties();
 
+    public BagriQueryClient() {
+    	super();
+		scanProps.setProperty(pn_xqj_scrollability, String.valueOf(SCROLLTYPE_FORWARD_ONLY));
+		queryProps.setProperty(pn_xqj_scrollability, String.valueOf(SCROLLTYPE_FORWARD_ONLY));
+		queryProps.setProperty(pn_client_fetchSize, "1");
+		String txLevel = System.getProperty(pn_client_txLevel);
+		if (txLevel != null) {
+			queryProps.setProperty(pn_client_txLevel, txLevel);
+		}
+		//queryProps.setProperty(pn_client_submitTo, key);
+    }
+
     @Override
 	protected Logger getLogger() {
     	return logger;
     }
 
-    @Override
-	public void init() throws DBException {
-		super.init();
-		scanProps.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-    	String format = System.getProperty(pn_document_data_format);
-    	if (format == null) {
-    		format = "MAP";
-    	} 
-		scanProps.setProperty(pn_document_data_format, format);
-
-		queryProps.setProperty(pn_xqj_scrollability, String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY));
-		queryProps.setProperty(pn_client_fetchSize, "1");
-		//queryProps.setProperty(pn_client_submitTo, key);
-    }
-	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {

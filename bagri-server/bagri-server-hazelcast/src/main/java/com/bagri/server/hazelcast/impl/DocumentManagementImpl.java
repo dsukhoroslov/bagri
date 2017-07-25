@@ -861,11 +861,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		        		} else {
 			       			elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, true);
 		        		}
-			       		if (elts != null) {
-			       			for (Element elt: elts.getElements()) {
-			       				indexManager.removeIndex(docId, pathId, elt.getValue());
-			       			}
-			       		}
+		        		// can't do this from partition thread!
+			       		//if (elts != null) {
+			       		//	for (Element elt: elts.getElements()) {
+			       		//		indexManager.removeIndex(docId, pathId, elt.getValue());
+			       		//	}
+			       		//}
 		        	} else {
 		        		if (!mergeElts && !oldPathId) {
 		        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);

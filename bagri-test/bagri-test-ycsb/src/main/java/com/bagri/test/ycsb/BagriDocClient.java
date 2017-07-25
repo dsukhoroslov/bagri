@@ -11,7 +11,6 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.core.model.Document;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.Status;
 import com.yahoo.ycsb.StringByteIterator;
@@ -19,6 +18,10 @@ import com.yahoo.ycsb.StringByteIterator;
 public class BagriDocClient extends BagriClientBase {
 
     private static final Logger logger = LoggerFactory.getLogger(BagriDocClient.class);
+    
+    public BagriDocClient() {
+    	super();
+    }
 
     @Override
 	protected Logger getLogger() {

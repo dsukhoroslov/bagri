@@ -28,18 +28,17 @@ public abstract class BagriClientBase extends DB {
 
     protected SchemaRepository xRepo;
     
+    protected final Properties readProps = new Properties();
+    protected final Properties insertProps = new Properties();
     protected final Properties scanProps = new Properties();
-
-    protected static final boolean isMapFormat;
-    protected static final Properties readProps = new Properties();
-    protected static final Properties insertProps = new Properties();
-    protected static final Properties updateProps = new Properties();
-    static {
+    protected final Properties updateProps = new Properties();
+    // no delete props
+    
+    public BagriClientBase() {
     	String format = System.getProperty(pn_document_data_format);
     	if (format == null) {
     		format = "MAP";
     	} 
-    	isMapFormat = "MAP".equalsIgnoreCase(format);
 		readProps.setProperty(pn_document_data_format, format);
 
 		String storeMode = System.getProperty(pn_client_storeMode);
@@ -48,15 +47,15 @@ public abstract class BagriClientBase extends DB {
 		} else {
 			insertProps.setProperty(pn_client_storeMode, pv_client_storeMode_insert);
 		}
-
 		String txLevel = System.getProperty(pn_client_txLevel);
 		if (txLevel != null) {
 			insertProps.setProperty(pn_client_txLevel, txLevel);
 		}
-		
 		insertProps.setProperty(pn_document_collections, "usertable");
 		insertProps.setProperty(pn_document_data_format, format);
 
+		scanProps.setProperty(pn_document_data_format, format);
+		
 		if (storeMode != null) {
 			updateProps.setProperty(pn_client_storeMode, storeMode);
 		} else {
@@ -66,11 +65,9 @@ public abstract class BagriClientBase extends DB {
 		if (timeout != null) {
 			updateProps.setProperty(pn_client_txTimeout, timeout);
 		}
-
 		if (txLevel != null) {
 			updateProps.setProperty(pn_client_txLevel, txLevel);
 		}
-		
 		updateProps.setProperty(pn_document_collections, "usertable");
 		updateProps.setProperty(pn_document_data_format, format);
 		boolean merge = Boolean.parseBoolean(System.getProperty(pn_document_map_merge, "true"));
