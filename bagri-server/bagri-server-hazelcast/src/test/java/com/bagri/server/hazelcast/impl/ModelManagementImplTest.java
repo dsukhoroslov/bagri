@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_node_instance;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_PATH_DICT;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.hazelcast.aggregation.Aggregators;
+import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicates;
 
 public class ModelManagementImplTest extends BagriManagementTest {
 	
@@ -67,29 +71,30 @@ public class ModelManagementImplTest extends BagriManagementTest {
 	private ModelManagement getModelManagement() {
 		return ((SchemaRepository) xRepo).getModelManagement();
 	}
-
-	public Collection<Path> getSecurityPath() {
-		return getModelManagement().getTypePaths("/{http://tpox-benchmark.com/security}Security");
-	}
 	
-	public Collection<Path> getCustomerPath() {
-		return getModelManagement().getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
+	private int getExpectedSize(String root) {
+		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
+		IMap<String, Path> pCache = xdmRepo.getHzInstance().getMap(CN_XDM_PATH_DICT);
+		System.out.println(pCache.values());
+		return pCache.values(Predicates.equal("root", root)).size();
 	}
 
 	@Test
 	public void getSecurityPathTest() throws Exception {
 		storeSecurityTest();
-		Collection<Path> sec = getSecurityPath();
+		String root = "/{http://tpox-benchmark.com/security}Security";
+		Collection<Path> sec = getModelManagement().getTypePaths(root);
 		assertNotNull(sec);
-		assertTrue(sec.size() > 0);
+		assertEquals(getExpectedSize(root), sec.size());
 	}
 
 	@Test
 	public void getCustomerPathTest() throws Exception {
 		storeCustomerTest();
-		Collection<Path> sec = getCustomerPath();
+		String root = "/{http://tpox-benchmark.com/custacc}Customer";
+		Collection<Path> sec = getModelManagement().getTypePaths(root);
 		assertNotNull(sec);
-		assertTrue(sec.size() > 0);
+		assertEquals(getExpectedSize(root), sec.size());
 	}
 		
 	@Test

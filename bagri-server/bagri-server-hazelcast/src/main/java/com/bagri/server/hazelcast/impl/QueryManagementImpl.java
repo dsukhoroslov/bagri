@@ -312,7 +312,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	void invalidateQueryResults(Set<Integer> pathIds) {
-		if (xqCache.size() > 0) {
+		if (!xqCache.isEmpty()) {
 			Set<Integer> qKeys = getQueriesForPaths(pathIds, false);
 			if (!qKeys.isEmpty()) {
 				removeQueryResults(qKeys);
@@ -322,18 +322,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	void removeQueryResults(long docId) {
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
-		int size = xrCache.size(); 
+		int size = logger.isTraceEnabled() ? xrCache.size() : 0; 
 		xrCache.removeAll(new ResultsDocPredicate(docId));
 		//xrCache.removeAll(Predicates.equal("docId", docId));
-		size = size - xrCache.size(); 
+		size -= logger.isTraceEnabled() ? xrCache.size() : 0; 
 		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", size, docId);
 	}
 
 	void removeQueryResults(Collection<Integer> queryIds) {
 		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, xrCache.size());
-		int size = xrCache.size(); 
+		int size = logger.isTraceEnabled() ? xrCache.size() : 0; 
 		xrCache.removeAll(new ResultsQueryPredicate(queryIds));
-		size = size - xrCache.size(); 
+		size -= logger.isTraceEnabled() ? xrCache.size() : 0; 
 		logger.trace("removeQueryResults.exit; deleted {} results", size);
 	}
 	

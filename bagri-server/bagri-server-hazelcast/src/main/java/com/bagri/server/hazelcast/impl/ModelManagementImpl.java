@@ -1,19 +1,14 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.server.api.CacheConstants.*;
-
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.bagri.client.hazelcast.impl.IdGeneratorImpl;
 import com.bagri.core.model.Path;
@@ -21,12 +16,9 @@ import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ModelManagementBase;
 import com.bagri.support.idgen.IdGenerator;
 import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
-import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
@@ -47,20 +39,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		super();
 	}
 	
-	public ModelManagementImpl(HazelcastInstance hzInstance) {
-		super();
-		initialize(hzInstance);
-	}
-	
-	private void initialize(HazelcastInstance hzInstance) {
-		//pathCache = hzInstance.getReplicatedMap(CN_XDM_PATH_DICT);
-		pathCache = hzInstance.getMap(CN_XDM_PATH_DICT);
-		pathGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_PATH));
-		// init listeners here
-		//pathCache.addEntryListener(new PathCacheListener()); //, true);
-		pathCache.addEntryListener(new PathEntryListener(), true);
-	}
-	
 	protected Map<String, Path> getPathCache() {
 		return pathCache;
 	}
@@ -71,6 +49,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	
 	public void setPathCache(IMap<String, Path> pathCache) {
 		this.pathCache = pathCache;
+		this.pathCache.addEntryListener(new PathCacheListener(), true);
 	}
 	
 	public void setPathGen(IAtomicLong pathGen) {
@@ -99,14 +78,14 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		return result;
 	}
 	
-	private Collection<Path> getTypePathsInternal(String root) {
+	private Set<Path> getTypePathsInternal(String root) {
 		Predicate<String, Path> f = Predicates.equal("root", root);
 		Collection<Path> entries = pathCache.values(f);
 		if (entries.isEmpty()) {
-			return entries;
+			return Collections.emptySet();
 		}
 		// check size > 1 ??
-		List<Path> result = new ArrayList<Path>(entries);
+		Set<Path> result = new HashSet<>(entries);
 		//Collections.sort(result);
 		//if (logger.isTraceEnabled()) {
 		//	logger.trace("getTypePath; returning {} for type {}", result, typeId);
@@ -117,14 +96,9 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 	@Override
 	public Collection<Path> getTypePaths(String root) {
 		Collection<Path> result = cacheType.get(root);
-		// TODO: think why the result is empty? happens from ModelManagementImplTest only?
-		if (result == null || result.isEmpty()) {
+		if (result == null) {
 		    result = getTypePathsInternal(root);
-			if (result != null) {
-				Set<Path> paths = new HashSet<>(result);
-				paths = new HashSet<>();
-				cacheType.putIfAbsent(root, paths);
-			}
+			cacheType.putIfAbsent(root, (Set<Path>) result);
 		}
 		return result;
 	}
@@ -183,68 +157,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		((IMap<String, Path>) getPathCache()).set(pathKey, path);
 	}
 	
-	private class PathEntryListener implements EntryListener<String, Path> {
 
-		@Override
-		public void entryAdded(EntryEvent<String, Path> event) {
-			Path path = event.getValue();
-			cachePath.putIfAbsent(path.getPathId(), path);
-			Set<Path> paths = cacheType.get(path.getRoot());
-			if (paths == null) {
-				paths = new HashSet<>();
-				Set<Path> paths2 = cacheType.putIfAbsent(path.getRoot(), paths);
-				if (paths2 != null) {
-					paths = paths2;
-				}
-			}
-			paths.add(path);
-		}
-
-		@Override
-		public void entryUpdated(EntryEvent<String, Path> event) {
-			Path path = event.getValue();
-			cachePath.put(path.getPathId(), path);
-			Set<Path> paths = cacheType.get(path.getRoot());
-			if (paths == null) {
-				paths = new HashSet<>();
-				Set<Path> paths2 = cacheType.putIfAbsent(path.getRoot(), paths);
-				if (paths2 != null) {
-					paths = paths2;
-				}
-			}
-			paths.add(path);
-		}
-
-		@Override
-		public void entryRemoved(EntryEvent<String, Path> event) {
-			Path path = event.getValue();
-			cachePath.remove(path.getPathId());
-			Set<Path> paths = cacheType.get(path.getRoot());
-			if (paths != null) {
-				paths.remove(path);
-			}
-		}
-
-		@Override
-		public void entryEvicted(EntryEvent<String, Path> event) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mapCleared(MapEvent event) {
-			cachePath.clear();
-			cacheType.clear();
-		}
-
-		@Override
-		public void mapEvicted(MapEvent event) {
-			// don't think we have to clear everything in this case
-		}
-		
-	}
-
-/*
 	private class PathCacheListener implements MapClearedListener, MapEvictedListener,
 		EntryAddedListener<String, Path>, EntryRemovedListener<String, Path>, EntryUpdatedListener<String, Path> {
 	
@@ -263,10 +176,10 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		public void entryUpdated(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
 			cachePath.put(path.getPathId(), path);
-			Set<Path> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getRoot());
 			if (paths == null) {
 				paths = new HashSet<>();
-				Set<Path> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				Set<Path> paths2 = cacheType.putIfAbsent(path.getRoot(), paths);
 				if (paths2 != null) {
 					paths = paths2;
 				}
@@ -278,7 +191,7 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		public void entryRemoved(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
 			cachePath.remove(path.getPathId());
-			Set<Path> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getRoot());
 			if (paths != null) {
 				paths.remove(path);
 			}
@@ -288,10 +201,10 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		public void entryAdded(EntryEvent<String, Path> event) {
 			Path path = event.getValue();
 			cachePath.putIfAbsent(path.getPathId(), path);
-			Set<Path> paths = cacheType.get(path.getTypeId());
+			Set<Path> paths = cacheType.get(path.getRoot());
 			if (paths == null) {
 				paths = new HashSet<>();
-				Set<Path> paths2 = cacheType.putIfAbsent(path.getTypeId(), paths);
+				Set<Path> paths2 = cacheType.putIfAbsent(path.getRoot(), paths);
 				if (paths2 != null) {
 					paths = paths2;
 				}
@@ -300,6 +213,6 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		}
 	
 	}
-*/	
+	
 	
 }

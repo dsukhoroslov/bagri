@@ -59,6 +59,7 @@ import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.PagingPredicate;
@@ -86,6 +87,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private IMap<DocumentKey, Document> xddCache;
     private IMap<DataKey, Elements> xdmCache;
 
+	private boolean binaryDocs;
+	private boolean binaryElts;
+	private boolean binaryContent;
+    
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	
@@ -95,6 +100,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	//this.model = repo.getModelManagement();
     	this.txManager = (TransactionManagementImpl) repo.getTxManagement();
     	this.triggerManager = (TriggerManagementImpl) repo.getTriggerManagement();
+    	binaryDocs = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_DOCUMENT).getInMemoryFormat();
+    	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
+    	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
     }
     
     IMap<DocumentKey, Object> getContentCache() {
@@ -250,7 +258,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	private Document getDocument(DocumentKey docKey) {
 		//return xddCache.get(docKey);
-		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, true);
+		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
 	}
 
 	@Override
@@ -281,7 +289,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private Object getDocumentContent(DocumentKey docKey) {
 		//Object content = cntCache.get(docKey);
-		Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, false);
+		Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
 		if (content == null) {
 			// build it with builder!
 		}
@@ -304,7 +312,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
     private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
-    	DocumentKey last = ddSvc.getLastKeyForUri(uri);
+    	DocumentKey last = ddSvc.getLastPartKeyForUri(uri);
     	if (last == null) {
 			DocumentKey key = factory.newDocumentKey(uri, 0, dvFirst);
     		if (next) {
@@ -857,9 +865,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		        		Elements elts;
 		        		if (mergeElts || oldPathId) {
 		        			//elts = xdmCache.get(dKey);
-		        			elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, true);
+		        			elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
 		        		} else {
-			       			elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, true);
+			       			elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
 		        		}
 		        		// can't do this from partition thread!
 			       		//if (elts != null) {
@@ -1025,7 +1033,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			dataFormat = props.getProperty(pn_document_data_format);
 		}
 		
-		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		DocumentKey docKey = ddSvc.getLastPartKeyForUri(uri);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
 				throw new BagriException("No document with URI '" +  uri + "' found for update", ecDocument); 
