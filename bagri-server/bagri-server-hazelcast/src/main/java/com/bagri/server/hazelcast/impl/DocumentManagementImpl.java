@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -264,7 +263,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Document getDocument(String uri) {
 		Document doc = null;
-    	DocumentKey key = ddSvc.getLastKeyForUri(uri);
+    	DocumentKey key = ddSvc.getLastPartKeyForUri(uri);
     	if (key != null) {
     		doc = getDocument(key);
     		if (doc != null) {
@@ -402,7 +401,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {
 		
         logger.trace("buildContent.enter; docKeys: {}", docKeys.size());
-        ContentBuilder builder = repo.getBuilder(dataFormat);
+        ContentBuilder<?> builder = repo.getBuilder(dataFormat);
         if (builder == null) {
 			logger.info("buildContent.exit; no Handler found for dataFormat {}", dataFormat);
         	return null;
@@ -460,7 +459,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
         return result;
 	}
     
-	@SuppressWarnings("unchecked")
 	private Object buildElement(String path, long[] fragments, ContentBuilder<?> builder) throws BagriException {
     	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
     	return builder.buildContent(xdmCache.getAll(xdKeys));
@@ -493,28 +491,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
-		//DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
-		//return getDocumentAsMap(docKey, props);
 		Document doc = getDocument(uri);
 		if (doc == null) {
 			logger.info("getDocumentAsMap; no document found for uri: {}", uri);
 			return null;
 		}
 
-		String cType = doc.getContentType();
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		if ("MAP".equalsIgnoreCase(cType)) {
-			return (Map<String, Object>) getDocumentContent(docKey);
-		}
-		
-		ContentConverter<String, Map<String, Object>> cc = repo.getConverter(cType, Map.class);
-		if (cc != null) {
-			String content = getDocumentAsString(docKey, props);
-			if (content != null) {
-				return cc.convertTo(content);
-			}
-		}
-		return null;
+		return getDocumentAsMap(docKey, doc, props);
 	}
 
 	@Override
@@ -524,7 +508,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws BagriException {
 		Document doc = getDocument(docKey);
 		if (doc == null) {
@@ -532,6 +515,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return null;
 		}
 
+		return getDocumentAsMap(docKey, doc, props);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getDocumentAsMap(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		String cType = doc.getContentType();
 		if ("MAP".equalsIgnoreCase(cType)) {
 			return (Map<String, Object>) getDocumentContent(docKey);
@@ -850,36 +838,18 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				docId = docKey.getKey();
 	    	} else {
 		    	// we do changes inplace, no new version created
-	    		// delete old elements
 	    		boolean mergeElts = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
-	    		Set<DataKey> dKeys = xdmCache.keySet(new PartitionPredicate(uri.hashCode(), Predicates.equal("__key#documentKey", docId)));
+	    		Set<DataKey> dKeys = xdmCache.keySet(new PartitionPredicate<>(uri.hashCode(), Predicates.equal("__key#documentKey", docId)));
 		    	Set<Integer> pIds = new HashSet<>(data.size());
 		    	for (Data dt: data) {
 		    		pIds.add(dt.getPathId());
 		    	}
 		    	logger.trace("processDocument; found {} element keys for docId {}; paths: {}", dKeys.size(), docId, pIds.size());
+	    		// delete old elements
 		    	for (DataKey dKey: dKeys) {
-	    			int pathId = dKey.getPathId();
-	    			boolean oldPathId = pIds.contains(pathId); 
-		        	if (indexManager.isPathIndexed(pathId)) {
-		        		Elements elts;
-		        		if (mergeElts || oldPathId) {
-		        			//elts = xdmCache.get(dKey);
-		        			elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
-		        		} else {
-			       			elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
-		        		}
-		        		// can't do this from partition thread!
-			       		//if (elts != null) {
-			       		//	for (Element elt: elts.getElements()) {
-			       		//		indexManager.removeIndex(docId, pathId, elt.getValue());
-			       		//	}
-			       		//}
-		        	} else {
-		        		if (!mergeElts && !oldPathId) {
-		        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);
-		        		}
-		        	}
+	    			if (!mergeElts && !pIds.contains(dKey.getPathId())) {
+	        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);
+	    			}
 	    		}
 	    	}
 		}
@@ -1048,6 +1018,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
 	    	// do this asynch after tx?
 	    	//((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+
+			//if (indexManager.isPathIndexed(pathId)) {
+        	//	Elements elts;
+        	//	if (mergeElts || oldPathId) {
+        			//elts = xdmCache.get(dKey);
+        	//		elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
+        	//	} else {
+	       	//		elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
+        	//	}
+        		// can't do this from partition thread!
+	       		//if (elts != null) {
+	       		//	for (Element elt: elts.getElements()) {
+	       		//		indexManager.removeIndex(docId, pathId, elt.getValue());
+	       		//	}
+	       		//}
+			//}
 		}
 
 		if (dataFormat == null) {
@@ -1257,12 +1243,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (props != null) {
 			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
 		} 
-		PagingPredicate pager = null;
+		PagingPredicate<DocumentKey, Document> pager = null;
 		Predicate<DocumentKey, Document> query = new DocVisiblePredicate();
 		((DocVisiblePredicate) query).setRepository(repo);
 		if (collection == null) {
 			if (pageSize > 0) {
-				pager = new PagingPredicate(query, pageSize);
+				pager = new PagingPredicate<>(query, pageSize);
 				query = pager;
 			}
 		} else {
@@ -1272,7 +1258,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			query = Predicates.and(query, new CollectionPredicate(cln.getId()));
 			if (pageSize > 0) {
-				pager = new PagingPredicate(query, pageSize);
+				pager = new PagingPredicate<>(query, pageSize);
 				query = pager;
 			}
 		}
@@ -1304,7 +1290,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return result;
 	}
 	
-	private void fillUris(Predicate query, java.util.Collection<String> uris) throws BagriException {
+	private void fillUris(Predicate<DocumentKey, Document> query, java.util.Collection<String> uris) throws BagriException {
 		java.util.Collection<Document> docs = xddCache.values(query);
 		for (Document doc: docs) {
 	    	uris.add(doc.getUri());
