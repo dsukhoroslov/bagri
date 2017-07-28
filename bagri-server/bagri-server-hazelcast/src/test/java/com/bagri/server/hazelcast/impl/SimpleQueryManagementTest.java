@@ -101,6 +101,9 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		String text = xqProc.convertToString(rc.getXQItem(), props);
 		assertEquals("XML Content", text);
 		rc.close();
+		
+		text = xRepo.getDocumentManagement().getDocumentAsString(uri, props);
+		assertEquals(xml, text);
 	}
 
 }

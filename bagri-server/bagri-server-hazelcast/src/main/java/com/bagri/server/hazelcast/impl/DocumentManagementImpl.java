@@ -262,16 +262,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Document getDocument(String uri) {
-		Document doc = null;
-    	DocumentKey key = ddSvc.getLastPartKeyForUri(uri);
-    	if (key != null) {
-    		doc = getDocument(key);
-    		if (doc != null) {
-    			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
-    				logger.debug("getDocument; the latest document version is finished already: {}", doc);
-    				doc = null;
-    			}
-    		}
+		Document doc = ddSvc.getLastDocumentForUri(uri, binaryDocs);
+   		if (doc != null) {
+   			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
+   				logger.debug("getDocument; the latest document version is finished already: {}", doc);
+   				doc = null;
+   			}
     	}
 		return doc;
 	}
@@ -311,7 +307,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
     private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
-    	DocumentKey last = ddSvc.getLastPartKeyForUri(uri);
+    	DocumentKey last = ddSvc.getLastKeyForUri(uri);
     	if (last == null) {
 			DocumentKey key = factory.newDocumentKey(uri, 0, dvFirst);
     		if (next) {
@@ -549,19 +545,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public String getDocumentAsString(String uri, Properties props) throws BagriException {
-		DocumentKey docKey = getDocumentKey(uri, false, false);
-		if (docKey == null) {
+		//DocumentKey docKey = getDocumentKey(uri, false, false);
+		//if (docKey == null) {
 			//throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
-			logger.info("getDocumentAsString; can not find active document for uri: {}", uri);
+		//	logger.info("getDocumentAsString; can not find active document for uri: {}", uri);
+		//	return null;
+		//}
+		//return getDocumentAsString(docKey, props);
+		
+		Document doc = getDocument(uri);
+		if (doc == null) {
+			logger.info("getDocumentAsString; no document found for uri: {}", uri);
 			return null;
 		}
-		return getDocumentAsString(docKey, props);
+		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
+		return getDocumentAsString(docKey, doc, props);
 	}
 
 	@Override
 	public String getDocumentAsString(long docKey, Properties props) throws BagriException {
-		DocumentKey xdmKey = factory.newDocumentKey(docKey);
-		return getDocumentAsString(xdmKey, props);
+		return getDocumentAsString(factory.newDocumentKey(docKey), props);
 	}
 	
 	@Override
@@ -572,7 +575,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			logger.info("getDocumentAsString; no document found for key: {}", docKey);
 			return null;
 		}
+		return getDocumentAsString(docKey, doc, props);
+	}
 
+	private String getDocumentAsString(DocumentKey docKey, Document doc, Properties props) throws BagriException {
+		
 		String docFormat = doc.getContentType();
 		String dataFormat = null;
 		if (props != null) {
@@ -839,7 +846,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    	} else {
 		    	// we do changes inplace, no new version created
 	    		boolean mergeElts = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
-	    		Set<DataKey> dKeys = xdmCache.keySet(new PartitionPredicate<>(uri.hashCode(), Predicates.equal("__key#documentKey", docId)));
+	    		java.util.Collection<DataKey> dKeys = ddSvc.getElementKeys(docId);
 		    	Set<Integer> pIds = new HashSet<>(data.size());
 		    	for (Data dt: data) {
 		    		pIds.add(dt.getPathId());
@@ -1003,7 +1010,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			dataFormat = props.getProperty(pn_document_data_format);
 		}
 		
-		DocumentKey docKey = ddSvc.getLastPartKeyForUri(uri);
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
 				throw new BagriException("No document with URI '" +  uri + "' found for update", ecDocument); 
@@ -1077,9 +1084,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
     	Set<Integer> pathIds = new HashSet<>(paths.size());
+    	Map<DataKey, Elements> eMap = ddSvc.getElements(newDoc.getDocumentKey());
 		for (Path path: paths) {
 			DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
-			Elements elts = xdmCache.get(dKey);
+			Elements elts = eMap.get(dKey);
 			if (elts != null) {
 				for (Element elt: elts.getElements()) {
 					indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());

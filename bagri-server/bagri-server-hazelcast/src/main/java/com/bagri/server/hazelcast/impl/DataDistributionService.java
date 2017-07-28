@@ -8,8 +8,10 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -18,8 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.client.hazelcast.PartitionStatistics;
+import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.model.Document;
+import com.bagri.core.model.Elements;
 import com.hazelcast.aggregation.Aggregators;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.impl.MapService;
@@ -27,6 +31,7 @@ import com.hazelcast.map.impl.MapServiceContext;
 import com.hazelcast.map.impl.mapstore.MapDataStore;
 import com.hazelcast.map.impl.query.AggregationResult;
 import com.hazelcast.map.impl.query.Query;
+import com.hazelcast.map.impl.query.QueryPartitionOperation;
 import com.hazelcast.map.impl.query.QueryResult;
 import com.hazelcast.map.impl.query.QueryResultRow;
 import com.hazelcast.map.impl.query.Result;
@@ -188,6 +193,14 @@ public class DataDistributionService implements ManagedService {
 				}
 			}
 		}
+		// alternatively, can run it on partition via QueryPartitionOperation:
+		//QueryPartitionOperation op = new QueryPartitionOperation(query);
+		//op.setMapService(svc);
+		//int partId = nodeEngine.getPartitionService().getPartitionId(uri.hashCode());
+		//op.setPartitionId(partId);
+		//op.beforeRun();
+		//op.run();
+		//QueryResult rs = (QueryResult) op.getResponse();
 		logger.trace("getLastPartKeyForUri; uri: {}; returning: {}", uri, last);
 		return last;
 	}
@@ -213,13 +226,77 @@ public class DataDistributionService implements ManagedService {
 			logger.trace("getLastKeyForUri; uri: {}; returning: {}", uri, last);
 			return last;
 		} catch (ExecutionException | InterruptedException ex) {
-			logger.error("", ex);
-		} catch (Exception ex) {
-			logger.error("error: ", ex);
+			logger.error("getLastKeyForUri.error: ", ex);
 		}
 		return null;
 	}
+
+	public Document getLastDocumentForUri(String uri, boolean isBinary) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("uri", uri), IterationType.VALUE, null, null);
+		try {
+			Document last = null;
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
+			for (QueryResultRow row: rs.getRows()) {
+				Document doc;
+				if (isBinary) {  
+					doc = nodeEngine.toObject(row.getValue());
+				} else {
+					doc = (Document) row.getValue();	
+				}
+				if (last == null) {
+					last = doc;
+				} else {
+					if (doc.getVersion() > last.getVersion()) {
+						last = doc;
+					}
+				}
+			}
+			logger.trace("getLastDocumentForUri; uri: {}; returning: {}", uri, last);
+			return last;
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastDocumentForUri.error: ", ex);
+		}
+		return null;
+	}
+
+	public Collection<DataKey> getElementKeys(long docId) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query query = new Query(CN_XDM_ELEMENT, Predicates.equal("__key#documentKey", docId), IterationType.KEY, null, null);
+		Collection<DataKey> result = null;
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_ELEMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
+			result = new ArrayList<>(rs.size());
+			for (QueryResultRow row: rs.getRows()) {
+				result.add((DataKey) nodeEngine.toObject(row.getKey()));
+			}
+			return result;
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getElementKeys.error", ex);
+		}
+		return result;
+	}
 	
+	public Map<DataKey, Elements> getElements(long docId) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query query = new Query(CN_XDM_ELEMENT, Predicates.equal("__key#documentKey", docId), IterationType.ENTRY, null, null);
+		Map<DataKey, Elements> result = null;
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_ELEMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
+			result = new HashMap<>(rs.size());
+			for (QueryResultRow row: rs.getRows()) {
+				result.put((DataKey) nodeEngine.toObject(row.getKey()), (Elements) nodeEngine.toObject(row.getValue()));
+			}
+			return result;
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getElementKeys.error", ex);
+		}
+		return result;
+	}
+
 	public Object storeData(Object key, Object value, String storeName) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();

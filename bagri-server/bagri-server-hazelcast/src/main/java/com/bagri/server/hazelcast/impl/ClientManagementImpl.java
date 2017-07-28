@@ -82,7 +82,6 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	
 	@Override
 	public String getCurrentUser() {
-		String result = null;
 		String clientId = repo.getClientId();
 		logger.trace("getCurrentUser.enter; client: {}", clientId); 
 		if (clientId != null) {

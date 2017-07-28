@@ -8,6 +8,7 @@ import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,8 @@ public class AccessManagementBridge implements MembershipListener {
 	private static final transient Logger logger = LoggerFactory.getLogger(AccessManagementBridge.class);
 
 	private HazelcastInstance hzInstance;
-	private Map<String, Role> roles = new HashMap<>();
-	private Map<String, User> users = new HashMap<>();
+	private Map<String, Role> roles = new ConcurrentHashMap<>();
+	private Map<String, User> users = new ConcurrentHashMap<>();
 
 	public void setHazelcastInstance(HazelcastInstance hzInstance) {
 		logger.trace("setHazelcastInstance.enter");
