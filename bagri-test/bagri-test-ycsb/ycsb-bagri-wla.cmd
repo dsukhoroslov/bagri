@@ -6,7 +6,7 @@ setlocal
 call set-ycsb-env.cmd
 
 rem insert securities to the cache
-"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.yahoo.ycsb.Client -load -threads 20 -P bagri-workloada
+"%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.yahoo.ycsb.Client -load -s -threads 20 -P bagri-workloada
 rem "%java_exec%" -server -showversion %java_opts% -cp "%app_home%\target\*;%app_home%\target\lib\*" com.yahoo.ycsb.Client -load -P bagri-workloada
 
 rem perform queries loopig by user count
