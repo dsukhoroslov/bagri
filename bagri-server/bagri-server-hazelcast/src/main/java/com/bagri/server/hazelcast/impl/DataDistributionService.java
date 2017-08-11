@@ -261,6 +261,37 @@ public class DataDistributionService implements ManagedService {
 		return null;
 	}
 
+	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query, int fetchSize, boolean isBinary) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.VALUE, null, null);
+		Map<String, Document> results;
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			results = new HashMap<>(rs.size());
+			for (QueryResultRow row: rs.getRows()) {
+				Document doc;
+				if (isBinary) {  
+					doc = nodeEngine.toObject(row.getValue());
+				} else {
+					doc = (Document) row.getValue();	
+				}
+				Document last = results.get(doc.getUri());
+				if (last == null || last.getVersion() < doc.getVersion()) {
+					results.put(doc.getUri(),  doc);
+				}
+				if (fetchSize > 0 && results.size() == fetchSize) {
+					break;
+				}
+			}
+			logger.trace("getLastDocumentsForQuery; query: {}; returning: {}", query, results.size());
+			return results.values();
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastDocumentsForQuery.error: ", ex);
+		}
+		return null;
+	}
+
 	public Collection<DataKey> getElementKeys(long docId) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();

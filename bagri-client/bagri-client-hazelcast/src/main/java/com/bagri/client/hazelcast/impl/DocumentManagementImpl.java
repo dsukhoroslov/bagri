@@ -4,9 +4,11 @@ import static com.bagri.core.api.BagriException.ecDocument;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -52,7 +54,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException {
-		logger.trace("getDocumentUris.enter; got pattern: {}", pattern);
+		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
 		Collection<String> result = null;
 		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
 		Future<Collection<String>> future = execService.submit(task);
@@ -64,6 +66,28 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			logger.error("getDocumentUris; error getting result", ex);
 			throw new BagriException(ex, ecDocument);
 		}
+	}
+	
+	@Override
+	public Iterable<?> getDocuments(String pattern, Properties props) throws BagriException {
+		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
+		// TODO: implement lazy iterable over results
+		Collection<Object> result = new ArrayList<>();
+		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
+		Map<Member, Future<Iterable<?>>> results = execService.submitToAllMembers(task);
+		for (Map.Entry<Member, Future<Iterable<?>>> entry: results.entrySet()) {
+			try {
+				Iterator<?> itr = entry.getValue().get().iterator();
+				while (itr.hasNext()) {
+					result.add(itr.next());
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("getDocuments; error getting result", ex);
+				throw new BagriException(ex, ecDocument);
+			}
+		}
+		logger.trace("getDocuments.exit; got results: {}", result);
+		return result;
 	}
 	
 	@Override

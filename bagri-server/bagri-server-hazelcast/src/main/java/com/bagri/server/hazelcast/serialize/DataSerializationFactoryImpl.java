@@ -24,6 +24,7 @@ import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
 import com.bagri.server.hazelcast.task.doc.DocumentRemover;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentUrisProvider;
+import com.bagri.server.hazelcast.task.doc.DocumentsProvider;
 import com.bagri.server.hazelcast.task.format.DataFormatCreator;
 import com.bagri.server.hazelcast.task.format.DataFormatRemover;
 import com.bagri.server.hazelcast.task.index.IndexCreator;
@@ -178,7 +179,8 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentStructureTask: return new DocumentStructureProvider();
 			case cli_ProvideDocumentMapTask: return new DocumentMapProvider(); 
-			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider(); 
+			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider();
+			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_BuildQueryXMLTask: return new XMLBuilder();

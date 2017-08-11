@@ -394,6 +394,52 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return uris;
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public Iterable<?> getDocuments(String pattern, Properties props) {
+		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
+		Predicate<DocumentKey, Document> query;
+		if (pattern != null) {
+			query = DocumentPredicateBuilder.getQuery(pattern);
+		} else {
+			query = Predicates.equal(fnTxFinish, TX_NO);
+		}
+		
+		int fetchSize = 0;
+		if (props != null) {
+			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+			//if (pageSize > 0) {
+			//	query = new PagingPredicate<>(query, pageSize);
+				//query = Predicates.and(new PagingPredicate(pageSize), query);
+			//}
+		} //else {
+		//  Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
+		//	uris = xddCache.project(pro, query);
+		//}
+		
+		DocumentKey docKey;
+		//java.util.Collection<Document> docs = xddCache.values(query);
+		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize, binaryDocs);
+		java.util.Collection<Object> contents = new ArrayList<>(docs.size());
+		if (pattern.indexOf(fnTxFinish) < 0) {
+			for (Document doc: docs) {
+				if (doc.getTxFinish() == TX_NO) {
+					docKey = factory.newDocumentKey(doc.getDocumentKey());
+					contents.add(getDocumentContent(docKey));
+				}
+			}
+		} else {
+			for (Document doc: docs) {
+				docKey = factory.newDocumentKey(doc.getDocumentKey());
+				contents.add(getDocumentContent(docKey));
+			}
+		}
+		
+		// should also check if doc's start transaction is committed?
+		logger.trace("getDocuments.exit; returning: {}", contents.size());
+		return contents;
+	}
+
 	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {
 		
         logger.trace("buildContent.enter; docKeys: {}", docKeys.size());

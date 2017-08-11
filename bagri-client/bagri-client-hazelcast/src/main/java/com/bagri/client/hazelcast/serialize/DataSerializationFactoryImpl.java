@@ -19,6 +19,8 @@ import com.bagri.client.hazelcast.task.doc.DocumentMapProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentRemover;
+import com.bagri.client.hazelcast.task.doc.DocumentUrisProvider;
+import com.bagri.client.hazelcast.task.doc.DocumentsProvider;
 import com.bagri.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.client.hazelcast.task.query.ResultFetcher;
@@ -115,6 +117,7 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 	public static final int cli_ProvideDocumentUrisTask = 112;
 	public static final int cli_UpdateDocumentCollectionTask = 113; 
 	public static final int cli_ProvideCollectionsTask = 114;
+	public static final int cli_ProvideDocumentsTask = 115;
 
 	public static final int cli_BeginTransactionTask = 120; 
 	public static final int cli_CommitTransactionTask = 121;
@@ -150,9 +153,11 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
 			case cli_ProvideDocumentMapTask: return new DocumentMapProvider();
-			case cli_ProvideDocumentUrisTask: return new QueryUrisProvider(); 
+			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider();
+			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
+			case cli_ProvideQueryUrisTask: return new QueryUrisProvider(); 
 			case cli_ExecQueryTask: return new QueryExecutor();
 			case cli_AuthenticateTask: return new UserAuthenticator();
 			case cli_PartitionStats: return new PartitionStatistics();

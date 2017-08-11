@@ -2,6 +2,7 @@ package com.bagri.core.api;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,9 +25,17 @@ public interface DocumentManagement {
 	 * @throws BagriException in case of any error
 	 */
 	Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException;
-	
-	// not sure we need it..
-	//Collection<Document> getDocuments(String pattern);
+
+	/**
+	 * return contents of Documents matching provided pattern
+	 * 
+	 * @param pattern String; the query string conforming to syntax: Document attribute CMP value,
+	 * for instance: createdBy = admin, bytes &gt; 3000, uri like security%
+	 * @param props contains query processing instructions
+	 * @return Iterable over the contents of matched documents
+	 * @throws BagriException in case of any error
+	 */
+	Iterable<?> getDocuments(String pattern, Properties props) throws BagriException;
 	
 	/**
 	 * return Document uris which belongs to the collection
