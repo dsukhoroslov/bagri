@@ -121,7 +121,7 @@
                         </executions>
                     </plugin>
 
-                    <plugin>
+                    <!--plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <executions>
@@ -156,7 +156,7 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin-->
                     
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
@@ -221,13 +221,13 @@
                             </resources>
                         </configuration>
                         <executions>
-                            <execution>
+                            <!--execution>
                                 <id>build-image</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
-                            </execution>
+                            </execution-->
                             <!--execution>
                                 <id>tag-image</id>
                                 <phase>package</phase>
@@ -239,11 +239,11 @@
                                     <newName>bagri/bagri:latest</newName>
                                 </configuration>
                             </execution-->
-                            <execution>
+                            <!--execution>
                                 <id>push-image</id>
-                                <phase>deploy</phase>
+                                <phase>deploy</phase-->
                                 <!--phase>package</phase-->
-                                <goals>
+                                <!--goals>
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
@@ -253,7 +253,7 @@
                                         <imageTag>latest</imageTag>
                                     </imageTags>					
                                 </configuration>
-                            </execution>        
+                            </execution-->        
                         </executions>
                     </plugin>
 
