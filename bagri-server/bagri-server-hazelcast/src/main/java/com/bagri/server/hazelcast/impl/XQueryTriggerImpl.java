@@ -1,5 +1,8 @@
 package com.bagri.server.hazelcast.impl;
 
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.system.DataFormat.df_xml;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
@@ -61,12 +64,14 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 	private void runTrigger(Document doc, SchemaRepositoryImpl repo) throws BagriException {
 		XQProcessor xqp = repo.getXQProcessor();
 		try {
-			String xml = repo.getDocumentManagement().getDocumentAsString(doc.getUri(), null);
+			Properties props = new Properties();
+			props.setProperty(pn_document_data_format, df_xml);
+			String xml = repo.getDocumentManagement().getDocumentAs(doc.getUri(), props);
 			org.w3c.dom.Document xDoc = XMLUtils.textToDocument(xml);
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());
 			xqp.bindVariable("doc", item);
-			Properties props = new Properties();
+			//Properties props = new Properties();
 			Iterator<?> iter = xqp.executeXQuery(query, props);
 			if (logger.isTraceEnabled()) {
 				while (iter.hasNext()) {

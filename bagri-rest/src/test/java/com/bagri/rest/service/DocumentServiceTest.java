@@ -49,10 +49,10 @@ public class DocumentServiceTest extends JerseyTest {
         responseXml = new Document(1L, "a0001.xml", "/content", "owner", 1, 34, 1);
         responseJson = new Document(2L, "a0001.xml", "/content", "owner", 1, 30, 1); // why the same uri??
         try {
-			when(docMgr.storeDocumentFromString("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
-			when(docMgr.storeDocumentFromString("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);
-			when(docMgr.getDocumentAsString("a0001.xml", propsXml)).thenReturn("<content>initial content</content>");
-			when(docMgr.getDocumentAsString("a0001.xml", propsJson)).thenReturn("{\"content\": \"updated content\"}");
+			when(docMgr.storeDocumentFrom("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
+			when(docMgr.storeDocumentFrom("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);
+			when(docMgr.getDocumentAs("a0001.xml", propsXml)).thenReturn("<content>initial content</content>");
+			when(docMgr.getDocumentAs("a0001.xml", propsJson)).thenReturn("{\"content\": \"updated content\"}");
 		} catch (BagriException ex) {
 			ex.printStackTrace();
 		}

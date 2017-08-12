@@ -1,8 +1,12 @@
 package com.bagri.core.test;
 
+import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,22 +22,11 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Document;
-import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.df.map.MapBuilder;
 import com.bagri.core.server.api.df.map.MapHandler;
-import com.bagri.core.server.api.df.map.MapParser;
-import com.bagri.core.server.api.df.json.JsonpModeler;
-import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.json.JsonpHandler;
-import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.df.xml.XmlHandler;
-import com.bagri.core.server.api.df.xml.XmlModeler;
-import com.bagri.core.server.api.df.xml.XmlStaxParser;
 import com.bagri.core.system.DataFormat;
-import com.bagri.core.system.Library;
-import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
-import com.bagri.support.util.PropUtils;
 
 public abstract class BagriManagementTest {
 
@@ -50,7 +43,7 @@ public abstract class BagriManagementTest {
 	//}
 	
 	protected Properties getDocumentProperties() {
-		return null;
+		return new Properties();
 	}
 	
 	protected DocumentManagement getDocManagement() {
@@ -63,6 +56,14 @@ public abstract class BagriManagementTest {
 
 	protected TransactionManagement getTxManagement() {
 		return xRepo.getTxManagement();
+	}
+	
+	protected Properties loadProperties(String fileName) throws IOException {
+		Properties props = new Properties();
+		//InputStream is = this.getClass().getResourceAsStream(fileName);
+		InputStream is = new FileInputStream(fileName);
+		props.load(is);
+		return props;		
 	}
 	
 	protected Collection<DataFormat> getBasicDataFormats() {
@@ -123,14 +124,16 @@ public abstract class BagriManagementTest {
 	}
 	
 	public Document createDocumentTest(String fileName) throws Exception {
+		String uri = Paths.get(fileName).getFileName().toString();
+		String content = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromFile(fileName, props);
+		return getDocManagement().storeDocumentFrom(uri, content, props);
 	}
 	
 	public Document updateDocumentTest(String uri, String fileName) throws Exception {
 		String content = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFromString(uri, content, props);
+		return getDocManagement().storeDocumentFrom(uri, content, props);
 	}
 
 	public void removeDocumentTest(String uri) throws Exception {

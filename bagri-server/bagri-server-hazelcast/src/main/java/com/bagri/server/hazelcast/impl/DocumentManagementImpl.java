@@ -507,163 +507,99 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
     
 	@Override
-	public Object getDocumentAsBean(String uri, Properties props) throws BagriException {
-		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
-		return getDocumentAsBean(docKey, props);  
-	}
-
-	public Object getDocumentAsBean(DocumentKey docKey, Properties props) throws BagriException {
-		Document doc = getDocument(docKey);
-		if (doc == null) {
-			logger.info("getDocumentAsBean; no document found for key: {}", docKey);
-			return null;
-		}
-
-		if (!"MAP".equalsIgnoreCase(doc.getContentType()) && !repo.getHandler(doc.getContentType()).isStringFormat()) {
-			return getDocumentContent(docKey);
-		}
-
-		String content = getDocumentAsString(docKey, props);
-		if (content == null) {
-			return null;
-		}
-		// TODO: convert from JSON as well!
-		return beanFromXML(content);
-	}
-	
-	@Override
-	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
+	public <T> T getDocumentAs(String uri, Properties props) throws BagriException {
 		Document doc = getDocument(uri);
 		if (doc == null) {
-			logger.info("getDocumentAsMap; no document found for uri: {}", uri);
+			logger.info("getDocumentAs; no document found for uri: {}", uri);
 			return null;
 		}
 
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		return getDocumentAsMap(docKey, doc, props);
+		return getDocumentAs(docKey, doc, props);
 	}
 
 	@Override
-	public Map<String, Object> getDocumentAsMap(long docKey, Properties props) throws BagriException {
-		DocumentKey xdmKey = factory.newDocumentKey(docKey);
-		return getDocumentAsMap(xdmKey, props);
+	public <T> T getDocumentAs(long docKey, Properties props) throws BagriException {
+		return getDocumentAs(factory.newDocumentKey(docKey), props);  
 	}
 
 	@Override
-	public Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws BagriException {
+	public <T> T getDocumentAs(DocumentKey docKey, Properties props) throws BagriException {
 		Document doc = getDocument(docKey);
 		if (doc == null) {
-			logger.info("getDocumentAsMap; no document found for key: {}", docKey);
+			logger.info("getDocumentAs; no document found for key: {}", docKey);
 			return null;
 		}
 
-		return getDocumentAsMap(docKey, doc, props);
+		return getDocumentAs(docKey, doc, props);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getDocumentAsMap(DocumentKey docKey, Document doc, Properties props) throws BagriException {
-		String cType = doc.getContentType();
-		if ("MAP".equalsIgnoreCase(cType)) {
-			return (Map<String, Object>) getDocumentContent(docKey);
-		}
-		
-		ContentConverter<String, Map<String, Object>> cc = repo.getConverter(cType, Map.class);
-		if (cc != null) {
-			String content = getDocumentAsString(docKey, props);
-			if (content != null) {
-				return cc.convertTo(content);
-			}
-		}
-		return null;
-	}
-
-	public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
-		String content = getDocumentAsString(docKey, props);
-		if (content != null) {
-			try {
-				return new ByteArrayInputStream(content.getBytes(def_encoding));
-			} catch (UnsupportedEncodingException ex) {
-				throw new BagriException(ex, BagriException.ecInOut);
-			}
-		}
-		return null;
-	}
-	
-	@Override
-	public String getDocumentAsString(String uri, Properties props) throws BagriException {
-		//DocumentKey docKey = getDocumentKey(uri, false, false);
-		//if (docKey == null) {
-			//throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
-		//	logger.info("getDocumentAsString; can not find active document for uri: {}", uri);
-		//	return null;
-		//}
-		//return getDocumentAsString(docKey, props);
-		
-		Document doc = getDocument(uri);
-		if (doc == null) {
-			logger.info("getDocumentAsString; no document found for uri: {}", uri);
-			return null;
-		}
-		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		return getDocumentAsString(docKey, doc, props);
-	}
-
-	@Override
-	public String getDocumentAsString(long docKey, Properties props) throws BagriException {
-		return getDocumentAsString(factory.newDocumentKey(docKey), props);
-	}
-	
-	@Override
-	public String getDocumentAsString(DocumentKey docKey, Properties props) throws BagriException {
-		
-		Document doc = getDocument(docKey);
-		if (doc == null) {
-			logger.info("getDocumentAsString; no document found for key: {}", docKey);
-			return null;
-		}
-		return getDocumentAsString(docKey, doc, props);
-	}
-
-	private String getDocumentAsString(DocumentKey docKey, Document doc, Properties props) throws BagriException {
-		
-		String docFormat = doc.getContentType();
+	private <T> T getDocumentAs(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		String dataFormat = null;
 		if (props != null) {
 			dataFormat = props.getProperty(pn_document_data_format);
+		} else {
+			props = new Properties();
 		}
 		if (dataFormat == null) {
-			dataFormat = docFormat;
+			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
 		}
-		if (!repo.getHandler(dataFormat).isStringFormat()) {
-			logger.info("getDocumentAsString; no String format specified for document {}", docKey);
-			return null;
+		if (!props.containsKey(pn_document_data_format)) {
+			props.setProperty(pn_document_data_format, dataFormat);
 		}
-
-		Object content = null;
-		boolean sameFormat = dataFormat.equals(docFormat); 
-		if (sameFormat) {
-			// no need for conversion
-			content = cntCache.get(docKey);
+		
+		ContentConverter<Object, T> cc = null;
+		String srcFormat = doc.getContentType();
+		if (!srcFormat.equals(dataFormat)) {
+			Class<?> to = null;
+			if (pv_document_data_source_map.equals(dataFormat)) {
+				to = Map.class;
+			} // else it'll return common Bean converter
+			cc = repo.getConverter(srcFormat, to);
+			if (cc == null) {
+				throw new BagriException("No converter found between " + srcFormat + " and " + dataFormat, BagriException.ecDocument);
+			}
 		}
+		
+		Object content = getDocumentContent(docKey);
+		logger.trace("getDocumentAs; got content: {}", content); 
 		if (content == null) {
+			// build it and store in cache
 			// if docId is not local then buildDocument returns null!
 			// query docId owner node for the XML instead
 			if (ddSvc.isLocalKey(docKey)) {
 				Map<String, Object> params = new HashMap<>();
 				params.put(":doc", doc.getTypeRoot());
 				java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
-				if (sameFormat && !results.isEmpty()) {
+				if (results.isEmpty()) {
 					content = results.iterator().next();
 					cntCache.set(docKey, content);
 				}
 			} else {
+				// can cause distributed deadlock! call to EP from the same EP!
 				DocumentContentProvider xp = new DocumentContentProvider(repo.getClientId(), txManager.getCurrentTxId(), doc.getUri(), props); 
 				content = xddCache.executeOnKey(docKey, xp);
 			}
 		}
-		return (String) content;
+		if (cc != null) {
+			return (T) cc.convertTo(content);
+		}
+		return (T) content;
 	}
 
+	//public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
+	//	String content = getDocumentAsString(docKey, props);
+	//	if (content != null) {
+	//		try {
+	//			return new ByteArrayInputStream(content.getBytes(def_encoding));
+	//		} catch (UnsupportedEncodingException ex) {
+	//			throw new BagriException(ex, BagriException.ecInOut);
+	//		}
+	//	}
+	//	return null;
+	//}
+	
 	private Collection getTypedCollection(Schema schema, String typePath) {
 		for (Collection collect: schema.getCollections()) {
 			String cPath = collect.getDocumentType();
@@ -976,36 +912,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		throw new BagriException("invalid document: has no root element", ecDocument);
 	}
 
-	
 	@Override
-	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws BagriException {
-		String dataFormat = null;
-		if (props != null) {
-			dataFormat = props.getProperty(pn_document_data_format);
-		}
-		if (dataFormat == null) {
-			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
-		}
-		if (!"MAP".equalsIgnoreCase(dataFormat) && !repo.getHandler(dataFormat).isStringFormat()) {
-			return storeDocument(uri, bean, props);
-		}
-		
-		// TODO: use JSON as well!
-		String content = beanToXML(bean);
-		if (content == null || content.trim().length() == 0) {
-			throw new BagriException("Can not convert bean [" + bean + "] to XML", BagriException.ecDocument);
-		}
-		logger.trace("storeDocumentFromBean; converted bean: {}", content); 
-		
-		if (props != null) {
-			props.setProperty(pn_document_data_format, df_xml);
-		}
-		return storeDocumentFromString(uri, content, props);
-	}
-
-	@Override
-	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws BagriException {
-		logger.trace("storeDocumentFromMap; got map of size: {} for uri: {}", fields.size(), uri); 
+	public <T> Document storeDocumentFrom(String uri, T content, Properties props) throws BagriException {
+		logger.trace("storeDocumentFrom; got uri: {}; content: {}; props: {}", uri, content, props); 
 		String dataFormat = null;
 		if (props != null) {
 			dataFormat = props.getProperty(pn_document_data_format);
@@ -1018,45 +927,27 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (!props.containsKey(pn_document_data_format)) {
 			props.setProperty(pn_document_data_format, dataFormat);
 		}
-		if ("MAP".equalsIgnoreCase(dataFormat)) {
-			return storeDocument(uri, fields, props);
-		}
-		
-		String content = null;
-		ContentConverter<String, Map<String, Object>> cc = repo.getConverter(dataFormat, Map.class);
-		if (cc != null) {
-			content = cc.convertFrom(fields);
-			if (content == null || content.trim().length() == 0) {
-				throw new BagriException("Can not convert map [" + fields + "] to " + dataFormat, BagriException.ecDocument);
+		String srcFormat = props.getProperty(pn_document_data_source, dataFormat);
+		if (!srcFormat.equals(dataFormat)) {
+			ContentConverter<String, T> cc = repo.getConverter(dataFormat, content.getClass());
+			if (cc == null) {
+				throw new BagriException("No converter found between " + srcFormat + " and " + dataFormat, BagriException.ecDocument);
 			}
+			Object converted = cc.convertFrom(content);
+			logger.trace("storeDocumentFrom; converted content: {}", converted); 
+			return storeDocument(uri, converted, props);
 		}
-		logger.trace("storeDocumentFromMap; converted map: {}", content); 
-		return storeDocumentFromString(uri, content, props);
-	}
-	
-	@Override
-	public Document storeDocumentFromString(String uri, String content, Properties props) throws BagriException {
 		return storeDocument(uri, content, props);
 	}
-	
+
 	private Document storeDocument(String uri, Object content, Properties props) throws BagriException {
-	
 		logger.trace("storeDocument.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
 			throw new BagriException("Empty URI passed", ecDocument); 
 		}
 		
-		String storeMode;
-		String dataFormat;
-		if (props == null) {
-			storeMode = pv_client_storeMode_merge;
-			dataFormat = null;
-		} else {
-			storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
-			dataFormat = props.getProperty(pn_document_data_format);
-		}
-		
 		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
 				throw new BagriException("No document with URI '" +  uri + "' found for update", ecDocument); 
@@ -1089,15 +980,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//}
 		}
 
-		if (dataFormat == null) {
-			dataFormat = uri.substring(uri.lastIndexOf(".") + 1);
-		}
+		String dataFormat = props.getProperty(pn_document_data_format);
 		dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		List<Data> data = parser.parse(content);
-		if (props == null) {
-			props = new Properties();
-		}
+		// ??
 		props.setProperty(pn_document_data_format, dataFormat);
 		
 		// if fragmented document - process it in the old style!

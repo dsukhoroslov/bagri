@@ -100,7 +100,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	private void initializeServices(Properties props) {
 		//execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 		setAccessManagement(new AccessManagementImpl());
-		setBindingManagement(new BindingManagementImpl());
 		setDocumentManagement(new DocumentManagementImpl());
 		setHealthManagement(new HealthManagementImpl(hzClient));
 		setQueryManagement(new QueryManagementImpl());

@@ -45,7 +45,7 @@ public class XmlHandler extends ContentHandlerBase implements ContentHandler {
 
 	@Override
 	public ContentConverter<?, ?> getConverter(Class<?> source) {
-		if (source.isAssignableFrom(Map.class)) {
+		if (source != null && source.isAssignableFrom(Map.class)) {
 			if (mc == null) {
 				mc = new MapXmlConverter();
 			}

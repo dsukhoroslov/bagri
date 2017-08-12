@@ -193,7 +193,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String getDocumentContent(String uri, String properties) {
 		try {
-			return docManager.getDocumentAsString(uri, propsFromString(properties));
+			return docManager.getDocumentAs(uri, propsFromString(properties));
 		} catch (IOException | BagriException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
@@ -208,7 +208,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			Document doc = docManager.storeDocumentFromString(uri, xml, propsFromString(properties));
+			Document doc = docManager.storeDocumentFrom(uri, xml, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | BagriException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
@@ -224,7 +224,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public String updateDocument(String uri, String docFile, String properties) {
 		try {
 			String content = FileUtils.readTextFile(docFile);
-			Document doc = docManager.storeDocumentFromString(uri, content, propsFromString(properties));
+			Document doc = docManager.storeDocumentFrom(uri, content, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | BagriException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);

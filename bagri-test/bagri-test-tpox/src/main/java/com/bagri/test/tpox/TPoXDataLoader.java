@@ -1,5 +1,7 @@
 package com.bagri.test.tpox;
 
+import static com.bagri.core.Constants.*;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -109,7 +112,9 @@ public class TPoXDataLoader {
 	private String storeDocument(String uri, String xml) {
 
 		try {
-			Document doc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, null);
+			Properties props = new Properties();
+			props.setProperty(pn_document_data_format, "XML");
+			Document doc = xRepo.getDocumentManagement().storeDocumentFrom(uri, xml, props);
 			//logger.trace("storeDocument.exit; result: {}", result);
 			return doc.getUri();
 		} catch (BagriException ex) {

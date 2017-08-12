@@ -29,7 +29,7 @@ public class XmlResourceImpl extends ResourceImplBase {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "XML");
 			try {
-				xml = docMgr.getDocumentAsString(docKey, props);
+				xml = docMgr.getDocumentAs(docKey, props);
 			} catch (BagriException ex) {
 				throw new XPathException(ex);
 			}

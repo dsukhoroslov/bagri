@@ -59,7 +59,8 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Properties props = loadProperties("src\\test\\resources\\json.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_schema_format_default, "JSON");
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "securities", "/{http://tpox-benchmark.com/security}Security", "all securities", true);

@@ -252,7 +252,7 @@ public class BagriDBPlugin extends BagriTPoXPlugin {
 		}
 		
 		Document storeDocument(String uri, String xml) throws Exception {
-			return xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, props);
+			return xRepo.getDocumentManagement().storeDocumentFrom(uri, xml, props);
 		}
 		
 	}

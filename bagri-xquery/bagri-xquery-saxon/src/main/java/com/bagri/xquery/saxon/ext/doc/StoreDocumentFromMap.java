@@ -69,7 +69,7 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 					props = sequence2Properties(arguments[2]);
 				}
 				try {
-					Document doc = xdm.storeDocumentFromMap(uri, map, props);
+					Document doc = xdm.storeDocumentFrom(uri, map, props);
 					return new AnyURIValue(doc.getUri());
 				} catch (BagriException ex) {
 					throw new XPathException(ex);

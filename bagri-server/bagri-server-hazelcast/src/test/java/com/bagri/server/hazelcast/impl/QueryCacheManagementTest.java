@@ -59,7 +59,8 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Properties props = loadProperties("src\\test\\resources\\test.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());

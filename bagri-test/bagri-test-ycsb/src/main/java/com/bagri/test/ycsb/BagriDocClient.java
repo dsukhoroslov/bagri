@@ -29,11 +29,11 @@ public class BagriDocClient extends BagriClientBase {
     }
     
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			if (xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, insertProps) == null) {
+			if (xRepo.getDocumentManagement().storeDocumentFrom(key, fields, insertProps) == null) {
 				logger.debug("insert; document was not created for some reason; key: {}", key);
 				return Status.UNEXPECTED_STATE;
 			}
@@ -48,7 +48,7 @@ public class BagriDocClient extends BagriClientBase {
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
 		try {
-			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(key, readProps);
+			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAs(key, readProps);
 			if (map == null) {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;
@@ -111,11 +111,11 @@ public class BagriDocClient extends BagriClientBase {
 	}
 	
 	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			if (xRepo.getDocumentManagement().storeDocumentFromMap(key, fields, updateProps) == null) {
+			if (xRepo.getDocumentManagement().storeDocumentFrom(key, fields, updateProps) == null) {
 				logger.debug("update; document was not updated for some reason; key: {}", key);
 				return Status.UNEXPECTED_STATE;
 			}

@@ -84,7 +84,8 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Properties props = loadProperties("src\\test\\resources\\test.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_schema_format_default, "JSON");
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());
@@ -127,9 +128,9 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "products");
-		uris.add(getDocManagement().storeDocumentFromString("product.json", doc1, props).getUri());
+		uris.add(getDocManagement().storeDocumentFrom("product.json", doc1, props).getUri());
 		props.setProperty(pn_document_collections, "orders");
-		uris.add(getDocManagement().storeDocumentFromString("order.json", doc2, props).getUri());
+		uris.add(getDocManagement().storeDocumentFrom("order.json", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
@@ -150,7 +151,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		Properties props = getDocumentProperties();
 		//props.setProperty(pn_document_collections, "person");
-		uris.add(getDocManagement().storeDocumentFromString("person.json", json, props).getUri());
+		uris.add(getDocManagement().storeDocumentFrom("person.json", json, props).getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +

@@ -1,6 +1,9 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.core.Constants.pn_document_data_format;
+
 import java.util.Map;
+import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.server.api.DocumentManagement;
@@ -20,8 +23,10 @@ public class MapResourceImpl extends ResourceImplBase {
 	@Override
 	public Item getItem(XPathContext context) throws XPathException {
 		if (map == null) {
+			Properties props = new Properties();
+			props.setProperty(pn_document_data_format, "MAP");
 			try {
-				map = docMgr.getDocumentAsMap(docKey, null);
+				map = docMgr.getDocumentAs(docKey, props);
 			} catch (BagriException ex) {
 				throw new XPathException(ex);
 			}

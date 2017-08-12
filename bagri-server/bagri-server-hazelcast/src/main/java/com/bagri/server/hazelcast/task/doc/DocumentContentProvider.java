@@ -13,6 +13,7 @@ import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
+@SuppressWarnings("serial")
 @SpringAware
 public class DocumentContentProvider extends com.bagri.client.hazelcast.task.doc.DocumentContentProvider {
 
@@ -33,7 +34,7 @@ public class DocumentContentProvider extends com.bagri.client.hazelcast.task.doc
 	    	//checkPermission(Permission.Value.read);
         	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
 	    	
-			return docMgr.getDocumentAsString(uri, props);
+			return docMgr.getDocumentAs(uri, props);
     	} catch (BagriException ex) {
     		return ex;
     	}

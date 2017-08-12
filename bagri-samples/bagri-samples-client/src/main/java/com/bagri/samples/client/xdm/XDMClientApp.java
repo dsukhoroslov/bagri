@@ -1,10 +1,6 @@
 package com.bagri.samples.client.xdm;
 
-import static com.bagri.core.Constants.pn_client_dataFactory;
-import static com.bagri.core.Constants.pn_schema_address;
-import static com.bagri.core.Constants.pn_schema_name;
-import static com.bagri.core.Constants.pn_schema_password;
-import static com.bagri.core.Constants.pn_schema_user;
+import static com.bagri.core.Constants.*;
 
 import java.util.Iterator;
 import java.util.Properties;
@@ -68,7 +64,7 @@ public class XDMClientApp implements BagriClientApp {
 	@Override
 	public String readDocument(String uri) throws BagriException {
 		
-		return xRepo.getDocumentManagement().getDocumentAsString(uri, null);
+		return xRepo.getDocumentManagement().getDocumentAs(uri, null);
 	}
 	
 	@Override
@@ -116,7 +112,8 @@ public class XDMClientApp implements BagriClientApp {
 	private int storeDocument(String uri, String content) throws BagriException {
 		
 		Properties props = new Properties();
-		Document xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, content, props);
+		props.setProperty(pn_document_data_format, "XML");
+		Document xDoc = xRepo.getDocumentManagement().storeDocumentFrom(uri, content, props);
 		return xDoc.getVersion();
 	} 
 

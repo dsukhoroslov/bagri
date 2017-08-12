@@ -97,7 +97,7 @@ public class DocumentService  extends RestService {
     		} else if (MediaType.APPLICATION_XML_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
     	    	props.setProperty(pn_document_data_format, df_xml);
     		}
-            String content = docMgr.getDocumentAsString(uri, props);
+            String content = docMgr.getDocumentAs(uri, props);
             return Response.ok(content).build();
     	} catch (Exception ex) {
     		logger.error("getDocumentContent.error", ex);
@@ -114,7 +114,7 @@ public class DocumentService  extends RestService {
 		DocumentManagement docMgr = getDocManager();
     	try {
     		logger.trace("postDocument; got params: {}", params);
-            Document doc = docMgr.storeDocumentFromString(params.uri, params.content, params.props);
+            Document doc = docMgr.storeDocumentFrom(params.uri, params.content, params.props);
      		logger.trace("postDocument; got document: {}", doc);
             DocumentBean dr = new DocumentBean(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getFormat(), doc.getEncoding(), doc.getBytes());
             return Response.created(UriBuilder.fromPath("/docs/" + dr.uri).build()).entity(dr).build();

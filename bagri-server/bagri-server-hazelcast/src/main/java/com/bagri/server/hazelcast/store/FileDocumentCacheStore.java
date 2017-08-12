@@ -250,9 +250,10 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		
 		String fullUri = getFullUri(docUri);
 		try {
-			String xml = docManager.getDocumentAsString(key, null);
-			FileUtils.writeTextFile(fullUri, xml);
-			logger.trace("storeDocument.exit; stored as: {}; length: {}", fullUri, xml.length());
+			// must return doc in default format (XML/JSON)
+			String content = docManager.getDocumentAs(key, null);
+			FileUtils.writeTextFile(fullUri, content);
+			logger.trace("storeDocument.exit; stored as: {}; length: {}", fullUri, content.length());
 			return null;
 		} catch (IOException | BagriException ex) {
 			return ex;

@@ -63,99 +63,28 @@ public interface DocumentManagement {
 	 */
 	Document getDocument(String uri) throws BagriException;
 
-	/**
-	 * 
-	 * @param uri the Document uri
-	 * @param props result production properties
-	 * @return Document content as a plain text
-	 * @throws BagriException in case of any error
-	 */
-	String getDocumentAsString(String uri, Properties props) throws BagriException;
-	
-	/**
-	 * construct {@link InputStream} over Document content identified by the uri provided 
-	 * 
-	 * @param uri the Document uri
-	 * @param props result production properties
-	 * @return {@link InputStream} over the document's content
-	 * @throws BagriException in case of any error
-	 */
-	InputStream getDocumentAsSream(String uri, Properties props) throws BagriException;
-	
-	/**
-	 * 
-	 * @param uri the Document uri
-	 * @param props result production properties
-	 * @return POJO representing the Document
-	 * @throws BagriException in case of any error
-	 */
-	Object getDocumentAsBean(String uri, Properties props) throws BagriException;
-	
-	/**
-	 * 
-	 * @param uri the Document uri
-	 * @param props result production properties
-	 * @return Map&lt;String, Object&gt; representing the Document
-	 * @throws BagriException in case of any error
-	 */
-	Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException;
-
 	// TODO: add methods to return document as Document, Reader, Source, XMLStreamReader..?
-
 	/**
+	 * return document content as requested in properties. 
 	 * 
-	 * @param uri the file uri containing Document content
-	 * @param props Properties; the document processing instructions
-	 * @return Document created or overridden (versioned) document
-	 * @throws BagriException in case of any error
+	 * @param uri
+	 * @param props
+	 * @return
+	 * @throws BagriException
 	 */
-	Document storeDocumentFromFile(String uri, Properties props) throws BagriException;
-	
-	/**
-	 * Creates a new Document or overrides an existing one in Repository
-	 * 
-	 * @param uri String; the Document uri  
-	 * @param content document's text (JSON, XML, ..) representation, can not be null
-	 * @param props Properties; the document processing instructions
-	 * @return Document created or overridden (versioned) document
-	 * @throws BagriException in case of any error
-	 */
-	Document storeDocumentFromString(String uri, String content, Properties props) throws BagriException;
-	
-	/**
-	 * Creates a new Document or overrides an existing one in Repository
-	 * 
-	 * @param uri String; the Document uri  
-	 * @param stream the {@link InputStream} over document's text (JSON, XML, ..) representation, can not be null
-	 * @param props Properties; the document processing instructions
-	 * @return Document created or overridden (versioned) document
-	 * @throws BagriException in case of any error
-	 */
-	Document storeDocumentFromStream(String uri, InputStream stream, Properties props) throws BagriException;
-	
-	/**
-	 * Creates a new Document or overrides an existing one in Repository
-	 * 
-	 * @param uri String; the Document uri  
-	 * @param bean the document's POJO representation, can not be null
-	 * @param props Properties; the document processing instructions
-	 * @return Document created or overridden (versioned) document
-	 * @throws BagriException in case of any error
-	 */
-	Document storeDocumentFromBean(String uri, Object bean, Properties props) throws BagriException;
-	
-	/**
-	 * Creates a new Document or overrides an existing one in Repository
-	 * 
-	 * @param uri String; the Document uri  
-	 * @param fields the document's structure represented as java {@link Map}, can not be null
-	 * @param props Properties; the document processing instructions
-	 * @return Document created or overridden (versioned) document
-	 * @throws BagriException in case of any error
-	 */
-	Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws BagriException;
+	<T> T getDocumentAs(String uri, Properties props) throws BagriException;
 
 	// TODO: add methods to store document from Document, Reader, Source, XMLStreamReader..?
+	/**
+	 * Creates a new Document or overrides an existing one in Repository
+	 * 
+	 * @param uri
+	 * @param content
+	 * @param props
+	 * @return
+	 * @throws BagriException
+	 */
+	<T> Document storeDocumentFrom(String uri, T content, Properties props) throws BagriException;
 	
 	/**
 	 * removes Document from Repository

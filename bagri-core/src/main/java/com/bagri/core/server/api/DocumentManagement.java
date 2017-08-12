@@ -1,8 +1,6 @@
 package com.bagri.core.server.api;
 
-import java.io.InputStream;
 import java.util.Date;
-import java.util.Map;
 import java.util.Properties;
 
 import com.bagri.core.DocumentKey;
@@ -25,7 +23,7 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	 * @return Map&lt;String, Object&gt; representing the XDM document
 	 * @throws BagriException in case of any error
 	 */
-	Map<String, Object> getDocumentAsMap(long docKey, Properties props) throws BagriException;
+	<T> T getDocumentAs(long docKey, Properties props) throws BagriException;
 	
 	/**
 	 * provides XDM Document content for the internal document key
@@ -35,38 +33,8 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	 * @return Map&lt;String, Object&gt; representing the XDM document
 	 * @throws BagriException in case of any error
 	 */
-	Map<String, Object> getDocumentAsMap(DocumentKey docKey, Properties props) throws BagriException;
+	<T> T getDocumentAs(DocumentKey docKey, Properties props) throws BagriException;
 	
-	/**
-	 * provides XDM Document content for the internal document key
-	 * 
-	 * @param docKey the internal Document key represented as long 
-	 * @param props result production properties
-	 * @return XDM Document content
-	 * @throws BagriException in case of any error
-	 */
-	String getDocumentAsString(long docKey, Properties props) throws BagriException;
-
-	/**
-	 * provides XDM Document content for the internal document key
-	 * 
-	 * @param docKey the internal Document key 
-	 * @param props result production properties
-	 * @return XDM Document content
-	 * @throws BagriException in case of any error
-	 */
-	String getDocumentAsString(DocumentKey docKey, Properties props) throws BagriException;
-	
-	/**
-	 * provides XDM Document content as {@link InputStream} for the internal document key
-	 * 
-	 * @param docKey the internal Document key 
-	 * @param props result production properties
-	 * @return XDM Document content as {@link InputStream}
-	 * @throws BagriException in case of any error
-	 */
-	InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException;
-
 	/**
 	 * provides document's MIME type (xml/json as of now)
 	 * 

@@ -5,9 +5,7 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_QUERY;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CancellationException;
@@ -19,18 +17,15 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.client.hazelcast.task.doc.DocumentBeanProvider;
 import com.bagri.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.client.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.client.hazelcast.task.query.QueryProcessor;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.model.Query;
 import com.bagri.core.model.QueryResult;
-import com.hazelcast.client.UndefinedErrorCodeException;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
@@ -43,7 +38,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     private boolean queryCache = true;
     private SchemaRepositoryImpl repo;
 	private IExecutorService execService;
-    private Future execution = null; 
+    private Future<?> execution = null; 
     private IMap<Long, QueryResult> resCache;
     private ReplicatedMap<Integer, Query> xqCache;
     

@@ -29,7 +29,7 @@ public class JsonResourceImpl extends ResourceImplBase {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "JSON");
 			try {
-				json = docMgr.getDocumentAsString(docKey, props);
+				json = docMgr.getDocumentAs(docKey, props);
 			} catch (BagriException ex) {
 				throw new XPathException(ex);
 			}

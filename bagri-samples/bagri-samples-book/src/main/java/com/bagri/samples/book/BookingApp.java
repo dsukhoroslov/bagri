@@ -285,7 +285,7 @@ public class BookingApp {
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(fileName), encoding), 0, parser); 
 		} else {
 			String content = readTextFile(fileName, encoding);
-			Document doc = dMgr.storeDocumentFromString(fn, content, props);
+			Document doc = dMgr.storeDocumentFrom(fn, content, props);
 			return 1;
 		}
 
@@ -328,7 +328,7 @@ public class BookingApp {
         Map<String, Object> map = line2Map(header, data);
         if (map != null) {
         	try {
-        		Document doc = xRepo.getDocumentManagement().storeDocumentFromMap(uri, map, props);
+        		Document doc = xRepo.getDocumentManagement().storeDocumentFrom(uri, map, props);
         		return doc != null;
         	} catch (BagriException ex) {
         		System.out.println("failed map is: " + map + ". record idx is: " + (idx + 2));
@@ -365,7 +365,8 @@ public class BookingApp {
 	}
 	
 	public String getDocument(String uri) throws BagriException {
-		return xRepo.getDocumentManagement().getDocumentAsString(uri, null);
+		// get it as Map?
+		return xRepo.getDocumentManagement().getDocumentAs(uri, null);
 	}
 	
 	public List<String> runQuery(String query) throws Exception {

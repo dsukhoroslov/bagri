@@ -34,7 +34,7 @@ public abstract class DocumentManagementBase {
 	 * @return Document content as a plain text
 	 * @throws BagriException in case of any error
 	 */
-	public abstract String getDocumentAsString(String uri, Properties props) throws BagriException;
+	//public abstract String getDocumentAsString(String uri, Properties props) throws BagriException;
 	
 	
 	/**
@@ -46,7 +46,7 @@ public abstract class DocumentManagementBase {
 	 * @return Document created or overridden (versioned) document
 	 * @throws BagriException in case of any error
 	 */
-	public abstract Document storeDocumentFromString(String uri, String content, Properties props) throws BagriException;
+	//public abstract Document storeDocumentFromString(String uri, String content, Properties props) throws BagriException;
 
 	/**
 	 * constructs {@link InputStream} over Document content identified by the uri provided 
@@ -56,17 +56,17 @@ public abstract class DocumentManagementBase {
 	 * @return {@link InputStream} over the document's content
 	 * @throws BagriException in case of any error
 	 */
-	public InputStream getDocumentAsSream(String uri, Properties props) throws BagriException {
-		String content = getDocumentAsString(uri, props);
-		if (content != null) {
-			try {
-				return new ByteArrayInputStream(content.getBytes(def_encoding));
-			} catch (UnsupportedEncodingException ex) {
-				throw new BagriException(ex, BagriException.ecInOut);
-			}
-		}
-		return null;
-	}
+	//public InputStream getDocumentAsSream(String uri, Properties props) throws BagriException {
+	//	String content = getDocumentAsString(uri, props);
+	//	if (content != null) {
+	//		try {
+	//			return new ByteArrayInputStream(content.getBytes(def_encoding));
+	//		} catch (UnsupportedEncodingException ex) {
+	//			throw new BagriException(ex, BagriException.ecInOut);
+	//		}
+	//	}
+	//	return null;
+	//}
 
 	/**
 	 * constructs new Document or overrides an existing one in Repository
@@ -76,15 +76,15 @@ public abstract class DocumentManagementBase {
 	 * @return Document created or overridden (versioned) document
 	 * @throws BagriException in case of any error
 	 */
-	public Document storeDocumentFromFile(String uri, Properties props) throws BagriException {
-		try {
-			String content = readTextFile(uri);
-			uri = Paths.get(uri).getFileName().toString();
-			return storeDocumentFromString(uri, content, props);
-		} catch (IOException ex) {
-			throw new BagriException(ex, BagriException.ecInOut);
-		}
-	}
+	//public Document storeDocumentFromFile(String uri, Properties props) throws BagriException {
+	//	try {
+	//		String content = readTextFile(uri);
+	//		uri = Paths.get(uri).getFileName().toString();
+	//		return storeDocumentFromString(uri, content, props);
+	//	} catch (IOException ex) {
+	//		throw new BagriException(ex, BagriException.ecInOut);
+	//	}
+	//}
 	
 	/**
 	 * constructs new Document or overrides an existing one in Repository
@@ -95,14 +95,14 @@ public abstract class DocumentManagementBase {
 	 * @return Document created or overridden (versioned) document
 	 * @throws BagriException in case of any error
 	 */
-	public Document storeDocumentFromStream(String uri, InputStream stream, Properties props) throws BagriException {
-		try {
-			String xml = textToString(stream);
-			return storeDocumentFromString(uri, xml, props);
-		} catch (IOException ex) {
-			logger.error("storeDocumentFromStream.error", ex);
-			throw new BagriException(ex, BagriException.ecInOut);
-		}
-	}
+	//public Document storeDocumentFromStream(String uri, InputStream stream, Properties props) throws BagriException {
+	//	try {
+	//		String xml = textToString(stream);
+	//		return storeDocumentFromString(uri, xml, props);
+	//	} catch (IOException ex) {
+	//		logger.error("storeDocumentFromStream.error", ex);
+	//		throw new BagriException(ex, BagriException.ecInOut);
+	//	}
+	//}
 
 }

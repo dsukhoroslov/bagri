@@ -28,11 +28,6 @@ public interface SchemaRepository {
 	AccessManagement getAccessManagement();
 	
 	/**
-	 * @return binding management interface
-	 */
-	BindingManagement getBindingManagement();
-	
-	/**
 	 * @return document management interface
 	 */
 	DocumentManagement getDocumentManagement();

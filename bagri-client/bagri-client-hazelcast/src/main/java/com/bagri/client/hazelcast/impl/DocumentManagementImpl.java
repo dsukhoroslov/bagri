@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -101,80 +100,34 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public Object getDocumentAsBean(String uri, Properties props) throws BagriException {
-		logger.trace("getDocumentAsBean.enter; got uri: {}", uri);
-		DocumentBeanProvider task = new DocumentBeanProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
-		DocumentKey key = getDocumentKey(uri);
-		Object result = xddCache.executeOnKey(key, task);
-		logger.trace("getDocumentAsBean.exit; got bean: {}", result);
-		return result;
-	}
-
-	@Override
-	public Map<String, Object> getDocumentAsMap(String uri, Properties props) throws BagriException {
-		logger.trace("getDocumentAsMap.enter; got uri: {}", uri);
-		DocumentMapProvider task = new DocumentMapProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
-		DocumentKey key = getDocumentKey(uri);
-		Map<String, Object> result = (Map<String, Object>) xddCache.executeOnKey(key, task);
-		logger.trace("getDocumentAsMap.exit; got map: {}", result);
-		return result;
-	}
-
-	@Override
-	public String getDocumentAsString(String uri, Properties props) throws BagriException {
+	@SuppressWarnings("unchecked")
+	public <T> T getDocumentAs(String uri, Properties props) throws BagriException {
 		// actually, I can try just get it from Content cache!
-		logger.trace("getDocumentAsString.enter; got uri: {}", uri);
+		logger.trace("getDocumentAs.enter; got uri: {}; props: {}", uri, props);
 		DocumentContentProvider task = new DocumentContentProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
 		DocumentKey key = getDocumentKey(uri);
-		String result = (String) xddCache.executeOnKey(key, task);
-		logger.trace("getDocumentAsString.exit; got content of length: {}", result == null ? 0 : result.length());
-		return result;
+		Object result = xddCache.executeOnKey(key, task);
+		logger.trace("getDocumentAs.exit; got content: {}", result);
+		return (T) result;
 	}
 
 	@Override
-	public Document storeDocumentFromBean(String uri, Object bean, Properties props) throws BagriException {
-		if (bean == null) {
-			throw new BagriException("Document bean can not be null", ecDocument);
-		}
-		logger.trace("storeDocumentFromMap.enter; uri: {}; bean: {}", uri, bean);
-		
-		DocumentBeanCreator task = new DocumentBeanCreator(repo.getClientId(), repo.getTransactionId(), uri, props, bean);
-		return storeDocument(props, task);
-	}
-
-	@Override
-	public Document storeDocumentFromMap(String uri, Map<String, Object> fields, Properties props) throws BagriException {
-		if (fields == null) {
-			throw new BagriException("Document fields map can not be null", ecDocument);
-		}
-		logger.trace("storeDocumentFromMap.enter; uri: {}; field size: {}", uri, fields.size());
-		
-		DocumentMapCreator task = new DocumentMapCreator(repo.getClientId(), repo.getTransactionId(), uri, props, fields);
-		return storeDocument(props, task);
-	}
-	
-	@Override
-	public Document storeDocumentFromString(String uri, String content, Properties props) throws BagriException {
+	public <T> Document storeDocumentFrom(String uri, T content, Properties props) throws BagriException {
+		logger.trace("storeDocumentFrom.enter; uri: {}; content: {}; props: {}", uri, content, props);
 		if (content == null) {
 			throw new BagriException("Document content can not be null", ecDocument);
 		}
-		logger.trace("storeDocumentFromString.enter; uri: {}; content length: {}", uri, content.length());
+		repo.getHealthManagement().checkClusterState();
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), uri, props, content);
-		return storeDocument(props, task);
-	}
-	
-	public Document storeDocument(Properties props, Callable<Document> creator) throws BagriException {
-		logger.trace("storeDocument.enter; props: {}", props);
-		repo.getHealthManagement().checkClusterState();
-		Future<Document> future = execService.submit(creator);
+		Future<Document> future = execService.submit(task);
 		try {
 			Document result = future.get();
-			logger.trace("storeDocument.exit; returning: {}", result);
+			logger.trace("storeDocumentFrom.exit; returning: {}", result);
 			return (Document) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
-			logger.error("storeDocument.error", ex);
+			logger.error("storeDocumentFrom.error", ex);
 			throw new BagriException(ex, ecDocument);
 		}
 	}

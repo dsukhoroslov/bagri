@@ -59,13 +59,13 @@ public class StoreDocument extends DocumentFunctionExtension {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				String uri = arguments[0].head().getStringValue();
-				String xml = arguments[1].head().getStringValue();
+				String content = arguments[1].head().getStringValue();
 				Properties props = null; 
 				if (arguments.length > 2) {
 					props = sequence2Properties(arguments[2]);
 				}
 				try {
-					Document doc = xdm.storeDocumentFromString(uri, xml, props);
+					Document doc = xdm.storeDocumentFrom(uri, content, props);
 					return new AnyURIValue(doc.getUri());
 				} catch (BagriException ex) {
 					throw new XPathException(ex);

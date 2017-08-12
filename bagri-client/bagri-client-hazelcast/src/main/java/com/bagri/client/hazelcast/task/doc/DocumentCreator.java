@@ -13,13 +13,13 @@ import com.hazelcast.nio.ObjectDataOutput;
 
 public class DocumentCreator extends DocumentAwareTask implements Callable<Document> {
 
-	protected String content;
+	protected Object content;
 
 	public DocumentCreator() {
 		super();
 	}
 
-	public DocumentCreator(String clientId, long txId, String uri, Properties props, String content) {
+	public DocumentCreator(String clientId, long txId, String uri, Properties props, Object content) {
 		super(clientId, txId, uri, props);
 		this.content = content;
 	}
@@ -37,13 +37,13 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		content = in.readUTF();
+		content = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
-		out.writeUTF(content);
+		out.writeObject(content);
 	}
 
 }

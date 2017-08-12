@@ -23,7 +23,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.bagri.core.KeyFactory;
-import com.bagri.core.api.BindingManagement;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
@@ -100,12 +99,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		((AccessManagementImpl) accessMgr).setRepository(this);
 	}
 	
-	@Override
-	public void setBindingManagement(BindingManagement bindMgr) {
-		super.setBindingManagement(bindMgr);
-		((BindingManagementImpl) bindMgr).setRepository(this);
-	}
-
 	@Override
 	public ClientManagement getClientManagement() {
 		return clientMgr;
@@ -278,8 +271,8 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private <T> T instantiateClass(String className) {
-		
 		try {
 			Class<?> clazz = Class.forName(className);
 			return (T) clazz.getConstructor(ModelManagement.class).newInstance(getModelManagement());

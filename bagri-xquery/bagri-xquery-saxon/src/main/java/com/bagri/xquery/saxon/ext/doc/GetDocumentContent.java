@@ -63,7 +63,7 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 					if (arguments.length > 1) {
 						props = sequence2Properties(arguments[1]);
 					}
-					result = xdm.getDocumentAsString(uri, props);
+					result = xdm.getDocumentAs(uri, props);
 				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}

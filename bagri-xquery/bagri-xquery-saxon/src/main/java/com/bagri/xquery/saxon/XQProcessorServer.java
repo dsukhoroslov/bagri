@@ -103,7 +103,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
-				Document doc = dMgr.storeDocumentFromString(uri, xml, null);
+				Document doc = dMgr.storeDocumentFrom(uri, xml, null);
 				List<Object> result = new ArrayList<>(1);
 				result.add(doc);
 				return result.iterator();

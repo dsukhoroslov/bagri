@@ -118,9 +118,9 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 		try {
 			Object key = resolveUri(uri);
 			if (key instanceof Long) {
-				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAsString((Long) key, null);
+				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAs((Long) key, null);
 			} else {
-				content = repo.getDocumentManagement().getDocumentAsString((String) key, null);
+				content = repo.getDocumentManagement().getDocumentAs((String) key, null);
 			}
 			
 			// we want to get MAP here, not a String! need access to other parameters in context..

@@ -4,6 +4,7 @@ import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.
 
 import java.util.Properties;
 
+@SuppressWarnings("serial")
 public class DocumentContentProvider extends DocumentProcessor { 
 	
 	public DocumentContentProvider() {

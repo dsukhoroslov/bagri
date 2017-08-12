@@ -1,5 +1,9 @@
 package com.bagri.samples.ext.trigger;
 
+import static com.bagri.core.Constants.pn_document_data_format;
+
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +24,9 @@ public class SecurityTrigger implements DocumentTrigger {
 	public void afterInsert(Document doc, SchemaRepository repo) {
 		logger.info("afterInsert.enter; doc: {}; repo: {}", doc, repo);
 		try {
-			Security sec = repo.getBindingManagement().getDocumentBinding(doc.getUri(), Security.class);
+			Properties props = new Properties();
+			props.setProperty(pn_document_data_format, "XML");
+			Security sec = repo.getDocumentManagement().getDocumentAs(doc.getUri(), props);
 			logger.info("afterInsert.exit; got security: {}/{}/{}", sec.getName(), sec.getSymbol(), sec.getId());
 		} catch (BagriException ex) { 
 			logger.info("afterInsert.error; got exception: {}", ex.getMessage());

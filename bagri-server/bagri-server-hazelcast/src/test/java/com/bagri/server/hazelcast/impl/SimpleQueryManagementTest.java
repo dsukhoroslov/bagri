@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_xqj_baseURI;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
+import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_node_instance;
 import static org.junit.Assert.*;
@@ -55,7 +56,8 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		xqProc = context.getBean("xqProcessor", XQProcessor.class);
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Properties props = loadProperties("src\\test\\resources\\test.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_xqj_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
 			//XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
@@ -81,7 +83,8 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 
 		long txId = xRepo.getTxManagement().beginTransaction();
 		Properties props = new Properties();
-		Document xDoc = xRepo.getDocumentManagement().storeDocumentFromString(uri, xml, props);
+		props.setProperty(pn_document_data_format, "XML");
+		Document xDoc = xRepo.getDocumentManagement().storeDocumentFrom(uri, xml, props);
 		xRepo.getTxManagement().commitTransaction(txId);
 		assertNotNull(xDoc);
 		assertEquals(uri, xDoc.getUri());
@@ -95,6 +98,7 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		assertTrue(rc.next());
 		
 		props = new Properties();
+		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
 		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
 		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
@@ -102,7 +106,7 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		assertEquals("XML Content", text);
 		rc.close();
 		
-		text = xRepo.getDocumentManagement().getDocumentAsString(uri, props);
+		text = xRepo.getDocumentManagement().getDocumentAs(uri, props);
 		assertEquals(xml, text);
 	}
 

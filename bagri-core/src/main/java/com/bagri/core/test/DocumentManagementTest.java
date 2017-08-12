@@ -102,7 +102,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertEquals(0, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
 
-		String result = getDocManagement().getDocumentAsString(doc.getUri(), null);
+		String result = getDocManagement().getDocumentAs(doc.getUri(), getDocumentProperties());
 		assertNotNull(result);
 		assertEquals(xml.length(), result.length());
 	}

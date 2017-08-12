@@ -348,10 +348,6 @@
 		<property name="schemaPass" value="${bdb.schema.password}"/>
 	</bean>
 
-	<bean id="bindManager" class="com.bagri.server.hazelcast.impl.BindingManagementImpl">
-		<!--property name="namespaceCache" ref="dict-namespace"/-->
-	</bean>
-
 	<bean id="clientManager" class="com.bagri.server.hazelcast.impl.ClientManagementImpl">
 		<property name="clientsCache" ref="xdm-client"/>
 		<property name="hzInstance" ref="hzInstance"/>
@@ -429,7 +425,6 @@
 		<property name="hzInstance" ref="hzInstance"/>
 		<property name="factory" ref="xdmFactory"/>
 		<property name="accessManagement" ref="accManager"/>
-		<property name="bindingManagement" ref="bindManager"/>
 		<property name="clientManagement" ref="clientManager"/>
 		<property name="modelManagement" ref="modelManager"/>
 		<property name="queryManagement" ref="queryManager"/>

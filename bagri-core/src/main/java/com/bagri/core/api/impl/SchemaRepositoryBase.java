@@ -1,12 +1,10 @@
 package com.bagri.core.api.impl;
 
 import com.bagri.core.api.AccessManagement;
-import com.bagri.core.api.BindingManagement;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.HealthManagement;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.TransactionManagement;
-import com.bagri.core.server.api.ModelManagement;
 
 /**
  * Base XDMRepository implementation. Just a common holder for internal management interfaces
@@ -17,7 +15,6 @@ import com.bagri.core.server.api.ModelManagement;
 public abstract class SchemaRepositoryBase {
 	
 	private AccessManagement accessMgr;
-	private BindingManagement bindMgr;
 	private DocumentManagement docMgr;
 	private HealthManagement healthMgr;
 	private QueryManagement queryMgr;
@@ -37,22 +34,6 @@ public abstract class SchemaRepositoryBase {
 	 */
 	public void setAccessManagement(AccessManagement accessMgr) {
 		this.accessMgr = accessMgr;
-	}
-
-	/**
-	 * 
-	 * @return XDM Binding Management implementation
-	 */
-	public BindingManagement getBindingManagement() {
-		return bindMgr;
-	}
-	
-	/**
-	 * 
-	 * @param bindMgr the XDM Binding Management implementation
-	 */
-	public void setBindingManagement(BindingManagement bindMgr) {
-		this.bindMgr = bindMgr;
 	}
 
 	/**

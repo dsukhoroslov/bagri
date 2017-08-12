@@ -52,7 +52,8 @@ public class ResultCursorTest extends BagriManagementTest {
 		SchemaRepositoryImpl repo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = repo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Properties props = loadProperties("src\\test\\resources\\test.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			//schema.setProperty(pn_baseURI, sampleRoot);
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
@@ -186,7 +187,7 @@ public class ResultCursorTest extends BagriManagementTest {
 		map.put("intProp", 10); 
 		map.put("boolProp", true);
 		map.put("strProp", "ABC");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test", map, props);
+		Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test", map, props);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());
@@ -221,7 +222,7 @@ public class ResultCursorTest extends BagriManagementTest {
 			map.put("intProp", i); 
 			map.put("boolProp", i % 2 == 0);
 			map.put("strProp", "XYZ" + i);
-			Document mDoc = xRepo.getDocumentManagement().storeDocumentFromMap("map_test_" + i, map, props);
+			Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test_" + i, map, props);
 			assertNotNull(mDoc);
 			assertEquals(txId, mDoc.getTxStart());
 			uris.add(mDoc.getUri());

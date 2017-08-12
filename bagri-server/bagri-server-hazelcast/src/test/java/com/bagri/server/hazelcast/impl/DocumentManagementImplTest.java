@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
 import static com.bagri.core.Constants.pn_document_collections;
+import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_node_instance;
 import static org.junit.Assert.*;
@@ -53,7 +54,8 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
+			Properties props = loadProperties("src\\test\\resources\\test.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
@@ -80,10 +82,11 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		String doc2 = "<order id=\"order-1\"><type>order</type><products><product product_id=\"product-1\"><quantity>2</quantity></product></products></order>";
 		long txId = getTxManagement().beginTransaction();
 		Properties props = new Properties(); //getDocumentProperties();
+		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(pn_document_collections, "products");
-		uris.add(getDocManagement().storeDocumentFromString("product.xml", doc1, props).getUri());
+		uris.add(getDocManagement().storeDocumentFrom("product.xml", doc1, props).getUri());
 		props.setProperty(pn_document_collections, "orders");
-		uris.add(getDocManagement().storeDocumentFromString("order.xml", doc2, props).getUri());
+		uris.add(getDocManagement().storeDocumentFrom("order.xml", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
 		String query = 
