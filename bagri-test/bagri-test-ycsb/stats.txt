@@ -764,3 +764,31 @@ Bagri RW
 [READ-FAILED], 95thPercentileLatency(us), 72319.0
 [READ-FAILED], 99thPercentileLatency(us), 72319.0
 
+29/04/2017. Work box (notebook)
+
+Bagri insert
+
+[OVERALL], RunTime(ms), 10354.0
+[OVERALL], Throughput(ops/sec), 1931.6206297083254
+[TOTAL_GCS_PS_Scavenge], Count, 3.0
+[TOTAL_GC_TIME_PS_Scavenge], Time(ms), 23.0
+[TOTAL_GC_TIME_%_PS_Scavenge], Time(%), 0.2221363724164574
+[TOTAL_GCS_PS_MarkSweep], Count, 1.0
+[TOTAL_GC_TIME_PS_MarkSweep], Time(ms), 29.0
+[TOTAL_GC_TIME_%_PS_MarkSweep], Time(%), 0.28008499130770714
+[TOTAL_GCs], Count, 4.0
+[TOTAL_GC_TIME], Time(ms), 52.0
+[TOTAL_GC_TIME_%], Time(%), 0.5022213637241646
+[CLEANUP], Operations, 20.0
+[CLEANUP], AverageLatency(us), 2634.4
+[CLEANUP], MinLatency(us), 1077.0
+[CLEANUP], MaxLatency(us), 7499.0
+[CLEANUP], 95thPercentileLatency(us), 6007.0
+[CLEANUP], 99thPercentileLatency(us), 7499.0
+[INSERT], Operations, 20000.0
+[INSERT], AverageLatency(us), 8989.9295
+[INSERT], MinLatency(us), 993.0
+[INSERT], MaxLatency(us), 355327.0
+[INSERT], 95thPercentileLatency(us), 23999.0
+[INSERT], 99thPercentileLatency(us), 46911.0
+[INSERT], Return=OK, 20000
