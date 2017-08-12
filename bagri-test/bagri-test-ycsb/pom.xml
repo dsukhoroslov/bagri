@@ -49,10 +49,6 @@
                     <groupId>org.codehaus.jackson</groupId>
                     <artifactId>jackson-core-asl</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.hdrhistogram</groupId>
-                    <artifactId>HdrHistogram</artifactId>
-                </exclusion>
             </exclusions-->
     	</dependency>
         <dependency>
@@ -102,20 +98,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>test</id>
-            <build>
-                <plugins>
-                    <!--plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                        </executions>
-                    </plugin-->
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>

@@ -29,7 +29,7 @@ operationcount=100000
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 readallfields=true
-writeallfields=true
+#writeallfields=true
 
 readproportion=0.95
 #readproportion=1
@@ -40,8 +40,8 @@ insertproportion=0
 
 requestdistribution=zipfian
 
-#db=com.bagri.test.ycsb.BagriDocClient
-db=com.bagri.test.ycsb.BagriQueryClient
+db=com.bagri.test.ycsb.BagriDocClient
+#db=com.bagri.test.ycsb.BagriQueryClient
 schema=YCSB
 address=localhost:10150
 user=guest
