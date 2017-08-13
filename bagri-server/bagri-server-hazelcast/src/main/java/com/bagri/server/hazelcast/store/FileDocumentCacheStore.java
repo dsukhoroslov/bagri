@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.store;
 
 import static com.bagri.core.Constants.ctx_repo;
 import static com.bagri.core.Constants.ctx_popService;
+import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
@@ -50,6 +51,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     private HazelcastInstance hzi;
     private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
+    private Properties props;
     
 	@Override
 	public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
@@ -79,6 +81,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			xdmRepo = (SchemaRepositoryImpl) hzi.getUserContext().get(ctx_repo);
 			if (xdmRepo != null) {
 				dataFormat = xdmRepo.getSchema().getProperty(pn_schema_format_default);
+				props = new Properties();
+				props.setProperty(pn_document_data_format, dataFormat);
 				while (!xdmRepo.isInitialized()) {
 					try {
 						Thread.sleep(100);
@@ -251,9 +255,13 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		String fullUri = getFullUri(docUri);
 		try {
 			// must return doc in default format (XML/JSON)
-			String content = docManager.getDocumentAs(key, null);
-			FileUtils.writeTextFile(fullUri, content);
-			logger.trace("storeDocument.exit; stored as: {}; length: {}", fullUri, content.length());
+			String content = docManager.getDocumentAs(key, props);
+			if (content == null) {
+				logger.info("storeDocument.exit; got null content for key: {}; uri: {}", key, fullUri);
+			} else {
+				FileUtils.writeTextFile(fullUri, content);
+				logger.trace("storeDocument.exit; stored as: {}; length: {}", fullUri, content.length());
+			}
 			return null;
 		} catch (IOException | BagriException ex) {
 			return ex;

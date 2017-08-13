@@ -11,9 +11,6 @@ import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.support.util.FileUtils.def_encoding;
 import static com.bagri.support.util.XMLUtils.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -262,7 +259,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public Document getDocument(String uri) {
-		Document doc = ddSvc.getLastDocumentForUri(uri, binaryDocs);
+		Document doc = ddSvc.getLastDocumentForUri(uri);
    		if (doc != null) {
    			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
    				logger.debug("getDocument; the latest document version is finished already: {}", doc);
@@ -272,16 +269,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return doc;
 	}
 	
-	private Object getDocumentContent(String uri) {
-		Object content = null;
-		DocumentKey docKey = getDocumentKey(uri, false, false);
-		if (docKey != null) {
-			content = getDocumentContent(docKey);
-		}
-		return content;
-		
-	}
-
 	private Object getDocumentContent(DocumentKey docKey) {
 		//Object content = cntCache.get(docKey);
 		Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
@@ -306,53 +293,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return df.getType();
 	}
 	
-    private DocumentKey getDocumentKey(String uri, boolean next, boolean acceptClosed) {
-    	DocumentKey last = ddSvc.getLastKeyForUri(uri);
-    	if (last == null) {
-			DocumentKey key = factory.newDocumentKey(uri, 0, dvFirst);
-    		if (next) {
-    			while (xddCache.getEntryView(key) != null) {
-    				key = factory.newDocumentKey(uri, key.getRevision() + 1, dvFirst);
-    			}
-    			return key;
-    		} 
-    		
-			if (ddSvc.isLocalKey(key)) {
-				// we have not found corresponding Document for the uri provided, 
-				// and no option to build a new key, so we returning null
-	    		return null;
-			} else {
-				// actually, this is wrong scenario..
-				logger.info("getDocumentKey; the uri provided {} does not belong to this Member", uri); 
-				// think how to get it from concrete node?!
-				//keys = xddCache.keySet(Predicates.equal(fnUri, uri));
-				//if (keys.isEmpty()) {
-		    		return null;
-				//}
-			}
-    	}
-    	
-    	//DocumentKey last = Collections.max(keys, versionComparator);
-    	if (next) {
-    		return factory.newDocumentKey(uri, last.getRevision(), last.getVersion() + 1);
-    	}
-    	if (acceptClosed) {
-    		return last;
-    	}
-    	Document lastDoc = xddCache.get(last);
-    	try {
-    		if (lastDoc.getTxFinish() == TX_NO || !txManager.isTxVisible(lastDoc.getTxFinish())) {
-    			return last;
-    		}
-    		// shouldn't we return previous version otherwise?
-    	} catch (BagriException ex) {
-    		logger.error("getDocumentKey.error", ex);
-    		// ??
-    	}
-    	logger.info("getDocumentKey; the latest document version is finished already: {}", lastDoc);
-    	return null;
-    }
- 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public java.util.Collection<String> getDocumentUris(String pattern, Properties props) {
@@ -408,34 +348,36 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		int fetchSize = 0;
 		if (props != null) {
 			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-			//if (pageSize > 0) {
-			//	query = new PagingPredicate<>(query, pageSize);
-				//query = Predicates.and(new PagingPredicate(pageSize), query);
-			//}
 		} //else {
 		//  Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
 		//	uris = xddCache.project(pro, query);
 		//}
 		
-		DocumentKey docKey;
-		//java.util.Collection<Document> docs = xddCache.values(query);
-		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize, binaryDocs);
-		java.util.Collection<Object> contents = new ArrayList<>(docs.size());
+		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+		java.util.Collection<Object> keys = new ArrayList<>();
+		//Set<DocumentKey> keys = new HashSet<>(docs.size());
+		
+		// should also check if doc's start transaction is committed?
 		if (pattern.indexOf(fnTxFinish) < 0) {
 			for (Document doc: docs) {
 				if (doc.getTxFinish() == TX_NO) {
-					docKey = factory.newDocumentKey(doc.getDocumentKey());
-					contents.add(getDocumentContent(docKey));
+					keys.add(factory.newDocumentKey(doc.getDocumentKey()));
+					//if (fetchSize > 0 && keys.size() == fetchSize) {
+					//	break;
+					//}
 				}
 			}
 		} else {
 			for (Document doc: docs) {
-				docKey = factory.newDocumentKey(doc.getDocumentKey());
-				contents.add(getDocumentContent(docKey));
+				keys.add(factory.newDocumentKey(doc.getDocumentKey()));
+				//if (fetchSize > 0 && keys.size() == fetchSize) {
+				//	break;
+				//}
 			}
 		}
 		
-		// should also check if doc's start transaction is committed?
+		java.util.Collection<Object> contents = ddSvc.getCachedObjects(CN_XDM_CONTENT, keys, binaryContent);
+		//java.util.Collection<Object> contents = new ArrayList<>(cntCache.getAll(keys).values());
 		logger.trace("getDocuments.exit; returning: {}", contents.size());
 		return contents;
 	}
@@ -929,7 +871,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		String srcFormat = props.getProperty(pn_document_data_source, dataFormat);
 		if (!srcFormat.equals(dataFormat)) {
-			ContentConverter<String, T> cc = repo.getConverter(dataFormat, content.getClass());
+			ContentConverter<Object, T> cc = repo.getConverter(dataFormat, content.getClass());
 			if (cc == null) {
 				throw new BagriException("No converter found between " + srcFormat + " and " + dataFormat, BagriException.ecDocument);
 			}
@@ -1047,26 +989,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("No Document URI passed", BagriException.ecDocument); 
 		}
 		
-		DocumentKey docKey = getDocumentKey(uri, false, false);
-		if (docKey == null) {
+		Document doc = getDocument(uri);
+		if (doc == null) {
 			logger.info("removeDocument; no active document found for uri: {}", uri);
 			return;
 		}
 		
-	    boolean removed = false;
+		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
 		boolean locked = lockDocument(docKey, txManager.getTransactionTimeout());
 		if (locked) {
 			try {
-			    Document doc = getDocument(docKey);
-			    if (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish()))) {
-					triggerManager.applyTrigger(doc, Order.before, Scope.delete); 
-			    	doc.finishDocument(txManager.getCurrentTxId()); 
-			    	xddCache.set(docKey, doc);
-			    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
-			    	triggerManager.applyTrigger(doc, Order.after, Scope.delete); 
-			    	txManager.updateCounters(0, 0, 1);
-				    removed = true;
-			    }
+				triggerManager.applyTrigger(doc, Order.before, Scope.delete); 
+		    	doc.finishDocument(txManager.getCurrentTxId()); 
+		    	xddCache.set(docKey, doc);
+		    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
+		    	triggerManager.applyTrigger(doc, Order.after, Scope.delete); 
+		    	txManager.updateCounters(0, 0, 1);
 			} catch (BagriException ex) {
 				throw ex;
 			} catch (Exception ex) {
@@ -1079,7 +1017,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     		throw new BagriException("Was not able to aquire lock while removing Document: " + docKey + 
     				", timeout: " + txManager.getTransactionTimeout(), BagriException.ecTransTimeout);
 		}
-		logger.trace("removeDocument.exit; removed: {}", removed);
+		logger.trace("removeDocument.exit; removed: {}", doc);
 	}
 	
 	public void cleanDocument(DocumentKey docKey, boolean complete) {

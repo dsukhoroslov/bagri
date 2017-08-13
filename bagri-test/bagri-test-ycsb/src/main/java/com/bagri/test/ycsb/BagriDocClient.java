@@ -89,18 +89,16 @@ public class BagriDocClient extends BagriClientBase {
 			Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey, scanProps);
 			timer2.addAndGet(System.currentTimeMillis() - stamp);
 			result.ensureCapacity(recordcount);
-			int i = 0;
 			for (Object o: results) {
-				HashMap<String, ByteIterator> doc = null;
 				Map<String, Object> map = (Map<String, Object>) o;
-				doc = new HashMap<>(map.size());
+				HashMap<String, ByteIterator> doc = new HashMap<>(map.size());
 				populateResult(map, fields, doc);
 				result.add(doc);
-				if (++i >= recordcount) {
-					break;
-				}
 			}
-			
+
+			if (result.size() > recordcount) {
+				logger.info("scan; got {} records when requested {}", result.size(), recordcount);
+			}
 			timer.addAndGet(System.currentTimeMillis() - stamp);
 			counter++;
 			return Status.OK;

@@ -1,15 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_client_storeMode;
-import static com.bagri.core.Constants.pn_client_submitTo;
-import static com.bagri.core.Constants.pn_config_path;
-import static com.bagri.core.Constants.pn_config_properties_file;
-import static com.bagri.core.Constants.pn_document_data_format;
-import static com.bagri.core.Constants.pn_document_collections;
-import static com.bagri.core.Constants.pn_log_level;
-import static com.bagri.core.Constants.pn_node_instance;
-import static com.bagri.core.Constants.pn_schema_format_default;
-import static com.bagri.core.Constants.pv_client_storeMode_insert;
+import static com.bagri.core.Constants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -45,7 +36,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "..\\..\\etc\\samples\\json\\";
-		System.setProperty(pn_log_level, "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
@@ -280,4 +271,31 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));
 	}
+	
+	@Test
+	public void queryMapDocumentsTest() throws Exception {
+	    Properties props = new Properties();
+		props.setProperty(pn_document_collections, "maps");
+		props.setProperty(pn_document_data_format, "MAP");
+		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
+		//long txId = xRepo.getTxManagement().beginTransaction();
+		for (int i=0; i < 100; i++) {
+			Map<String, Object> m1 = new HashMap<>();
+			m1.put("intProp", i); 
+			m1.put("boolProp", i % 2 == 0);
+			m1.put("strProp", "xyz" + 32*i);
+			Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test" + i, m1, props);
+			assertNotNull(mDoc);
+			//assertEquals(txId, mDoc.getTxStart());
+			uris.add(mDoc.getUri());
+		}
+		//xRepo.getTxManagement().commitTransaction(txId);
+		
+		java.util.Collection<String> uris2 = xRepo.getDocumentManagement().getDocumentUris("uri >= map_test50", props);
+		assertEquals(54, uris2.size());
+		
+		Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= map_test50", props);
+		assertEquals(uris2.size(), ((java.util.Collection) results).size());
+	}
+	
 }

@@ -72,9 +72,8 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, null);
-			Properties props = PropUtils.propsFromFile("src/test/resources/store.properties");
-			schema.setProperties(props);
+			Properties props = loadProperties("src\\test\\resources\\store.properties");
+			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);
 			
@@ -123,7 +122,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 		
 		int oldCount = txStore.getStoredCount();
 		int loops = 10;
-		int thCount = 5;
+		int thCount = 1;
 		final CountDownLatch cdl = new CountDownLatch(thCount);
 		for (int i=1; i <= thCount; i++) {
 			Thread th = new Thread(new TransactionTest(i % 2 == 0, loops, cdl));
@@ -196,6 +195,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 					i++;
 				}
 			} catch (Throwable ex) {
+				ex.printStackTrace();
 				counter.countDown();
 				try {
 					xRepo.getTxManagement().rollbackTransaction(txId);

@@ -26,6 +26,7 @@ import com.bagri.core.model.Document;
 import com.bagri.core.model.Elements;
 import com.hazelcast.aggregation.Aggregators;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.impl.MapEntries;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
 import com.hazelcast.map.impl.mapstore.MapDataStore;
@@ -36,6 +37,7 @@ import com.hazelcast.map.impl.query.QueryResult;
 import com.hazelcast.map.impl.query.QueryResultRow;
 import com.hazelcast.map.impl.query.Result;
 import com.hazelcast.map.impl.recordstore.RecordStore;
+import com.hazelcast.mapreduce.aggregation.Aggregations;
 import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicate;
@@ -81,6 +83,50 @@ public class DataDistributionService implements ManagedService {
 			}
 		}
 		return (T) data;
+	}
+
+	public <T> Collection<T> getCachedObjects(String cacheName, Collection<Object> keys, boolean convert) {
+		Map<Integer, Set<Data>> partMap = new HashMap<>(keys.size());
+		for (Object key: keys) {
+			Data dKey = nodeEngine.toData(key);
+			Integer partId = nodeEngine.getPartitionService().getPartitionId(dKey);
+			int pId = nodeEngine.getPartitionService().getPartitionId(key);
+			if (pId != partId) {
+				logger.info("getCachedObjects; pId: {}, partId: {}; key: {}; dKey: {}", pId, partId, key, dKey);
+			}
+			Set<Data> dKeys = partMap.get(partId);
+			if (dKeys == null) {
+				dKeys = new HashSet<>();
+				partMap.put(partId, dKeys);
+			}
+			dKeys.add(dKey);
+		}
+		
+		Collection<T> results = new ArrayList<>(keys.size());
+		for (Map.Entry<Integer, Set<Data>> e: partMap.entrySet()) {
+			RecordStore<?> cache = getRecordStore((int) e.getKey(), cacheName);
+			if (cache != null) {
+				//MapEntries mes = cache.getAll(e.getValue());
+				//for (int i=0; i < mes.size(); i++) {
+				//	Data data = mes.getValue(i);
+				//	if (data != null) {
+				//		Object r = nodeEngine.toObject(data);						
+				//		results.add((T) r);
+				//	}
+				//}
+				
+				for (Data dKey: e.getValue()) {
+					Object data = cache.get(dKey, false);
+					if (data != null) {
+						if (convert) {
+							data = nodeEngine.toObject(data);
+						}
+						results.add((T) data);
+					}
+				}
+			} 
+		}
+		return results;
 	}
 
 	public void deleteCachedObject(String cacheName, Object key) {
@@ -231,7 +277,7 @@ public class DataDistributionService implements ManagedService {
 		return null;
 	}
 
-	public Document getLastDocumentForUri(String uri, boolean isBinary) {
+	public Document getLastDocumentForUri(String uri) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("uri", uri), IterationType.VALUE, null, null);
@@ -239,12 +285,7 @@ public class DataDistributionService implements ManagedService {
 			Document last = null;
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
 			for (QueryResultRow row: rs.getRows()) {
-				Document doc;
-				if (isBinary) {  
-					doc = nodeEngine.toObject(row.getValue());
-				} else {
-					doc = (Document) row.getValue();	
-				}
+				Document doc = nodeEngine.toObject(row.getValue());
 				if (last == null) {
 					last = doc;
 				} else {
@@ -261,7 +302,7 @@ public class DataDistributionService implements ManagedService {
 		return null;
 	}
 
-	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query, int fetchSize, boolean isBinary) {
+	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.VALUE, null, null);
@@ -270,16 +311,11 @@ public class DataDistributionService implements ManagedService {
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
 			results = new HashMap<>(rs.size());
 			for (QueryResultRow row: rs.getRows()) {
-				Document doc;
-				if (isBinary) {  
-					doc = nodeEngine.toObject(row.getValue());
-				} else {
-					doc = (Document) row.getValue();	
-				}
-				Document last = results.get(doc.getUri());
-				if (last == null || last.getVersion() < doc.getVersion()) {
-					results.put(doc.getUri(),  doc);
-				}
+				Document doc = nodeEngine.toObject(row.getValue());
+				//Document last = results.get(doc.getUri());
+				//if (last == null || last.getVersion() < doc.getVersion()) {
+					results.put(doc.getUri(), doc);
+				//}
 				if (fetchSize > 0 && results.size() == fetchSize) {
 					break;
 				}
