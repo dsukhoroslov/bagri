@@ -86,43 +86,18 @@ public class DataDistributionService implements ManagedService {
 	}
 
 	public <T> Collection<T> getCachedObjects(String cacheName, Collection<Object> keys, boolean convert) {
-		Map<Integer, Set<Data>> partMap = new HashMap<>(keys.size());
+		Collection<T> results = new ArrayList<>(keys.size());
 		for (Object key: keys) {
 			Data dKey = nodeEngine.toData(key);
-			Integer partId = nodeEngine.getPartitionService().getPartitionId(dKey);
-			int pId = nodeEngine.getPartitionService().getPartitionId(key);
-			if (pId != partId) {
-				logger.info("getCachedObjects; pId: {}, partId: {}; key: {}; dKey: {}", pId, partId, key, dKey);
-			}
-			Set<Data> dKeys = partMap.get(partId);
-			if (dKeys == null) {
-				dKeys = new HashSet<>();
-				partMap.put(partId, dKeys);
-			}
-			dKeys.add(dKey);
-		}
-		
-		Collection<T> results = new ArrayList<>(keys.size());
-		for (Map.Entry<Integer, Set<Data>> e: partMap.entrySet()) {
-			RecordStore<?> cache = getRecordStore((int) e.getKey(), cacheName);
+			int partId = nodeEngine.getPartitionService().getPartitionId(dKey);
+			RecordStore<?> cache = getRecordStore(partId, cacheName);
 			if (cache != null) {
-				//MapEntries mes = cache.getAll(e.getValue());
-				//for (int i=0; i < mes.size(); i++) {
-				//	Data data = mes.getValue(i);
-				//	if (data != null) {
-				//		Object r = nodeEngine.toObject(data);						
-				//		results.add((T) r);
-				//	}
-				//}
-				
-				for (Data dKey: e.getValue()) {
-					Object data = cache.get(dKey, false);
-					if (data != null) {
-						if (convert) {
-							data = nodeEngine.toObject(data);
-						}
-						results.add((T) data);
+				Object data = cache.get(dKey, false);
+				if (data != null) {
+					if (convert) {
+						data = nodeEngine.toObject(data);
 					}
+					results.add((T) data);
 				}
 			} 
 		}

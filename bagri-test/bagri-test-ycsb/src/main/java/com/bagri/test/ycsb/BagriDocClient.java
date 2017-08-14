@@ -67,25 +67,6 @@ public class BagriDocClient extends BagriClientBase {
 		try {
 			long stamp = System.currentTimeMillis();
 			scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-			//Collection<String> uris = xRepo.getDocumentManagement().getDocumentUris("uri >= " + startkey, scanProps);
-			//timer2.addAndGet(System.currentTimeMillis() - stamp);
-			//result.ensureCapacity(recordcount);
-			//int i = 0;
-			//for (String uri: uris) {
-			//	HashMap<String, ByteIterator> doc = null;
-			//	Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAsMap(uri, readProps);
-			//	if (map == null) {
-			//		logger.info("scan; not found document for uri: {}; table: {}", uri, table);
-			//	} else {
-			//		doc = new HashMap<>(map.size());
-			//		populateResult(map, fields, doc);
-			//	}
-			//	result.add(doc);
-			//	if (++i >= recordcount) {
-			//		break;
-			//	}
-			//}
-			
 			Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey, scanProps);
 			timer2.addAndGet(System.currentTimeMillis() - stamp);
 			result.ensureCapacity(recordcount);
