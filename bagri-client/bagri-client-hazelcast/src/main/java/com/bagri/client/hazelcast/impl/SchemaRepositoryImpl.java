@@ -61,6 +61,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_poolSize, "5");
 		setProperty(props, pn_client_healthCheck, null);
 		setProperty(props, pn_client_queryCache, null);
+		setProperty(props, pn_client_txLevel, null);
 		setProperty(props, pn_client_txTimeout, null);
 		setProperty(props, pn_client_customAuth, null);
 		return props;
@@ -83,6 +84,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_poolSize, null);
 		setProperty(props, pn_client_healthCheck, null);
 		setProperty(props, pn_client_queryCache, null);
+		setProperty(props, pn_client_txLevel, null);
 		setProperty(props, pn_client_txTimeout, null);
 		setProperty(props, pn_client_customAuth, null);
 		return props;
@@ -114,6 +116,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 			value = props.getProperty(pn_client_queryCache);
 			if (value != null) {
 				((QueryManagementImpl) getQueryManagement()).setQueryCache(Boolean.parseBoolean(value));
+			}
+			value = props.getProperty(pn_client_txLevel);
+			if (value != null) {
+				((QueryManagementImpl) getQueryManagement()).setDefaultTxLevel(value);
 			}
 		}
 	}

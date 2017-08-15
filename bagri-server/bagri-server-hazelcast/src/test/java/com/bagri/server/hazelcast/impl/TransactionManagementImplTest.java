@@ -281,7 +281,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 				}
 			} catch (Exception ex) {
 				try {
-					((TransactionManagementImpl) getTxManagement()).flushCurrentTx();
+					((TransactionManagementImpl) getTxManagement()).finishCurrentTransaction(true);
 				} catch (BagriException e) {
 					e.printStackTrace();
 				}

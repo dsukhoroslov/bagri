@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -100,7 +101,8 @@ public class ModelManagementImpl extends ModelManagementBase implements ModelMan
 		    result = getTypePathsInternal(root);
 			cacheType.putIfAbsent(root, (Set<Path>) result);
 		}
-		return result;
+		// to prevent concurrent access to results..
+		return new ArrayList<>(result);
 	}
 	
 	@Override

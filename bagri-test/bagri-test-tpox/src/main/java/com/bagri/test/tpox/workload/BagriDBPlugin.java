@@ -1,19 +1,6 @@
 package com.bagri.test.tpox.workload;
 
-import static com.bagri.core.Constants.pn_client_bufferSize;
-import static com.bagri.core.Constants.pn_client_connectAttempts;
-import static com.bagri.core.Constants.pn_client_loginTimeout;
 import static com.bagri.core.Constants.pn_document_data_format;
-import static com.bagri.core.Constants.pn_schema_address;
-import static com.bagri.core.Constants.pn_schema_name;
-import static com.bagri.core.Constants.pn_schema_password;
-import static com.bagri.core.Constants.pn_schema_user;
-import static com.bagri.xqj.BagriXQDataSource.ADDRESS;
-import static com.bagri.xqj.BagriXQDataSource.PASSWORD;
-import static com.bagri.xqj.BagriXQDataSource.SCHEMA;
-import static com.bagri.xqj.BagriXQDataSource.USER;
-import static com.bagri.xqj.BagriXQDataSource.XDM_REPOSITORY;
-import static com.bagri.xqj.BagriXQDataSource.XQ_PROCESSOR;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,40 +27,21 @@ import com.bagri.core.model.Document;
 import com.bagri.core.system.Parameter;
 import com.bagri.core.test.ClientQueryManagementTest;
 import com.bagri.xqj.BagriXQDataFactory;
-import com.bagri.xqj.BagriXQDataSource;
 
 public class BagriDBPlugin extends BagriTPoXPlugin {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriDBPlugin.class);
 	
-	private static final XQDataSource xqds; 
-	
+	private static XQDataSource xqds; 
 	static {
-		xqds = new BagriXQDataSource();
 		try {
-		    xqds.setProperty(ADDRESS, System.getProperty(pn_schema_address));
-		    xqds.setProperty(SCHEMA, System.getProperty(pn_schema_name));
-		    xqds.setProperty(USER, System.getProperty(pn_schema_user));
-		    xqds.setProperty(PASSWORD, System.getProperty(pn_schema_password));
-		    xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
-		    xqds.setProperty(XDM_REPOSITORY, "com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
-		    String value = System.getProperty(pn_client_loginTimeout);
-		    if (value != null) {
-		    	xqds.setProperty(pn_client_loginTimeout, value);
-		    }
-		    value = System.getProperty(pn_client_bufferSize);
-		    if (value != null) {
-		    	xqds.setProperty(pn_client_bufferSize, value);
-		    }
-		    value = System.getProperty(pn_client_connectAttempts);
-		    if (value != null) {
-		    	xqds.setProperty(pn_client_connectAttempts, value);
-		    }
+			xqds = initDataSource();
 		} catch (XQException ex) {
 			logger.error("", ex);
+			System.exit(1);
 		}
 	}
-    
+	
 	private static final ThreadLocal<TPoXQueryManagerTest> xqmt = new ThreadLocal<TPoXQueryManagerTest>() {
 		
 		@Override
@@ -198,7 +166,7 @@ public class BagriDBPlugin extends BagriTPoXPlugin {
 			}
 		} catch (Throwable ex) {
 			getLogger().error("execute.error", ex);
-			// just swallow it, in order to work further
+			// just swallow it and go further
 			err = 1;
 		}
 		DatabaseOperations.errors.get()[transNo] = err; 

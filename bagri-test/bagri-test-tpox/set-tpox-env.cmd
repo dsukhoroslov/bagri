@@ -52,6 +52,12 @@ set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
 set java_opts=%java_opts% -Dbdb.client.customAuth=true
 set java_opts=%java_opts% -Dbdb.client.queryCache=true
 
+rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
+rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
+rem set java_opts=%java_opts% -Dbdb.client.txLevel=skip
+rem set java_opts=%java_opts% -Dbdb.document.data.format=XML
+rem set java_opts=%java_opts% -Dbdb.document.map.merge=false
+
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 
 exit /b

@@ -34,7 +34,8 @@ import com.hazelcast.core.ReplicatedMap;
 public class QueryManagementImpl extends QueryManagementBase implements QueryManagement {
 	
     private final static Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
-	
+
+    private String defTxLevel = null;
     private boolean queryCache = true;
     private SchemaRepositoryImpl repo;
 	private IExecutorService execService;
@@ -53,6 +54,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		xqCache = repo.getHazelcastClient().getReplicatedMap(CN_XDM_QUERY);
 	}
 	
+	public void setDefaultTxLevel(String txLevel) {
+		this.defTxLevel = txLevel;
+	}
+	
 	public void setQueryCache(boolean queryCache) {
 		this.queryCache = queryCache;
 	}
@@ -67,10 +72,23 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
+	private Properties checkQueryProperties(Properties props) {
+		if (props == null) {
+			props = new Properties();
+		}
+		props.setProperty(pn_client_id, repo.getClientId());
+		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
+		if (defTxLevel != null) {
+			props.setProperty(pn_client_txLevel, defTxLevel);
+		}
+		return props;
+	}
+	
 	@Override
 	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("getDocumentUris.enter; query: {}", query);
+		props = checkQueryProperties(props);
 		boolean useCache = this.queryCache; 
 		String qCache = props.getProperty(pn_client_queryCache);
 		if (qCache != null) {
@@ -97,10 +115,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
+		props = checkQueryProperties(props);
 		boolean useCache = this.queryCache; 
-		if (props == null) {
-			props = new Properties();
-		}
 		String qCache = props.getProperty(pn_client_queryCache);
 		if (qCache != null) {
 			useCache = Boolean.parseBoolean(qCache); 
@@ -114,9 +130,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 
-		props.setProperty(pn_client_id, repo.getClientId());
-		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
-		
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);

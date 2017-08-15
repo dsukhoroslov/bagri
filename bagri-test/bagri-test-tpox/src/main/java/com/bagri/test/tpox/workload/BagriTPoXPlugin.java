@@ -3,19 +3,37 @@
  */
 package com.bagri.test.tpox.workload;
 
+import static com.bagri.core.Constants.pn_client_bufferSize;
+import static com.bagri.core.Constants.pn_client_connectAttempts;
 import static com.bagri.core.Constants.pn_client_fetchSize;
+import static com.bagri.core.Constants.pn_client_loginTimeout;
+import static com.bagri.core.Constants.pn_schema_address;
+import static com.bagri.core.Constants.pn_schema_name;
+import static com.bagri.core.Constants.pn_schema_password;
+import static com.bagri.core.Constants.pn_schema_user;
+import static com.bagri.xqj.BagriXQDataSource.ADDRESS;
+import static com.bagri.xqj.BagriXQDataSource.PASSWORD;
+import static com.bagri.xqj.BagriXQDataSource.SCHEMA;
+import static com.bagri.xqj.BagriXQDataSource.USER;
+import static com.bagri.xqj.BagriXQDataSource.XDM_REPOSITORY;
+import static com.bagri.xqj.BagriXQDataSource.XQ_PROCESSOR;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.xml.xquery.XQDataSource;
+import javax.xml.xquery.XQException;
+
 import org.slf4j.Logger;
 
 import com.bagri.core.system.Cardinality;
 import com.bagri.core.system.Parameter;
+import com.bagri.xqj.BagriXQDataSource;
 
 import net.sf.tpox.databaseoperations.DatabaseOperations;
 import net.sf.tpox.workload.core.WorkloadProcessor;
@@ -36,16 +54,28 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
     protected WorkloadEnvironment we;
     protected Random rand;
     
-    
-    protected static final ThreadLocal<long[]> stats = new ThreadLocal<long[]>() {
-
-    	@Override
-    	protected long[] initialValue() {
-    		return new long[5];
-    	}
-    	
-    };
-    
+    protected static XQDataSource initDataSource() throws XQException {
+    	XQDataSource xqds = new BagriXQDataSource();
+	    xqds.setProperty(ADDRESS, System.getProperty(pn_schema_address));
+	    xqds.setProperty(SCHEMA, System.getProperty(pn_schema_name));
+	    xqds.setProperty(USER, System.getProperty(pn_schema_user));
+	    xqds.setProperty(PASSWORD, System.getProperty(pn_schema_password));
+	    xqds.setProperty(XQ_PROCESSOR, "com.bagri.xquery.saxon.XQProcessorClient");
+	    xqds.setProperty(XDM_REPOSITORY, "com.bagri.client.hazelcast.impl.SchemaRepositoryImpl");
+	    String value = System.getProperty(pn_client_loginTimeout);
+	    if (value != null) {
+	    	xqds.setProperty(pn_client_loginTimeout, value);
+	    }
+	    value = System.getProperty(pn_client_bufferSize);
+	    if (value != null) {
+	    	xqds.setProperty(pn_client_bufferSize, value);
+	    }
+	    value = System.getProperty(pn_client_connectAttempts);
+	    if (value != null) {
+	    	xqds.setProperty(pn_client_connectAttempts, value);
+	    }
+	    return xqds;
+    }
     
 	@Override
 	public void prepare(int transNum, WorkloadProcessor workloadProcessor, WorkloadEnvironment workloadEnvironment,
@@ -57,7 +87,6 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		this.wp = workloadProcessor;
 		this.we = workloadEnvironment;
 		this.rand = userRandomNumGenerator;
-		// TODO: we receive a new Random for each thread/user instance. should we keep them per thread?
 		
 		//logger.trace("prepare; transactions: {}; types: {}", wp.getTransactions(), wp.getTransactionTypes());
 		//logger.trace("prepare; params: {}; name: {}", wp.getParameterMarkers(), wp.getWorkloadName());
@@ -69,9 +98,6 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
     
 	@Override
 	public int execute() throws SQLException {
-		
-		stats.get()[0]++;
-		long stamp = System.currentTimeMillis();
 		
 		int transNo = wp.getNextTransNumToExecute(rand);
 		Transaction tx = wp.getTransaction(transNo);
@@ -118,7 +144,6 @@ public abstract class BagriTPoXPlugin implements GenericJavaClassPlugin {
 		}
 		DatabaseOperations.errors.get()[transNo] = err; 
 		getLogger().trace("execute.exit; returning: {}", result);
-	    stats.get()[1] += System.currentTimeMillis() - stamp; 
 		return result;
 	}
 	

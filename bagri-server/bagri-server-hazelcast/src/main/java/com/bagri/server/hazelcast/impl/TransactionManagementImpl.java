@@ -197,8 +197,16 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		return false;
 	}
 	
-	Transaction getTransaction(long txId) {
-		return txCache.get(txId);
+	long getCurrentTxId() {
+		return thTx.get(); 
+	}
+	
+	Transaction getCurrentTransaction() {
+		long txId = getCurrentTxId(); 
+		if (txId > TX_NO) {
+			return txCache.get(txId);
+		}
+		return null;
 	}
 	
 	@Override
@@ -293,17 +301,6 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 			return false;
 		}
 		return commited; 
-	}
-	
-	long getCurrentTxId() {
-		return thTx.get(); 
-	}
-	
-	void flushCurrentTx() throws BagriException {
-		long txId = getCurrentTxId();
-		if (txId > TX_NO) {
-			rollbackTransaction(txId);
-		}
 	}
 	
 	void updateCounters(int created, int updated, int deleted) throws BagriException {

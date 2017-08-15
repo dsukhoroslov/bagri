@@ -934,7 +934,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Transaction tx = null;
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (!pv_client_txLevel_skip.equals(txLevel)) {
-    		tx = txManager.getTransaction(txManager.getCurrentTxId()); 
+    		tx = txManager.getCurrentTransaction(); 
     	}
 		
 		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, data, props));
