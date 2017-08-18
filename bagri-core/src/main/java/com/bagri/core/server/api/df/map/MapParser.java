@@ -20,6 +20,7 @@ import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ContentParserBase;
 
 public class MapParser extends ContentParserBase implements ContentParser<Map<String, Object>> {
@@ -34,13 +35,13 @@ public class MapParser extends ContentParserBase implements ContentParser<Map<St
 	}
 
 	@Override
-	public List<Data> parse(Map<String, Object> source) throws BagriException {
+	public ParseResults parse(Map<String, Object> source) throws BagriException {
 		ParserContext ctx = initContext();
 		//ctx.addDocument("/map");
 		//ctx.addData("map"); 
 		ctx.addDocument("/");
 		parseMap(ctx, source);
-		return ctx.getDataList();
+		return ctx.getParseResults();
 	}
 	
 	private void parseMap(ParserContext ctx, Map content) throws BagriException {
@@ -100,19 +101,19 @@ public class MapParser extends ContentParserBase implements ContentParser<Map<St
 	}
 
 	@Override
-	public List<Data> parse(File file) throws BagriException {
+	public ParseResults parse(File file) throws BagriException {
 		// not used for Maps
 		return null;
 	}
 
 	@Override
-	public List<Data> parse(InputStream stream) throws BagriException {
+	public ParseResults parse(InputStream stream) throws BagriException {
 		// not used for Maps
 		return null;
 	}
 
 	@Override
-	public List<Data> parse(Reader reader) throws BagriException {
+	public ParseResults parse(Reader reader) throws BagriException {
 		// not used for Maps
 		return null;
 	}

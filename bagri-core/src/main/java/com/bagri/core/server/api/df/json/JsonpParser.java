@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParser.Event;
 import javax.json.stream.JsonParserFactory;
@@ -20,6 +21,7 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ContentParserBase;
 
 /**
@@ -40,7 +42,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * @throws IOException in case of content read exception
 	 * @throws BagriException in case of content parse exception
 	 */
-	public static List<Data> parseDocument(ModelManagement model, String json) throws IOException, BagriException {
+	public static ParseResults parseDocument(ModelManagement model, String json) throws IOException, BagriException {
 		JsonpParser parser = new JsonpParser(model);
 		return parser.parse(json);
 	}
@@ -72,7 +74,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(String json) throws BagriException { 
+	public ParseResults parse(String json) throws BagriException { 
 		try (Reader reader = new StringReader(json)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -84,7 +86,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(File file) throws BagriException {
+	public ParseResults parse(File file) throws BagriException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -96,8 +98,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(InputStream stream) throws BagriException {
-
+	public ParseResults parse(InputStream stream) throws BagriException {
 		try (JsonParser parser = factory.createParser(stream)) {
 			return parse(parser);
 		}
@@ -107,8 +108,7 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(Reader reader) throws BagriException {
-		
+	public ParseResults parse(Reader reader) throws BagriException {
 		try (JsonParser parser = factory.createParser(reader)) {
 			return parse(parser);
 		}
@@ -120,13 +120,13 @@ public class JsonpParser extends ContentParserBase implements ContentParser<Stri
 	 * @return the list of parsed XDM data elements
 	 * @throws BagriException in case of any parsing error
 	 */
-	public List<Data> parse(JsonParser parser) throws BagriException {
+	public ParseResults parse(JsonParser parser) throws BagriException {
 		
 		ParserContext ctx = initContext();
 		while (parser.hasNext()) {
 			processEvent(ctx, parser);
 		}
-		return ctx.getDataList();
+		return ctx.getParseResults();
 	}
 	
 	

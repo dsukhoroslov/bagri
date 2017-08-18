@@ -17,7 +17,8 @@ import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Null;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
-import com.bagri.core.server.api.ModelManagement; 
+import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults; 
 
 /**
  * A common implementation part for any future parser. 
@@ -52,8 +53,9 @@ public abstract class ContentParserBase {
 	protected class ParserContext {
 		
 		private String root = null;
-		private TreeNode<Data> tree;
-		private TreeNode<Data> top;
+		private DataNode tree;
+		private DataNode top;
+		//private int contenetLength = 0;
 		
 		public void addDocument(String root) throws BagriException {
 			this.root = root;
@@ -61,7 +63,7 @@ public abstract class ContentParserBase {
 			Path path = model.translatePath(root, "/", NodeKind.document, 0, XQBASETYPE_UNTYPED, Occurrence.onlyOne);
 			Element start = new Element();
 			data.setData(path, start);
-			tree = new TreeNode<>(data);
+			tree = new DataNode(data);
 			top = tree;
 		}
 
@@ -78,7 +80,7 @@ public abstract class ContentParserBase {
 		}
 		
 		public void addElement() throws BagriException {
-			TreeNode<Data> node = getLastNamedNode();
+			DataNode node = getLastNamedNode();
 			if (node == null) {
 				// element in array
 				addData("");
@@ -90,7 +92,7 @@ public abstract class ContentParserBase {
 		}
 		
 		public void addArray() throws BagriException {
-			TreeNode<Data> node = getLastNamedNode();
+			DataNode node = getLastNamedNode();
 			if (node == null) {
 				// array in document
 				addData(""); // ??
@@ -133,12 +135,13 @@ public abstract class ContentParserBase {
 			top = top.getParent();
 		}
 		
-		public List<Data> getDataList() {
+		public ParseResults getParseResults() {
+			int contenetLength = 0; 
 			List<Data> list = new ArrayList<>();
 			if (tree != null) {
-				tree.fillData(list);
+				contenetLength = tree.fillData(list);
 			}
-			return list;
+			return new ParseResults(contenetLength, list);
 		}
 		
 		public String getDocRoot() {
@@ -152,8 +155,8 @@ public abstract class ContentParserBase {
 			return top.getData();
 		}
 
-		protected TreeNode<Data> getLastNamedNode() {
-			TreeNode<Data> node = top.getLastNode();
+		protected DataNode getLastNamedNode() {
+			DataNode node = top.getLastNode();
 			if (node == null) {
 				return null;
 			}
@@ -178,7 +181,7 @@ public abstract class ContentParserBase {
 			if (isInArray()) {
 				kind = NodeKind.text;
 				occurrence = Occurrence.zeroOrMany;
-				TreeNode<Data> node = getLastNamedNode();
+				DataNode node = getLastNamedNode();
 				if (node == null) {
 					// text in array
 					addData("");
@@ -191,7 +194,7 @@ public abstract class ContentParserBase {
 		}
 		
 		protected void setData(NodeKind kind, Object value, int dataType, Occurrence occurrence) throws BagriException {
-			TreeNode<Data> node = top.getLastNode();
+			DataNode node = top.getLastNode();
 			Data current = node.getData();
 			setData(current, top.getData(), kind, value, dataType, occurrence);
 		}

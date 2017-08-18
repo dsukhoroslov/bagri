@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
+import static com.bagri.core.test.TestUtils.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
 import java.util.ArrayList;

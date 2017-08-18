@@ -42,6 +42,7 @@ import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.DocumentManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.DocumentManagementBase;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.DataFormat;
@@ -610,18 +611,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, Date createdAt, String createdBy, 
 			long txStart, int[] collections, boolean addContent) throws BagriException {
 		
-		List<Data> data;
-		int length = 0;
+		ParseResults pRes;
 		dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		try {
-			data = parser.parse(content);
+			pRes = parser.parse(content);
 			// TODO: get length from parser
 		} catch (BagriException ex) {
 			logger.info("createDocument; parse error. content: {}", content);
 			throw ex;
 		}
 
+		List<Data> data = pRes.getResults();
+		int length = pRes.getContentLength();
 		Object[] ids = loadElements(docKey.getKey(), data);
 		List<Long> fragments = (List<Long>) ids[0];
 		if (fragments == null) {
@@ -750,13 +752,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 	
-	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, Object content, List<Data> data, Properties props) throws BagriException {
+	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, Object content, ParseResults pRes, Properties props) throws BagriException {
 		
-		logger.trace("processDocument.enter; uri: {}; data length: {}; props: {}", uri, data.size(), props);
+		logger.trace("processDocument.enter; uri: {}; results: {}; props: {}", uri, pRes, props);
 		
 		//boolean update = (old.getValue() != null); // && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 		DocumentKey docKey = old.getKey();
 		long docId = docKey.getKey();
+		List<Data> data = pRes.getResults();
 		if (old.getValue() != null) {
 	    	logger.trace("processDocument; going to update document: {}", old);
 	    	Document updated = old.getValue();
@@ -785,7 +788,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    	}
 		}
 
-		int length = 0; // get it from parser somehow
+		int length = pRes.getContentLength(); 
 		String root = data.get(0).getRoot();
 		Set<Integer> ids = processElements(docId, data);
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
@@ -925,7 +928,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		String dataFormat = props.getProperty(pn_document_data_format);
 		dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
-		List<Data> data = parser.parse(content);
+		ParseResults pRes = parser.parse(content);
 		// ??
 		props.setProperty(pn_document_data_format, dataFormat);
 		
@@ -937,7 +940,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     		tx = txManager.getCurrentTransaction(); 
     	}
 		
-		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, data, props));
+		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, pRes, props));
 		if (result instanceof Exception) {
 			logger.error("storeDocument.error; uri: {}", uri, result);
 			if (result instanceof BagriException) {

@@ -17,6 +17,7 @@ import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Transaction;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.server.hazelcast.impl.DataDistributionService;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
@@ -38,14 +39,14 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private Transaction tx;
 	private String uri;
 	private Object content;
-	private List<Data> data;
+	private ParseResults data;
 	private Properties props;
 
 	public DocumentProcessor() {
 		//
 	}
 
-	public DocumentProcessor(Transaction tx, String uri, Object content, List<Data> data, Properties props) {
+	public DocumentProcessor(Transaction tx, String uri, Object content, ParseResults data, Properties props) {
 		this.tx = tx;
 		this.uri = uri;
 		this.content = content;

@@ -1,10 +1,8 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.bagri.core.test.TestUtils.*;
+import static org.junit.Assert.*;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -58,8 +56,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 			Properties props = loadProperties("src\\test\\resources\\test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_schema_format_default, "MAP");
-			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "maps", "", "custom", true);
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "maps", "", "custom", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());

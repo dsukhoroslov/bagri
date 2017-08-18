@@ -26,6 +26,7 @@ import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
 //@Ignore
@@ -224,7 +225,8 @@ public class XmlBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		// to prepare model:
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		String root = data.get(0).getDataPath().getRoot();
 		data.clear();
 		data.add(new Data(model.getPath(root, "/person"), new Element(new int[] {0}, null)));
@@ -277,7 +279,8 @@ public class XmlBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		// to prepare model:
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		String root = data.get(0).getDataPath().getRoot();
 		data.clear();
 		data.add(new Data(new Path("/", "/person", NodeKind.document, 1, 0, 25, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {}, null)));
@@ -332,7 +335,8 @@ public class XmlBuilderTest {
 	public void testBuildString() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		assertEquals(35, data.size());
 		XmlBuilder builder = new XmlBuilder(model);
@@ -342,7 +346,8 @@ public class XmlBuilderTest {
 		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
-		List<Data> data2 = parser.parse(content);
+		ParseResults results2 = parser.parse(content); 
+		List<Data> data2 = results2.getResults();
 		assertEquals(data.size(), data2.size());
 	}
 	
@@ -350,7 +355,8 @@ public class XmlBuilderTest {
 	public void testBuildAuction() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(new StringReader(auction));
+		ParseResults results = parser.parse(auction); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
@@ -359,7 +365,8 @@ public class XmlBuilderTest {
 		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
-		List<Data> data2 = parser.parse(content);
+		ParseResults results2 = parser.parse(content); 
+		List<Data> data2 = results2.getResults();
 		assertEquals(data.size(), data2.size());
 	}
 	
@@ -368,12 +375,14 @@ public class XmlBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
 		File file = new File("..\\etc\\samples\\xmark\\auction.xml");
-		List<Data> data = parser.parse(file);
+		ParseResults results = parser.parse(file); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		String content = builder.buildContent(data);
 		assertNotNull(content);
-		List<Data> data2 = parser.parse(content);
+		ParseResults results2 = parser.parse(content); 
+		List<Data> data2 = results2.getResults();
 		assertEquals(data.size(), data2.size());
 	}
 
@@ -382,7 +391,8 @@ public class XmlBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
 		InputStream fis = new FileInputStream("..\\etc\\samples\\xdm\\catalog.xml");
-		List<Data> data = parser.parse(fis);
+		ParseResults results = parser.parse(fis); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
@@ -391,7 +401,8 @@ public class XmlBuilderTest {
 		String content = builder.buildContent(data);
 		//System.out.println(content);
 		assertNotNull(content);
-		List<Data> data2 = parser.parse(content);
+		ParseResults results2 = parser.parse(content); 
+		List<Data> data2 = results2.getResults();
 		assertEquals(data.size(), data2.size());
 	}
 
@@ -400,7 +411,8 @@ public class XmlBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		// to prepare model:
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		String root = data.get(0).getDataPath().getRoot();
 		data.clear();
 		data.add(new Data(model.getPath(root, "/person/firstName/text()"), new Element(new int[] {0, 1, 1}, "John")));
@@ -434,7 +446,8 @@ public class XmlBuilderTest {
 	public void testBuildAuctionSparse() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(new StringReader(auction));
+		ParseResults results = parser.parse(new StringReader(auction)); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
@@ -444,7 +457,8 @@ public class XmlBuilderTest {
 		String content = builder.buildContent(dataMap);
 		assertNotNull(content);
 		//System.out.println(content);
-		List<Data> data2 = parser.parse(content);
+		ParseResults results2 = parser.parse(content); 
+		List<Data> data2 = results2.getResults();
 		assertEquals(data.size(), data2.size());
 	}
 
@@ -453,7 +467,8 @@ public class XmlBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
 		File file = new File("..\\etc\\samples\\xmark\\auction.xml");
-		List<Data> data = parser.parse(file);
+		ParseResults results = parser.parse(file); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
 		Properties props = new Properties();
@@ -463,7 +478,8 @@ public class XmlBuilderTest {
 		String content = builder.buildContent(dataMap);
 		assertNotNull(content);
 		//System.out.println(content);
-		List<Data> data2 = parser.parse(content);
+		ParseResults results2 = parser.parse(content); 
+		List<Data> data2 = results2.getResults();
 		assertEquals(data.size(), data2.size());
 	}
 }

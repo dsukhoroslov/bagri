@@ -1,9 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_config_path;
-import static com.bagri.core.Constants.pn_config_properties_file;
-import static com.bagri.core.Constants.pn_node_instance;
-//import static com.bagri.core.Constants.pn_log_level;
+import static com.bagri.core.Constants.*;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -18,7 +15,6 @@ import javax.xml.xquery.XQItemType;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

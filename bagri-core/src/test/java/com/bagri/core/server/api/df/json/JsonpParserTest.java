@@ -1,7 +1,5 @@
 package com.bagri.core.server.api.df.json;
 
-import static com.bagri.core.Constants.pn_log_level;
-import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -9,17 +7,14 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.bagri.core.model.Data;
-import com.bagri.core.server.api.ContentHandler;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.df.xml.XmlBuilder;
-import com.bagri.core.server.api.df.xml.XmlHandler;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
 public class JsonpParserTest {
@@ -73,7 +68,10 @@ public class JsonpParserTest {
 	public void testParse() throws Exception {
 		ModelManagement dict = new ModelManagementImpl();
 		JsonpParser parser = new JsonpParser(dict);
-		List<Data> elts = parser.parse(json);
+		ParseResults results = parser.parse(json);
+		int length = results.getContentLength();
+		assertTrue(length > 0);
+		List<Data> elts = results.getResults();
 		//System.out.println(elts);
 		assertNotNull(elts);
 		assertEquals(18, elts.size()); 
@@ -96,16 +94,19 @@ public class JsonpParserTest {
 		ModelManagement model = new ModelManagementImpl();
 		JsonpParser parser = new JsonpParser(model);
 		File f = new File("..\\etc\\samples\\json\\security1500.json");
-		List<Data> data = parser.parse(f);
+		ParseResults results = parser.parse(f); 
+		List<Data> data = results.getResults();
 		assertNotNull(data);
 		assertEquals(45, data.size());
 		FileReader fr = new FileReader("..\\etc\\samples\\json\\security5621.json");
-		data = parser.parse(fr);
+		results = parser.parse(fr); 
+		data = results.getResults();
 		//System.out.println("data: " + data);
 		assertNotNull(data);
 		assertEquals(44, data.size()); 
 		InputStream fis = new FileInputStream("..\\etc\\samples\\json\\security9012.json");
-		data = parser.parse(fis);
+		results = parser.parse(fis); 
+		data = results.getResults();
 		assertNotNull(data);
 		assertEquals(56, data.size()); 
 	}

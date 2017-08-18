@@ -22,34 +22,36 @@ import com.hazelcast.core.HazelcastInstance;
 
 public class ClusterTest {
 
-	private SchemaRepositoryImpl repo1;
-	private SchemaRepositoryImpl repo2;
-    private static ClassPathXmlApplicationContext context1;
-    private static ClassPathXmlApplicationContext context2;
+	private static final int cluster_size = 3; 
+	private static ClassPathXmlApplicationContext[] contexts = new ClassPathXmlApplicationContext[cluster_size];
 
+	private SchemaRepositoryImpl[] repos = new SchemaRepositoryImpl[cluster_size];
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		//System.setProperty(pn_log_level, "trace");
-		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
 		System.setProperty(pn_config_path, "src\\test\\resources");
-		context1 = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
-		System.setProperty(pn_node_instance, "1");
-		//System.setProperty(pn_config_properties_file, "json.properties");
-		context2 = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
-	}
 
+		for (int i=0; i < cluster_size; i++) {
+			System.setProperty(pn_node_instance, String.valueOf(i));
+			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
+		}
+	}
+    
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		context2.close();
-		context1.close();
+		for (int i=0; i < cluster_size; i++) {
+			contexts[i].close();
+		}
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		repo1 = context1.getBean(SchemaRepositoryImpl.class);
-		repo2 = context2.getBean(SchemaRepositoryImpl.class);
+		for (int i=0; i < cluster_size; i++) {
+			repos[i] = contexts[i].getBean(SchemaRepositoryImpl.class);
+		}
 		//SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		//Schema schema = xdmRepo.getSchema();
 		//if (schema == null) {
@@ -69,9 +71,10 @@ public class ClusterTest {
 
 	@Test
 	public void testHzCluster() {
-		HazelcastInstance hz1 = repo1.getHzInstance();
-		HazelcastInstance hz2 = repo2.getHzInstance();
+		HazelcastInstance hz1 = repos[0].getHzInstance();
+		HazelcastInstance hz2 = repos[1].getHzInstance();
 		//
+		assertEquals(cluster_size, hz2.getCluster().getMembers().size());
 		assertEquals(hz1.getCluster().getMembers().size(), hz2.getCluster().getMembers().size());
 	}
 	

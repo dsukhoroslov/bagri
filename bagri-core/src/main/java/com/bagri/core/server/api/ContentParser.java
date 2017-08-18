@@ -32,7 +32,7 @@ public interface ContentParser<C> {
 	 * @return the list of parsed data elements 
 	 * @throws BagriException in case of parsing error
 	 */
-	List<Data> parse(C source) throws BagriException;
+	ParseResults parse(C source) throws BagriException;
 	
 	/**
 	 * 
@@ -40,7 +40,7 @@ public interface ContentParser<C> {
 	 * @return the list of parsed data elements
 	 * @throws BagriException in case of parsing error
 	 */
-	List<Data> parse(File file) throws BagriException;
+	ParseResults parse(File file) throws BagriException;
 	
 	/**
 	 * 
@@ -48,7 +48,7 @@ public interface ContentParser<C> {
 	 * @return the list of parsed data elements
 	 * @throws BagriException in case of parsing error
 	 */
-	List<Data> parse(InputStream stream) throws BagriException;
+	ParseResults parse(InputStream stream) throws BagriException;
 	
 	/**
 	 * 
@@ -56,6 +56,6 @@ public interface ContentParser<C> {
 	 * @return the list of parsed data elements
 	 * @throws BagriException in case of parsing error
 	 */
-	List<Data> parse(Reader reader) throws BagriException;
+	ParseResults parse(Reader reader) throws BagriException;
 	
 }

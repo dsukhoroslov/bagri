@@ -3,6 +3,7 @@ package com.bagri.core.server.api.df.xml;
 import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import com.bagri.core.model.Data;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
 public class XmlModelerTest {
@@ -201,7 +203,8 @@ public class XmlModelerTest {
 	@Test
 	public void registerRRPersonSchemaTest() throws Exception {
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		modelPro.registerModel(schemaRussianDoll);
 		Collection<Path> paths = model.getTypePaths("/person");
 		assertNotNull(paths);
@@ -218,7 +221,8 @@ public class XmlModelerTest {
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		assertEquals(data.size(), paths.size());
 		compareModels(paths, data);
 	}
@@ -226,7 +230,8 @@ public class XmlModelerTest {
 	@Test
 	public void registerSSPersonSchemaTest() throws Exception {
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		modelPro.registerModel(schemaSalamiSlice);
 		Collection<Path> paths = model.getTypePaths("/person");
 		assertNotNull(paths);
@@ -243,7 +248,8 @@ public class XmlModelerTest {
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		assertEquals(data.size(), paths.size());
 		compareModels(paths, data);
 	}
@@ -251,7 +257,8 @@ public class XmlModelerTest {
 	@Test
 	public void registerVBPersonSchemaTest() throws Exception {
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		modelPro.registerModel(schemaVenetianBlind);
 		Collection<Path> paths = model.getTypePaths("/person");
 		assertNotNull(paths);
@@ -268,7 +275,8 @@ public class XmlModelerTest {
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
 		XmlStaxParser parser = new XmlStaxParser(model);
-		List<Data> data = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> data = results.getResults();
 		assertEquals(data.size(), paths.size());
 		compareModels(paths, data);
 	}

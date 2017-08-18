@@ -1,11 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_config_path;
-import static com.bagri.core.Constants.pn_config_properties_file;
-import static com.bagri.core.Constants.pn_document_collections;
-import static com.bagri.core.Constants.pn_document_data_format;
-import static com.bagri.core.Constants.pn_log_level;
-import static com.bagri.core.Constants.pn_node_instance;
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.test.TestUtils.*;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;

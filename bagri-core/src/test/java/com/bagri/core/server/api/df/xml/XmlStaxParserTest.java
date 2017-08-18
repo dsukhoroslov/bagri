@@ -4,6 +4,7 @@ import static com.bagri.core.Constants.pn_log_level;
 import static com.bagri.core.Constants.pn_schema_builder_pretty;
 import static org.junit.Assert.*;
 
+import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 
@@ -14,6 +15,7 @@ import org.junit.Test;
 
 import com.bagri.core.model.Data;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.df.json.JsonpBuilder;
 import com.bagri.core.server.api.df.json.JsonpParser;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
@@ -70,7 +72,8 @@ public class XmlStaxParserTest {
 	public void testParse() throws Exception {
 		ModelManagement dict = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(dict);
-		List<Data> elts = parser.parse(xml);
+		ParseResults results = parser.parse(xml); 
+		List<Data> elts = results.getResults();
 		//System.out.println(elts);
 		assertNotNull(elts);
 		assertEquals(31, elts.size()); 

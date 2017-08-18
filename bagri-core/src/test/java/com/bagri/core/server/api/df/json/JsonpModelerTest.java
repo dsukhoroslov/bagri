@@ -13,6 +13,7 @@ import com.bagri.core.model.Data;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.df.json.JsonpModeler;
 import com.bagri.core.server.api.df.xml.XmlStaxParser;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
@@ -132,7 +133,8 @@ public class JsonpModelerTest {
 	@Test
 	public void registerPersonSchemaTest() throws Exception {
 		JsonpParser parser = new JsonpParser(model);
-		List<Data> data = parser.parse(json);
+		ParseResults results = parser.parse(json); 
+		List<Data> data = results.getResults();
 		//System.out.println(data);
 		modelPro.registerModel(schema);
 		Collection<Path> paths = model.getTypePaths("/");
@@ -151,7 +153,8 @@ public class JsonpModelerTest {
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
 		JsonpParser parser = new JsonpParser(model);
-		List<Data> data = parser.parse(json);
+		ParseResults results = parser.parse(json); 
+		List<Data> data = results.getResults();
 		//System.out.println(data);
 		assertNotNull(data);
 		assertEquals(data.size(), paths.size());

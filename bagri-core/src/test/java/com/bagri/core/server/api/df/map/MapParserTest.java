@@ -18,6 +18,7 @@ import com.bagri.core.model.Data;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.df.json.JsonpHandler;
 import com.bagri.core.server.api.df.json.JsonpParser;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
@@ -38,10 +39,11 @@ public class MapParserTest {
 		content.put("firstName", "John");
 		content.put("lastName", "Smith");
 		content.put("age", 25L);
-		List<Data> elts = parser.parse(content);
+		ParseResults results = parser.parse(content); 
+		List<Data> data = results.getResults();
 		//System.out.println(elts);
-		assertNotNull(elts);
-		assertEquals(4, elts.size()); 
+		assertNotNull(data);
+		assertEquals(4, data.size()); 
 	}
 
 	@Test
@@ -52,14 +54,15 @@ public class MapParserTest {
 		content.put("firstName", "John");
 		content.put("lastName", "Smith");
 		content.put("age", 25L);
-		List<Data> elts = parser.parse(content);
+		ParseResults results = parser.parse(content); 
+		List<Data> data = results.getResults();
 		
 		JsonpHandler jh = new JsonpHandler(model);
 		Properties props = new Properties();
 		props.setProperty(JsonGenerator.PRETTY_PRINTING, "true");
 		jh.init(props);
 		ContentBuilder<String> builder = jh.getBuilder();
-		String json = builder.buildContent(elts);
+		String json = builder.buildContent(data);
 		System.out.println(json);
 		assertNotNull(json);
 	}
@@ -92,17 +95,18 @@ public class MapParserTest {
 		Map<String, Object> gender = new HashMap<>();
 		gender.put("type", GenderType.male);
 		person.put("gender", gender);
-		List<Data> elts = parser.parse(person);
+		ParseResults results = parser.parse(person); 
+		List<Data> data = results.getResults();
 		//System.out.println(elts);
-		assertNotNull(elts);
-		assertEquals(19, elts.size());
+		assertNotNull(data);
+		assertEquals(19, data.size());
 		
 		JsonpHandler jh = new JsonpHandler(model);
 		Properties props = new Properties();
 		props.setProperty(JsonGenerator.PRETTY_PRINTING, "true");
 		jh.init(props);
 		ContentBuilder<String> builder = jh.getBuilder();
-		String json = builder.buildContent(elts);
+		String json = builder.buildContent(data);
 		System.out.println(json);
 		assertNotNull(json);
 	}

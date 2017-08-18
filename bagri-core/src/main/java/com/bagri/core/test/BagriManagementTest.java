@@ -58,29 +58,6 @@ public abstract class BagriManagementTest {
 		return xRepo.getTxManagement();
 	}
 	
-	protected Properties loadProperties(String fileName) throws IOException {
-		Properties props = new Properties();
-		//InputStream is = this.getClass().getResourceAsStream(fileName);
-		InputStream is = new FileInputStream(fileName);
-		props.load(is);
-		return props;		
-	}
-	
-	protected Collection<DataFormat> getBasicDataFormats() {
-		ArrayList<DataFormat> cFormats = new ArrayList<>(2);
-		ArrayList<String> cExt = new ArrayList<>(1);
-		cExt.add("xml");
-		DataFormat df = new DataFormat(1, new java.util.Date(), "", "XML", null, "application/xml", cExt, XmlHandler.class.getName(), true, null);
-		cFormats.add(df);
-		cExt = new ArrayList<>(1);
-		cExt.add("json");
-		df = new DataFormat(1, new java.util.Date(), "", "JSON", null, "application/json", cExt, JsonpHandler.class.getName(), true, null);
-		cFormats.add(df);
-		df = new DataFormat(1, new java.util.Date(), "", "MAP", null, null, null, MapHandler.class.getName(), true, null);
-		cFormats.add(df);
-		return cFormats;
-	}
-	
 	protected Schema initSchema() {
 		com.bagri.core.server.api.SchemaRepository xdmRepo = (com.bagri.core.server.api.SchemaRepository) xRepo; 
 		Schema schema = xdmRepo.getSchema();
@@ -101,16 +78,6 @@ public abstract class BagriManagementTest {
 		return result;
 	}
 
-	protected int exploreCursor(ResultCursor cursor) throws Exception {
-		int cnt = 0;
-		while (cursor.next()) {
-			String text = cursor.getItemAsString(null);
-			System.out.println("" + cnt + ": " + text);
-			cnt++;
-		}
-		return cnt;
-	}
-	
 	protected void removeDocumentsTest() throws Exception {
 		if (getTxManagement().isInTransaction()) {
 			getTxManagement().finishCurrentTransaction(true);

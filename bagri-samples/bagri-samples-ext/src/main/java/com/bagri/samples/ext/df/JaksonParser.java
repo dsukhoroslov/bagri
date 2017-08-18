@@ -18,6 +18,7 @@ import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ContentParserBase;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -27,7 +28,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 	
 	private static JsonFactory factory = new JsonFactory();
 
-	public static List<Data> parseDocument(ModelManagement model, String json) throws BagriException {
+	public static ParseResults parseDocument(ModelManagement model, String json) throws BagriException {
 		JaksonParser parser = new JaksonParser(model);
 		parser.init(new Properties());
 		return parser.parse(json);
@@ -62,7 +63,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 	}
 	
 	@Override
-	public List<Data> parse(String json) throws BagriException { 
+	public ParseResults parse(String json) throws BagriException { 
 
 		JsonParser jParser = null;
 		try {
@@ -76,7 +77,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 	}
 	
 	@Override
-	public List<Data> parse(File file) throws BagriException {
+	public ParseResults parse(File file) throws BagriException {
 
 		JsonParser jParser = null;
 		try {
@@ -90,7 +91,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 	}
 	
 	@Override
-	public List<Data> parse(InputStream stream) throws BagriException {
+	public ParseResults parse(InputStream stream) throws BagriException {
 		
 		JsonParser jParser = null;
 		try {
@@ -104,7 +105,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 	}
 	
 	@Override
-	public List<Data> parse(Reader reader) throws BagriException {
+	public ParseResults parse(Reader reader) throws BagriException {
 		
 		JsonParser jParser = null;
 		try {
@@ -117,7 +118,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 		}
 	}
 
-	public List<Data> parse(JsonParser parser) throws BagriException {
+	public ParseResults parse(JsonParser parser) throws BagriException {
 		
 		logger.trace("parse.enter; context: {}; schema: {}", parser.getParsingContext(), parser.getSchema());
 		ParserContext ctx = initContext();
@@ -128,7 +129,7 @@ public class JaksonParser extends ContentParserBase implements ContentParser<Str
 		} catch (IOException ex) {
 			throw new BagriException(ex, BagriException.ecInOut);
 		}
-		return ctx.getDataList();
+		return ctx.getParseResults();
 	}
 	
 	private void processToken(ParserContext ctx, JsonParser parser) throws IOException, BagriException { //, XMLStreamException {

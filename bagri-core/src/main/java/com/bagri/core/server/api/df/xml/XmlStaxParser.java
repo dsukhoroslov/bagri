@@ -42,6 +42,7 @@ import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ContentParserBase;
 
 /**
@@ -62,7 +63,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * @throws XMLStreamException in case of content read exception
 	 * @throws BagriException in case of content parse exception
 	 */
-	public static List<Data> parseDocument(ModelManagement model, String xml) throws XMLStreamException, BagriException {
+	public static ParseResults parseDocument(ModelManagement model, String xml) throws XMLStreamException, BagriException {
 		XmlStaxParser parser = new XmlStaxParser(model);
 		parser.init(new Properties());
 		return parser.parse(xml);
@@ -101,7 +102,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(String xml) throws BagriException {
+	public ParseResults parse(String xml) throws BagriException {
 		try (Reader reader = new StringReader(xml)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -113,7 +114,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(File file) throws BagriException {
+	public ParseResults parse(File file) throws BagriException {
 		try (Reader reader = new FileReader(file)) {
 			return parse(reader);
 		} catch (IOException ex) {
@@ -125,7 +126,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(InputStream stream) throws BagriException {
+	public ParseResults parse(InputStream stream) throws BagriException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -146,7 +147,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Data> parse(Reader reader) throws BagriException {
+	public ParseResults parse(Reader reader) throws BagriException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -169,7 +170,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * @return the list of parsed XDM data elements
 	 * @throws BagriException in case of content parse exception
 	 */
-	public List<Data> parse(Source source) throws BagriException {
+	public ParseResults parse(Source source) throws BagriException {
 		
 		XMLEventReader eventReader = null;
 		try {
@@ -192,7 +193,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 	 * @return the list of parsed XDM data elements
 	 * @throws BagriException in case of content parse exception
 	 */
-	public List<Data> parse(XMLEventReader eventReader) throws BagriException {
+	public ParseResults parse(XMLEventReader eventReader) throws BagriException {
 		
 		XmlParserContext ctx = initContext();
 		while (eventReader.hasNext()) {
@@ -202,7 +203,7 @@ public class XmlStaxParser extends ContentParserBase implements ContentParser<St
 				throw new BagriException(ex, BagriException.ecInOut);
 			}
 		}
-		return ctx.getDataList();
+		return ctx.getParseResults();
 	}
 	
 	private void processEvent(XmlParserContext ctx, XMLEvent xmlEvent) throws BagriException {

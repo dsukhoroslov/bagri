@@ -23,6 +23,7 @@ import com.bagri.core.model.Null;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 
@@ -116,7 +117,8 @@ public class JsonpBuilderTest {
 	public void testBuildPerson() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		JsonpParser parser = new JsonpParser(model);
-		List<Data> data = parser.parse(json);
+		ParseResults results = parser.parse(json); 
+		List<Data> data = results.getResults();
 		System.out.println(data);
 		assertNotNull(data);
 		assertEquals(19, data.size()); 
@@ -131,7 +133,8 @@ public class JsonpBuilderTest {
 		ModelManagement model = new ModelManagementImpl();
 		// to prepare model:
 		JsonpParser parser = new JsonpParser(model);
-		List<Data> data = parser.parse(json);
+		ParseResults results = parser.parse(json); 
+		List<Data> data = results.getResults();
 		data.clear();
 		data = new ArrayList<>();
 		//data.add(new Data(new Path("", "/", NodeKind.document, 1, 0, 25, XQItemType.XQBASETYPE_ANYTYPE, Occurrence.onlyOne), new Element(new int[] {}, null)));
