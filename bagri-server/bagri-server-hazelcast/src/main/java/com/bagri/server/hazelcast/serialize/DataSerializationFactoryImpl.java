@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.serialize;
 
-import com.bagri.client.hazelcast.GroupCountPredicate;
+import com.bagri.server.hazelcast.predicate.GroupCountPredicate;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
@@ -145,7 +145,7 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			//case cli_ProcessDocumentTask: return new DocumentProcessor();
+			case cli_GroupCountPredicate: return new GroupCountPredicate();
 			case cli_QueryPredicate: return new QueryPredicate();
 			case cli_DocsAwarePredicate: return new DocsAwarePredicate();
 			case cli_ResultsDocPredicate: return new ResultsDocPredicate();

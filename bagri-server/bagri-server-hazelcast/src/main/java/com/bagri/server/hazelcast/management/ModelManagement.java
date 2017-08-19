@@ -17,12 +17,12 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.client.hazelcast.GroupCountPredicate;
 import com.bagri.core.DataKey;
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.Path;
 import com.bagri.core.system.Fragment;
 import com.bagri.core.system.Schema;
+import com.bagri.server.hazelcast.predicate.GroupCountPredicate;
 import com.bagri.server.hazelcast.task.model.ModelRegistrator;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;

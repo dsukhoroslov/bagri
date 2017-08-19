@@ -1,7 +1,7 @@
-package com.bagri.client.hazelcast;
+package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_GroupCountPredicate;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_GroupCountPredicate;
+import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
 
 import java.io.IOException;
 import java.util.Collection;

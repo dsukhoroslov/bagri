@@ -2,7 +2,6 @@ package com.bagri.client.hazelcast.serialize;
 
 import com.bagri.client.hazelcast.DocumentPartKey;
 import com.bagri.client.hazelcast.DocumentPathKey;
-import com.bagri.client.hazelcast.GroupCountPredicate;
 import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.client.hazelcast.PathIndexKey;
 import com.bagri.client.hazelcast.QueryParamsKey;
@@ -138,7 +137,6 @@ public class DataSerializationFactoryImpl implements DataSerializableFactory {
 			case cli_QueryParamsKey: return new QueryParamsKey();
 			case cli_QueuedCursor: return new QueuedCursorImpl();
 			case cli_FixedCursor: return new FixedCursorImpl();
-			case cli_GroupCountPredicate: return new GroupCountPredicate();
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_CreateDocumentTask: return new DocumentCreator();
