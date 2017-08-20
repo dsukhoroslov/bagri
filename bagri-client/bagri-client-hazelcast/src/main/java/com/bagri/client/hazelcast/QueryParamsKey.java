@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_QueryParamsKey;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_QueryParamsKey;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ public class QueryParamsKey extends QueryResultKey implements IdentifiedDataSeri
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

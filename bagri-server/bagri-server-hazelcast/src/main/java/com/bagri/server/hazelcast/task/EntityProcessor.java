@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 
@@ -49,7 +49,7 @@ public abstract class EntityProcessor { //implements IdentifiedDataSerializable 
 	
 	//@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	//@Override

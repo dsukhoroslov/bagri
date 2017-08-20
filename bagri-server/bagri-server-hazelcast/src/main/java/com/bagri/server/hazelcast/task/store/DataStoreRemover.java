@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.store;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_RemoveDataStoreTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_RemoveDataStoreTask;
 
 import java.util.Map.Entry;
 

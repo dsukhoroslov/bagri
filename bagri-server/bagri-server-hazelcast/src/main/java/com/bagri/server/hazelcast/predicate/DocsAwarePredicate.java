@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DocsAwarePredicate;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_DocsAwarePredicate;
 
 import java.io.IOException;
 import java.util.Collections;

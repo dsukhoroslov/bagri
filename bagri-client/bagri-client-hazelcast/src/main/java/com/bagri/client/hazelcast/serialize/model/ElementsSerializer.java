@@ -3,7 +3,7 @@ package com.bagri.client.hazelcast.serialize.model;
 import java.io.IOException;
 import java.util.Collection;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
 import com.hazelcast.nio.ObjectDataInput;
@@ -18,7 +18,7 @@ public class ElementsSerializer implements StreamSerializer<Elements> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMElements;
+		return DomainSerializationFactory.cli_XDMElements;
 	}
 
 	@Override

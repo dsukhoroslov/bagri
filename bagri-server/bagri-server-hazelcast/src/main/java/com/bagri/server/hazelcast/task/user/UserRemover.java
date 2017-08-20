@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.user;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteUserTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_DeleteUserTask;
 
 import java.util.Map.Entry;
 

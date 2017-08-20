@@ -1,8 +1,8 @@
 package com.bagri.server.hazelcast.task.node;
 
 import static com.bagri.core.Constants.pn_cluster_node_role;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_KillNodeTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_KillNodeTask;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
 
 import java.io.IOException;
@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.core.Client;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
@@ -78,7 +77,7 @@ public class NodeKiller implements Runnable, IdentifiedDataSerializable {
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

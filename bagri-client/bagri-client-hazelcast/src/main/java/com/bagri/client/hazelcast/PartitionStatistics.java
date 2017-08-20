@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_PartitionStats;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_PartitionStats;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -164,7 +164,7 @@ public class PartitionStatistics implements Comparable<PartitionStatistics>, Ide
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

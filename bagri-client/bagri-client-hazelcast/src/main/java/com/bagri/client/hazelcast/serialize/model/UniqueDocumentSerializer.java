@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.UniqueDocument;
 import com.bagri.core.model.UniqueValue;
 import com.hazelcast.nio.ObjectDataInput;
@@ -20,7 +20,7 @@ public class UniqueDocumentSerializer implements StreamSerializer<UniqueDocument
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMUniqueDocument;
+		return DomainSerializationFactory.cli_XDMUniqueDocument;
 	}
 
 	@Override

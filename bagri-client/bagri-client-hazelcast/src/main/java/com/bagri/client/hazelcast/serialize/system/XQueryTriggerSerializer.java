@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.TriggerAction;
 import com.bagri.core.system.XQueryTrigger;
 import com.hazelcast.nio.ObjectDataInput;
@@ -15,7 +15,7 @@ public class XQueryTriggerSerializer extends TriggerDefinitionSerializer impleme
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMXQueryTrigger;
+		return DomainSerializationFactory.cli_XDMXQueryTrigger;
 	}
 
 	@Override

@@ -17,8 +17,8 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_RunTriggerTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_RunTriggerTask;
 
 @SpringAware
 public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable { //Runnable
@@ -61,7 +61,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 	
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

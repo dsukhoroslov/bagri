@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast.task.auth;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_AuthenticateTask;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_AuthenticateTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -31,7 +31,7 @@ public class UserAuthenticator implements Callable<Boolean>, IdentifiedDataSeria
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

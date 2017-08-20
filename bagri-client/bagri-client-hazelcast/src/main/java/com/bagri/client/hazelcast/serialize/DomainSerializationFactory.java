@@ -45,6 +45,10 @@ public class DomainSerializationFactory implements DataSerializableFactory {
 	public static final int cli_XDMCounter = 65;
 	public static final int cli_XDMNull = 66;
 	
+	public static final int cli_XQItemType = 75;
+	public static final int cli_XQItem = 76;
+	public static final int cli_XQSequence = 77;
+
 	public static final int cli_Expression = 80;
 	public static final int cli_ExpressionBuilder = 81;
 	public static final int cli_PathBuilder = 82;
@@ -52,33 +56,8 @@ public class DomainSerializationFactory implements DataSerializableFactory {
 	public static final int cli_QueryBuilder = 84;
 	public static final int cli_QueriedPath = 85;
 
-	public static final int cli_XQItemType = 75;
-	public static final int cli_XQItem = 76;
-	public static final int cli_XQSequence = 77;
-
-	public static final int cli_PartitionStats = 79;
-
-	public static final int cli_QueryPredicate = 86;
-	public static final int cli_DocsAwarePredicate = 87;
-	public static final int cli_ResultsDocPredicate = 88;
-	public static final int cli_ResultsQueryPredicate = 89;
-	public static final int cli_CollectionPredicate = 90;
-	
-	public static final int cli_QueuedCursor = 91;
-	public static final int cli_FixedCursor = 92;
-	
-	public static final int cli_GroupCountPredicate = 93;
-	public static final int cli_DocVisiblePredicate = 94;
-	
-	public static final int cli_DocumentKey = 95; 
-	public static final int cli_DocumentPathKey = 96; 
-	public static final int cli_PathIndexKey = 97; 
-	public static final int cli_QueryParamsKey = 98;
-	
-	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

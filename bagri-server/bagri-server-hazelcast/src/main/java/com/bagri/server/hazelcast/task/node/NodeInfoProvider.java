@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.task.node;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_GetNodeInfoTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_GetNodeInfoTask;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -43,7 +43,7 @@ public class NodeInfoProvider implements Callable<CompositeData>, IdentifiedData
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

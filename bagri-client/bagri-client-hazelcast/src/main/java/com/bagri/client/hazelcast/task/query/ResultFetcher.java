@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast.task.query;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_FetchResultsTask;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_FetchResultsTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -30,7 +30,7 @@ public class ResultFetcher extends ClientAwareTask implements Callable<Boolean>,
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DocVisiblePredicate;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_DocVisiblePredicate;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class DocVisiblePredicate implements Predicate<DocumentKey, Document>, Id
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

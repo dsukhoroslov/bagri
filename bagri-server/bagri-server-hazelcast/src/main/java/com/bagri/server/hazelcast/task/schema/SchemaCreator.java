@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.task.schema;
 
 import static com.bagri.core.Constants.pn_schema_password;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateSchemaTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CreateSchemaTask;
 import static com.bagri.support.security.Encryptor.encrypt;
 
 import java.io.IOException;

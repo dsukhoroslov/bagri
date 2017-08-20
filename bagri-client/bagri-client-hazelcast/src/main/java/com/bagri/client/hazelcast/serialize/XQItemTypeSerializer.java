@@ -34,7 +34,7 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
     
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XQItemType;
+		return DomainSerializationFactory.cli_XQItemType;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.role;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateRoleTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CreateRoleTask;
 
 import java.io.IOException;
 import java.util.Date;

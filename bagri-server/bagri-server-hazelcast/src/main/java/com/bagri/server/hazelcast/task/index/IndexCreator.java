@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.task.index;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateIndexTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CreateIndexTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -55,7 +55,7 @@ public class IndexCreator implements Callable<Boolean>, IdentifiedDataSerializab
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package com.bagri.client.hazelcast.serialize.query;
 import java.io.IOException;
 import java.util.List;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.PathBuilder;
 import com.bagri.core.query.PathSegment;
@@ -19,7 +19,7 @@ public class PathBuilderSerializer implements StreamSerializer<PathBuilder> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_PathBuilder;
+		return DomainSerializationFactory.cli_PathBuilder;
 	}
 
 	@Override

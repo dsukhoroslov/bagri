@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.tx;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_BeginTransactionTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_BeginTransactionTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;

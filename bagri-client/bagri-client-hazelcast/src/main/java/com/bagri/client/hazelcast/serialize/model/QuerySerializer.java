@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.Query;
 import com.bagri.core.query.QueryBuilder;
 import com.hazelcast.nio.ObjectDataInput;
@@ -13,7 +13,7 @@ public class QuerySerializer implements StreamSerializer<Query> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMQuery;
+		return DomainSerializationFactory.cli_XDMQuery;
 	}
 
 	@Override

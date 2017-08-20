@@ -1,9 +1,9 @@
 package com.bagri.server.hazelcast.task.schema;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_ELEMENT;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_AggregateSchemaInfoTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_AggregateSchemaInfoTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -37,7 +37,7 @@ public class SchemaStatsAggregator implements Callable<Long>, IdentifiedDataSeri
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
     @Autowired

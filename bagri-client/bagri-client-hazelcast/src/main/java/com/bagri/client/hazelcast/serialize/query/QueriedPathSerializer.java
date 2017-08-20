@@ -4,7 +4,7 @@ import static com.bagri.support.util.CollectionUtils.*;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.query.QueriedPath;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -18,7 +18,7 @@ public class QueriedPathSerializer implements StreamSerializer<QueriedPath> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_QueriedPath;
+		return DomainSerializationFactory.cli_QueriedPath;
 	}
 
 	@Override

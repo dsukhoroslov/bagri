@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_FixedCursor;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_FixedCursor;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 	
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

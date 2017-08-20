@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.system;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Cardinality;
 import com.bagri.core.system.DataType;
 import com.bagri.core.system.Parameter;
@@ -18,7 +18,7 @@ public class ParameterSerializer implements StreamSerializer<Parameter> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMParameter;
+		return DomainSerializationFactory.cli_XDMParameter;
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.util.Date;
 
 import javax.xml.namespace.QName;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Index;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -15,7 +15,7 @@ public class IndexSerializer extends EntitySerializer implements StreamSerialize
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMIndex;
+		return DomainSerializationFactory.cli_XDMIndex;
 	}
 
 	@Override

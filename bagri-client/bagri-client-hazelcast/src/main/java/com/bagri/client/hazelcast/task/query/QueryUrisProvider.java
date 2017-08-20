@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.query;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideQueryUrisTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProvideQueryUrisTask;
 
 import java.util.Collection;
 import java.util.Map;

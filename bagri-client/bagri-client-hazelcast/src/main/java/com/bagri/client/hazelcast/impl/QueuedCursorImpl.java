@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_QueuedCursor;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_QueuedCursor;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
 import java.io.IOException;
@@ -193,7 +193,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

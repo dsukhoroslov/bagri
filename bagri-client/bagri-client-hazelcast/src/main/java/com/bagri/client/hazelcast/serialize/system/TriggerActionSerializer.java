@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.system;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.TriggerAction;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
@@ -19,7 +19,7 @@ public class TriggerActionSerializer implements StreamSerializer<TriggerAction> 
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMTriggerAction;
+		return DomainSerializationFactory.cli_XDMTriggerAction;
 	}
 
 	@Override

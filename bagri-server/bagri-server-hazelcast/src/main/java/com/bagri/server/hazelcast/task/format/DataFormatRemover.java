@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.format;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_RemoveDataFormatTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_RemoveDataFormatTask;
 
 import java.util.Map.Entry;
 

@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.task.model;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_RegisterModelTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_RegisterModelTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -65,7 +65,7 @@ public class ModelRegistrator implements Callable<Integer>, IdentifiedDataSerial
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

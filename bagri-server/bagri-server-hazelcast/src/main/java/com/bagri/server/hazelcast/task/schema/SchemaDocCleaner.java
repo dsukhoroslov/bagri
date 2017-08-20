@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.task.schema;
 
 import static com.bagri.core.server.api.CacheConstants.*;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanSchemaTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CleanSchemaTask;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 
 import java.io.IOException;

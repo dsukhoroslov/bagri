@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.Null;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -16,7 +16,7 @@ public class NullSerializer implements StreamSerializer<Null> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMNull;
+		return DomainSerializationFactory.cli_XDMNull;
 	}
 
 	@Override

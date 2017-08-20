@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.tx;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_RollbackTransactionTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_RollbackTransactionTask;
 
 import java.util.concurrent.Callable;
 

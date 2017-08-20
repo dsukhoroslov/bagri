@@ -2,10 +2,8 @@ package com.bagri.client.hazelcast.serialize.query;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.query.QueryBuilder;
 import com.hazelcast.nio.ObjectDataInput;
@@ -20,7 +18,7 @@ public class QueryBuilderSerializer implements StreamSerializer<QueryBuilder> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_QueryBuilder;
+		return DomainSerializationFactory.cli_QueryBuilder;
 	}
 
 	@Override

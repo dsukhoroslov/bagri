@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.module;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteModuleTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_DeleteModuleTask;
 
 import java.util.Map.Entry;
 

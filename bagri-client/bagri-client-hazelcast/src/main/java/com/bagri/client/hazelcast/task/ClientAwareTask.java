@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 
@@ -27,7 +27,7 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	protected void checkPermission(Permission.Value perm) throws BagriException {

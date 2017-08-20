@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.store;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateDataStoreTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CreateDataStoreTask;
 
 import java.io.IOException;
 import java.util.Collection;

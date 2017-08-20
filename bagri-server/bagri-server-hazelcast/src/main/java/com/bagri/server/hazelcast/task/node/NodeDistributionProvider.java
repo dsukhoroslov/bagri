@@ -1,8 +1,8 @@
 package com.bagri.server.hazelcast.task.node;
 
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_GetNodeStatsTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_GetNodeStatsTask;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -38,7 +38,7 @@ public class NodeDistributionProvider implements Callable<Collection<PartitionSt
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.DataType;
 import com.bagri.core.system.Function;
 import com.bagri.core.system.Parameter;
@@ -20,7 +20,7 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMFunction;
+		return DomainSerializationFactory.cli_XDMFunction;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.user;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateUserTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CreateUserTask;
 
 import java.io.IOException;
 import java.util.Date;

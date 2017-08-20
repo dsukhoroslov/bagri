@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.schema;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CleanQueryTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CleanQueryTask;
 
 import java.util.concurrent.Callable;
 

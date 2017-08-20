@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.QueryResult;
 import com.bagri.support.util.CollectionUtils;
 import com.hazelcast.nio.ObjectDataInput;
@@ -23,7 +23,7 @@ public class QueryResultSerializer implements StreamSerializer<QueryResult> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMResults;
+		return DomainSerializationFactory.cli_XDMResults;
 	}
 
 	@Override

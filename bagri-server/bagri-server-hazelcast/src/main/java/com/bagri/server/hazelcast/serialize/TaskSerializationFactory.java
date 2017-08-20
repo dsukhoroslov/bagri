@@ -1,12 +1,5 @@
 package com.bagri.server.hazelcast.serialize;
 
-import com.bagri.server.hazelcast.predicate.GroupCountPredicate;
-import com.bagri.server.hazelcast.predicate.CollectionPredicate;
-import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
-import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
-import com.bagri.server.hazelcast.predicate.QueryPredicate;
-import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
-import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.server.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.server.hazelcast.task.doc.CollectionDocumentsProvider;
 import com.bagri.server.hazelcast.task.doc.CollectionDocumentsRemover;
@@ -73,10 +66,9 @@ import com.bagri.server.hazelcast.task.tx.TransactionStarter;
 import com.bagri.server.hazelcast.task.user.UserCreator;
 import com.bagri.server.hazelcast.task.user.UserRemover;
 import com.bagri.server.hazelcast.task.user.UserUpdater;
-//import com.bagri.client.hazelcast.task.doc.DocumentProcessor;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl {
+public class TaskSerializationFactory extends com.bagri.client.hazelcast.serialize.TaskSerializationFactory {
 
 	public static final int cli_CollectStatisticSeriesTask = 200;
 	public static final int cli_CollectStatisticTotalsTask = 201;
@@ -145,20 +137,11 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			case cli_GroupCountPredicate: return new GroupCountPredicate();
-			case cli_QueryPredicate: return new QueryPredicate();
-			case cli_DocsAwarePredicate: return new DocsAwarePredicate();
-			case cli_ResultsDocPredicate: return new ResultsDocPredicate();
-			case cli_ResultsQueryPredicate: return new ResultsQueryPredicate();
-			case cli_CollectionPredicate: return new CollectionPredicate();
-			case cli_DocVisiblePredicate: return new DocVisiblePredicate(); 
 			case cli_ProvideCollectionDocumentsTask: return new CollectionDocumentsProvider();
 			case cli_RemoveCollectionDocumentsTask: return new CollectionDocumentsRemover();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProvideCollectionsTask: return new CollectionsProvider();
 			case cli_CreateDocumentTask: return new DocumentCreator();
-			//case cli_CreateMapDocumentTask: return new DocumentMapCreator();
-			//case cli_CreateBeanDocumentTask: return new DocumentBeanCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();
 			case cli_BeginTransactionTask: return new TransactionStarter(); 
 			case cli_CommitTransactionTask: return new TransactionCommiter();
@@ -174,8 +157,6 @@ public class DataSerializationFactoryImpl extends com.bagri.client.hazelcast.ser
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentStructureTask: return new DocumentStructureProvider();
-			//case cli_ProvideDocumentMapTask: return new DocumentMapProvider(); 
-			//case cli_ProvideDocumentBeanTask: return new DocumentBeanProvider();
 			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();
 			case cli_ProcessQueryTask: return new QueryProcessor();

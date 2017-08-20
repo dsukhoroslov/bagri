@@ -2,16 +2,12 @@ package com.bagri.client.hazelcast.serialize.system;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
-import com.bagri.core.model.Element;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Fragment;
 import com.bagri.core.system.Index;
-import com.bagri.core.system.Module;
 import com.bagri.core.system.Resource;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerDefinition;
@@ -23,7 +19,7 @@ public class SchemaSerializer extends EntitySerializer implements StreamSerializ
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMSchema;
+		return DomainSerializationFactory.cli_XDMSchema;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.IndexedDocument;
 import com.bagri.support.util.CollectionUtils;
 import com.hazelcast.nio.ObjectDataInput;
@@ -19,7 +19,7 @@ public class IndexedDocumentSerializer implements StreamSerializer<IndexedDocume
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMIndexedDocument;
+		return DomainSerializationFactory.cli_XDMIndexedDocument;
 	}
 
 	@Override

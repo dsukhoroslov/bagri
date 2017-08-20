@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
@@ -19,7 +19,7 @@ public class PathSerializer implements StreamSerializer<Path> {
 	
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMPath;
+		return DomainSerializationFactory.cli_XDMPath;
 	}
 
 	@Override

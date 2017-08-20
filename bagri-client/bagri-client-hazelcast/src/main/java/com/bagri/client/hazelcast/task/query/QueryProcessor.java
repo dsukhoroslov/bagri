@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast.task.query;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProcessQueryTask;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProcessQueryTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class QueryProcessor implements EntryProcessor<Long, QueryResult>, EntryB
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

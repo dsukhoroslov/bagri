@@ -1,10 +1,10 @@
 package com.bagri.server.hazelcast.task.schema;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_schema_name;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_InitSchemaTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_InitSchemaTask;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
@@ -91,7 +91,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

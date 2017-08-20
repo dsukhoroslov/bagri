@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.DataFormat;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -15,7 +15,7 @@ public class DataFormatSerializer extends EntitySerializer implements StreamSeri
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMDataFormat;
+		return DomainSerializationFactory.cli_XDMDataFormat;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.role;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_DeleteRoleTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_DeleteRoleTask;
 
 import java.util.Map.Entry;
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Permission;
 import com.bagri.core.system.Role;
 import com.hazelcast.nio.ObjectDataInput;
@@ -19,7 +19,7 @@ public class RoleSerializer extends EntitySerializer implements StreamSerializer
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMRole;
+		return DomainSerializationFactory.cli_XDMRole;
 	}
 
 	@Override

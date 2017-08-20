@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.stats;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_ResetStatisticsTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_ResetStatisticsTask;
 
 import java.util.concurrent.Callable;
 

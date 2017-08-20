@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.query;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_BuildQueryXMLTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_BuildQueryXMLTask;
 
 import java.io.IOException;
 import java.util.Collection;

@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_UpdateDocumentCollectionTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_UpdateDocumentCollectionTask;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;

@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.Counter;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -16,7 +16,7 @@ public class CounterSerializer implements StreamSerializer<Counter> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMCounter;
+		return DomainSerializationFactory.cli_XDMCounter;
 	}
 
 	@Override

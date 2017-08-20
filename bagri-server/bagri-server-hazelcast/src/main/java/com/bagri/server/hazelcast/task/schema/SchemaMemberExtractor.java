@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.schema;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_ExtractSchemaMemberTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_ExtractSchemaMemberTask;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 
 import java.util.concurrent.Callable;

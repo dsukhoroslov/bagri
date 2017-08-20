@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProcessDocumentTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProcessDocumentTask;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 import java.util.Properties;

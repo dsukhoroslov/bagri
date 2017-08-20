@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.schema;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_AggregateSchemaHealthTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_AggregateSchemaHealthTask;
 
 import java.util.HashMap;
 import java.util.Map;

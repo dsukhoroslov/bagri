@@ -3,7 +3,7 @@ package com.bagri.client.hazelcast.serialize.system;
 import java.io.IOException;
 import java.util.Date;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Module;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -13,7 +13,7 @@ public class ModuleSerializer extends EntitySerializer implements StreamSerializ
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMModule;
+		return DomainSerializationFactory.cli_XDMModule;
 	}
 
 	@Override

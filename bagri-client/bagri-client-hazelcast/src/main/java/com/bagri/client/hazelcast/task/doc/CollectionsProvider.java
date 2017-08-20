@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ProvideCollectionsTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProvideCollectionsTask;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;

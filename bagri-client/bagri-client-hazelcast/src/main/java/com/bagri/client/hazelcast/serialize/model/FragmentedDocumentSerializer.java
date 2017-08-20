@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.FragmentedDocument;
 import com.hazelcast.nio.ObjectDataInput;
@@ -12,7 +12,7 @@ public class FragmentedDocumentSerializer extends DocumentSerializer {
 	
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMFragmentedDocument;
+		return DomainSerializationFactory.cli_XDMFragmentedDocument;
 	}
 
 	@Override

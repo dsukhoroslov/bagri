@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.system;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Cardinality;
 import com.bagri.core.system.DataType;
 import com.hazelcast.nio.ObjectDataInput;
@@ -17,7 +17,7 @@ public class DataTypeSerializer implements StreamSerializer<DataType> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMType;
+		return DomainSerializationFactory.cli_XDMType;
 	}
 
 	@Override

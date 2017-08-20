@@ -3,7 +3,7 @@ package com.bagri.client.hazelcast.serialize.system;
 import java.io.IOException;
 import java.util.Set;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Permission;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -17,7 +17,7 @@ public class PermissionSerializer implements StreamSerializer<Permission> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMPermission;
+		return DomainSerializationFactory.cli_XDMPermission;
 	}
 
 	@Override

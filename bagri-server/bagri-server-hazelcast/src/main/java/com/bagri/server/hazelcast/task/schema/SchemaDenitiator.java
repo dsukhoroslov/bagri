@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.schema;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_DenitSchemaTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_DenitSchemaTask;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 

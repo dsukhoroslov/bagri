@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_GroupCountPredicate;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_GroupCountPredicate;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -33,7 +33,7 @@ public class GroupCountPredicate implements Predicate<DataKey, Elements>, Identi
 	
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

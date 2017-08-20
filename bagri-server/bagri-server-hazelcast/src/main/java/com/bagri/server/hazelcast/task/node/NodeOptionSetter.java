@@ -1,9 +1,9 @@
 package com.bagri.server.hazelcast.task.node;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 import static com.bagri.core.Constants.pn_config_path;
 import static com.bagri.core.Constants.pn_config_properties_file;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_SetNodeOptionTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_SetNodeOptionTask;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemInstance;
 
 import java.io.IOException;
@@ -85,7 +85,7 @@ public class NodeOptionSetter implements Callable<Boolean>, IdentifiedDataSerial
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

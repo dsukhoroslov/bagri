@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.query;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.query.AlwaysExpression;
 import com.bagri.core.query.BinaryExpression;
 import com.bagri.core.query.Comparison;
@@ -22,7 +22,7 @@ public class ExpressionSerializer implements StreamSerializer<Expression> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_Expression;
+		return DomainSerializationFactory.cli_Expression;
 	}
 
 	@Override

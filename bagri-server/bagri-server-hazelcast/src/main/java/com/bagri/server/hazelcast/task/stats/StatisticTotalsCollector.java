@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.stats;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CollectStatisticTotalsTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CollectStatisticTotalsTask;
 
 import java.util.concurrent.Callable;
 

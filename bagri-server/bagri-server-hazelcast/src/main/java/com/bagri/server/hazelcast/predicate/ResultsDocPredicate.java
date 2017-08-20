@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ResultsDocPredicate;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_ResultsDocPredicate;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -36,7 +36,7 @@ public class ResultsDocPredicate implements IndexAwarePredicate<Long, QueryResul
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

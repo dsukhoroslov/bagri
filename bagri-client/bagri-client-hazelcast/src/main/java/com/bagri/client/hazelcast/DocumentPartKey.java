@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_DocumentKey;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_DocumentKey;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class DocumentPartKey extends DocumentKey implements IdentifiedDataSerial
 	
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 
 	@Override

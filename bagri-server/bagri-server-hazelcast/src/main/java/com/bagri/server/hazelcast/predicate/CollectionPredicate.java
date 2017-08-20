@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_CollectionPredicate;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_CollectionPredicate;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -39,7 +39,7 @@ public class CollectionPredicate implements Predicate<DocumentKey, Document>, Id
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

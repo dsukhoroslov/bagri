@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.library;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_UpdateLibraryTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_UpdateLibraryTask;
 
 import java.io.IOException;
 import java.util.ArrayList;

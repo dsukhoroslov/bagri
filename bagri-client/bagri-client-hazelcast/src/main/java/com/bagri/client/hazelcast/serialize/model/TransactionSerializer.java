@@ -2,7 +2,7 @@ package com.bagri.client.hazelcast.serialize.model;
 
 import java.io.IOException;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionState;
 import com.bagri.core.model.Transaction;
@@ -18,7 +18,7 @@ public class TransactionSerializer implements StreamSerializer<Transaction> {
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMTransaction;
+		return DomainSerializationFactory.cli_XDMTransaction;
 	}
 
 	@Override

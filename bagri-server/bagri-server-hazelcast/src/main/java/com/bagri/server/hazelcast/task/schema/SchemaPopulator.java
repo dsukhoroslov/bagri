@@ -4,7 +4,7 @@ import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_TRANSACTION;
 import static com.bagri.core.server.api.CacheConstants.TPN_XDM_POPULATION;
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_PopulateSchemaTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_PopulateSchemaTask;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSchemaInstance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 

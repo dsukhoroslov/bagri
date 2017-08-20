@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.cli_ResultsQueryPredicate;
-import static com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl.factoryId;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_ResultsQueryPredicate;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 import static com.bagri.support.util.CollectionUtils.*;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class ResultsQueryPredicate implements Predicate<Long, QueryResult>, Iden
 
 	@Override
 	public int getFactoryId() {
-		return factoryId;
+		return cli_factory_id;
 	}
 	
 	@Override

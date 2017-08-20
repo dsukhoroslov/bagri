@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
-import com.bagri.client.hazelcast.serialize.DataSerializationFactoryImpl;
+import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.DataStore;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -14,7 +14,7 @@ public class DataStoreSerializer extends EntitySerializer implements StreamSeria
 
 	@Override
 	public int getTypeId() {
-		return DataSerializationFactoryImpl.cli_XDMDataStore;
+		return DomainSerializationFactory.cli_XDMDataStore;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.task.module;
 
-import static com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl.cli_CreateModuleTask;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_CreateModuleTask;
 
 import java.io.IOException;
 import java.util.Date;
