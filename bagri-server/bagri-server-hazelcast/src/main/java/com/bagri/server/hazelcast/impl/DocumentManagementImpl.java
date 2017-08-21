@@ -26,11 +26,13 @@ import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.bagri.client.hazelcast.impl.ResultCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Element;
@@ -91,6 +93,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	
+	//private Map<String, String> sharedMap;
+	
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
     	this.factory = repo.getFactory();
@@ -100,6 +104,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryDocs = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_DOCUMENT).getInMemoryFormat();
     	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
+    	
+		//sharedMap = new HashMap<>(10);
+		//for (int j=0; j < 10; j++) {
+		//	sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100));
+		//}
     }
     
     IMap<DocumentKey, Object> getContentCache() {
@@ -339,46 +348,29 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("unchecked")
 	public Iterable<?> getDocuments(String pattern, Properties props) {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		Predicate<DocumentKey, Document> query;
-		if (pattern != null) {
-			query = DocumentPredicateBuilder.getQuery(pattern);
-		} else {
-			query = Predicates.equal(fnTxFinish, TX_NO);
-		}
+		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
+		//if (pattern.indexOf(fnTxFinish) < 0) {
+		//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
+		//}
 		
 		int fetchSize = 0;
 		if (props != null) {
 			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-		} //else {
-		//  Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
-		//	uris = xddCache.project(pro, query);
-		//}
+			//if (fetchSize > 0) {
+			//	query = new PagingPredicate<>(query, fetchSize);
+			//}
+		}
 		
-		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
-		java.util.Collection<Object> keys = new ArrayList<>();
-		//Set<DocumentKey> keys = new HashSet<>(docs.size());
-		
-		// should also check if doc's start transaction is committed?
-		if (pattern.indexOf(fnTxFinish) < 0) {
-			for (Document doc: docs) {
-				if (doc.getTxFinish() == TX_NO) {
-					keys.add(factory.newDocumentKey(doc.getDocumentKey()));
-					//if (fetchSize > 0 && keys.size() == fetchSize) {
-					//	break;
-					//}
-				}
-			}
-		} else {
-			for (Document doc: docs) {
-				keys.add(factory.newDocumentKey(doc.getDocumentKey()));
-				//if (fetchSize > 0 && keys.size() == fetchSize) {
-				//	break;
-				//}
+		java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
+		//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
+		ResultCollection contents = new ResultCollectionImpl(keys.size());
+		for (DocumentKey key: keys) {
+			Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
+			if (content != null) {
+				contents.add(content);
 			}
 		}
 		
-		java.util.Collection<Object> contents = ddSvc.getCachedObjects(CN_XDM_CONTENT, keys, binaryContent);
-		//java.util.Collection<Object> contents = new ArrayList<>(cntCache.getAll(keys).values());
 		logger.trace("getDocuments.exit; returning: {}", contents.size());
 		return contents;
 	}

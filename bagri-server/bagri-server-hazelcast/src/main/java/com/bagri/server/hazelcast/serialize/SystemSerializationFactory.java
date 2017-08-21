@@ -11,13 +11,13 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class SystemSerializationFactory extends com.bagri.client.hazelcast.serialize.SystemSerializationFactory {
 
-	public static final int cli_QueryPredicate = 86;
-	public static final int cli_DocsAwarePredicate = 87;
-	public static final int cli_ResultsDocPredicate = 88;
-	public static final int cli_ResultsQueryPredicate = 89;
-	public static final int cli_CollectionPredicate = 90;
-	public static final int cli_GroupCountPredicate = 93;
-	public static final int cli_DocVisiblePredicate = 94;
+	public static final int cli_QueryPredicate = 200;
+	public static final int cli_DocsAwarePredicate = 201;
+	public static final int cli_ResultsDocPredicate = 202;
+	public static final int cli_ResultsQueryPredicate = 203;
+	public static final int cli_CollectionPredicate = 204;
+	public static final int cli_GroupCountPredicate = 205;
+	public static final int cli_DocVisiblePredicate = 206;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {

@@ -54,7 +54,7 @@ set java_opts=%java_opts% -Dbdb.client.queryCache=true
 
 rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
-rem set java_opts=%java_opts% -Dbdb.client.txLevel=skip
+set java_opts=%java_opts% -Dbdb.client.txLevel=skip
 rem set java_opts=%java_opts% -Dbdb.document.data.format=XML
 rem set java_opts=%java_opts% -Dbdb.document.map.merge=false
 

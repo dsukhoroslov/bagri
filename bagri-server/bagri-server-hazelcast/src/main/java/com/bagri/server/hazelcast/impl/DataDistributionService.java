@@ -243,6 +243,29 @@ public class DataDistributionService implements ManagedService {
 		return null;
 	}
 
+	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.KEY, null, null);
+		List<DocumentKey> results;
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			results = new ArrayList<>(fetchSize);
+			for (QueryResultRow row: rs.getRows()) {
+				DocumentKey key = nodeEngine.toObject(row.getKey());
+				results.add(key);
+				if (fetchSize > 0 && results.size() == fetchSize) {
+					break;
+				}
+			}
+			logger.trace("getLastKeysForQuery; query: {}; returning: {}", query, results.size());
+			return results;
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastDocumentsForQuery.error: ", ex);
+		}
+		return null;
+	}
+
 	public Document getLastDocumentForUri(String uri) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
@@ -275,7 +298,7 @@ public class DataDistributionService implements ManagedService {
 		Map<String, Document> results;
 		try {
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
-			results = new HashMap<>(rs.size());
+			results = new HashMap<>(fetchSize);
 			for (QueryResultRow row: rs.getRows()) {
 				Document doc = nodeEngine.toObject(row.getValue());
 				//Document last = results.get(doc.getUri());
