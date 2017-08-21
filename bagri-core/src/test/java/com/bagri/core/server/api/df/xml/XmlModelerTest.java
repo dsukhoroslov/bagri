@@ -1,22 +1,20 @@
 package com.bagri.core.server.api.df.xml;
 
-import static com.bagri.support.util.FileUtils.readTextFile;
-import static org.junit.Assert.*;
-
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import static com.bagri.support.util.FileUtils.*;
+import static org.junit.Assert.*;
 
 public class XmlModelerTest {
 
@@ -308,7 +306,7 @@ public class XmlModelerTest {
 
 	@Test
 	public void registerSecurityPathTest() throws Exception {
-		String schema = readTextFile("..\\etc\\samples\\tpox\\security.xsd");
+		String schema = readTextFile("../etc/samples/tpox/security.xsd");
 		modelPro.registerModel(schema);
 		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/security}Security");
 		assertNotNull(paths);
@@ -318,7 +316,7 @@ public class XmlModelerTest {
 
 	@Test
 	public void registerSecurityModelTest() throws Exception {
-		modelPro.registerModelUri("..\\etc\\samples\\tpox\\security.xsd");
+		modelPro.registerModelUri("../etc/samples/tpox/security.xsd");
 		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/security}Security");
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
@@ -327,7 +325,7 @@ public class XmlModelerTest {
 
 	@Test
 	public void registerCustomerPathTest() throws Exception {
-		String schema = readTextFile("..\\etc\\samples\\tpox\\custacc.xsd");
+		String schema = readTextFile("../etc/samples/tpox/custacc.xsd");
 		modelPro.registerModel(schema);
 		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
 		assertNotNull(paths);
@@ -337,7 +335,7 @@ public class XmlModelerTest {
 
 	@Test
 	public void registerCustomerModelTest() throws Exception {
-		modelPro.registerModelUri("..\\etc\\samples\\tpox\\custacc.xsd");
+		modelPro.registerModelUri("../etc/samples/tpox/custacc.xsd");
 		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);
@@ -346,7 +344,7 @@ public class XmlModelerTest {
 
 	@Test
 	public void registerSchemas() throws Exception {
-		((XmlModeler) modelPro).registerModels("..\\etc\\samples\\tpox\\");
+		((XmlModeler) modelPro).registerModels("../etc/samples/tpox/");
 		Collection<Path> paths = model.getTypePaths("/{http://tpox-benchmark.com/custacc}Customer");
 		assertNotNull(paths);
 		assertTrue(paths.size() > 0);

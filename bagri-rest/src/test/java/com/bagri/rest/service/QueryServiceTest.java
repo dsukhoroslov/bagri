@@ -1,28 +1,5 @@
 package com.bagri.rest.service;
 
-import static com.bagri.rest.RestConstants.bg_cookie;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-import javax.xml.xquery.XQItemType;
-
-import org.glassfish.jersey.client.ChunkedInput;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Test;
-
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.SchemaRepository;
@@ -31,6 +8,25 @@ import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.saxon.XQProcessorClient;
+import org.glassfish.jersey.client.ChunkedInput;
+import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Test;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import javax.xml.xquery.XQItemType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.bagri.rest.RestConstants.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class QueryServiceTest extends JerseyTest {
 	

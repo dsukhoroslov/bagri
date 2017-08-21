@@ -1,12 +1,7 @@
 package com.bagri.server.hazelcast;
 
-import static com.bagri.core.Constants.pn_config_path;
-import static com.bagri.core.Constants.pn_config_properties_file;
-import static com.bagri.core.Constants.pn_node_instance;
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-
+import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -14,11 +9,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.core.system.Library;
-import com.bagri.core.system.Module;
-import com.bagri.core.system.Schema;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
-import com.hazelcast.core.HazelcastInstance;
+import static org.junit.Assert.*;
+import static com.bagri.core.Constants.pn_config_path;
+import static com.bagri.core.Constants.pn_config_properties_file;
+import static com.bagri.core.Constants.pn_node_instance;
 
 public class ClusterTest {
 
@@ -32,7 +26,7 @@ public class ClusterTest {
 		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
-		System.setProperty(pn_config_path, "src\\test\\resources");
+		System.setProperty(pn_config_path, "src/test/resources");
 
 		for (int i=0; i < cluster_size; i++) {
 			System.setProperty(pn_node_instance, String.valueOf(i));

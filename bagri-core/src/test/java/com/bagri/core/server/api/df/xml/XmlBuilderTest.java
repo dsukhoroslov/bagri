@@ -1,23 +1,5 @@
 package com.bagri.core.server.api.df.xml;
 
-import static com.bagri.core.Constants.pn_log_level;
-import static com.bagri.core.Constants.pn_schema_builder_pretty;
-import static org.junit.Assert.*;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.xml.xquery.XQItemType;
-
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.bagri.core.DataKey;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Element;
@@ -28,6 +10,20 @@ import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import javax.xml.xquery.XQItemType;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.bagri.core.Constants.*;
+import static org.junit.Assert.*;
 
 //@Ignore
 public class XmlBuilderTest {
@@ -374,7 +370,7 @@ public class XmlBuilderTest {
 	public void testBuildAuctionFromFile() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		File file = new File("..\\etc\\samples\\xmark\\auction.xml");
+		File file = new File("../etc/samples/xmark/auction.xml");
 		ParseResults results = parser.parse(file); 
 		List<Data> data = results.getResults();
 		assertNotNull(data);
@@ -390,8 +386,8 @@ public class XmlBuilderTest {
 	public void testBuildCatalog() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		InputStream fis = new FileInputStream("..\\etc\\samples\\xdm\\catalog.xml");
-		ParseResults results = parser.parse(fis); 
+		InputStream fis = new FileInputStream("../etc/samples/xdm/catalog.xml");
+		ParseResults results = parser.parse(fis);
 		List<Data> data = results.getResults();
 		assertNotNull(data);
 		XmlBuilder builder = new XmlBuilder(model);
@@ -466,7 +462,7 @@ public class XmlBuilderTest {
 	public void testBuildAuctionFromFileSparse() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		XmlStaxParser parser = new XmlStaxParser(model);
-		File file = new File("..\\etc\\samples\\xmark\\auction.xml");
+		File file = new File("../etc/samples/xmark/auction.xml");
 		ParseResults results = parser.parse(file); 
 		List<Data> data = results.getResults();
 		assertNotNull(data);

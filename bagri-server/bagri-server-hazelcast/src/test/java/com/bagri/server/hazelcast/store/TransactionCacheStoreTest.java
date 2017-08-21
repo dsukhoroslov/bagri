@@ -1,26 +1,6 @@
 package com.bagri.server.hazelcast.store;
 
-import static com.bagri.core.Constants.*;
-import static com.bagri.core.test.TestUtils.*;
-import static com.bagri.core.server.api.CacheConstants.CN_XDM_TRANSACTION;
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import com.bagri.core.api.BagriException;
-import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.ExpressionContainer;
@@ -35,9 +15,25 @@ import com.bagri.core.test.BagriManagementTest;
 import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.server.hazelcast.impl.TransactionManagementImpl;
-import com.bagri.server.hazelcast.store.TransactionCacheStore;
-import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.HazelcastInstance;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.server.api.CacheConstants.*;
+import static com.bagri.core.test.TestUtils.*;
+import static org.junit.Assert.*;
 
 public class TransactionCacheStoreTest extends BagriManagementTest {
 
@@ -48,13 +44,13 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		sampleRoot = "../../etc/samples/tpox/";
 		System.setProperty("hz.log.level", "info");
 		//System.setProperty("bdb.log.level", "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "store.properties");
-		System.setProperty(pn_config_path, "src\\test\\resources");
+		System.setProperty(pn_config_path, "src/test/resources");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
 
@@ -73,7 +69,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			Properties props = loadProperties("src\\test\\resources\\store.properties");
+			Properties props = loadProperties("src/test/resources/store.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);

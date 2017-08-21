@@ -1,10 +1,8 @@
 package com.bagri.client.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_schema_address;
-import static com.bagri.core.Constants.pn_schema_name;
-import static com.bagri.core.Constants.pn_schema_password;
-import static com.bagri.core.Constants.pn_schema_user;
-
+import com.bagri.core.api.ResultCursor;
+import com.bagri.core.test.ClientQueryManagementTest;
+import com.hazelcast.core.Hazelcast;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,10 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.core.api.ResultCursor;
-import com.bagri.core.test.ClientQueryManagementTest;
-import com.hazelcast.core.Hazelcast;
+import static com.bagri.core.Constants.*;
 
 public class QueryManagementImplTest extends ClientQueryManagementTest {
 
@@ -28,7 +23,7 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 		System.setProperty(pn_schema_name, "default");
 		System.setProperty(pn_schema_user, "guest");
 		System.setProperty(pn_schema_password, "password");
-		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		sampleRoot = "../../etc/samples/tpox/";
 	}
 
 	@AfterClass

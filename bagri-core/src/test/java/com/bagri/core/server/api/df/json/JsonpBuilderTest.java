@@ -1,19 +1,5 @@
 package com.bagri.core.server.api.df.json;
 
-import static com.bagri.core.Constants.pn_log_level;
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.json.stream.JsonGenerator;
-import javax.xml.xquery.XQItemType;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.bagri.core.DataKey;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Element;
@@ -24,8 +10,18 @@ import com.bagri.core.model.Occurrence;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.ParseResults;
-import com.bagri.core.server.api.df.xml.XmlBuilder;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import javax.json.stream.JsonGenerator;
+import javax.xml.xquery.XQItemType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
 
 public class JsonpBuilderTest {
 
