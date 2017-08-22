@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
@@ -291,8 +292,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		assertEquals(54, uris2.size());
 		
 		Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= map_test50", props);
-		assertEquals(uris2.size(), ((
-    ) results).size());
+		assertEquals(uris2.size(), ((ResultCollection) results).size());
 	}
 	
 }
