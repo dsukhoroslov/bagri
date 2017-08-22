@@ -20,7 +20,7 @@ Consists of the following Maven modules:
 Bagri is distributed under the Apache 2 License. 
 
 ### To start using it 
-download Bagri distributive from the [release section](https://github.com/dsukhoroslov/bagri/releases/tag/untagged-168eb0f1f0bf37296c38)
+download Bagri distributive from the [release section](https://github.com/dsukhoroslov/bagri/releases/tag/v1.1.2)
 
 Or, configure Maven dependencies in your project.
 

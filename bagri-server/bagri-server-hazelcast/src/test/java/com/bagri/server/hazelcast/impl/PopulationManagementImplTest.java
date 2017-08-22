@@ -1,13 +1,9 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.*;
-import static com.bagri.core.test.TestUtils.*;
-import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
-
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
+import com.bagri.core.system.Library;
+import com.bagri.core.system.Module;
+import com.bagri.core.system.Schema;
+import com.bagri.core.test.BagriManagementTest;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -15,13 +11,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.core.system.Library;
-import com.bagri.core.system.Module;
-import com.bagri.core.system.Schema;
-import com.bagri.core.test.BagriManagementTest;
-import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.support.util.PropUtils;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.test.TestUtils.*;
+import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
 public class PopulationManagementImplTest extends BagriManagementTest {
 
@@ -31,12 +27,12 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		sampleRoot = "../../etc/samples/tpox/";
 		//System.setProperty(pn_log_level, "info");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "store.properties");
-		System.setProperty(pn_config_path, "src\\test\\resources");
+		System.setProperty(pn_config_path, "src/test/resources");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
 
@@ -52,7 +48,7 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			Properties props = loadProperties("src\\test\\resources\\store.properties");
+			Properties props = loadProperties("src/test/resources/store.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());

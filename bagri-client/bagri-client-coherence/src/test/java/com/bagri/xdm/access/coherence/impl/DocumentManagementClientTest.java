@@ -1,17 +1,13 @@
 package com.bagri.xdm.access.coherence.impl;
 
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_DOCUMENT;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_ELEMENT;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_NAMESPACE_DICT;
-import static com.bagri.xdm.cache.api.XDMCacheConstants.CN_XDM_PATH_DICT;
-
+import com.bagri.xdm.api.test.XDMDocumentManagementTest;
+import com.tangosol.net.CacheFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.bagri.xdm.api.test.XDMDocumentManagementTest;
-import com.tangosol.net.CacheFactory;
 
 public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 
@@ -35,7 +31,7 @@ public class DocumentManagementClientTest extends XDMDocumentManagementTest {
 		CacheFactory.getCache(CN_XDM_NAMESPACE_DICT);
 		CacheFactory.getCache(CN_XDM_PATH_DICT);
 		System.out.println("cluster started");
-		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		sampleRoot = "../../etc/samples/tpox/";
 	}
 
 	@AfterClass

@@ -1,28 +1,24 @@
 package com.bagri.xqj;
 
-import static com.bagri.support.util.FileUtils.readTextFile;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
+import com.bagri.core.api.BagriException;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQCancelledException;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
 import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
+import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.bagri.core.api.BagriException;
+import static com.bagri.support.util.FileUtils.*;
+import static org.junit.Assert.*;
 
 public class BagriXQDataSourceTest {
 	
@@ -123,7 +119,7 @@ public class BagriXQDataSourceTest {
 		assertNotNull(xqc);
 		assertFalse(xqc.isClosed());
 
-		String dName = "..\\etc\\samples\\tpox\\";
+		String dName = "../etc/samples/tpox/";
 		String xml;
 		try {
 			xml = readTextFile(dName + "security5621.xml");
@@ -183,7 +179,7 @@ public class BagriXQDataSourceTest {
 	@Test
 	public void testStoreSecurity() throws XQException {
 
-		String dName = "..\\etc\\samples\\tpox\\";
+		String dName = "../etc/samples/tpox/";
 		String xml;
 		try {
 			xml = readTextFile(dName + "security1500.xml");

@@ -1,9 +1,11 @@
 package com.bagri.xqj;
 
-import static com.bagri.support.util.FileUtils.readTextFile;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
@@ -14,13 +16,10 @@ import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
+import java.io.IOException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import static com.bagri.support.util.FileUtils.*;
+import static org.junit.Assert.*;
 
 @Ignore
 public class BagriXQAxisTest {
@@ -33,7 +32,7 @@ public class BagriXQAxisTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		String dName = "..\\..\\etc\\samples\\test\\";
+		String dName = "../../etc/samples/test/";
 		String xml;
 		try {
 			xml = readTextFile(dName + "axis.xml");

@@ -1,24 +1,5 @@
 package com.bagri.server.hazelcast.predicate;
 
-import static com.bagri.core.Constants.*;
-import static com.bagri.core.test.TestUtils.*;
-import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import com.bagri.core.DocumentKey;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
@@ -30,6 +11,23 @@ import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.server.api.CacheConstants.*;
+import static com.bagri.core.test.TestUtils.*;
+import static org.junit.Assert.*;
 
 public class DocumentPredicateTest {
 
@@ -44,7 +42,7 @@ public class DocumentPredicateTest {
 		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
-		System.setProperty(pn_config_path, "src\\test\\resources");
+		System.setProperty(pn_config_path, "src/test/resources");
 
 		for (int i=0; i < cluster_size; i++) {
 			System.setProperty(pn_node_instance, String.valueOf(i));
@@ -61,7 +59,7 @@ public class DocumentPredicateTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Properties props = loadProperties("src\\test\\resources\\test.properties");
+		Properties props = loadProperties("src/test/resources/test.properties");
 		for (int i=0; i < cluster_size; i++) {
 			repos[i] = contexts[i].getBean(SchemaRepositoryImpl.class);
 			Schema schema = repos[i].getSchema();

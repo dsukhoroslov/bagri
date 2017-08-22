@@ -1,25 +1,7 @@
 package com.bagri.xquery.saxon;
 
-import static com.bagri.support.util.FileUtils.readTextFile;
-import static org.junit.Assert.*;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Iterator;
-import java.util.Properties;
-
-import javax.xml.namespace.QName;
-import javax.xml.xquery.XQException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.w3c.dom.Document;
-
 import com.bagri.support.util.XMLUtils;
-
 import net.sf.saxon.Configuration;
-import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.om.StructuredQName;
@@ -27,8 +9,17 @@ import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.BooleanValue;
-import net.sf.saxon.value.ObjectValue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+
+import javax.xml.xquery.XQException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static com.bagri.support.util.FileUtils.*;
+import static org.junit.Assert.*;
 
 public class XQProcessorTest {
 
@@ -56,7 +47,7 @@ public class XQProcessorTest {
 	public void testConvertionSpeed() throws Exception {
 		
 		//String xml = "<e>Hello World!</e>";
-		String fileName = "..\\..\\etc\\samples\\tpox\\security1500.xml";
+		String fileName = "../../etc/samples/tpox/security1500.xml";
 		String xml = readTextFile(fileName);
 
 		int count = 10000;
