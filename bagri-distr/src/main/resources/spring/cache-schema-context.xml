@@ -149,7 +149,8 @@
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
-					<hz:data-serializable-factory factory-id="1" class-name="com.bagri.server.hazelcast.serialize.DataSerializationFactoryImpl"/>
+					<hz:data-serializable-factory factory-id="2000" class-name="com.bagri.server.hazelcast.serialize.SystemSerializationFactory"/>
+					<hz:data-serializable-factory factory-id="3000" class-name="com.bagri.server.hazelcast.serialize.TaskSerializationFactory"/>
 				</hz:data-serializable-factories>
 				<hz:portable-factories>
 					<hz:portable-factory factory-id="2" class-name="com.bagri.server.hazelcast.serialize.PortableFactoryImpl"/>
