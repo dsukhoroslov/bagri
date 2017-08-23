@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.impl.ResultCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.core.DataKey;
@@ -38,7 +39,9 @@ import com.bagri.core.model.Document;
 import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.FragmentedDocument;
+import com.bagri.core.model.Null;
 import com.bagri.core.model.Path;
+import com.bagri.core.model.QueryResult;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
@@ -58,6 +61,7 @@ import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
+import com.bagri.support.util.CollectionUtils;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -346,33 +350,42 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Iterable<?> getDocuments(String pattern, Properties props) {
+	public Iterable<?> getDocuments(final String pattern, final Properties props) {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
-		//if (pattern.indexOf(fnTxFinish) < 0) {
-		//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
-		//}
+		String clientId = props.getProperty(pn_client_id);
+		final QueuedCollectionImpl qc = new QueuedCollectionImpl(this.hzInstance, clientId, "client:" + clientId); 
 		
-		int fetchSize = 0;
-		if (props != null) {
-			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-			//if (fetchSize > 0) {
-			//	query = new PagingPredicate<>(query, fetchSize);
-			//}
-		}
-		
-		java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
-		//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
-		ResultCollection contents = new ResultCollectionImpl(keys.size());
-		for (DocumentKey key: keys) {
-			Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-			if (content != null) {
-				contents.add(content);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
+				//if (pattern.indexOf(fnTxFinish) < 0) {
+				//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
+				//}
+				
+				int fetchSize = 0;
+				if (props != null) {
+					fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+					//if (fetchSize > 0) {
+					//	query = new PagingPredicate<>(query, fetchSize);
+					//}
+				}
+				
+				java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
+				//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
+				int cnt = 0;
+				for (DocumentKey key: keys) {
+					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
+					if (content != null) {
+						qc.add(content);
+						cnt++;
+					}
+				}
+				qc.add(Null._null);
+				logger.trace("getDocuments.exit; returning: {}", cnt);
 			}
-		}
-		
-		logger.trace("getDocuments.exit; returning: {}", contents.size());
-		return contents;
+		}).start();
+		return qc;
 	}
 
 	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {

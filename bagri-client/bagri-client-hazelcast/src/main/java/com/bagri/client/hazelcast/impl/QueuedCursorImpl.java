@@ -221,7 +221,7 @@ public class QueuedCursorImpl extends ResultCursorBase implements IdentifiedData
 	
 	@Override
 	public String toString() {
-		return "ResultCursor [clientId=" + clientId + ", memberId=" + memberId + 
+		return "QueuedCursorImpl [clientId=" + clientId + ", memberId=" + memberId + 
 			", queueSize=" + queueSize + ", position=" + position + ", batchSize=" + batchSize + "]";
 	}
 

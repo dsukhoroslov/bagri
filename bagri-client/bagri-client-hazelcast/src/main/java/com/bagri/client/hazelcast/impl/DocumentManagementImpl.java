@@ -1,5 +1,6 @@
 package com.bagri.client.hazelcast.impl;
 
+import static com.bagri.core.Constants.pn_client_id;
 import static com.bagri.core.api.BagriException.ecDocument;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
@@ -72,13 +73,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
 		// TODO: implement lazy iterable over results
 		Collection<Object> result = new ArrayList<>();
+		props.setProperty(pn_client_id, repo.getClientId());
 		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
 		Map<Member, Future<Iterable<?>>> results = execService.submitToAllMembers(task);
 		for (Map.Entry<Member, Future<Iterable<?>>> entry: results.entrySet()) {
 			try {
-				Iterator<?> itr = entry.getValue().get().iterator();
-				while (itr.hasNext()) {
-					result.add(itr.next());
+				QueuedCollectionImpl qc = (QueuedCollectionImpl) entry.getValue().get();
+				qc.init(repo.getHazelcastClient());
+				for (Object o: qc) {
+					result.add(o);
 				}
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("getDocuments; error getting result", ex);
