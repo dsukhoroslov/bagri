@@ -1,38 +1,68 @@
 package com.bagri.client.hazelcast.impl;
 
-import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_ResultCollection;
+import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_FixedCollection;
 import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class ResultCollectionImpl extends ResultCollection implements IdentifiedDataSerializable {
+public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSerializable {
+	
+    private final static Logger logger = LoggerFactory.getLogger(FixedCollectionImpl.class);
 
-    private final static Logger logger = LoggerFactory.getLogger(ResultCollectionImpl.class);
-
-	public ResultCollectionImpl() {
-		super();
+	private ArrayList<Object> results;
+	
+	public FixedCollectionImpl() {
+		//
 	}
 
-	public ResultCollectionImpl(int size) {
-		super(size);
+	public FixedCollectionImpl(int size) {
+		results = new ArrayList<>(size);
+	}
+	
+	public FixedCollectionImpl(Collection<Object> results) {
+		this(results.size());
+		this.results.addAll(results);
+	}
+	
+	//@Override
+	//public void init(SchemaRepository repo) {
+		// no-op
+	//}
+	
+	@Override
+	public void close() throws Exception {
+		results.clear();		
 	}
 
-	public ResultCollectionImpl(Collection<Object> results) {
-		super(results);
+	@Override
+	public boolean add(Object result) {
+		return results.add(result);
 	}
-
+	
+	@Override
+	public Iterator<Object> iterator() {
+		return results.iterator();
+	}
+	
+	@Override
+	public int size() {
+		return results.size();
+	}
+	
 	@Override
 	public int getFactoryId() {
 		return cli_factory_id;
@@ -40,7 +70,7 @@ public class ResultCollectionImpl extends ResultCollection implements Identified
 
 	@Override
 	public int getId() {
-		return cli_ResultCollection;
+		return cli_FixedCollection;
 	}
 
 	@Override
@@ -74,4 +104,5 @@ public class ResultCollectionImpl extends ResultCollection implements Identified
 		}
 	}
 
+	
 }

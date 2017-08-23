@@ -55,6 +55,10 @@ public abstract class BagriClientBase extends DB {
 		insertProps.setProperty(pn_document_data_format, format);
 
 		scanProps.setProperty(pn_document_data_format, format);
+		String fetchAsynch = System.getProperty(pn_client_fetchAsynch);
+		if (fetchAsynch != null) {
+			scanProps.setProperty(pn_client_fetchAsynch, fetchAsynch);
+		}
 		
 		if (storeMode != null) {
 			updateProps.setProperty(pn_client_storeMode, storeMode);

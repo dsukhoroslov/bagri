@@ -7,10 +7,11 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentsProvider extends TransactionAwareTask implements Callable<Iterable<?>> {
+public class DocumentsProvider extends TransactionAwareTask implements Callable<ResultCollection> {
 	
 	protected String pattern;
 	protected Properties props;
@@ -26,7 +27,7 @@ public class DocumentsProvider extends TransactionAwareTask implements Callable<
 	}
 
 	@Override
-	public Iterable<?> call() throws Exception {
+	public ResultCollection call() throws Exception {
 		return null;
 	}
 

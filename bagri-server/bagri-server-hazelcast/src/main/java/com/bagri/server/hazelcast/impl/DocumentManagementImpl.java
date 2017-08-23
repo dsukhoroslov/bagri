@@ -24,10 +24,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
-import com.bagri.client.hazelcast.impl.ResultCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
@@ -64,6 +66,7 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.CollectionUtils;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.PartitionPredicate;
@@ -97,6 +100,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 	
+	//private IExecutorService execSvc;
+	private ExecutorService execSvc;
 	//private Map<String, String> sharedMap;
 	
     public void setRepository(SchemaRepositoryImpl repo) {
@@ -109,6 +114,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
     	
+    	execSvc = Executors.newFixedThreadPool(32);
+    	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
 		//sharedMap = new HashMap<>(10);
 		//for (int j=0; j < 10; j++) {
 		//	sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100));
@@ -347,45 +354,60 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocumentUris.exit; returning: {}", uris);
 		return uris;
 	}
+	
+	private void fetchDocuments(String pattern, int fetchSize, ResultCollection cln) {
+		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
+		//if (pattern.indexOf(fnTxFinish) < 0) {
+		//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
+		//}
+		
+		//if (fetchSize > 0) {
+		//	query = new PagingPredicate<>(query, fetchSize);
+		//}
+		
+		java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
+		//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
+		int cnt = 0;
+		for (DocumentKey key: keys) {
+			Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
+			if (content != null) {
+				cln.add(content);
+				cnt++;
+			}
+		}
+		logger.trace("fetchDocuments.exit; fetched {} docs", cnt);
+	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Iterable<?> getDocuments(final String pattern, final Properties props) {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		String clientId = props.getProperty(pn_client_id);
-		final QueuedCollectionImpl qc = new QueuedCollectionImpl(this.hzInstance, clientId, "client:" + clientId); 
-		
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
-				//if (pattern.indexOf(fnTxFinish) < 0) {
-				//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
-				//}
-				
-				int fetchSize = 0;
-				if (props != null) {
-					fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-					//if (fetchSize > 0) {
-					//	query = new PagingPredicate<>(query, fetchSize);
-					//}
+		final int fetchSize;
+		boolean asynch = false;
+		if (props != null) {
+			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		} else {
+			fetchSize = 0;
+		}
+
+		final ResultCollection cln; 
+		if (asynch) {
+			String clientId = props.getProperty(pn_client_id);
+			cln = new QueuedCollectionImpl(hzInstance, "client:" + clientId);
+			execSvc.execute(new Runnable() {
+				@Override
+				public void run() {
+					fetchDocuments(pattern, fetchSize, cln);
+					cln.add(Null._null);
 				}
-				
-				java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
-				//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
-				int cnt = 0;
-				for (DocumentKey key: keys) {
-					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-					if (content != null) {
-						qc.add(content);
-						cnt++;
-					}
-				}
-				qc.add(Null._null);
-				logger.trace("getDocuments.exit; returning: {}", cnt);
-			}
-		}).start();
-		return qc;
+			});
+		} else {
+			cln = new FixedCollectionImpl(fetchSize);
+			fetchDocuments(pattern, fetchSize, cln);
+		}
+		 
+		logger.trace("getDocuments.exit; returning: {}", cln);
+		return cln;
 	}
 
 	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {

@@ -31,6 +31,7 @@ public class Constants {
 	public static final String pn_client_connectedAt = "bdb.client.connectedAt"; 
 	public static final String pn_client_memberId = "bdb.client.member"; 
 
+	public static final String pn_client_fetchAsynch = "bdb.client.fetchAsynch";
 	public static final String pn_client_fetchSize = "bdb.client.fetchSize";
 	public static final String pn_client_healthCheck = "bdb.client.healthCheck";
 	public static final String pn_client_loginTimeout = "bdb.client.loginTimeout";

@@ -1,37 +1,11 @@
 package com.bagri.core.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
-public abstract class ResultCollection implements Iterable<Object> {
+public interface ResultCollection extends AutoCloseable, Iterable<Object> {
 	
-	protected ArrayList<Object> results = new ArrayList<>();
+	//void init(SchemaRepository repo);
 	
-	public ResultCollection() {
-		//
-	}
-
-	public ResultCollection(int size) {
-		this.results.ensureCapacity(size);
-	}
+	boolean add(Object result);
 	
-	public ResultCollection(Collection<Object> results) {
-		this.results.ensureCapacity(results.size());
-		this.results.addAll(results);
-	}
-	
-	public boolean add(Object result) {
-		return results.add(result);
-	}
-	
-	@Override
-	public Iterator<Object> iterator() {
-		return results.iterator();
-	}
-	
-	public int size() {
-		return results.size();
-	}
+	int size();
 
 }
