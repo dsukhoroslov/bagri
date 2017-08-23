@@ -1,8 +1,15 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.*;
-import static org.junit.Assert.*;
+import com.bagri.core.model.NodeKind;
+import com.bagri.core.model.Occurrence;
+import com.bagri.core.model.Path;
+import com.bagri.core.server.api.ModelManagement;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import javax.xml.xquery.XQItemType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -11,17 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.xml.xquery.XQItemType;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import com.bagri.core.model.NodeKind;
-import com.bagri.core.model.Occurrence;
-import com.bagri.core.model.Path;
-import com.bagri.core.server.api.ModelManagement;
+import static com.bagri.core.Constants.*;
+import static org.junit.Assert.*;
 
 public class ConcurrentModelMgmntTest {
 	
@@ -33,7 +31,7 @@ public class ConcurrentModelMgmntTest {
 		//System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty(pn_config_properties_file, "test.properties");
-		System.setProperty(pn_config_path, "src\\test\\resources");
+		System.setProperty(pn_config_path, "src/test/resources");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
 

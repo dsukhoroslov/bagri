@@ -1,6 +1,11 @@
 package com.bagri.core.server.api.df.json;
 
-import static org.junit.Assert.*;
+import com.bagri.core.model.Data;
+import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.server.api.ParseResults;
+import com.bagri.core.server.api.impl.ModelManagementImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,14 +13,7 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.bagri.core.model.Data;
-import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.ParseResults;
-import com.bagri.core.server.api.df.json.JsonpParser;
-import com.bagri.core.server.api.impl.ModelManagementImpl;
+import static org.junit.Assert.*;
 
 public class JsonpParserTest {
 
@@ -93,19 +91,19 @@ public class JsonpParserTest {
 	public void testParseSecurity() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		JsonpParser parser = new JsonpParser(model);
-		File f = new File("..\\etc\\samples\\json\\security1500.json");
+		File f = new File("../etc/samples/json/security1500.json");
 		ParseResults results = parser.parse(f); 
 		List<Data> data = results.getResults();
 		assertNotNull(data);
 		assertEquals(45, data.size());
-		FileReader fr = new FileReader("..\\etc\\samples\\json\\security5621.json");
+		FileReader fr = new FileReader("../etc/samples/json/security5621.json");
 		results = parser.parse(fr); 
 		data = results.getResults();
 		//System.out.println("data: " + data);
 		assertNotNull(data);
 		assertEquals(44, data.size()); 
-		InputStream fis = new FileInputStream("..\\etc\\samples\\json\\security9012.json");
-		results = parser.parse(fis); 
+		InputStream fis = new FileInputStream("../etc/samples/json/security9012.json");
+		results = parser.parse(fis);
 		data = results.getResults();
 		assertNotNull(data);
 		assertEquals(56, data.size()); 

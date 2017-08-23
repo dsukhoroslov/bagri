@@ -1,25 +1,5 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.*;
-import static com.bagri.core.test.TestUtils.*;
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.xml.namespace.QName;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import com.bagri.core.model.Document;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
@@ -33,7 +13,24 @@ import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.bagri.core.Constants.*;
+import static com.bagri.core.test.TestUtils.*;
+import static org.junit.Assert.*;
 
 public class UniqueIndexManagementTest extends BagriManagementTest {
 
@@ -41,12 +38,12 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		sampleRoot = "../../etc/samples/tpox/";
 		//System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
-		System.setProperty(pn_config_path, "src\\test\\resources");
+		System.setProperty(pn_config_path, "src/test/resources");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
 
@@ -61,7 +58,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		SchemaRepositoryImpl xdmRepo = (SchemaRepositoryImpl) xRepo; 
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
-			Properties props = loadProperties("src\\test\\resources\\test.properties");
+			Properties props = loadProperties("src/test/resources/test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			String typePath = "/{http://tpox-benchmark.com/security}Security";

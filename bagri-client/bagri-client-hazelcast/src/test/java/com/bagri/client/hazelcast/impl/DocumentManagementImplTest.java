@@ -1,27 +1,18 @@
 package com.bagri.client.hazelcast.impl;
 
-import static com.bagri.core.Constants.*;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-
+import com.bagri.core.model.Document;
+import com.bagri.core.test.DocumentManagementTest;
+import com.hazelcast.core.Hazelcast;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.core.model.Document;
-import com.bagri.core.test.DocumentManagementTest;
-import com.bagri.core.test.ServerLauncher;
-import com.hazelcast.core.Hazelcast;
+import static com.bagri.core.Constants.*;
+import static org.junit.Assert.*;
 
 public class DocumentManagementImplTest extends DocumentManagementTest {
-	
-	private static ServerLauncher launcher;
-	private static final String srvDir = "C:\\Work\\Bagri\\git\\bagri\\bagri-server\\bagri-server-hazelcast";
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -32,7 +23,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		System.setProperty(pn_schema_name, "default");
 		System.setProperty(pn_schema_user, "guest");
 		System.setProperty(pn_schema_password, "password");
-		sampleRoot = "..\\..\\etc\\samples\\tpox\\";
+		sampleRoot = "../../etc/samples/tpox/";
 	}
 
 	@AfterClass
