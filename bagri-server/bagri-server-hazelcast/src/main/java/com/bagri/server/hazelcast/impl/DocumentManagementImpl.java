@@ -327,10 +327,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		
 		if (props != null) {
-			int pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-			if (pageSize > 0) {
-				query = new PagingPredicate<>(query, pageSize);
-				//query = Predicates.and(new PagingPredicate(pageSize), query);
+			int fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+			if (fetchSize > 0) {
+				query = new LimitPredicate<>(fetchSize, query);
 			}
 		} //else {
 		//  Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
@@ -358,9 +357,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	private void fetchDocuments(String pattern, int fetchSize, ResultCollection cln) {
 		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
-		//if (pattern.indexOf(fnTxFinish) < 0) {
-		//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
-		//}
 		if (fetchSize > 0) {
 			query = new LimitPredicate<>(fetchSize, query);
 		}
