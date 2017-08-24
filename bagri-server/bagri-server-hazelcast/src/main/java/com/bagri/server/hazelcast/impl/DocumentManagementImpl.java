@@ -60,6 +60,7 @@ import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
+import com.bagri.server.hazelcast.predicate.LimitPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
@@ -360,10 +361,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		//if (pattern.indexOf(fnTxFinish) < 0) {
 		//	query = Predicates.and(query, Predicates.equal(fnTxFinish, TX_NO));
 		//}
-		
-		//if (fetchSize > 0) {
-		//	query = new PagingPredicate<>(query, fetchSize);
-		//}
+		if (fetchSize > 0) {
+			query = new LimitPredicate<>(fetchSize, query);
+		}
 		
 		java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
 		//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);

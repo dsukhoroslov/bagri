@@ -4,6 +4,7 @@ import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.server.hazelcast.predicate.GroupCountPredicate;
+import com.bagri.server.hazelcast.predicate.LimitPredicate;
 import com.bagri.server.hazelcast.predicate.QueryPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
@@ -18,6 +19,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	public static final int cli_CollectionPredicate = 204;
 	public static final int cli_GroupCountPredicate = 205;
 	public static final int cli_DocVisiblePredicate = 206;
+	public static final int cli_LimitPredicate = 207;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -30,6 +32,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_ResultsQueryPredicate: return new ResultsQueryPredicate();
 			case cli_CollectionPredicate: return new CollectionPredicate();
 			case cli_DocVisiblePredicate: return new DocVisiblePredicate(); 
+			case cli_LimitPredicate: return new LimitPredicate(); 
 		}
 		return super.create(typeId);
 	}
