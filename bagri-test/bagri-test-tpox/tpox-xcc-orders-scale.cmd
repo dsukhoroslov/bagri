@@ -21,7 +21,7 @@ goto exit
 :instructions
 
 echo Usage:
-echo %app_home%\tpox-xqj-orders.cmd
+echo %app_home%\tpox-xcc-orders.cmd
 goto exit
 
 :exit

@@ -9,7 +9,6 @@ import static com.bagri.core.query.PathBuilder.*;
 import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.support.util.FileUtils.def_encoding;
-import static com.bagri.support.util.XMLUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +42,6 @@ import com.bagri.core.model.Elements;
 import com.bagri.core.model.FragmentedDocument;
 import com.bagri.core.model.Null;
 import com.bagri.core.model.Path;
-import com.bagri.core.model.QueryResult;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
@@ -64,13 +62,12 @@ import com.bagri.server.hazelcast.predicate.LimitPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
-import com.bagri.support.util.CollectionUtils;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.query.PagingPredicate;
-import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -269,13 +266,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	public Document getDocument(long docKey) {
-		Document doc = getDocument(factory.newDocumentKey(docKey)); 
-		//logger.trace("getDocument; returning: {}", doc);
-		return doc;
+		return getDocument(factory.newDocumentKey(docKey));
 	}
 	
-	private Document getDocument(DocumentKey docKey) {
-		//return xddCache.get(docKey);
+	public Document getDocument(DocumentKey docKey) {
 		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
 	}
 
@@ -292,12 +286,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	private Object getDocumentContent(DocumentKey docKey) {
-		//Object content = cntCache.get(docKey);
-		Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
-		if (content == null) {
-			// build it with builder!
-		}
-		return content; 
+		return ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
 	}
 
 	@Override
@@ -321,7 +310,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
 		Predicate<DocumentKey, Document> query;
 		if (pattern != null) {
-			query = DocumentPredicateBuilder.getQuery(pattern);
+			query = DocumentPredicateBuilder.getQuery(repo, pattern);
+			if (query == null) {
+				return Collections.emptyList();
+			}
 		} else {
 			query = Predicates.equal(fnTxFinish, TX_NO);
 		}
@@ -338,7 +330,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		java.util.Collection<Document> docs = xddCache.values(query);
 		java.util.Collection<String> uris = new ArrayList<>(docs.size());
-		if (pattern.indexOf(fnTxFinish) < 0) {
+		if (pattern != null && pattern.indexOf(fnTxFinish) < 0) {
 			for (Document doc: docs) {
 				if (doc.getTxFinish() == TX_NO) {
 					uris.add(doc.getUri());
@@ -355,8 +347,62 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return uris;
 	}
 	
+	//@Override
+	public java.util.Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException {
+		int pageSize = 100;
+		if (props != null) {
+			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
+		} 
+		PagingPredicate<DocumentKey, Document> pager = null;
+		Predicate<DocumentKey, Document> query = new DocVisiblePredicate();
+		((DocVisiblePredicate) query).setRepository(repo);
+		if (collection == null) {
+			if (pageSize > 0) {
+				pager = new PagingPredicate<>(query, pageSize);
+				query = pager;
+			}
+		} else {
+			Collection cln = repo.getSchema().getCollection(collection);
+			if (cln == null) {
+				return null;
+			}
+			query = Predicates.and(query, new CollectionPredicate(cln.getId()));
+			if (pageSize > 0) {
+				pager = new PagingPredicate<>(query, pageSize);
+				query = pager;
+			}
+		}
+		
+		List<String> result = new ArrayList<>(); 
+		if (pager != null) {
+			int size;
+			do {
+				size = result.size(); 
+				fillUris(query, result);
+				pager.nextPage();
+			} while (result.size() > size);
+		} else {
+			fillUris(query, result);
+		}
+		
+		// does not work because of a bug in HZ
+		//Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
+		//if (pager != null) {
+		//	int size;
+		//	do {
+		//		size = result.size();  
+		//		result.addAll(xddCache.project(pro, query));
+		//		pager.nextPage();
+		//	} while (result.size() > size);
+		//} else {
+		//	result.addAll(xddCache.project(pro, query));
+		//}
+		return result;
+	}
+	
+	
 	private void fetchDocuments(String pattern, int fetchSize, ResultCollection cln) {
-		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(pattern);
+		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
 		if (fetchSize > 0) {
 			query = new LimitPredicate<>(fetchSize, query);
 		}
@@ -796,17 +842,20 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    	} else {
 		    	// we do changes inplace, no new version created
 	    		boolean mergeElts = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
-	    		java.util.Collection<DataKey> dKeys = ddSvc.getElementKeys(docId);
-		    	Set<Integer> pIds = new HashSet<>(data.size());
-		    	for (Data dt: data) {
-		    		pIds.add(dt.getPathId());
-		    	}
-		    	logger.trace("processDocument; found {} element keys for docId {}; paths: {}", dKeys.size(), docId, pIds.size());
-	    		// delete old elements
-		    	for (DataKey dKey: dKeys) {
-	    			if (!mergeElts && !pIds.contains(dKey.getPathId())) {
-	        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);
-	    			}
+	    		if (!mergeElts) {
+			    	Set<Integer> pIds = new HashSet<>(data.size());
+			    	for (Data dt: data) {
+			    		pIds.add(dt.getPathId());
+			    	}
+		    		// delete old elements
+			    	java.util.Collection<Path> paths = model.getTypePaths(updated.getTypeRoot());
+			    	Set<Integer> pathIds = new HashSet<>(paths.size());
+					for (Path path: paths) {
+						DataKey dKey = factory.newDataKey(updated.getDocumentKey(), path.getPathId());
+		    			if (!pIds.contains(dKey.getPathId())) {
+		        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);
+		    			}
+		    		}
 	    		}
 	    	}
 		}
@@ -817,7 +866,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
 		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());
 
-		String collections = props == null ? null : props.getProperty(pn_document_collections);
+		String collections = props.getProperty(pn_document_collections);
 		if (collections != null) {
 			StringTokenizer tc = new StringTokenizer(collections, ", ", false);
 			while (tc.hasMoreTokens()) {
@@ -985,10 +1034,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
     	Set<Integer> pathIds = new HashSet<>(paths.size());
-    	Map<DataKey, Elements> eMap = ddSvc.getElements(newDoc.getDocumentKey());
+    	//Map<DataKey, Elements> eMap = ddSvc.getElements(newDoc.getDocumentKey());
 		for (Path path: paths) {
 			DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
-			Elements elts = eMap.get(dKey);
+			//Elements elts = eMap.get(dKey);
+			Elements elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
 			if (elts != null) {
 				for (Element elt: elts.getElements()) {
 					indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());
@@ -1142,59 +1192,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return clNames;
 	}
 
-	@Override
-	public java.util.Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException {
-		int pageSize = 100;
-		if (props != null) {
-			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
-		} 
-		PagingPredicate<DocumentKey, Document> pager = null;
-		Predicate<DocumentKey, Document> query = new DocVisiblePredicate();
-		((DocVisiblePredicate) query).setRepository(repo);
-		if (collection == null) {
-			if (pageSize > 0) {
-				pager = new PagingPredicate<>(query, pageSize);
-				query = pager;
-			}
-		} else {
-			Collection cln = repo.getSchema().getCollection(collection);
-			if (cln == null) {
-				return null;
-			}
-			query = Predicates.and(query, new CollectionPredicate(cln.getId()));
-			if (pageSize > 0) {
-				pager = new PagingPredicate<>(query, pageSize);
-				query = pager;
-			}
-		}
-		
-		List<String> result = new ArrayList<>(); 
-		if (pager != null) {
-			int size;
-			do {
-				size = result.size(); 
-				fillUris(query, result);
-				pager.nextPage();
-			} while (result.size() > size);
-		} else {
-			fillUris(query, result);
-		}
-		
-		// does not work because of a bug in HZ
-		//Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
-		//if (pager != null) {
-		//	int size;
-		//	do {
-		//		size = result.size();  
-		//		result.addAll(xddCache.project(pro, query));
-		//		pager.nextPage();
-		//	} while (result.size() > size);
-		//} else {
-		//	result.addAll(xddCache.project(pro, query));
-		//}
-		return result;
-	}
-	
 	private void fillUris(Predicate<DocumentKey, Document> query, java.util.Collection<String> uris) throws BagriException {
 		java.util.Collection<Document> docs = xddCache.values(query);
 		for (Document doc: docs) {

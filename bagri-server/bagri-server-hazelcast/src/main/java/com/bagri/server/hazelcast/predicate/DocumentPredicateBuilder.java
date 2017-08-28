@@ -3,18 +3,20 @@ package com.bagri.server.hazelcast.predicate;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.model.Document;
 import com.bagri.core.query.Comparison;
+import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.system.Collection;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 public class DocumentPredicateBuilder {
 	
 	@SuppressWarnings("unchecked")
-	public static Predicate<DocumentKey, Document> getQuery(String pattern) {
+	public static Predicate<DocumentKey, Document> getQuery(SchemaRepository repo, String pattern) {
 		String[] parts = pattern.split(",");
 		Predicate<DocumentKey, Document> result = null;
 		for (String part: parts) {
 			//logger.trace("getDocumentUris; translating query part: {}", part);
-			Predicate<DocumentKey, Document> query = toPredicate(part.trim());
+			Predicate<DocumentKey, Document> query = toPredicate(repo, part.trim());
 			if (query != null) {
 				if (result == null) {
 					result = query;
@@ -29,7 +31,16 @@ public class DocumentPredicateBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static Predicate<DocumentKey, Document> toPredicate(String query) {
+	private static Predicate<DocumentKey, Document> toPredicate(SchemaRepository repo, String query) {
+		if (query.startsWith("collections.contains")) {
+			String clName = query.substring(21, query.length() - 1);
+			Collection cln = repo.getSchema().getCollection(clName);
+			if (cln == null) {
+				return null;
+			}
+			return new CollectionPredicate(cln.getId());
+		}
+		
 		int pos = query.indexOf(" ");
 		if (pos > 0) {
 			String attr = query.substring(0, pos); 

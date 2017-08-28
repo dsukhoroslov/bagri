@@ -30,7 +30,7 @@ goto exit
 :instructions
 
 echo Usage:
-echo %app_home%\tpox-xqj-sec-ml.cmd
+echo %app_home%\tpox-xcc-sec.cmd
 goto exit
 
 :exit

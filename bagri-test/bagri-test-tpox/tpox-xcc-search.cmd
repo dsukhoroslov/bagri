@@ -28,7 +28,7 @@ goto exit
 :instructions
 
 echo Usage:
-echo %app_home%\tpox-xqj-sec-ml.cmd
+echo %app_home%\tpox-xcc-search.cmd
 goto exit
 
 :exit

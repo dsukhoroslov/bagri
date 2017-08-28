@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -29,6 +31,7 @@ import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionState;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Counter;
+import com.bagri.core.model.Null;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.TriggerAction.Order;
@@ -72,6 +75,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private ITopic<Counter> cTopic;
+	private ExecutorService execPool;
 	private IExecutorService execService;
 	private IMap<Long, Transaction> txCache; 
     private TriggerManagementImpl triggerManager;
@@ -94,6 +98,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		txGen.adjust(TX_START);
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		execService = hzInstance.getExecutorService(PN_XDM_TRANS_POOL);
+    	execPool = Executors.newFixedThreadPool(32);
 	}
 	
 	public long getTransactionTimeout() {
@@ -303,7 +308,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		return commited; 
 	}
 	
-	void updateCounters(int created, int updated, int deleted) throws BagriException {
+	void updateCounters(final int created, final int updated, final int deleted) throws BagriException {
 		long txId = getCurrentTxId();
 		if (txId > TX_NO) {
 			Transaction xTx = txCache.get(txId);
@@ -314,8 +319,14 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 				throw new BagriException("no transaction found for TXID: " + txId, ecTransNotFound);
 			}
 		} else {
-			cTopic.publish(new Counter(true, created, updated, deleted));
 			//throw new BagriException("not in transaction", ecTransWrongState);
+			//cTopic.publish(new Counter(true, created, updated, deleted));
+			execPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					cTopic.publish(new Counter(true, created, updated, deleted));
+				}
+			});
 		}
 	}
 	

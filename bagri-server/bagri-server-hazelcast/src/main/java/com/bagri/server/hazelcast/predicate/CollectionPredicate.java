@@ -8,14 +8,18 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.model.Document;
+import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
+import com.hazelcast.spring.context.SpringAware;
 
+//@SpringAware
 public class CollectionPredicate implements Predicate<DocumentKey, Document>, IdentifiedDataSerializable {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(CollectionPredicate.class);
@@ -34,7 +38,7 @@ public class CollectionPredicate implements Predicate<DocumentKey, Document>, Id
 	
 	public CollectionPredicate(int clnId) {
 		this.clnId = clnId;
-		logger.info("<init>; clnId: {}", clnId);
+		logger.trace("<init>; clnId: {}", clnId);
 	}
 
 	@Override

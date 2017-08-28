@@ -89,7 +89,7 @@
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
 				cache-deserialized-values="NEVER" statistics-enabled="${bdb.schema.data.stats.enabled}">
 				<hz:indexes>
-					<hz:index attribute="__key#documentKey"/>
+					<!--hz:index attribute="__key#documentKey"/-->
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>
 			</hz:map>

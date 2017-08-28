@@ -30,23 +30,13 @@ public interface DocumentManagement {
 	 * return contents of Documents matching provided pattern
 	 * 
 	 * @param pattern String; the query string conforming to syntax: Document attribute CMP value,
-	 * for instance: createdBy = admin, bytes &gt; 3000, uri like security%
+	 * for instance: createdBy = admin, bytes &gt; 3000, uri like security%, collections.contains(securities)
 	 * @param props contains query processing instructions
 	 * @return Iterable over the contents of matched documents
 	 * @throws BagriException in case of any error
 	 */
 	Iterable<?> getDocuments(String pattern, Properties props) throws BagriException;
 	
-	/**
-	 * return Document uris which belongs to the collection
-	 * 
-	 * @param collection String; the schema collection name
-	 * @param props contains request processing instructions
-	 * @return Collection&lt;String&gt; - Document uris belonging to the collection
-	 * @throws BagriException in case of any error
-	 */
-	Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException;
-
 	/**
 	 * return Collection names registered in Repository
 	 * 

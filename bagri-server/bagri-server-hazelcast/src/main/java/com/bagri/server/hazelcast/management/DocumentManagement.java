@@ -366,7 +366,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedOperation(description="Return Documents which belongs to Collection")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "clnName", description = "Collection name"),
+		@ManagedOperationParameter(name = "clName", description = "Collection name"),
 		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
 	public java.util.Collection<String> getCollectionDocuments(String clName, String props) {
 		if (clName != null && !"All Documents".equals(clName)) {
@@ -378,8 +378,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			java.util.Collection<String> result = docManager.getCollectionDocumentUris(clName, propsFromString(props));
-			logger.debug("getCollectionDocuments; returning {} ids", result.size());
+			java.util.Collection<String> result = docManager.getDocumentUris("collections.contains(" + clName + ")", propsFromString(props));
+			logger.debug("getCollectionDocuments; returning {} uris", result.size());
 			return result;
 		} catch (BagriException | IOException ex) {
 			logger.error("getCollectionDocuments.error", ex);
