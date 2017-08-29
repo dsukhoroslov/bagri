@@ -1,5 +1,6 @@
 package com.bagri.rest.service;
 
+import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.system.DataFormat.df_json;
 import static com.bagri.core.system.DataFormat.df_xml;
@@ -63,16 +64,21 @@ public class DocumentService  extends RestService {
 		logger.trace("getDocuments.enter; query: {}, page: {}, size: {}", query, page, size);
 		DocumentManagement docMgr = getDocManager();
     	try {
-            Collection<String> uris = docMgr.getDocumentUris(query, null);
-            uris = new ArrayList<>(uris);
-            Collections.sort((List) uris);
+    		Properties props = new Properties();
+    		props.setProperty(pn_client_fetchSize, String.valueOf(size));
+            Iterable<String> uris = docMgr.getDocumentUris(query, props);
+            List<String> names = new ArrayList<>(size);
+            for (String uri: uris) {
+            	names.add(uri);
+            }
+            Collections.sort(names);
             DocumentBean[] docs = new DocumentBean[size];
             long now = new java.util.Date().getTime();
             int start = page == 0 ? 0 : (page - 1) * size;
-            if (start >= uris.size()) {
-            	start = uris.size() - size;
+            if (start >= names.size()) {
+            	start = names.size() - size;
             } 
-            for (int i = 0; i < size && start + i < uris.size(); i++) {
+            for (int i = 0; i < size && start + i < names.size(); i++) {
             	String uri = ((List<String>) uris).get(i);
             	docs[i] = new DocumentBean(uri, now, "owner", "xml", "utf-8", 1000);
             }
@@ -132,7 +138,7 @@ public class DocumentService  extends RestService {
 	public Response deleteDocument(@PathParam("uri") String uri) {
 		DocumentManagement docMgr = getDocManager();
     	try {
-            docMgr.removeDocument(uri);
+            docMgr.removeDocument(uri, null);
             return Response.ok(uri).build();
     	} catch (Exception ex) {
     		logger.error("deleteDocument.error", ex);

@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.serialize;
 
 import com.bagri.server.hazelcast.task.auth.UserAuthenticator;
-import com.bagri.server.hazelcast.task.doc.CollectionDocumentsRemover;
+import com.bagri.server.hazelcast.task.doc.DocumentsRemover;
 import com.bagri.server.hazelcast.task.doc.CollectionsProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.server.hazelcast.task.doc.DocumentCollectionUpdater;
@@ -136,7 +136,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			case cli_RemoveCollectionDocumentsTask: return new CollectionDocumentsRemover();
+			case cli_RemoveCollectionDocumentsTask: return new DocumentsRemover();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProvideCollectionsTask: return new CollectionsProvider();
 			case cli_CreateDocumentTask: return new DocumentCreator();

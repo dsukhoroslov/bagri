@@ -32,7 +32,7 @@ public abstract class BagriClientBase extends DB {
     protected final Properties insertProps = new Properties();
     protected final Properties scanProps = new Properties();
     protected final Properties updateProps = new Properties();
-    // no delete props
+    protected final Properties deleteProps = new Properties();
     
     public BagriClientBase() {
     	String format = System.getProperty(pn_document_data_format);
@@ -76,6 +76,10 @@ public abstract class BagriClientBase extends DB {
 		updateProps.setProperty(pn_document_data_format, format);
 		boolean merge = Boolean.parseBoolean(System.getProperty(pn_document_map_merge, "true"));
 		updateProps.setProperty(pn_document_map_merge, String.valueOf(merge));
+
+		if (txLevel != null) {
+			deleteProps.setProperty(pn_client_txLevel, txLevel);
+		}
     }
 	
 	@Override

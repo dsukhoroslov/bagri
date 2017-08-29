@@ -106,7 +106,7 @@ public class XDMClientApp implements BagriClientApp {
 	@Override
 	public void deleteDocument(String uri) throws BagriException {
 
-		xRepo.getDocumentManagement().removeDocument(uri);
+		xRepo.getDocumentManagement().removeDocument(uri, null);
 	}
 	
 	private int storeDocument(String uri, String content) throws BagriException {

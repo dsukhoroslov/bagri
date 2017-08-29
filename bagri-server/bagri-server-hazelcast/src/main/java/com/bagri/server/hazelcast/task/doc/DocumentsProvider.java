@@ -10,7 +10,7 @@ import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentsProvider extends com.bagri.client.hazelcast.task.doc.DocumentsProvider {
+public class DocumentsProvider<T> extends com.bagri.client.hazelcast.task.doc.DocumentsProvider<T> {
 
 	private transient DocumentManagement docMgr;
     
@@ -21,11 +21,11 @@ public class DocumentsProvider extends com.bagri.client.hazelcast.task.doc.Docum
 	}
 
     @Override
-	public ResultCollection call() throws Exception {
+	public ResultCollection<T> call() throws Exception {
     	
     	// not sure we have to check it at all..
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
-    	return (ResultCollection) docMgr.getDocuments(pattern, props);
+    	return (ResultCollection<T>) docMgr.getDocuments(pattern, props);
 	}
 
 

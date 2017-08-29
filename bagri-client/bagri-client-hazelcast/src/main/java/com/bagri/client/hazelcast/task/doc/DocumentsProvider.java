@@ -11,7 +11,7 @@ import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentsProvider extends TransactionAwareTask implements Callable<ResultCollection> {
+public class DocumentsProvider<T> extends TransactionAwareTask implements Callable<ResultCollection<T>> {
 	
 	protected String pattern;
 	protected Properties props;
@@ -27,7 +27,7 @@ public class DocumentsProvider extends TransactionAwareTask implements Callable<
 	}
 
 	@Override
-	public ResultCollection call() throws Exception {
+	public ResultCollection<T> call() throws Exception {
 		return null;
 	}
 

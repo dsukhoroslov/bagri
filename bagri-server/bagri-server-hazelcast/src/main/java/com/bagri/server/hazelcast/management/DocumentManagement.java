@@ -234,10 +234,11 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	@ManagedOperation(description="Remove Document")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
-	public boolean removeDocument(String uri) {
+		@ManagedOperationParameter(name = "uri", description = "Document identifier"),
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public boolean removeDocument(String uri, String properties) {
 		try {
-			docManager.removeDocument(uri);
+			docManager.removeDocument(uri, propsFromString(properties));
 			return true;
 		} catch (Exception ex) {
 			logger.error("removeDocument.error: " + ex.getMessage(), ex);
@@ -368,7 +369,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "clName", description = "Collection name"),
 		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
-	public java.util.Collection<String> getCollectionDocuments(String clName, String props) {
+	public Iterable<String> getCollectionDocuments(String clName, String props) {
 		if (clName != null && !"All Documents".equals(clName)) {
 			Collection cln = schemaManager.getEntity().getCollection(clName);
 			if (cln == null) {
@@ -378,8 +379,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			java.util.Collection<String> result = docManager.getDocumentUris("collections.contains(" + clName + ")", propsFromString(props));
-			logger.debug("getCollectionDocuments; returning {} uris", result.size());
+			Iterable<String> result = docManager.getDocumentUris("collections.contains(" + clName + ")", propsFromString(props));
+			logger.debug("getCollectionDocuments; returning {} uris", result);
 			return result;
 		} catch (BagriException | IOException ex) {
 			logger.error("getCollectionDocuments.error", ex);
@@ -390,10 +391,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Return Documents matching the pattern provided")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100")})
-	public java.util.Collection<String> getDocumentUris(String pattern) {
+	public Iterable<String> getDocumentUris(String pattern) {
 		try {
-			java.util.Collection<String> result = docManager.getDocumentUris(pattern, null);
-			logger.debug("getDocumentUris; returning {} ids", result.size());
+			Iterable<String> result = docManager.getDocumentUris(pattern, null);
+			logger.debug("getDocumentUris; returning {}", result);
 			return result;
 		} catch (BagriException ex) {
 			logger.error("getDocumentUris.error", ex);

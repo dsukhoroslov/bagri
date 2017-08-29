@@ -5,6 +5,7 @@ import com.bagri.client.hazelcast.DocumentPathKey;
 import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.client.hazelcast.PathIndexKey;
 import com.bagri.client.hazelcast.QueryParamsKey;
+import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
@@ -27,6 +28,7 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 	public static final int cli_DocumentPathKey = 121; 
 	public static final int cli_PathIndexKey = 122; 
 	public static final int cli_QueryParamsKey = 123;
+	public static final int cli_UrlHashKey = 124;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -40,6 +42,7 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 
 			case cli_QueryParamsKey: return new QueryParamsKey();
+			case cli_UrlHashKey: return new UrlHashKey();
 		}
 		return null;
 	}

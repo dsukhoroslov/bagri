@@ -171,6 +171,7 @@ public class BagriQueryClient extends BagriClientBase {
 	public Status delete(final String table, final String key) {
 		HashMap<String, Object> params = new HashMap<>();
 		params.put("uri", URI.create(key));
+		params.put("props", deleteProps);
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qDelete, params, queryProps)) {
 			if (cursor.next()) {
 				return Status.OK;

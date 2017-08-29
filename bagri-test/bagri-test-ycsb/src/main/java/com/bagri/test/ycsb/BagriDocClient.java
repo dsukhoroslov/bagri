@@ -108,7 +108,7 @@ public class BagriDocClient extends BagriClientBase {
 	@Override
 	public Status delete(final String table, final String key) {
 		try {
-			xRepo.getDocumentManagement().removeDocument(key);
+			xRepo.getDocumentManagement().removeDocument(key, deleteProps);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("delete.error", ex);

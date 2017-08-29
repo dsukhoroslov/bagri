@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
@@ -103,11 +104,11 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeSecurityTest();
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
-		java.util.Collection<String> uris = dMgr.getDocumentUris("uri like security%", null);
+		ResultCollection<String> uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like security%", null);
 		assertEquals(4, uris.size());
-		uris = dMgr.getDocumentUris("uri like order%", null);
+		uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like order%", null);
 		assertEquals(2, uris.size());
-		uris = dMgr.getDocumentUris("createdBy = unknown", null);
+		uris = (ResultCollection<String>) dMgr.getDocumentUris("createdBy = unknown", null);
 		assertEquals(6, uris.size());
 	}
 

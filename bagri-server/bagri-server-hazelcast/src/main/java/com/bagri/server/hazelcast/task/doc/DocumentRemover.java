@@ -37,6 +37,8 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely..?
+    		docMgr.removeDocument(uri, props);
+        	return null;
     	}
     	
     	// do we have default isolation level?
@@ -48,7 +50,7 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
     	txMgr.callInTransaction(txId, false, tiLevel, new Callable<Void>() {
     		
 	    	public Void call() throws Exception {
-	    		docMgr.removeDocument(uri);
+	    		docMgr.removeDocument(uri, props);
 	    		return null;
 	    	}
     	});

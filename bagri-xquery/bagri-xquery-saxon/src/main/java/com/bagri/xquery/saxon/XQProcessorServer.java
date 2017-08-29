@@ -110,7 +110,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			} else if (command.startsWith("removeDocument")) {
 				XQItemAccessor item = getBoundItem(params, "uri");
 				String uri = item.getAtomicValue();
-				dMgr.removeDocument(uri);
+				dMgr.removeDocument(uri, null);
 				return Collections.emptyIterator(); 
 			} else {
 				throw new XQException("unknown command: " + command);

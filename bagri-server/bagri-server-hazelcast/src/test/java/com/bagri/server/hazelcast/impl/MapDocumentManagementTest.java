@@ -288,12 +288,12 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		}
 		//xRepo.getTxManagement().commitTransaction(txId);
 		
-		java.util.Collection<String> uris2 = xRepo.getDocumentManagement().getDocumentUris("uri >= map_test50", props);
+		ResultCollection<String> uris2 = (ResultCollection<String>) xRepo.getDocumentManagement().getDocumentUris("uri >= map_test50", props);
 		assertEquals(54, uris2.size());
 		
 		props.setProperty(pn_client_fetchSize, "25");
-		Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= map_test50", props);
-		assertEquals(25, ((ResultCollection) results).size());
+		ResultCollection<Object> results = (ResultCollection<Object>) xRepo.getDocumentManagement().getDocuments("uri >= map_test50", props);
+		assertEquals(25, results.size());
 	}
 	
 }

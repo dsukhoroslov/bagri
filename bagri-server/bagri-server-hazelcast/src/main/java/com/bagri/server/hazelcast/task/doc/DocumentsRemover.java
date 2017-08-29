@@ -16,7 +16,7 @@ import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class CollectionDocumentsRemover extends com.bagri.client.hazelcast.task.doc.CollectionDocumentsRemover {
+public class DocumentsRemover extends com.bagri.client.hazelcast.task.doc.DocumentsRemover {
 
 	private transient DocumentManagement docMgr;
 	private transient TransactionManagement txMgr;
@@ -33,22 +33,22 @@ public class CollectionDocumentsRemover extends com.bagri.client.hazelcast.task.
 
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
-    	// TODO: pass Properties in this method too..
-    	//String txLevel = props.getProperty(pn_client_txLevel);
-    	//if (pv_client_txLevel_skip.equals(txLevel)) {
+    	String txLevel = props.getProperty(pn_client_txLevel);
+    	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely..?
-    	//}
+    		return docMgr.removeDocuments(pattern, props);
+    	}
     	
     	// do we have default isolation level?
     	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
-    	//if (txLevel != null) {
-    	//	tiLevel = TransactionIsolation.valueOf(txLevel);
-    	//}
+    	if (txLevel != null) {
+    		tiLevel = TransactionIsolation.valueOf(txLevel);
+    	}
     	
     	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<Integer>() {
     		
 	    	public Integer call() throws Exception {
-	    		return docMgr.removeCollectionDocuments(collection);
+	    		return docMgr.removeDocuments(pattern, props);
 	    	}
     	});
 	}

@@ -2,6 +2,7 @@ package com.bagri.client.hazelcast.task.doc;
 
 import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_RemoveDocumentTask;
 
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.core.model.Document;
@@ -12,8 +13,8 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<Docum
 		super();
 	}
 
-	public DocumentRemover(String clientId, long txId, String uri) {
-		super(clientId, txId, uri, null);
+	public DocumentRemover(String clientId, long txId, String uri, Properties props) {
+		super(clientId, txId, uri, props);
 	}
 
 	@Override

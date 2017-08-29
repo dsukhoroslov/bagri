@@ -383,7 +383,7 @@ public class BookingApp {
 	
 	public boolean removeDocument(String uri) {
 		try {
-			xRepo.getDocumentManagement().removeDocument(uri);
+			xRepo.getDocumentManagement().removeDocument(uri, null);
 			return true;
 		} catch (BagriException ex) {
 			return false;

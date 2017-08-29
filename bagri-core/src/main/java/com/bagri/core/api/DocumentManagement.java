@@ -1,8 +1,6 @@
 package com.bagri.core.api;
 
-import java.io.InputStream;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,7 +22,7 @@ public interface DocumentManagement {
 	 * @return Collection&lt;String&gt; - matched Document uris
 	 * @throws BagriException in case of any error
 	 */
-	Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException;
+	Iterable<String> getDocumentUris(String pattern, Properties props) throws BagriException;
 
 	/**
 	 * return contents of Documents matching provided pattern
@@ -35,15 +33,7 @@ public interface DocumentManagement {
 	 * @return Iterable over the contents of matched documents
 	 * @throws BagriException in case of any error
 	 */
-	Iterable<?> getDocuments(String pattern, Properties props) throws BagriException;
-	
-	/**
-	 * return Collection names registered in Repository
-	 * 
-	 * @return Collection of Document Collection names
-	 * @throws BagriException in case of any error
-	 */
-	Collection<String> getCollections() throws BagriException;
+	<T> Iterable<T> getDocuments(String pattern, Properties props) throws BagriException;
 	
 	/**
 	 * 
@@ -75,6 +65,16 @@ public interface DocumentManagement {
 	 * @throws BagriException
 	 */
 	<T> Document storeDocumentFrom(String uri, T content, Properties props) throws BagriException;
+
+	/**
+	 * stores many Documents in Repository
+	 * 
+	 * @param documents
+	 * @param props
+	 * @return
+	 * @throws BagriException
+	 */
+	<T> Iterable<Document> storeDocuments(Map<String, T> documents, Properties props) throws BagriException;
 	
 	/**
 	 * removes Document from Repository
@@ -82,16 +82,24 @@ public interface DocumentManagement {
 	 * @param uri String; the Document uri
 	 * @throws BagriException in case of any error
 	 */
-	void removeDocument(String uri) throws BagriException;
+	void removeDocument(String uri, Properties props) throws BagriException;
 	
 	/**
-	 * remove all documents belonging to the specified Document Collection
+	 * remove all documents matching the pattern provided
 	 * 
 	 * @param collection the collection name
 	 * @return the number of removed documents
 	 * @throws BagriException in case of any error
 	 */
-	int removeCollectionDocuments(String collection) throws BagriException;
+	int removeDocuments(String pattern, Properties props) throws BagriException;
+	
+	/**
+	 * return Collection names registered in Repository
+	 * 
+	 * @return Collection of Document Collection names
+	 * @throws BagriException in case of any error
+	 */
+	Collection<String> getCollections() throws BagriException;
 	
 	/**
 	 * adds Document to the specified Document Collections

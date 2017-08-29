@@ -79,14 +79,7 @@ public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSeri
 		int size = in.readInt();
 		results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
-			int mSize = in.readInt();
-			Map<String, String> map = new HashMap<>(mSize);
-			for (int j=0; j < mSize; j++) {
-				String key = in.readUTF();
-				String value = in.readUTF();
-				map.put(key, value);
-			}
-			results.add(map);
+			results.add(in.readObject());
 		}
 	}
 
@@ -94,13 +87,8 @@ public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSeri
 	public void writeData(ObjectDataOutput out) throws IOException {
 		//out.writeObject(results);
 		out.writeInt(results.size());
-		for (int i=0; i < results.size(); i++) {
-			Map<String, String> map = (Map<String, String>) results.get(i);
-			out.writeInt(map.size());
-			for (Map.Entry<String, String> entry: map.entrySet()) {
-				out.writeUTF(entry.getKey());
-				out.writeUTF(entry.getValue());
-			}
+		for (Object result: results) {
+			out.writeObject(result);
 		}
 	}
 

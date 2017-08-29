@@ -4,6 +4,7 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_ELEMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_INDEX;
+import static com.bagri.core.server.api.CacheConstants.CN_XDM_KEY;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.client.hazelcast.PartitionStatistics;
+import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.model.Document;
@@ -220,7 +222,6 @@ public class DataDistributionService implements ManagedService {
 	public DocumentKey getLastKeyForUri(String uri) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
-		//Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("hash", uri.hashCode()), IterationType.KEY, Aggregators.integerMax("version"), null);
 		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("uri", uri), IterationType.KEY, null, null);
 		try {
 			DocumentKey last = null;
@@ -241,6 +242,11 @@ public class DataDistributionService implements ManagedService {
 			logger.error("getLastKeyForUri.error: ", ex);
 		}
 		return null;
+		//List<DocumentKey> keys = getCachedObject(CN_XDM_KEY, new UrlHashKey(uri), true);
+		//if (keys != null) {
+		//	return keys.get(keys.size() - 1);
+		//}
+		//return null;
 	}
 
 	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {

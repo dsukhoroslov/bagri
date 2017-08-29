@@ -64,11 +64,11 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 				result = getDocumentManagement().getDocumentAs(uri, props);
 			} else if (command.equals(cmd_remove_document)) {
 				String uri = getDocumentUri(params);
-				getDocumentManagement().removeDocument(uri);
+				getDocumentManagement().removeDocument(uri, props);
 				result = new Integer(1); 
 			} else if (command.equals(cmd_remove_cln_documents)) {
-				String collection = (String) params.get("collection");
-				getDocumentManagement().removeCollectionDocuments(collection);
+				String pattern = (String) params.get("pattern");
+				getDocumentManagement().removeDocuments(pattern, props);
 				result = new Integer(0); 
 			} else {
 				props = ensureProperty(props, pn_query_command, "true");

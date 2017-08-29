@@ -58,20 +58,29 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public Collection<String> getDocumentUris(String pattern, Properties props) throws BagriException {
+	@SuppressWarnings("resource")
+	public Iterable<String> getDocumentUris(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
+		CombinedCollectionImpl<String> result = new CombinedCollectionImpl<>();
+		props.setProperty(pn_client_id, repo.getClientId());
+		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
-		Map<Member, Future<Collection<String>>> results = execService.submitToAllMembers(task);
-		Collection<String> result = new HashSet<String>();
-		for (Map.Entry<Member, Future<Collection<String>>> entry: results.entrySet()) {
+		Map<Member, Future<ResultCollection<String>>> results = execService.submitToAllMembers(task);
+		for (Map.Entry<Member, Future<ResultCollection<String>>> entry: results.entrySet()) {
 			try {
-				result.addAll(entry.getValue().get());
+				ResultCollection<String> cln = entry.getValue().get();
+				if (asynch) {
+					((QueuedCollectionImpl) cln).init(repo.getHazelcastClient());
+				}
+				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
 				logger.error("getDocumentUris; error getting result", ex);
 				throw new BagriException(ex, ecDocument);
 			}
 		}
+		logger.trace("getDocumentUris.exit; got results: {}", result);
 		return result;
+
 		//Future<Collection<String>> future = execService.submit(task);
 		//try {
 		//	result = future.get();
@@ -85,16 +94,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	@SuppressWarnings("resource")
-	public Iterable<?> getDocuments(String pattern, Properties props) throws BagriException {
+	public <T> Iterable<T> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		CombinedCollectionImpl result = new CombinedCollectionImpl();
+		CombinedCollectionImpl<T> result = new CombinedCollectionImpl<>();
 		props.setProperty(pn_client_id, repo.getClientId());
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
-		Map<Member, Future<ResultCollection>> results = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<ResultCollection>> entry: results.entrySet()) {
+		DocumentsProvider<T> task = new DocumentsProvider<>(repo.getClientId(), repo.getTransactionId(), pattern, props);
+		Map<Member, Future<ResultCollection<T>>> results = execService.submitToAllMembers(task);
+		for (Map.Entry<Member, Future<ResultCollection<T>>> entry: results.entrySet()) {
 			try {
-				ResultCollection cln = entry.getValue().get();
+				ResultCollection<T> cln = entry.getValue().get();
 				if (asynch) {
 					((QueuedCollectionImpl) cln).init(repo.getHazelcastClient());
 				}
@@ -105,7 +114,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 		logger.trace("getDocuments.exit; got results: {}", result);
-		return result;
+		return (Iterable<T>) result;
 	}
 	
 	@Override
@@ -153,13 +162,18 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public void removeDocument(String uri) throws BagriException {
+	public <T> Iterable<Document> storeDocuments(Map<String, T> documents, Properties props) throws BagriException {
+		return null;
+	}
+	
+	@Override
+	public void removeDocument(String uri, Properties props) throws BagriException {
 		logger.trace("removeDocument.enter; uri: {}", uri);
 		repo.getHealthManagement().checkClusterState();
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
-		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), uri);
+		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), uri, props);
 		Future<Document> future = execService.submit(task);
 		try {
 			Document result = future.get();
@@ -171,6 +185,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 	}
 
+	@Override
+	public int removeDocuments(String pattern, Properties props) throws BagriException {
+		logger.trace("removeDocuments.enter; pattern: {}", pattern);
+		repo.getHealthManagement().checkClusterState();
+		DocumentsRemover task = new DocumentsRemover(repo.getClientId(), repo.getTransactionId(), pattern, props);
+		Map<Member, Future<Integer>> results = execService.submitToAllMembers(task);
+		int cnt = 0;
+		for (Map.Entry<Member, Future<Integer>> entry: results.entrySet()) {
+			try {
+				cnt += entry.getValue().get();
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("removeDocuments.error; ", ex);
+				// process all results first?!
+				throw new BagriException(ex, ecDocument);
+			}
+		}
+		logger.trace("removeDocuments.exit; removed: {}", cnt);
+		return cnt;
+	}
+	
 	@Override
 	public Collection<String> getCollections() throws BagriException {
 		logger.trace("getCollections.enter; ");
@@ -187,26 +221,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 	}
 
-	@Override
-	public int removeCollectionDocuments(String collection) throws BagriException {
-		logger.trace("removeCollectionDocuments.enter; collection: {}", collection);
-		repo.getHealthManagement().checkClusterState();
-		CollectionDocumentsRemover task = new CollectionDocumentsRemover(repo.getClientId(), repo.getTransactionId(), collection);
-		Map<Member, Future<Integer>> results = execService.submitToAllMembers(task);
-		int cnt = 0;
-		for (Map.Entry<Member, Future<Integer>> entry: results.entrySet()) {
-			try {
-				cnt += entry.getValue().get();
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("removeCollectionDocuments.error; ", ex);
-				// process all results first?!
-				throw new BagriException(ex, ecDocument);
-			}
-		}
-		logger.trace("removeCollectionDocuments.exit; removed: {}", cnt);
-		return cnt;
-	}
-	
 	@Override
 	public int addDocumentToCollections(String uri, String[] collections) {
 		logger.trace("addDocumentsToCollections.enter; uri: {}, collectIds: {}", uri, Arrays.toString(collections));

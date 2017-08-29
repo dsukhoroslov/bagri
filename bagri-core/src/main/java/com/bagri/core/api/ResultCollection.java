@@ -1,10 +1,10 @@
 package com.bagri.core.api;
 
-public interface ResultCollection extends AutoCloseable, Iterable<Object> {
+public interface ResultCollection<T> extends AutoCloseable, Iterable<T> {
 	
 	//void init(SchemaRepository repo);
 	
-	boolean add(Object result);
+	boolean add(T result);
 	
 	int size();
 

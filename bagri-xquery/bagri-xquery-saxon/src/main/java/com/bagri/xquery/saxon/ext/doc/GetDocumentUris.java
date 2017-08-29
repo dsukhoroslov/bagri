@@ -60,8 +60,8 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 					props = sequence2Properties(arguments[1]);
 				}
 				try {
-					Collection<String> uris = xdm.getDocumentUris(pattern, props);
-					ArrayList<AtomicValue> list = new ArrayList<>(uris.size());
+					Iterable<String> uris = xdm.getDocumentUris(pattern, props);
+					ArrayList<AtomicValue> list = new ArrayList<>(); //uris.size());
 					for (String uri: uris) {
 						list.add(new StringValue(uri));
 					}

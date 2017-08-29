@@ -3,15 +3,15 @@ package com.bagri.client.hazelcast.task.doc;
 import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProvideDocumentUrisTask;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentUrisProvider extends TransactionAwareTask implements Callable<Collection<String>> {
+public class DocumentUrisProvider extends TransactionAwareTask implements Callable<ResultCollection<String>> {
 	
 	protected String pattern;
 	protected Properties props;
@@ -27,7 +27,7 @@ public class DocumentUrisProvider extends TransactionAwareTask implements Callab
 	}
 
 	@Override
-	public Collection<String> call() throws Exception {
+	public ResultCollection<String> call() throws Exception {
 		return null;
 	}
 

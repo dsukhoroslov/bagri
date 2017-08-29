@@ -39,7 +39,7 @@ import com.bagri.support.util.XQUtils;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
+import com.bagri.xquery.saxon.ext.doc.RemoveDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
 import com.bagri.xquery.saxon.ext.doc.StoreDocument;
 import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
@@ -817,7 +817,7 @@ public class SaxonUtils {
             config.registerExtensionFunction(new RemoveDocument(null));
             config.registerExtensionFunction(new StoreDocument(null));
             config.registerExtensionFunction(new StoreDocumentFromMap(null));
-            config.registerExtensionFunction(new RemoveCollectionDocuments(null));
+            config.registerExtensionFunction(new RemoveDocuments(null));
             config.registerExtensionFunction(new QueryDocumentUris(null));
             config.registerExtensionFunction(new BeginTransaction(null));
             config.registerExtensionFunction(new CommitTransaction(null));
@@ -828,7 +828,7 @@ public class SaxonUtils {
             config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new StoreDocumentFromMap(xRepo.getDocumentManagement()));
-            config.registerExtensionFunction(new RemoveCollectionDocuments(xRepo.getDocumentManagement()));
+            config.registerExtensionFunction(new RemoveDocuments(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new QueryDocumentUris(xRepo.getQueryManagement()));
             config.registerExtensionFunction(new BeginTransaction(xRepo.getTxManagement()));
             config.registerExtensionFunction(new CommitTransaction(xRepo.getTxManagement()));

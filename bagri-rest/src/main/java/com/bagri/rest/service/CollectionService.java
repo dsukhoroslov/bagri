@@ -52,7 +52,7 @@ public class CollectionService extends RestService {
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
 	@ApiOperation(value = "getCollectionDocuments: return Document uris belonging to the specified Collection")
-    public Collection<String> getCollectionDocuments(@PathParam("name") String name) {
+    public Iterable<String> getCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
 			return docMgr.getDocumentUris("collections.contains(" + name + ")", null);
@@ -69,7 +69,7 @@ public class CollectionService extends RestService {
     public int deleteCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
-			return docMgr.removeCollectionDocuments(name);
+			return docMgr.removeDocuments(name, null);
     	} catch (Exception ex) {
     		logger.error("deleteCollectionDocuments.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);

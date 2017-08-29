@@ -6,25 +6,25 @@ import java.util.LinkedList;
 
 import com.bagri.core.api.ResultCollection;
 
-public class CombinedCollectionImpl implements AutoCloseable, Iterable<Object>, Iterator<Object> {
+public class CombinedCollectionImpl<T> implements AutoCloseable, Iterable<T>, Iterator<T> {
 	
-	private Iterator<Object> curIter = null;
-	private ResultCollection curResult = null;
-	private Deque<ResultCollection> results = new LinkedList<>();
+	private Iterator<T> curIter = null;
+	private ResultCollection<T> curResult = null;
+	private Deque<ResultCollection<T>> results = new LinkedList<>();
 
 	@Override
 	public void close() throws Exception {
-		for (ResultCollection cln: results) {
+		for (ResultCollection<T> cln: results) {
 			cln.close();
 		}
 	}
 	
-	public void addResults(ResultCollection result) {
+	public void addResults(ResultCollection<T> result) {
 		results.add(result);
 	}
 
 	@Override
-	public Iterator<Object> iterator() {
+	public Iterator<T> iterator() {
 		return this;
 	}
 
@@ -51,7 +51,7 @@ public class CombinedCollectionImpl implements AutoCloseable, Iterable<Object>, 
 	}
 
 	@Override
-	public Object next() {
+	public T next() {
 		return curIter.next();
 	}
 

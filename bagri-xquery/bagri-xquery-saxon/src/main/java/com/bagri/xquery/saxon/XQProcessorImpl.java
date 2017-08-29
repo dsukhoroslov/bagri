@@ -43,7 +43,7 @@ import com.bagri.support.util.XQUtils;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
 import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.RemoveCollectionDocuments;
+import com.bagri.xquery.saxon.ext.doc.RemoveDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
 import com.bagri.xquery.saxon.ext.doc.StoreDocument;
 import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;

@@ -83,8 +83,9 @@ public abstract class BagriManagementTest {
 			getTxManagement().finishCurrentTransaction(true);
 		}
 		long txId =  getTxManagement().beginTransaction();
+		Properties props = getDocumentProperties();
 		for (String uri: uris) {
-			getDocManagement().removeDocument(uri);
+			getDocManagement().removeDocument(uri, props);
 		}
 		uris.clear();
 		getTxManagement().commitTransaction(txId);
@@ -104,7 +105,8 @@ public abstract class BagriManagementTest {
 	}
 
 	public void removeDocumentTest(String uri) throws Exception {
-		getDocManagement().removeDocument(uri);
+		Properties props = getDocumentProperties();
+		getDocManagement().removeDocument(uri, props);
 	}
 
 	public void storeSecurityTest() throws Exception {

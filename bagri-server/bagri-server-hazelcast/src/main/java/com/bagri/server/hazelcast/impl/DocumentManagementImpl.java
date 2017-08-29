@@ -306,7 +306,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public java.util.Collection<String> getDocumentUris(String pattern, Properties props) {
+	public Iterable<String> getDocumentUris(String pattern, Properties props) {
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
 		Predicate<DocumentKey, Document> query;
 		if (pattern != null) {
@@ -317,90 +317,77 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		} else {
 			query = Predicates.equal(fnTxFinish, TX_NO);
 		}
-		
-		if (props != null) {
-			int fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-			if (fetchSize > 0) {
-				query = new LimitPredicate<>(fetchSize, query);
-			}
-		} //else {
-		//  Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
-		//	uris = xddCache.project(pro, query);
-		//}
-		
-		java.util.Collection<Document> docs = xddCache.values(query);
-		java.util.Collection<String> uris = new ArrayList<>(docs.size());
-		if (pattern != null && pattern.indexOf(fnTxFinish) < 0) {
-			for (Document doc: docs) {
-				if (doc.getTxFinish() == TX_NO) {
-					uris.add(doc.getUri());
-				}
-			}
-		} else {
-			for (Document doc: docs) {
-				uris.add(doc.getUri());
-			}
-		}
-		
-		// should also check if doc's start transaction is committed?
-		logger.trace("getDocumentUris.exit; returning: {}", uris);
-		return uris;
-	}
-	
-	//@Override
-	public java.util.Collection<String> getCollectionDocumentUris(String collection, Properties props) throws BagriException {
+
 		int pageSize = 100;
 		if (props != null) {
 			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
 		} 
 		PagingPredicate<DocumentKey, Document> pager = null;
-		Predicate<DocumentKey, Document> query = new DocVisiblePredicate();
-		((DocVisiblePredicate) query).setRepository(repo);
-		if (collection == null) {
-			if (pageSize > 0) {
-				pager = new PagingPredicate<>(query, pageSize);
-				query = pager;
-			}
-		} else {
-			Collection cln = repo.getSchema().getCollection(collection);
-			if (cln == null) {
-				return null;
-			}
-			query = Predicates.and(query, new CollectionPredicate(cln.getId()));
-			if (pageSize > 0) {
-				pager = new PagingPredicate<>(query, pageSize);
-				query = pager;
-			}
+		if (pageSize > 0) {
+			pager = new PagingPredicate<>(query, pageSize);
+			query = pager;
 		}
+
+		final ResultCollection<String> cln; 
+		cln = new FixedCollectionImpl(pageSize);
 		
-		List<String> result = new ArrayList<>(); 
 		if (pager != null) {
 			int size;
 			do {
-				size = result.size(); 
-				fillUris(query, result);
+				size = cln.size(); 
+				fetchUris(query, cln);
 				pager.nextPage();
-			} while (result.size() > size);
+			} while (cln.size() > size);
 		} else {
-			fillUris(query, result);
+			fetchUris(query, cln);
 		}
 		
-		// does not work because of a bug in HZ
-		//Projection<Entry<DocumentKey, Document>, String> pro = Projections.singleAttribute(fnUri);
-		//if (pager != null) {
-		//	int size;
-		//	do {
-		//		size = result.size();  
-		//		result.addAll(xddCache.project(pro, query));
-		//		pager.nextPage();
-		//	} while (result.size() > size);
-		//} else {
-		//	result.addAll(xddCache.project(pro, query));
-		//}
-		return result;
+		// should also check if doc's start transaction is committed?
+		logger.trace("getDocumentUris.exit; returning: {}", cln);
+		return cln;
 	}
-	
-	
+
+	private void fetchUris(Predicate<DocumentKey, Document> query, ResultCollection<String> uris) { //throws BagriException {
+		java.util.Collection<Document> docs = xddCache.values(query);
+		for (Document doc: docs) {
+			if (doc.getTxFinish() == TX_NO) {
+				uris.add(doc.getUri());
+			}
+		}
+	}
+
+	@Override
+	public <T> Iterable<T> getDocuments(final String pattern, final Properties props) {
+		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
+		final int fetchSize;
+		boolean asynch = false;
+		if (props != null) {
+			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		} else {
+			fetchSize = 0;
+		}
+
+		final ResultCollection<Object> cln; 
+		if (asynch) {
+			String clientId = props.getProperty(pn_client_id);
+			cln = new QueuedCollectionImpl(hzInstance, "client:" + clientId);
+			execSvc.execute(new Runnable() {
+				@Override
+				public void run() {
+					fetchDocuments(pattern, fetchSize, cln);
+					cln.add(Null._null);
+				}
+			});
+		} else {
+			cln = new FixedCollectionImpl(fetchSize);
+			fetchDocuments(pattern, fetchSize, cln);
+		}
+		 
+		logger.trace("getDocuments.exit; returning: {}", cln);
+		return (Iterable<T>) cln;
+	}
+
 	private void fetchDocuments(String pattern, int fetchSize, ResultCollection cln) {
 		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
 		if (fetchSize > 0) {
@@ -418,38 +405,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 		logger.trace("fetchDocuments.exit; fetched {} docs", cnt);
-	}
-
-	@Override
-	public Iterable<?> getDocuments(final String pattern, final Properties props) {
-		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		final int fetchSize;
-		boolean asynch = false;
-		if (props != null) {
-			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		} else {
-			fetchSize = 0;
-		}
-
-		final ResultCollection cln; 
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl(hzInstance, "client:" + clientId);
-			execSvc.execute(new Runnable() {
-				@Override
-				public void run() {
-					fetchDocuments(pattern, fetchSize, cln);
-					cln.add(Null._null);
-				}
-			});
-		} else {
-			cln = new FixedCollectionImpl(fetchSize);
-			fetchDocuments(pattern, fetchSize, cln);
-		}
-		 
-		logger.trace("getDocuments.exit; returning: {}", cln);
-		return cln;
 	}
 
 	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {
@@ -1055,7 +1010,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public void removeDocument(String uri) throws BagriException {
+	public <T> Iterable<Document> storeDocuments(Map<String, T> documents, Properties props) throws BagriException {
+		return null;
+	}
+	
+	@Override
+	public void removeDocument(String uri, Properties props) throws BagriException {
 		logger.trace("removeDocument.enter; uri: {}", uri);
 		//XDMDocumentKey docKey = getDocumentKey(docId);
 	    //if (docKey == null) {
@@ -1192,13 +1152,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return clNames;
 	}
 
-	private void fillUris(Predicate<DocumentKey, Document> query, java.util.Collection<String> uris) throws BagriException {
-		java.util.Collection<Document> docs = xddCache.values(query);
-		for (Document doc: docs) {
-	    	uris.add(doc.getUri());
-		}
-	}
-
 	Set<Long> getCollectionDocumentKeys(int collectId) {
 		//
 		Set<DocumentKey> docKeys;
@@ -1218,16 +1171,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public int removeCollectionDocuments(String collection) throws BagriException {
-		logger.trace("removeCollectionDocuments.enter; collection: {}", collection);
+	public int removeDocuments(String pattern, Properties props) throws BagriException {
+		logger.trace("removeDocuments.enter; pattern: {}", pattern);
 		int cnt = 0;
-		// remove local documents only?! yes!
-		java.util.Collection<String> uris = getCollectionDocumentUris(collection, null);
+		// TODO: remove local documents only?! yes!
+		Iterable<String> uris = getDocumentUris(pattern, props);
 		for (String uri: uris) {
-			removeDocument(uri);
+			removeDocument(uri, props);
 			cnt++;
 		}
-		logger.trace("removeCollectionDocuments.exit; removed: {}", cnt);
+		logger.trace("removeDocuments.exit; removed: {}", cnt);
 		return cnt;
 	}
 	

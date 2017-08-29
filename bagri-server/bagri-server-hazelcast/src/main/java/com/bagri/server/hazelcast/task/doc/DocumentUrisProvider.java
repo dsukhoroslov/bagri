@@ -1,11 +1,9 @@
 package com.bagri.server.hazelcast.task.doc;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
@@ -23,13 +21,12 @@ public class DocumentUrisProvider extends com.bagri.client.hazelcast.task.doc.Do
 	}
 
     @Override
-	public Collection<String> call() throws Exception {
+	public ResultCollection<String> call() throws Exception {
     	
     	// not sure we have to check it at all..
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
     	
-    	Collection<String> uris = docMgr.getDocumentUris(pattern, props);
-		return new ArrayList<>(uris);
+    	return (ResultCollection<String>) docMgr.getDocumentUris(pattern, props);
 	}
 
 
