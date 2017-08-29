@@ -36,6 +36,7 @@ public class Constants {
 	public static final String pn_client_healthCheck = "bdb.client.healthCheck";
 	public static final String pn_client_loginTimeout = "bdb.client.loginTimeout";
 	public static final String pn_client_dataFactory = "bdb.client.dataFactory";
+	public static final String pn_client_pageSize = "bdb.client.pageSize";
 	
 	public static final String pn_client_customAuth = "bdb.client.customAuth";
 	public static final String pn_client_queryCache = "bdb.client.queryCache";

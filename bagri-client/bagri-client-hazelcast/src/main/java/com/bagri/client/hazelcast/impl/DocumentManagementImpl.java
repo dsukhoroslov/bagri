@@ -105,7 +105,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<T> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl) cln).init(repo.getHazelcastClient());
+					((QueuedCollectionImpl<T>) cln).init(repo.getHazelcastClient());
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
@@ -163,7 +163,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public <T> Iterable<Document> storeDocuments(Map<String, T> documents, Properties props) throws BagriException {
-		return null;
+		logger.trace("storeDocuments.enter; documents: {}; props: {}", documents, props);
+		if (documents == null || documents.isEmpty()) {
+			throw new BagriException("Empty Document collection provided", ecDocument);
+		}
+		repo.getHealthManagement().checkClusterState();
+
+		CombinedCollectionImpl<Document> result = new CombinedCollectionImpl<>();
+		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		DocumentsCreator task = new DocumentsCreator(repo.getClientId(), repo.getTransactionId(), (Map<String, Object>) documents, props);
+		// TODO: split documents between members properly..
+		Map<Member, Future<ResultCollection<Document>>> results = execService.submitToAllMembers(task);
+		for (Map.Entry<Member, Future<ResultCollection<Document>>> entry: results.entrySet()) {
+			try {
+				ResultCollection<Document> cln = entry.getValue().get();
+				if (asynch) {
+					((QueuedCollectionImpl<Document>) cln).init(repo.getHazelcastClient());
+				}
+				result.addResults(cln);
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("storeDocuments; error getting result", ex);
+				throw new BagriException(ex, ecDocument);
+			}
+		}
+		logger.trace("storeDocuments.exit; results: {}", result);
+		return (Iterable<Document>) result;
 	}
 	
 	@Override

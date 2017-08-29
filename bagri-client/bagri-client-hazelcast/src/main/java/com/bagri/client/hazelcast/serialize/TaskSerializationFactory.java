@@ -22,9 +22,8 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 	public static final int cli_factory_id = 3000; 
 
 	public static final int cli_GetDocumentTask = 100;
-	//public static final int cli_ProvideCollectionDocumentsTask = 101;
-	public static final int cli_RemoveCollectionDocumentsTask = 102; 
-	public static final int cli_ProcessDocumentTask = 105; 
+	public static final int cli_RemoveDocumentsTask = 102; 
+	//public static final int cli_ProcessDocumentTask = 105; 
 	public static final int cli_CreateDocumentTask = 106; 
 	public static final int cli_RemoveDocumentTask = 107;
 	public static final int cli_ProvideDocumentContentTask = 110;
@@ -33,6 +32,7 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 	public static final int cli_UpdateDocumentCollectionTask = 113; 
 	public static final int cli_ProvideCollectionsTask = 114;
 	public static final int cli_ProvideDocumentsTask = 115;
+	public static final int cli_StoreDocumentsTask = 116;
 
 	public static final int cli_BeginTransactionTask = 120; 
 	public static final int cli_CommitTransactionTask = 121;

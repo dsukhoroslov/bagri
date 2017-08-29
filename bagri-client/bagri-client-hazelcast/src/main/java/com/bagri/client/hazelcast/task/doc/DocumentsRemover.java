@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_RemoveCollectionDocumentsTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_RemoveDocumentsTask;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -33,7 +33,7 @@ public class DocumentsRemover extends TransactionAwareTask implements Callable<I
 	
 	@Override
 	public int getId() {
-		return cli_RemoveCollectionDocumentsTask;
+		return cli_RemoveDocumentsTask;
 	}
 
 	@Override

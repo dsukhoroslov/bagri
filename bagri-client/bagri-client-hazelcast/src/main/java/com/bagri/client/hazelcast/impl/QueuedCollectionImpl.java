@@ -6,8 +6,8 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.SchemaRepository;
@@ -18,14 +18,14 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class QueuedCollectionImpl implements Iterator<Object>, ResultCollection, IdentifiedDataSerializable {  
+public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>, IdentifiedDataSerializable {  
 
-    private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
+    //private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
 
 	private String queueName;
-	private Object current;
+	private T current;
 
-	private IQueue<Object> queue;
+	private IQueue<T> queue;
 	private HazelcastInstance hzi;
     
 	public QueuedCollectionImpl() {
@@ -39,7 +39,7 @@ public class QueuedCollectionImpl implements Iterator<Object>, ResultCollection,
 	
 	//@Override
 	public void init(HazelcastInstance hzi) {
-		logger.trace("init.enter; queue: {}", queueName);
+		//logger.trace("init.enter; queue: {}", queueName);
 		this.hzi = hzi;
 		this.queue = hzi.getQueue(queueName);
 	}
@@ -60,19 +60,19 @@ public class QueuedCollectionImpl implements Iterator<Object>, ResultCollection,
 	}
 
 	@Override
-	public boolean add(Object result) {
+	public boolean add(T result) {
 		return queue.add(result);
 	}
 	
 	@Override
-	public Iterator<Object> iterator() {
+	public Iterator<T> iterator() {
 		return this;
 		//return queue.iterator();
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException("size() is not supported in the asynch collection impl");//return results.size();
+		throw new UnsupportedOperationException("size() is not supported in the asynch collection impl");
 	}
 	
 	@Override
@@ -89,7 +89,7 @@ public class QueuedCollectionImpl implements Iterator<Object>, ResultCollection,
 	}
 
 	@Override
-	public Object next() {
+	public T next() {
 		return current;
 	}
 

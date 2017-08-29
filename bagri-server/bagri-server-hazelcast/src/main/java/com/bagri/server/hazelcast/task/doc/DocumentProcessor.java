@@ -6,7 +6,7 @@ import static com.bagri.core.Constants.pv_client_storeMode_merge;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.core.model.Document.dvFirst;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProcessDocumentTask;
+//import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProcessDocumentTask;
 
 import java.util.Properties;
 import java.util.Map.Entry;

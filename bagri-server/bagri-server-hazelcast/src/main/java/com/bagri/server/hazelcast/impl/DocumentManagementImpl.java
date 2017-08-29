@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
@@ -56,7 +57,6 @@ import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
-import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.server.hazelcast.predicate.LimitPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
@@ -66,7 +66,7 @@ import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.impl.MapEntrySimple;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -90,6 +90,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private IMap<DocumentKey, Object> cntCache;
 	private IMap<DocumentKey, Document> xddCache;
     private IMap<DataKey, Elements> xdmCache;
+    private IMap<UrlHashKey, List<DocumentKey>> keyCache;
 
 	private boolean binaryDocs;
 	private boolean binaryElts;
@@ -113,6 +114,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
     	
     	execSvc = Executors.newFixedThreadPool(32);
+    	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
     	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
 		//sharedMap = new HashMap<>(10);
 		//for (int j=0; j < 10; j++) {
@@ -305,59 +307,60 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public Iterable<String> getDocumentUris(String pattern, Properties props) {
+	public Iterable<String> getDocumentUris(final String pattern, final Properties props) {
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
-		Predicate<DocumentKey, Document> query;
-		if (pattern != null) {
-			query = DocumentPredicateBuilder.getQuery(repo, pattern);
-			if (query == null) {
-				return Collections.emptyList();
-			}
-		} else {
-			query = Predicates.equal(fnTxFinish, TX_NO);
-		}
-
-		int pageSize = 100;
+		final int fetchSize;
+		boolean asynch = false;
 		if (props != null) {
-			pageSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "100"));
-		} 
-		PagingPredicate<DocumentKey, Document> pager = null;
-		if (pageSize > 0) {
-			pager = new PagingPredicate<>(query, pageSize);
-			query = pager;
+			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
+			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		} else {
+			fetchSize = 0;
 		}
 
 		final ResultCollection<String> cln; 
-		cln = new FixedCollectionImpl(pageSize);
-		
-		if (pager != null) {
-			int size;
-			do {
-				size = cln.size(); 
-				fetchUris(query, cln);
-				pager.nextPage();
-			} while (cln.size() > size);
+		if (asynch) {
+			String clientId = props.getProperty(pn_client_id);
+			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+			execSvc.execute(new Runnable() {
+				@Override
+				public void run() {
+					fetchUris(pattern, fetchSize, cln);
+					cln.add("__null"); //Null._null);
+				}
+			});
 		} else {
-			fetchUris(query, cln);
+			cln = new FixedCollectionImpl<>(fetchSize);
+			fetchUris(pattern, fetchSize, cln);
 		}
-		
-		// should also check if doc's start transaction is committed?
+		 
 		logger.trace("getDocumentUris.exit; returning: {}", cln);
 		return cln;
 	}
 
-	private void fetchUris(Predicate<DocumentKey, Document> query, ResultCollection<String> uris) { //throws BagriException {
-		java.util.Collection<Document> docs = xddCache.values(query);
-		for (Document doc: docs) {
-			if (doc.getTxFinish() == TX_NO) {
-				uris.add(doc.getUri());
+	private void fetchUris(String pattern, int fetchSize, ResultCollection<String> cln) {
+		Predicate<DocumentKey, Document> query;
+		if (pattern == null) {
+			query = Predicates.equal(fnTxFinish, TX_NO);
+		} else {
+			query = DocumentPredicateBuilder.getQuery(repo, pattern);
+		}
+		if (fetchSize > 0) {
+			query = new LimitPredicate<>(fetchSize, query);
+		}
+
+		int cnt = 0;
+		if (query != null) {
+			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+			for (Document doc: docs) {
+				cln.add(doc.getUri());
 			}
 		}
+		logger.trace("fetchUris.exit; fetched {} uris", cnt);
 	}
 
 	@Override
-	public <T> Iterable<T> getDocuments(final String pattern, final Properties props) {
+	public Iterable<Object> getDocuments(final String pattern, final Properties props) {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
 		final int fetchSize;
 		boolean asynch = false;
@@ -371,7 +374,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		final ResultCollection<Object> cln; 
 		if (asynch) {
 			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl(hzInstance, "client:" + clientId);
+			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
 			execSvc.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -380,28 +383,35 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			});
 		} else {
-			cln = new FixedCollectionImpl(fetchSize);
+			cln = new FixedCollectionImpl<>(fetchSize);
 			fetchDocuments(pattern, fetchSize, cln);
 		}
 		 
 		logger.trace("getDocuments.exit; returning: {}", cln);
-		return (Iterable<T>) cln;
+		return cln;
 	}
 
-	private void fetchDocuments(String pattern, int fetchSize, ResultCollection cln) {
-		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
+	private void fetchDocuments(String pattern, int fetchSize, ResultCollection<Object> cln) {
+		Predicate<DocumentKey, Document> query;
+		if (pattern == null) {
+			query = Predicates.equal(fnTxFinish, TX_NO);
+		} else {
+			query = DocumentPredicateBuilder.getQuery(repo, pattern);
+		}
 		if (fetchSize > 0) {
 			query = new LimitPredicate<>(fetchSize, query);
 		}
 		
-		java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
-		//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
 		int cnt = 0;
-		for (DocumentKey key: keys) {
-			Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-			if (content != null) {
-				cln.add(content);
-				cnt++;
+		if (query != null) {
+			java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
+			//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
+			for (DocumentKey key: keys) {
+				Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
+				if (content != null) {
+					cln.add(content);
+					cnt++;
+				}
 			}
 		}
 		logger.trace("fetchDocuments.exit; fetched {} docs", cnt);
@@ -849,6 +859,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 		cntCache.set(docKey, content);
+
+		//UrlHashKey hash = new UrlHashKey(uri);
+		//List<DocumentKey> keys = ddSvc.getCachedObject(CN_XDM_KEY, hash, true);
+		//if (keys == null) {
+		//	keys = new ArrayList<>();
+		//}
+		//keys.add(docKey);
+		//keyCache.set(hash, keys);
 		
 		logger.trace("processDocument.exit; returning: {}", newDoc);
 		return newDoc;
@@ -995,8 +1013,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//Elements elts = eMap.get(dKey);
 			Elements elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
 			if (elts != null) {
-				for (Element elt: elts.getElements()) {
-					indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());
+				if (indexManager.isPathIndexed(path.getPathId())) {
+					for (Element elt: elts.getElements()) {
+						indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());
+					}
 				}
 				pathIds.add(path.getPathId());
 			}
@@ -1010,8 +1030,47 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public <T> Iterable<Document> storeDocuments(Map<String, T> documents, Properties props) throws BagriException {
-		return null;
+	public <T> Iterable<Document> storeDocuments(final Map<String, T> documents, final Properties props) throws BagriException {
+		logger.trace("storeDocuments.enter; got documents: {}; props: {}", documents, props);
+		boolean asynch = false;
+		if (props != null) {
+			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		}
+
+		final ResultCollection<Document> cln; 
+		if (asynch) {
+			String clientId = props.getProperty(pn_client_id);
+			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+			try {
+				execSvc.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							iterateDocuments((Map<String, Object>) documents, props, cln);
+						} catch (BagriException ex) {
+							throw new Error(ex);
+						}
+						cln.add(null); //Null._null);
+					}
+				});
+			} catch (Error er) {
+				throw (BagriException) er.getCause();
+			}
+		} else {
+			cln = new FixedCollectionImpl<>(documents.size());
+			iterateDocuments((Map<String, Object>) documents, props, cln);
+		}
+		 
+		logger.trace("storeDocuments.exit; returning: {}", cln);
+		return cln;
+	}
+	
+	private void iterateDocuments(Map<String, Object> documents, Properties props, ResultCollection<Document> cln) throws BagriException {
+		for (Map.Entry<String, Object> document: documents.entrySet()) {
+			if (ddSvc.isLocalKey(document.getKey().hashCode())) {
+				cln.add(storeDocumentFrom(document.getKey(), document.getValue(), props));
+			}
+		}
 	}
 	
 	@Override
@@ -1068,6 +1127,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    		xddCache.delete(docKey);
 	    	}
 	    	cleaned = true;
+
+	    	// TODO: if xdm-key cache is used it must be cleaned too!
 	    	
 			// update statistics
 			for (Collection cln: repo.getSchema().getCollections()) {

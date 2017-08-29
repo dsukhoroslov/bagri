@@ -136,7 +136,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			case cli_RemoveCollectionDocumentsTask: return new DocumentsRemover();
+			case cli_RemoveDocumentsTask: return new DocumentsRemover();
 			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
 			case cli_ProvideCollectionsTask: return new CollectionsProvider();
 			case cli_CreateDocumentTask: return new DocumentCreator();

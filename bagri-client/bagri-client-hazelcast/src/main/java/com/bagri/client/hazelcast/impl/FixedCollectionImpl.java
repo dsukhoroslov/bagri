@@ -6,24 +6,21 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCollection;
-import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSerializable {
+public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDataSerializable {
 	
-    private final static Logger logger = LoggerFactory.getLogger(FixedCollectionImpl.class);
+    //private final static Logger logger = LoggerFactory.getLogger(FixedCollectionImpl.class);
 
-	private ArrayList<Object> results;
+	private ArrayList<T> results;
 	
 	public FixedCollectionImpl() {
 		//
@@ -33,7 +30,7 @@ public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSeri
 		results = new ArrayList<>(size);
 	}
 	
-	public FixedCollectionImpl(Collection<Object> results) {
+	public FixedCollectionImpl(Collection<T> results) {
 		this(results.size());
 		this.results.addAll(results);
 	}
@@ -49,12 +46,12 @@ public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSeri
 	}
 
 	@Override
-	public boolean add(Object result) {
+	public boolean add(T result) {
 		return results.add(result);
 	}
 	
 	@Override
-	public Iterator<Object> iterator() {
+	public Iterator<T> iterator() {
 		return results.iterator();
 	}
 	
@@ -79,7 +76,7 @@ public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSeri
 		int size = in.readInt();
 		results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
-			results.add(in.readObject());
+			results.add((T) in.readObject());
 		}
 	}
 

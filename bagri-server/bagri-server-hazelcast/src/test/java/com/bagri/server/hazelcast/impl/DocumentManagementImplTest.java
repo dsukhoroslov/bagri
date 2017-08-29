@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
@@ -15,12 +16,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
+import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.*;
 
 public class DocumentManagementImplTest extends DocumentManagementTest {
@@ -104,12 +109,25 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeSecurityTest();
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
-		ResultCollection<String> uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like security%", null);
+		ResultCollection<String> uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like security%, txFinish = 0", null);
 		assertEquals(4, uris.size());
-		uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like order%", null);
+		uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like order%, txFinish = 0", null);
 		assertEquals(2, uris.size());
-		uris = (ResultCollection<String>) dMgr.getDocumentUris("createdBy = unknown", null);
+		uris = (ResultCollection<String>) dMgr.getDocumentUris("createdBy = unknown, txFinish = 0", null);
 		assertEquals(6, uris.size());
+	}
+	
+	@Test
+	public void storeMultipleDocumentsTest() throws Exception {
+		Map<String, Object> docs = new HashMap<>();
+		docs.put("security1500.xml", readTextFile(sampleRoot + "security1500.xml"));
+		docs.put("security5621.xml", readTextFile(sampleRoot + "security5621.xml"));
+		docs.put("security9012.xml", readTextFile(sampleRoot + "security9012.xml"));
+		docs.put("security29674.xml", readTextFile(sampleRoot + "security29674.xml"));
+		Properties props = getDocumentProperties();
+		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
+		ResultCollection<Document> results = (ResultCollection<Document>) getDocManagement().storeDocuments(docs, props);
+		assertEquals(4, docs.size());
 	}
 
 }
