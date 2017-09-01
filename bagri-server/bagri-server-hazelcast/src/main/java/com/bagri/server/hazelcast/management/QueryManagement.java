@@ -160,7 +160,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 	}
 	
 	private String extractResult(ResultCursor cursor, Properties props) throws XQException, BagriException {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		//cursor.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
 		XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
 		Properties outProps = getOutputProperties(props);

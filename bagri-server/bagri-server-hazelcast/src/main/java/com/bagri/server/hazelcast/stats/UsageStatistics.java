@@ -84,7 +84,7 @@ public class UsageStatistics extends Statistics {
 		
 		@Override
 		public String toString() {
-			StringBuffer buff = new StringBuffer(sn_Header).append(" [");
+			StringBuilder buff = new StringBuilder(sn_Header).append(" [");
 			buff.append(sn_First).append(colon).append(new Date(tmFirst)).append(semicolon);
 			buff.append(sn_Last).append(colon).append(new Date(tmLast)).append(semicolon);
 			buff.append(sn_Accessed).append(colon).append(cntAccessed).append(semicolon);

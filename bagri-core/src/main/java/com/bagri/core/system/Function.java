@@ -154,7 +154,7 @@ public class Function {
 	 */
 	public String getSignature() {
 
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		if (className != null) {
 			buff.append(className).append(".");
 		} else if (prefix != null) {

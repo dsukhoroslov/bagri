@@ -93,7 +93,7 @@ public class StatisticsCollector {
 		if (data != null) {
 			CompositeData stats = data.get(new String[] {method});
 			if (stats != null) {
-				StringBuffer buff = new StringBuffer();
+				StringBuilder buff = new StringBuilder();
 				for (String key: stats.getCompositeType().keySet()) {
 					buff.append(key).append("=").append(stats.get(key));
 					buff.append("; ");

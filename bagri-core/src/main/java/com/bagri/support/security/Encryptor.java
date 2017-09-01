@@ -28,7 +28,7 @@ public class Encryptor {
 		try {
 	        MessageDigest digest = MessageDigest.getInstance(DA_MD5);
             byte[] hash = digest.digest(value.getBytes(def_encoding));
-            StringBuffer hexString = new StringBuffer(2*hash.length);
+            StringBuilder hexString = new StringBuilder(2*hash.length);
             for (byte b: hash) {
                 hexString.append(String.format("%02x", b&0xff));
             }
@@ -54,7 +54,7 @@ public class Encryptor {
 	        digest.update(salt.getBytes());
 	        digest.update(value.getBytes(def_encoding));
 	        byte[] hash = digest.digest();	        
-            StringBuffer hexString = new StringBuffer(2*hash.length);
+            StringBuilder hexString = new StringBuilder(2*hash.length);
             for (byte b: hash) {
                 hexString.append(String.format("%02x", b&0xff));
             }

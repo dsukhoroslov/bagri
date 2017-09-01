@@ -98,7 +98,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     
 	private void processPathFiles(Path root, List<Path> files) throws IOException {
 		DataFormat df = xdmRepo.getDataFormat(dataFormat);
-		StringBuffer ext = new StringBuffer();
+		StringBuilder ext = new StringBuilder();
 		if (df != null) {
 			int cnt = 0;
 			for (String e: df.getExtensions()) {

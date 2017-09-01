@@ -671,7 +671,7 @@ public class XQUtils {
     	result.setProperty(pn_xqj_defaultElementTypeNamespace, ctx.getDefaultElementTypeNamespace());
     	result.setProperty(pn_xqj_defaultFunctionNamespace, ctx.getDefaultFunctionNamespace());
     	if (ctx.getNamespacePrefixes().length > 0) {
-    		StringBuffer namespaces = new StringBuffer();
+    		StringBuilder namespaces = new StringBuilder();
     		for (String prefix: ctx.getNamespacePrefixes()) {
     			namespaces.append(prefix).append(":").append(ctx.getNamespaceURI(prefix));
     			namespaces.append(" ");

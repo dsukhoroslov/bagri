@@ -50,7 +50,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
     	Map<String, Object> tree = new HashMap<>();
 		for (Elements elts: elements) {
 			Path path = model.getPath(elts.getPathId());
-			StringBuffer buff = new StringBuffer();
+			StringBuilder buff = new StringBuilder();
 			buff.append(path.getNodeKind()).append(" [");
 			int idx = 0;
 			for (Element elt: elts.getElements()) {

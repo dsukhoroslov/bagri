@@ -331,13 +331,13 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         }
 
 		//import module namespace tpox="http://tpox-benchmark.com/rest" at "../../etc/samples/tpox/rest_module.xq";
-        StringBuffer query = new StringBuffer("import module namespace ").
+        StringBuilder query = new StringBuilder("import module namespace ").
         		append(module.getPrefix()).append("=\"").append(module.getNamespace()).
         		append("\" at \"").append(module.getName()).append("\";\n"); // +
         int offset = query.length();
     	//tpox:security-by-id($id)
         query.append(fn.getPrefix()).append(":").append(fn.getMethod()).append("(");
-        StringBuffer params = new StringBuffer();
+        StringBuilder params = new StringBuilder();
         int cnt = 0;
     	//declare variable $id external;
         for (Parameter param: fn.getParameters()) {

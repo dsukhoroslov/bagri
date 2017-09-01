@@ -87,7 +87,7 @@ public class XQCompilerImpl implements XQCompiler {
 	}
 	
 	private String getError(XPathException ex, StaticQueryContext sqc) {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		if (sqc.getErrorListener() instanceof LocalErrorListener) {
 			List<TransformerException> errors = ((LocalErrorListener) sqc.getErrorListener()).getErrors();
 			for (TransformerException tex: errors) {
@@ -165,7 +165,7 @@ public class XQCompilerImpl implements XQCompiler {
 				String decl = getFunctionDeclaration(fn); 
 				List<Annotation> atns = fn.getAnnotations(); 
 				logger.trace("lookupFunctions; fn annotations: {}", atns);
-				StringBuffer buff = new StringBuffer();
+				StringBuilder buff = new StringBuilder();
 				for (Annotation atn: atns) {
 					if (Annotation.PRIVATE.equals(atn.getAnnotationQName())) {
 						// do not expose private functions
@@ -199,7 +199,7 @@ public class XQCompilerImpl implements XQCompiler {
 	private String getFunctionDeclaration(UserFunction function) {
 		//declare function hw:helloworld($name as xs:string)
 		logger.trace("getFunctionDeclaration.enter; function: {}", function);
-		StringBuffer buff = new StringBuffer("function ");
+		StringBuilder buff = new StringBuilder("function ");
 		buff.append(function.getFunctionName());
 		buff.append("(");
 		int idx =0;

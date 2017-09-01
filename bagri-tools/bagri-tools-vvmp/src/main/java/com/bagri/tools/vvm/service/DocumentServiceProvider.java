@@ -237,7 +237,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
 		if (collections == null) {
 			return null;
 		}
-		StringBuffer buff = new StringBuffer("bdb.document.collections=");
+		StringBuilder buff = new StringBuilder("bdb.document.collections=");
 		for (String cln: collections) {
 			buff.append(cln).append(" ");
 		}

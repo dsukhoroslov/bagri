@@ -59,7 +59,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
    	public String buildContent(Collection<Data> elements) throws BagriException {
     	
     	Deque<Data> dataStack = new LinkedList<>();
-    	StringBuffer buff = new StringBuffer();
+    	StringBuilder buff = new StringBuilder();
     	boolean eltOpen = false;
     	
     	String prefix = "";
@@ -91,7 +91,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
     	return buff.toString();
     }
 
-	private boolean writeElement(Deque<Data> dataStack, StringBuffer buff, Data data, boolean eltOpen, String prefix) {
+	private boolean writeElement(Deque<Data> dataStack, StringBuilder buff, Data data, boolean eltOpen, String prefix) {
 		switch (data.getNodeKind()) {
 			case document: { // this must be the first row..
 				buff.append("<?xml version=\"1.0\"?>"); // what about: encoding="utf-8"?>, standalone..
@@ -157,7 +157,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 		return eltOpen;
 	}
 	
-	private boolean endElement(Deque<Data> dataStack, StringBuffer buff, Data data, boolean eltOpen, String prefix) {
+	private boolean endElement(Deque<Data> dataStack, StringBuilder buff, Data data, boolean eltOpen, String prefix) {
     	
 		if (dataStack.isEmpty()) {
 			//
@@ -197,7 +197,7 @@ public class XmlBuilder extends ContentBuilderBase<String> implements ContentBui
 		return eltOpen;
     }
 	
-	private void addIdents(Data data, StringBuffer buff, String space) {
+	private void addIdents(Data data, StringBuilder buff, String space) {
 		if (pretty) {
 			for (int i=1; i < data.getLevel(); i++) {
 				buff.append(space);
