@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.predicate;
 
 import com.bagri.core.DocumentKey;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
@@ -11,6 +12,8 @@ import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
+import com.hazelcast.query.Predicates;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -81,39 +84,42 @@ public class DocumentPredicateTest {
 	}
 
 	@Test
-	public void testHzCluster() throws Exception {
-	    Properties props = new Properties();
-		props.setProperty(pn_document_collections, "maps");
-		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
-		//long txId = xRepo.getTxManagement().beginTransaction();
-		int cnt = 100;
-		for (int i=0; i < cnt; i++) {
-			Map<String, Object> m1 = new HashMap<>();
-			m1.put("intProp", i); 
-			m1.put("boolProp", i % 2 == 0);
-			m1.put("strProp", "xyz" + 32*i);
-			String uri = "map_test" + i;
-			SchemaRepositoryImpl repo = getRepoForUri(uri);
-			Document mDoc = repo.getDocumentManagement().storeDocumentFrom(uri, m1, props);
-			assertNotNull(mDoc);
-			//assertEquals(txId, mDoc.getTxStart());
-			//uris.add(mDoc.getUri());
-		}
-		//xRepo.getTxManagement().commitTransaction(txId);
-		
+	public void testAttributePredicate() throws Exception {
+		int uriCnt = populateDocuments();
+		HazelcastInstance hz = repos[0].getHzInstance();
+		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		java.util.Collection<Document> maps = xddCache.values(Predicates.between("uri", "map_test10", "map_test30"));
+		assertEquals(uriCnt, maps.size());
+	}
+	
+	@Test
+	public void testCollectionPredicate() throws Exception {
+		int uriCnt = populateDocuments();
 		HazelcastInstance hz = repos[0].getHzInstance();
 		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
 		java.util.Collection<Document> maps = xddCache.values(new CollectionPredicate(map_cln_id));
-		assertEquals(cnt, maps.size());
-		
-		//java.util.Collection<String> uris2 = xRepo.getDocumentManagement().getDocumentUris("uri >= map_test50", props);
-		//assertEquals(54, uris2.size());
-		
-		//Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= map_test50", props);
-		//assertEquals(uris2.size(), ((java.util.Collection) results).size());
+		assertEquals(100, maps.size());
 	}
-	
+
+	@Test
+	public void testLimitPredicate() throws Exception {
+		int uriCnt = populateDocuments();
+		HazelcastInstance hz = repos[0].getHzInstance();
+		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		java.util.Collection<Document> maps = xddCache.values(new LimitPredicate<>(5, Predicates.between("uri", "map_test10", "map_test30")));
+		assertEquals(15, maps.size());
+	}
+
+	@Test
+	public void testLimitAggregator() throws Exception {
+		int uriCnt = populateDocuments();
+		HazelcastInstance hz = repos[0].getHzInstance();
+		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
+		LimitAggregator la = new LimitAggregator<>(5, Predicates.between("uri", "map_test10", "map_test30"));
+		java.util.Collection<Document> maps = (java.util.Collection<Document>) xddCache.aggregate(la,  la);
+		assertEquals(5, maps.size());
+	}
+
 	private SchemaRepositoryImpl getRepoForUri(String uri) {
 		Integer key = uri.hashCode();
 		for (int i=0; i < cluster_size; i++) {
@@ -126,6 +132,33 @@ public class DocumentPredicateTest {
 			}
 		}
 		return null;
+	}
+	
+	private int populateDocuments() throws Exception {
+	    Properties props = new Properties();
+		props.setProperty(pn_document_collections, "maps");
+		props.setProperty(pn_document_data_format, "MAP");
+		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
+		//long txId = xRepo.getTxManagement().beginTransaction();
+		int cnt = 100;
+		String uriFirst = "map_test10";
+		String uriLast = "map_test30";
+		int uriCnt = 0;
+		for (int i=0; i < cnt; i++) {
+			Map<String, Object> m1 = new HashMap<>();
+			m1.put("intProp", i); 
+			m1.put("boolProp", i % 2 == 0);
+			m1.put("strProp", "xyz" + 32*i);
+			String uri = "map_test" + i;
+			SchemaRepositoryImpl repo = getRepoForUri(uri);
+			DocumentAccessor mDoc = repo.getDocumentManagement().storeDocument(uri, m1, props);
+			assertNotNull(mDoc);
+			if (uri.compareTo(uriFirst) >= 0 && uri.compareTo(uriLast) <= 0) {
+				uriCnt++;
+			}
+		}
+		//xRepo.getTxManagement().commitTransaction(txId);
+		return uriCnt;
 	}
 	
 }

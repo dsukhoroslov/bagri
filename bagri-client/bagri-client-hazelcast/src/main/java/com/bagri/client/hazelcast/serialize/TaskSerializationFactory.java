@@ -2,7 +2,6 @@ package com.bagri.client.hazelcast.serialize;
 
 import com.bagri.client.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.client.hazelcast.task.doc.DocumentCollectionUpdater;
-import com.bagri.client.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentRemover;
@@ -59,7 +58,6 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
-			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
 			case cli_ProvideQueryUrisTask: return new QueryUrisProvider(); 
 			case cli_ExecQueryTask: return new QueryExecutor();

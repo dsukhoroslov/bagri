@@ -7,10 +7,10 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.TransactionIsolation;
-import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
@@ -29,7 +29,7 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
 	}
 
 	@Override
-	public ResultCollection<Document> call() throws Exception {
+	public ResultCollection<DocumentAccessor> call() throws Exception {
     	
     	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	//checkPermission(Permission.Value.modify);
@@ -38,7 +38,7 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely!
-    		return (ResultCollection<Document>) docMgr.storeDocuments(documents, props);
+    		return (ResultCollection<DocumentAccessor>) docMgr.storeDocuments(documents, props);
     	}
     	
     	// do we have default isolation level?
@@ -47,10 +47,10 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
     		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
     	
-    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection<Document>>() {
+    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection<DocumentAccessor>>() {
     		
-	    	public ResultCollection<Document> call() throws Exception {
-	    		return (ResultCollection<Document>) docMgr.storeDocuments(documents, props);
+	    	public ResultCollection<DocumentAccessor> call() throws Exception {
+	    		return (ResultCollection<DocumentAccessor>) docMgr.storeDocuments(documents, props);
 	    	}
     	});
     }

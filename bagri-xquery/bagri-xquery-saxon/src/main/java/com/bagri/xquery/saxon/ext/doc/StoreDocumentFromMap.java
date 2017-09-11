@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.model.Document;
 
@@ -69,7 +70,7 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 					props = sequence2Properties(arguments[2]);
 				}
 				try {
-					Document doc = xdm.storeDocumentFrom(uri, map, props);
+					DocumentAccessor doc = xdm.storeDocument(uri, map, props);
 					return new AnyURIValue(doc.getUri());
 				} catch (BagriException ex) {
 					throw new XPathException(ex);

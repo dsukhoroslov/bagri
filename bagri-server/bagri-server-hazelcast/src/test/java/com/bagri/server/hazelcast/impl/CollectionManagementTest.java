@@ -192,7 +192,7 @@ public class CollectionManagementTest extends BagriManagementTest {
 		assertEquals(4, uris.size());
 		
 		long txId = xRepo.getTxManagement().beginTransaction();
-		int cnt = getDocManagement().removeDocuments("collections.contains(CLN_Security)", null);
+		int cnt = 0; //getDocManagement().removeDocuments("collections.contains(CLN_Security)", null);
 		xRepo.getTxManagement().commitTransaction(txId);
 		assertEquals(4, cnt);
 		

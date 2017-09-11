@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
@@ -129,9 +130,9 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 	public void uniqueDocumentUpdateTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		//int version = doc.getVersion();
@@ -140,7 +141,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		//assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -154,9 +155,9 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 	public void uniqueDocumentRollbackTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(doc.getUri());
 		getTxManagement().rollbackTransaction(txId);
 		
@@ -175,9 +176,9 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 	public void uniqueDocumentDeleteTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 
@@ -196,9 +197,9 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 	public void twoDocumentsUpdateTest() throws Exception {
 
 		long txId = getTxManagement().beginTransaction();
-		Document doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
+		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		int version = doc.getVersion();
@@ -207,7 +208,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		uris.add(doc.getUri());
@@ -216,7 +217,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		txId = getTxManagement().beginTransaction();
 		doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getTxStart());
+		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		//long docId = doc.getDocumentId();

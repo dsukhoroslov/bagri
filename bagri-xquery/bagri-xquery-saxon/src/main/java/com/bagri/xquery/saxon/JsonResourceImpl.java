@@ -6,6 +6,7 @@ import static com.bagri.core.Constants.pn_document_data_format;
 import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.server.api.DocumentManagement;
 
 import net.sf.saxon.expr.XPathContext;
@@ -29,7 +30,8 @@ public class JsonResourceImpl extends ResourceImplBase {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "JSON");
 			try {
-				json = docMgr.getDocumentAs(docKey, props);
+				DocumentAccessor doc = docMgr.getDocument(docKey, props);
+				json = doc.getContent();
 			} catch (BagriException ex) {
 				throw new XPathException(ex);
 			}

@@ -9,12 +9,12 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
-import com.bagri.core.model.Document;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentsCreator extends TransactionAwareTask implements Callable<ResultCollection<Document>> {
+public class DocumentsCreator extends TransactionAwareTask implements Callable<ResultCollection<DocumentAccessor>> {
 
 	protected Properties props;
 	protected Map<String, Object> documents;
@@ -30,7 +30,7 @@ public class DocumentsCreator extends TransactionAwareTask implements Callable<R
 	}
 
 	@Override
-	public ResultCollection<Document> call() throws Exception {
+	public ResultCollection<DocumentAccessor> call() throws Exception {
 		return null; 
 	}
 

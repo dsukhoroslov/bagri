@@ -5,7 +5,6 @@ import com.bagri.server.hazelcast.task.doc.DocumentsRemover;
 import com.bagri.server.hazelcast.task.doc.CollectionsProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.server.hazelcast.task.doc.DocumentCollectionUpdater;
-import com.bagri.server.hazelcast.task.doc.DocumentContentProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentCreator;
 import com.bagri.server.hazelcast.task.doc.DocumentProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
@@ -153,7 +152,6 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_PopulateSchemaTask: return new SchemaPopulator();
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
-			case cli_ProvideDocumentContentTask: return new DocumentContentProvider();
 			case cli_ProvideDocumentStructureTask: return new DocumentStructureProvider();
 			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();

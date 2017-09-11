@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
@@ -84,9 +85,9 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		Properties props = new Properties(); //getDocumentProperties();
 		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(pn_document_collections, "products");
-		uris.add(getDocManagement().storeDocumentFrom("product.xml", doc1, props).getUri());
+		uris.add(getDocManagement().storeDocument("product.xml", doc1, props).getUri());
 		props.setProperty(pn_document_collections, "orders");
-		uris.add(getDocManagement().storeDocumentFrom("order.xml", doc2, props).getUri());
+		uris.add(getDocManagement().storeDocument("order.xml", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 
 		String query =
@@ -126,7 +127,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		docs.put("security29674.xml", readTextFile(sampleRoot + "security29674.xml"));
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
-		ResultCollection<Document> results = (ResultCollection<Document>) getDocManagement().storeDocuments(docs, props);
+		ResultCollection<DocumentAccessor> results = (ResultCollection<DocumentAccessor>) getDocManagement().storeDocuments(docs, props);
 		assertEquals(4, docs.size());
 	}
 

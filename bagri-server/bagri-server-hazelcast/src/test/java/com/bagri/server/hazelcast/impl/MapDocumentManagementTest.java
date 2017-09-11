@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
@@ -95,13 +96,14 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	    Properties props = new Properties();
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test1", m1, props);
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test1", m1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
+		
 		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAs(mDoc.getUri(), props);
+		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocument(mDoc.getUri(), props).getContent();
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));
@@ -122,27 +124,26 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	    Properties props = new Properties();
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test2", m1, props);
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test2", m1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
-		uris.add(mDoc.getUri());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 
 		m1.clear();
 		m1.put("intProp", 2); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "CDE");
-		mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test3", m1, props);
+		mDoc = xRepo.getDocumentManagement().storeDocument("map_test3", m1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(mDoc.getUri());
 		
 		m1.clear();
 		m1.put("intProp", 3); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "EFGH");
-		mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test4", m1, props);
+		mDoc = xRepo.getDocumentManagement().storeDocument("map_test4", m1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(mDoc.getUri());
 
 		xRepo.getTxManagement().commitTransaction(txId);
@@ -162,21 +163,21 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	    Properties props = new Properties();
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "JSON");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("json_test2", s1, props);
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test2", s1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(mDoc.getUri());
 
 		s1 = "{\"boolProp\":false,\"intProp\":2,\"strProp\":\"CDE\"}";
-		mDoc = xRepo.getDocumentManagement().storeDocumentFrom("json_test3", s1, props);
+		mDoc = xRepo.getDocumentManagement().storeDocument("json_test3", s1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(mDoc.getUri());
 		
 		s1 = "{\"boolProp\":false,\"intProp\":3,\"strProp\":\"EFGH\"}";
-		mDoc = xRepo.getDocumentManagement().storeDocumentFrom("json_test4", s1, props);
+		mDoc = xRepo.getDocumentManagement().storeDocument("json_test4", s1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(mDoc.getUri());
 
 		xRepo.getTxManagement().commitTransaction(txId);
@@ -206,9 +207,9 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	    Properties props = new Properties();
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test3", m1, props);
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test3", m1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		//uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
@@ -263,7 +264,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		uris.add(uri);
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocumentAs(uri, props);
+		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocument(uri, props).getContent();
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
 		assertEquals(m1.get("strProp"), m2.get("strProp"));
@@ -281,7 +282,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 			m1.put("intProp", i); 
 			m1.put("boolProp", i % 2 == 0);
 			m1.put("strProp", "xyz" + 32*i);
-			Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test" + i, m1, props);
+			DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test" + i, m1, props);
 			assertNotNull(mDoc);
 			//assertEquals(txId, mDoc.getTxStart());
 			uris.add(mDoc.getUri());
@@ -292,7 +293,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		assertEquals(54, uris2.size());
 		
 		props.setProperty(pn_client_fetchSize, "25");
-		ResultCollection<Object> results = (ResultCollection<Object>) xRepo.getDocumentManagement().getDocuments("uri >= map_test50, txFinish = 0", props);
+		ResultCollection<DocumentAccessor> results = (ResultCollection<DocumentAccessor>) xRepo.getDocumentManagement().getDocuments("uri >= map_test50, txFinish = 0", props);
 		assertEquals(25, results.size());
 	}
 	

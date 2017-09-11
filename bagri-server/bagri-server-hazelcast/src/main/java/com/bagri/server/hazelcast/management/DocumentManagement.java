@@ -22,6 +22,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
@@ -155,9 +156,9 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentInfo(String uri) {
 		try {
-			Document doc = docManager.getDocument(uri);
+			DocumentAccessor doc = docManager.getDocument(uri, null);
 			if (doc != null) {
-				Map<String, Object> docInfo = doc.convert();
+				Map<String, Object> docInfo = doc.getHeaders();
 				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
 			} 
 			return null;
@@ -172,7 +173,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentLocation(String uri) {
 		try {
-			Document doc = docManager.getDocument(uri);
+			DocumentAccessor doc = docManager.getDocument(uri, null);
 			if (doc != null) {
 				Partition part = hzClient.getPartitionService().getPartition(doc.getUri().hashCode());
 				Map<String, Object> location = new HashMap<>(2);
@@ -193,7 +194,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String getDocumentContent(String uri, String properties) {
 		try {
-			return docManager.getDocumentAs(uri, propsFromString(properties));
+			DocumentAccessor doc = docManager.getDocument(uri, propsFromString(properties));
+			return doc.getContent();
 		} catch (IOException | BagriException ex) {
 			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
@@ -208,7 +210,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		String uri = Paths.get(docFile).getFileName().toString(); 
 		try {
 			String xml = FileUtils.readTextFile(docFile);
-			Document doc = docManager.storeDocumentFrom(uri, xml, propsFromString(properties));
+			DocumentAccessor doc = docManager.storeDocument(uri, xml, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | BagriException ex) {
 			logger.error("registerDocument.error: " + ex.getMessage(), ex);
@@ -224,7 +226,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public String updateDocument(String uri, String docFile, String properties) {
 		try {
 			String content = FileUtils.readTextFile(docFile);
-			Document doc = docManager.storeDocumentFrom(uri, content, propsFromString(properties));
+			DocumentAccessor doc = docManager.storeDocument(uri, content, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | BagriException ex) {
 			logger.error("updateDocument.error: " + ex.getMessage(), ex);

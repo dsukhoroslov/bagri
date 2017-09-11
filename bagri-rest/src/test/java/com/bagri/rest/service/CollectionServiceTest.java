@@ -68,7 +68,7 @@ public class CollectionServiceTest extends JerseyTest {
         	assertTrue(response.contains(name));
     	}
 
-		when(docMgr.removeDocuments("collections.contains(securities)", null)).thenReturn(3);
+		//when(docMgr.removeDocuments("collections.contains(securities)", null)).thenReturn(3);
     	int deleted = target("clns").path("securities").request()
         		.cookie(bg_cookie, "client-id").delete(Integer.class);
     }    

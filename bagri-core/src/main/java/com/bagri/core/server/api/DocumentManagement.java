@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 
 /**
@@ -23,7 +24,7 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	 * @return Map&lt;String, Object&gt; representing the XDM document
 	 * @throws BagriException in case of any error
 	 */
-	<T> T getDocumentAs(long docKey, Properties props) throws BagriException;
+	DocumentAccessor getDocument(long docKey, Properties props) throws BagriException;
 	
 	/**
 	 * provides XDM Document content for the internal document key
@@ -33,7 +34,7 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	 * @return Map&lt;String, Object&gt; representing the XDM document
 	 * @throws BagriException in case of any error
 	 */
-	<T> T getDocumentAs(DocumentKey docKey, Properties props) throws BagriException;
+	DocumentAccessor getDocument(DocumentKey docKey, Properties props) throws BagriException;
 	
 	/**
 	 * provides document's MIME type (xml/json as of now)
@@ -59,7 +60,7 @@ public interface DocumentManagement extends com.bagri.core.api.DocumentManagemen
 	 * @return the Document created
 	 * @throws BagriException in case of any error happened
 	 */
-	Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, 
-			Date createdAt, String createdBy, long txStart, int[] collections, boolean addContent) throws BagriException;
+	//Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, 
+	//		Date createdAt, String createdBy, long txStart, int[] collections, boolean addContent) throws BagriException;
 	
 }

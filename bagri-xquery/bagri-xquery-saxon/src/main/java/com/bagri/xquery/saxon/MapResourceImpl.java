@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.server.api.DocumentManagement;
 
 import net.sf.saxon.expr.XPathContext;
@@ -26,7 +27,8 @@ public class MapResourceImpl extends ResourceImplBase {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "MAP");
 			try {
-				map = docMgr.getDocumentAs(docKey, props);
+				DocumentAccessor doc = docMgr.getDocument(docKey, props);
+				map = doc.getContent();
 			} catch (BagriException ex) {
 				throw new XPathException(ex);
 			}

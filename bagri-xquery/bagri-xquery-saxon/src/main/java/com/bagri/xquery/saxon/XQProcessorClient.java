@@ -58,18 +58,16 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 			if (command.equals(cmd_store_document)) {
 				String content = ((XQItem) params.remove("content")).getAtomicValue();
 				String uri = getDocumentUri(params);
-				result = getDocumentManagement().storeDocumentFrom(uri, content, fillProperties(params, props));
+				result = getDocumentManagement().storeDocument(uri, content, fillProperties(params, props));
 			} else if (command.equals(cmd_get_document)) {
 				String uri = getDocumentUri(params);
-				result = getDocumentManagement().getDocumentAs(uri, props);
+				result = getDocumentManagement().getDocument(uri, props);
 			} else if (command.equals(cmd_remove_document)) {
 				String uri = getDocumentUri(params);
-				getDocumentManagement().removeDocument(uri, props);
-				result = new Integer(1); 
+				result = getDocumentManagement().removeDocument(uri, props);
 			} else if (command.equals(cmd_remove_cln_documents)) {
 				String pattern = (String) params.get("pattern");
-				getDocumentManagement().removeDocuments(pattern, props);
-				result = new Integer(0); 
+				result = getDocumentManagement().removeDocuments(pattern, props);
 			} else {
 				props = ensureProperty(props, pn_query_command, "true");
 		    	QueryManagement qMgr = getQueryManagement();

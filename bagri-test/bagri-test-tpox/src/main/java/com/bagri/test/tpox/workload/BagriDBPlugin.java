@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.system.Parameter;
 import com.bagri.core.test.ClientQueryManagementTest;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -219,8 +219,8 @@ public class BagriDBPlugin extends BagriTPoXPlugin {
 			return xRepo;
 		}
 		
-		Document storeDocument(String uri, String xml) throws Exception {
-			return xRepo.getDocumentManagement().storeDocumentFrom(uri, xml, props);
+		DocumentAccessor storeDocument(String uri, String xml) throws Exception {
+			return xRepo.getDocumentManagement().storeDocument(uri, xml, props);
 		}
 		
 	}

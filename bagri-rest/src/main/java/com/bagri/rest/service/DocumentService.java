@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Document;
@@ -103,7 +104,8 @@ public class DocumentService  extends RestService {
     		} else if (MediaType.APPLICATION_XML_TYPE.equals(hh.getAcceptableMediaTypes().get(0))) {
     	    	props.setProperty(pn_document_data_format, df_xml);
     		}
-            String content = docMgr.getDocumentAs(uri, props);
+            DocumentAccessor doc = docMgr.getDocument(uri, props);
+            String content = doc.getContent();
             return Response.ok(content).build();
     	} catch (Exception ex) {
     		logger.error("getDocumentContent.error", ex);
@@ -120,9 +122,10 @@ public class DocumentService  extends RestService {
 		DocumentManagement docMgr = getDocManager();
     	try {
     		logger.trace("postDocument; got params: {}", params);
-            Document doc = docMgr.storeDocumentFrom(params.uri, params.content, params.props);
+            DocumentAccessor doc = docMgr.storeDocument(params.uri, params.content, params.props);
      		logger.trace("postDocument; got document: {}", doc);
-            DocumentBean dr = new DocumentBean(doc.getUri(), doc.getCreatedAt().getTime(), doc.getCreatedBy(), doc.getFormat(), doc.getEncoding(), doc.getBytes());
+            DocumentBean dr = new DocumentBean(doc.getUri(), (Long) doc.getHeader(DocumentAccessor.HDR_CREATED_AT), (String) doc.getHeader(DocumentAccessor.HDR_CREATED_BY), 
+            		(String) doc.getHeader(DocumentAccessor.HDR_FORMAT), (String) doc.getHeader(DocumentAccessor.HDR_ENCODING), (Integer) doc.getHeader(DocumentAccessor.HDR_SIZE_IN_BYTES));
             return Response.created(UriBuilder.fromPath("/docs/" + dr.uri).build()).entity(dr).build();
     	} catch (Exception ex) {
     		logger.error("postDocument.error", ex);

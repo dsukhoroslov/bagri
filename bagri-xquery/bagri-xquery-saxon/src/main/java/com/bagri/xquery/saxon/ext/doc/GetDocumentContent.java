@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -56,21 +57,21 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 
-				String result = null;
+				DocumentAccessor result = null;
 				try {
 					String uri = arguments[0].head().getStringValue();
 					Properties props = null; 
 					if (arguments.length > 1) {
 						props = sequence2Properties(arguments[1]);
 					}
-					result = xdm.getDocumentAs(uri, props);
+					result = xdm.getDocument(uri, props);
 				} catch (BagriException ex) {
 					throw new XPathException(ex);
 				}
 				if (result == null) {
 					return EmptySequence.getInstance();
 				}
-				return new StringValue(result);
+				return new StringValue((String) result.getContent());
 			}
         };
 	} 

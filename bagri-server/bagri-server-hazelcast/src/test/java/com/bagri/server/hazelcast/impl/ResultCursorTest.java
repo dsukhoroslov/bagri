@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
@@ -186,9 +187,9 @@ public class ResultCursorTest extends BagriManagementTest {
 		map.put("intProp", 10); 
 		map.put("boolProp", true);
 		map.put("strProp", "ABC");
-		Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test", map, props);
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test", map, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getTxStart());
+		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
@@ -221,9 +222,9 @@ public class ResultCursorTest extends BagriManagementTest {
 			map.put("intProp", i); 
 			map.put("boolProp", i % 2 == 0);
 			map.put("strProp", "XYZ" + i);
-			Document mDoc = xRepo.getDocumentManagement().storeDocumentFrom("map_test_" + i, map, props);
+			DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test_" + i, map, props);
 			assertNotNull(mDoc);
-			assertEquals(txId, mDoc.getTxStart());
+			assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
 			uris.add(mDoc.getUri());
 		}
 		xRepo.getTxManagement().commitTransaction(txId);

@@ -5,9 +5,9 @@ import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 
-public class DocumentRemover extends DocumentAwareTask implements Callable<Document> {
+public class DocumentRemover extends DocumentAwareTask implements Callable<DocumentAccessor> {
 
 	public DocumentRemover() {
 		super();
@@ -23,7 +23,7 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<Docum
 	}
 
 	@Override
-	public Document call() throws Exception {
+	public DocumentAccessor call() throws Exception {
 		return null;
 	}
 

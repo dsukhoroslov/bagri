@@ -120,9 +120,9 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "products");
-		uris.add(getDocManagement().storeDocumentFrom("product.json", doc1, props).getUri());
+		uris.add(getDocManagement().storeDocument("product.json", doc1, props).getUri());
 		props.setProperty(pn_document_collections, "orders");
-		uris.add(getDocManagement().storeDocumentFrom("order.json", doc2, props).getUri());
+		uris.add(getDocManagement().storeDocument("order.json", doc2, props).getUri());
 		getTxManagement().commitTransaction(txId);
 	
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
@@ -143,7 +143,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		Properties props = getDocumentProperties();
 		//props.setProperty(pn_document_collections, "person");
-		uris.add(getDocManagement().storeDocumentFrom("person.json", json, props).getUri());
+		uris.add(getDocManagement().storeDocument("person.json", json, props).getUri());
 		getTxManagement().commitTransaction(txId);
 		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +

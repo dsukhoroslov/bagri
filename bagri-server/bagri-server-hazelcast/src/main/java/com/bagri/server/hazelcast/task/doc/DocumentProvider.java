@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
@@ -26,14 +27,14 @@ public class DocumentProvider extends com.bagri.client.hazelcast.task.doc.Docume
 
     @Override
 	//public Document call() throws Exception {
-	public Object process(Entry<DocumentKey, Document> entry) {
+	public DocumentAccessor process(Entry<DocumentKey, Document> entry) {
     	
     	try {
         	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
 	    	
-			return docMgr.getDocument(uri);
+			return docMgr.getDocument(uri, props);
     	} catch (BagriException ex) {
-    		return ex;
+    		return null; //ex; think about this case!!
     	}
 	}
 

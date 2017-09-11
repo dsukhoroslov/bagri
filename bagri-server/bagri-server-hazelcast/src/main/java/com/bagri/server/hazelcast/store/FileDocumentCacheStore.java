@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.system.DataFormat;
@@ -255,7 +256,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		String fullUri = getFullUri(docUri);
 		try {
 			// must return doc in default format (XML/JSON)
-			String content = docManager.getDocumentAs(key, props);
+			DocumentAccessor doc = 	docManager.getDocument(key, props);
+			String content = doc.getContent();
 			if (content == null) {
 				logger.info("storeDocument.exit; got null content for key: {}; uri: {}", key, fullUri);
 			} else {

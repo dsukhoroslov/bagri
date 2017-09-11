@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 
-public class DocumentCreator extends DocumentAwareTask implements Callable<Document> {
+public class DocumentCreator extends DocumentAwareTask implements Callable<DocumentAccessor> {
 
 	protected Object content;
 
@@ -25,7 +25,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	}
 
 	@Override
-	public Document call() throws Exception {
+	public DocumentAccessor call() throws Exception {
 		return null; 
 	}
 

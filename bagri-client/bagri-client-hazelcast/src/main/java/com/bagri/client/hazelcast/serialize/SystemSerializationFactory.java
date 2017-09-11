@@ -9,6 +9,7 @@ import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
+import com.bagri.client.hazelcast.impl.DocumentAccessorImpl;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.hazelcast.nio.serialization.DataSerializableFactory;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -23,6 +24,8 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 	public static final int cli_FixedCursor = 102;
 	public static final int cli_QueuedCollection = 103;
 	public static final int cli_FixedCollection = 104;
+
+	public static final int cli_DocumentAccessor = 110;
 	
 	public static final int cli_DocumentKey = 120; 
 	public static final int cli_DocumentPathKey = 121; 
@@ -36,8 +39,9 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 			case cli_PartitionStats: return new PartitionStatistics();
 			case cli_QueuedCursor: return new QueuedCursorImpl();
 			case cli_FixedCursor: return new FixedCursorImpl();
-			case cli_QueuedCollection: return new QueuedCollectionImpl();
-			case cli_FixedCollection: return new FixedCollectionImpl();
+			case cli_QueuedCollection: return new QueuedCollectionImpl<>();
+			case cli_FixedCollection: return new FixedCollectionImpl<>();
+			case cli_DocumentAccessor: return new DocumentAccessorImpl();
 			case cli_DocumentKey: return new DocumentPartKey(); 
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 

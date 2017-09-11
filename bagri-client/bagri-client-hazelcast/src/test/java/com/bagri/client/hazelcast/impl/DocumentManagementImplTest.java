@@ -1,5 +1,6 @@
 package com.bagri.client.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.test.DocumentManagementTest;
 import com.hazelcast.core.Hazelcast;
@@ -57,13 +58,13 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 
 	@Test
 	public void documentPropertiesTest() throws Exception {
-		Document doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
+		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		uris.add(doc.getUri());
-		assertEquals(doc.getCreatedBy(), "guest");
-		assertEquals(doc.getFragments().length, 1);
+		assertEquals("guest", doc.getHeader(DocumentAccessor.HDR_CREATED_BY));
+		assertEquals(1, doc.getHeader(DocumentAccessor.HDR_SIZE_IN_FRAGMENTS));
 		//assertEquals(doc.getTxStart(), 1);
-		assertEquals(doc.getTxFinish(), 0);
-		assertEquals(doc.getVersion(), 1);
+		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(1, doc.getVersion());
 	}
 	
 }

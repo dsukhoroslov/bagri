@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.DocumentTrigger;
 import com.tpox_benchmark.security.Security;
@@ -26,7 +27,8 @@ public class SecurityTrigger implements DocumentTrigger {
 		try {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "XML");
-			Security sec = repo.getDocumentManagement().getDocumentAs(doc.getUri(), props);
+			DocumentAccessor da = repo.getDocumentManagement().getDocument(doc.getUri(), props);
+			Security sec = da.getContent();
 			logger.info("afterInsert.exit; got security: {}/{}/{}", sec.getName(), sec.getSymbol(), sec.getId());
 		} catch (BagriException ex) { 
 			logger.info("afterInsert.error; got exception: {}", ex.getMessage());

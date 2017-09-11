@@ -7,11 +7,13 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class DocumentsRemover extends TransactionAwareTask implements Callable<Integer>, IdentifiedDataSerializable {
+public class DocumentsRemover extends TransactionAwareTask implements Callable<ResultCollection<DocumentAccessor>>, IdentifiedDataSerializable {
 	
 	protected String pattern;
 	protected Properties props;
@@ -27,7 +29,7 @@ public class DocumentsRemover extends TransactionAwareTask implements Callable<I
 	}
 
 	@Override
-	public Integer call() throws Exception {
+	public ResultCollection<DocumentAccessor> call() throws Exception {
 		return null;
 	}
 	

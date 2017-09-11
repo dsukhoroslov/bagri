@@ -42,7 +42,7 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.saxon.XQProcessorClient;
@@ -285,7 +285,7 @@ public class BookingApp {
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(fileName), encoding), 0, parser); 
 		} else {
 			String content = readTextFile(fileName, encoding);
-			Document doc = dMgr.storeDocumentFrom(fn, content, props);
+			DocumentAccessor doc = dMgr.storeDocument(fn, content, props);
 			return 1;
 		}
 
@@ -328,7 +328,7 @@ public class BookingApp {
         Map<String, Object> map = line2Map(header, data);
         if (map != null) {
         	try {
-        		Document doc = xRepo.getDocumentManagement().storeDocumentFrom(uri, map, props);
+        		DocumentAccessor doc = xRepo.getDocumentManagement().storeDocument(uri, map, props);
         		return doc != null;
         	} catch (BagriException ex) {
         		System.out.println("failed map is: " + map + ". record idx is: " + (idx + 2));
@@ -366,7 +366,8 @@ public class BookingApp {
 	
 	public String getDocument(String uri) throws BagriException {
 		// get it as Map?
-		return xRepo.getDocumentManagement().getDocumentAs(uri, null);
+		DocumentAccessor doc = xRepo.getDocumentManagement().getDocument(uri, null);
+		return doc.getContent();
 	}
 	
 	public List<String> runQuery(String query) throws Exception {

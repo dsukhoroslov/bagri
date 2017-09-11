@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Library;
@@ -78,11 +79,11 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		Properties props = new Properties();
 		props.setProperty(pn_document_data_format, "XML");
-		Document xDoc = xRepo.getDocumentManagement().storeDocumentFrom(uri, xml, props);
+		DocumentAccessor xDoc = xRepo.getDocumentManagement().storeDocument(uri, xml, props);
 		xRepo.getTxManagement().commitTransaction(txId);
 		assertNotNull(xDoc);
 		assertEquals(uri, xDoc.getUri());
-		assertEquals(txId, xDoc.getTxStart());
+		assertEquals(txId, xDoc.getHeader(DocumentAccessor.HDR_TX_START));
 		uris.add(xDoc.getUri());
 		
 		String query = "for $doc in fn:collection()\n" +
@@ -100,8 +101,8 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		assertEquals("XML Content", text);
 		rc.close();
 		
-		text = xRepo.getDocumentManagement().getDocumentAs(uri, props);
-		assertEquals(xml, text);
+		xDoc = xRepo.getDocumentManagement().getDocument(uri, props);
+		assertEquals(xml, xDoc.getContent());
 	}
 
 }

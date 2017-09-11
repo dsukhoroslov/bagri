@@ -21,6 +21,7 @@ import org.xml.sax.InputSource;
 
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.support.util.FileUtils;
 
@@ -114,21 +115,21 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 	
 	private String resolveContent(URI uri) throws XPathException {
 
-		String content;
+		DocumentAccessor doc;
 		try {
 			Object key = resolveUri(uri);
 			if (key instanceof Long) {
-				content = ((DocumentManagement) repo.getDocumentManagement()).getDocumentAs((Long) key, null);
+				doc = ((DocumentManagement) repo.getDocumentManagement()).getDocument((Long) key, null);
 			} else {
-				content = repo.getDocumentManagement().getDocumentAs((String) key, null);
+				doc = repo.getDocumentManagement().getDocument((String) key, null);
 			}
 			
 			// we want to get MAP here, not a String! need access to other parameters in context..
 
-			if (content == null) {
+			if (doc == null) {
 				throw new XPathException("cannot resolve document for URI: " +  uri); 
 			}
-			return content;
+			return doc.getContent();
 		} catch (BagriException ex) {
 			throw new XPathException("cannot resolve document for URI: " +  uri, ex);
 		}

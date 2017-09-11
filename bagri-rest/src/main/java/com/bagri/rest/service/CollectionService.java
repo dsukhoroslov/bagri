@@ -11,6 +11,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
 
@@ -69,7 +70,12 @@ public class CollectionService extends RestService {
     public int deleteCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
-			return docMgr.removeDocuments(name, null);
+			Iterable<DocumentAccessor> docs = docMgr.removeDocuments("collections.contains(" + name + ")", null);
+			int cnt = 0;
+			for (DocumentAccessor doc: docs) {
+				cnt++;
+			}
+			return cnt;
     	} catch (Exception ex) {
     		logger.error("deleteCollectionDocuments.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);

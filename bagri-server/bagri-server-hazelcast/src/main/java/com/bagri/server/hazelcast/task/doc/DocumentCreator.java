@@ -7,9 +7,9 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.TransactionIsolation;
-import com.bagri.core.model.Document;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
@@ -30,7 +30,7 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
 	}
 
 	@Override
-	public Document call() throws Exception {
+	public DocumentAccessor call() throws Exception {
     	
     	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	//checkPermission(Permission.Value.modify);
@@ -39,7 +39,7 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely!
-    		return docMgr.storeDocumentFrom(uri, content, props);
+    		return docMgr.storeDocument(uri, content, props);
     	}
     	
     	// do we have default isolation level?
@@ -48,10 +48,10 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
     		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
     	
-    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<Document>() {
+    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<DocumentAccessor>() {
     		
-	    	public Document call() throws Exception {
-	    		return docMgr.storeDocumentFrom(uri, content, props);
+	    	public DocumentAccessor call() throws Exception {
+	    		return docMgr.storeDocument(uri, content, props);
 	    	}
     	});
     }

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 
 public class TPoXDataLoader {
 
@@ -114,7 +114,7 @@ public class TPoXDataLoader {
 		try {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "XML");
-			Document doc = xRepo.getDocumentManagement().storeDocumentFrom(uri, xml, props);
+			DocumentAccessor doc = xRepo.getDocumentManagement().storeDocument(uri, xml, props);
 			//logger.trace("storeDocument.exit; result: {}", result);
 			return doc.getUri();
 		} catch (BagriException ex) {

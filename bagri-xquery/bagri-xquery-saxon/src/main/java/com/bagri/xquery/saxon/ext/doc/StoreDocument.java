@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 
 import net.sf.saxon.expr.XPathContext;
@@ -65,7 +66,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 					props = sequence2Properties(arguments[2]);
 				}
 				try {
-					Document doc = xdm.storeDocumentFrom(uri, content, props);
+					DocumentAccessor doc = xdm.storeDocument(uri, content, props);
 					return new AnyURIValue(doc.getUri());
 				} catch (BagriException ex) {
 					throw new XPathException(ex);

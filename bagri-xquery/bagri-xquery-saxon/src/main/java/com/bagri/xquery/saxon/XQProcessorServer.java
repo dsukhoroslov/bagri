@@ -21,6 +21,7 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Query;
 import com.bagri.core.query.QueryBuilder;
@@ -103,7 +104,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				String xml = item.getItemAsString(null);
 				// validate document ?
 				// add/pass other params ?!
-				Document doc = dMgr.storeDocumentFrom(uri, xml, null);
+				DocumentAccessor doc = dMgr.storeDocument(uri, xml, null);
 				List<Object> result = new ArrayList<>(1);
 				result.add(doc);
 				return result.iterator();

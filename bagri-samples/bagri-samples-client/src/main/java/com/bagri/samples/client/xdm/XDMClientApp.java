@@ -11,7 +11,7 @@ import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -64,7 +64,8 @@ public class XDMClientApp implements BagriClientApp {
 	@Override
 	public String readDocument(String uri) throws BagriException {
 		
-		return xRepo.getDocumentManagement().getDocumentAs(uri, null);
+		DocumentAccessor doc = xRepo.getDocumentManagement().getDocument(uri, null);
+		return doc.getContent();
 	}
 	
 	@Override
@@ -113,7 +114,7 @@ public class XDMClientApp implements BagriClientApp {
 		
 		Properties props = new Properties();
 		props.setProperty(pn_document_data_format, "XML");
-		Document xDoc = xRepo.getDocumentManagement().storeDocumentFrom(uri, content, props);
+		DocumentAccessor xDoc = xRepo.getDocumentManagement().storeDocument(uri, content, props);
 		return xDoc.getVersion();
 	} 
 

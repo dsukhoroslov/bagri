@@ -9,6 +9,7 @@ import java.util.Properties;
 import javax.xml.transform.stream.StreamSource;
 
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.server.api.DocumentManagement;
 
 import net.sf.saxon.expr.XPathContext;
@@ -29,7 +30,8 @@ public class XmlResourceImpl extends ResourceImplBase {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "XML");
 			try {
-				xml = docMgr.getDocumentAs(docKey, props);
+				DocumentAccessor doc = docMgr.getDocument(docKey, props);
+				xml = doc.getContent();
 			} catch (BagriException ex) {
 				throw new XPathException(ex);
 			}

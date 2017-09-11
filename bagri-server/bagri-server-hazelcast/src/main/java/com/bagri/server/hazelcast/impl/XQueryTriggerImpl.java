@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.DocumentTrigger;
 import com.bagri.core.xquery.api.XQProcessor;
@@ -66,8 +67,8 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 		try {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, df_xml);
-			String xml = repo.getDocumentManagement().getDocumentAs(doc.getUri(), props);
-			org.w3c.dom.Document xDoc = XMLUtils.textToDocument(xml);
+			DocumentAccessor da = repo.getDocumentManagement().getDocument(doc.getUri(), props);
+			org.w3c.dom.Document xDoc = XMLUtils.textToDocument((String) da.getContent());
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());
 			xqp.bindVariable("doc", item);

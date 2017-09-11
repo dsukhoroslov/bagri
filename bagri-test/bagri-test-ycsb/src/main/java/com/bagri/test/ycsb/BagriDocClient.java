@@ -11,6 +11,7 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.Status;
 import com.yahoo.ycsb.StringByteIterator;
@@ -33,7 +34,7 @@ public class BagriDocClient extends BagriClientBase {
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			if (xRepo.getDocumentManagement().storeDocumentFrom(key, fields, insertProps) == null) {
+			if (xRepo.getDocumentManagement().storeDocument(key, fields, insertProps) == null) {
 				logger.debug("insert; document was not created for some reason; key: {}", key);
 				return Status.UNEXPECTED_STATE;
 			}
@@ -48,11 +49,12 @@ public class BagriDocClient extends BagriClientBase {
 	public Status read(final String table, final String key, final Set<String> fields,
 			    final HashMap<String, ByteIterator> result) {
 		try {
-			Map<String, Object> map = xRepo.getDocumentManagement().getDocumentAs(key, readProps);
-			if (map == null) {
+			DocumentAccessor doc = xRepo.getDocumentManagement().getDocument(key, readProps);
+			if (doc == null) {
 				logger.info("read; not found document for key: {}; table: {}", key, table);
 				return Status.NOT_FOUND;
 			}
+			Map<String, Object> map = doc.getContent();
 			populateResult(map, fields, result);
 			return Status.OK;
 		} catch (Exception ex) {
@@ -94,7 +96,7 @@ public class BagriDocClient extends BagriClientBase {
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
 		HashMap fields = StringByteIterator.getStringMap(values);
 		try {
-			if (xRepo.getDocumentManagement().storeDocumentFrom(key, fields, updateProps) == null) {
+			if (xRepo.getDocumentManagement().storeDocument(key, fields, updateProps) == null) {
 				logger.debug("update; document was not updated for some reason; key: {}", key);
 				return Status.UNEXPECTED_STATE;
 			}

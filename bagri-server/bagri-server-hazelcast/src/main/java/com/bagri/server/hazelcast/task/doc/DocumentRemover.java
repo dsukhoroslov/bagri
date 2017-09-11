@@ -7,9 +7,9 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.TransactionIsolation;
-import com.bagri.core.model.Document;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
@@ -30,15 +30,14 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
 	}
 
     @Override
-	public Document call() throws Exception {
+	public DocumentAccessor call() throws Exception {
 
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely..?
-    		docMgr.removeDocument(uri, props);
-        	return null;
+    		return docMgr.removeDocument(uri, props);
     	}
     	
     	// do we have default isolation level?
@@ -47,11 +46,10 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
     		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
     	
-    	txMgr.callInTransaction(txId, false, tiLevel, new Callable<Void>() {
+    	txMgr.callInTransaction(txId, false, tiLevel, new Callable<DocumentAccessor>() {
     		
-	    	public Void call() throws Exception {
-	    		docMgr.removeDocument(uri, props);
-	    		return null;
+	    	public DocumentAccessor call() throws Exception {
+	    		return docMgr.removeDocument(uri, props);
 	    	}
     	});
     	return null;

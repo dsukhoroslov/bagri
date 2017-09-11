@@ -21,6 +21,7 @@ import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.df.map.MapHandler;
 import com.bagri.core.server.api.df.json.JsonpHandler;
@@ -91,17 +92,17 @@ public abstract class BagriManagementTest {
 		getTxManagement().commitTransaction(txId);
 	}
 	
-	public Document createDocumentTest(String fileName) throws Exception {
+	public DocumentAccessor createDocumentTest(String fileName) throws Exception {
 		String uri = Paths.get(fileName).getFileName().toString();
 		String content = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFrom(uri, content, props);
+		return getDocManagement().storeDocument(uri, content, props);
 	}
 	
-	public Document updateDocumentTest(String uri, String fileName) throws Exception {
+	public DocumentAccessor updateDocumentTest(String uri, String fileName) throws Exception {
 		String content = readTextFile(fileName);
 		Properties props = getDocumentProperties();
-		return getDocManagement().storeDocumentFrom(uri, content, props);
+		return getDocManagement().storeDocument(uri, content, props);
 	}
 
 	public void removeDocumentTest(String uri) throws Exception {
