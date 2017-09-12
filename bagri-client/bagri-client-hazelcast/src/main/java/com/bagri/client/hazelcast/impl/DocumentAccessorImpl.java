@@ -21,6 +21,12 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		//
 	}
 
+	public DocumentAccessorImpl(Map<String, Object> headers, Object content) {
+		//this.headers.clear();
+		this.headers.putAll(headers);
+		this.content = content;
+	}
+
 	@Override
 	public String getUri() {
 		return (String) headers.get(HDR_URI);

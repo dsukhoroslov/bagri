@@ -49,9 +49,14 @@ public class LimitAggregator<K, I, V> extends AbstractAggregator<I, V, Collectio
 		this.predicate = predicate;
 	}
 
-	@Override
+	//@Override
 	protected void accumulateExtracted(I entry, V value) {
-		logger.info("accumulateExtracted.enter; entry: {}; value: {}; }", entry, value); 
+		accumulateExtracted(value);
+	}
+
+	@Override
+	protected void accumulateExtracted(V value) {
+		logger.info("accumulateExtracted.enter; value: {}; }", value); 
 		if (found < limit) {
 			result.add(value);
 			found++;

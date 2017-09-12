@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
-import com.bagri.core.model.Document;
-
 /**
  * Document management interface; provided for the client side
  * 
@@ -47,10 +45,11 @@ public interface DocumentManagement {
 	/**
 	 * Creates a new Document or overrides an existing one in Repository
 	 * 
-	 * @param uri
-	 * @param content
-	 * @param props
-	 * @return
+	 * @param uri Document uri
+	 * @param content Document content
+	 * @param props Document processing instructions
+	 * @param <T> the type of Document content
+	 * @return Document accessor
 	 * @throws BagriException
 	 */
 	<T> DocumentAccessor storeDocument(String uri, T content, Properties props) throws BagriException;
@@ -58,9 +57,10 @@ public interface DocumentManagement {
 	/**
 	 * stores many Documents in Repository
 	 * 
-	 * @param documents
-	 * @param props
-	 * @return
+	 * @param documents Map of pairs Document uri/content
+	 * @param props documents processing instructions
+	 * @param <T> the type of Document content
+	 * @return Iterable over stored documents
 	 * @throws BagriException
 	 */
 	<T> Iterable<DocumentAccessor> storeDocuments(Map<String, T> documents, Properties props) throws BagriException;
@@ -69,7 +69,8 @@ public interface DocumentManagement {
 	 * removes Document from Repository
 	 * 
 	 * @param uri String; the Document uri
-	 * @param props
+	 * @param props document remove instructions
+	 * @return Document accessor
 	 * @throws BagriException in case of any error
 	 */
 	DocumentAccessor removeDocument(String uri, Properties props) throws BagriException;
@@ -77,10 +78,10 @@ public interface DocumentManagement {
 	/**
 	 * remove all documents matching the pattern provided
 	 * 
-	 * @param pattern
-	 * @param props
-	 * @return
-	 * @throws BagriException
+	 * @param pattern the pattern to delete matching documents
+	 * @param props documents remove instructions
+	 * @return Iterable over removed documents
+	 * @throws BagriException in case of any error
 	 */
 	Iterable<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException;
 	

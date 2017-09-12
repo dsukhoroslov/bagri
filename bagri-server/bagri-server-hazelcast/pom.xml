@@ -20,7 +20,7 @@
         <!--run.jvm.args0>-Xverify:none</run.jvm.args0-->
         <run.jvm.args0>-XX:+UnlockCommercialFeatures</run.jvm.args0>
         <!--run.jvm.args0>-XX:+UnlockCommercialFeatures -XX:+FlightRecorder</run.jvm.args0-->
-        <run.jvm.args1>-server -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
+        <run.jvm.args1>-server -XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:+ExplicitGCInvokesConcurrent -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
         <!--run.jvm.args1>-server -XX:G1ReservePercent=10 -XX:InitiatingHeapOccupancyPercent=50 -XX:MaxGCPauseMillis=50 -XX:+ExplicitGCInvokesConcurrent</run.jvm.args1-->
 
         <run.jvm.args2>-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSConcurrentMTEnabled</run.jvm.args2>

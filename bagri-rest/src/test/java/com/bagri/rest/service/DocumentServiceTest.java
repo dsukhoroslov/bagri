@@ -7,6 +7,8 @@ import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.system.DataFormat.*;
 import static com.bagri.rest.RestConstants.bg_cookie;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.client.Entity;
@@ -20,8 +22,9 @@ import org.junit.Test;
 
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
+import com.bagri.client.hazelcast.impl.DocumentAccessorImpl;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.model.Document;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.rest.BagriRestServer;
 import com.bagri.rest.RepositoryProvider;
 
@@ -32,8 +35,8 @@ public class DocumentServiceTest extends JerseyTest {
 	private RepositoryProvider mockPro;
 	private Properties propsXml;
 	private Properties propsJson;
-	private Document responseXml;
-	private Document responseJson;
+	private DocumentAccessor responseXml;
+	private DocumentAccessor responseJson;
 
     @Override
     protected Application configure() {
@@ -46,16 +49,25 @@ public class DocumentServiceTest extends JerseyTest {
     	mockPro = mock(RepositoryProvider.class);
         when(mockPro.getRepository("client-id")).thenReturn(mockRepo);
         when(mockRepo.getDocumentManagement()).thenReturn(docMgr);
-        responseXml = new Document(1L, "a0001.xml", "/content", "owner", 1, 34, 1);
-        responseJson = new Document(2L, "a0001.xml", "/content", "owner", 1, 30, 1); // why the same uri??
-        //try {
-		//	when(docMgr.storeDocument("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
-		//	when(docMgr.storeDocument("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);
-		//	when(docMgr.getDocument("a0001.xml", propsXml)).thenReturn("<content>initial content</content>");
-		//	when(docMgr.getDocument("a0001.xml", propsJson)).thenReturn("{\"content\": \"updated content\"}");
-		//} catch (BagriException ex) {
-		//	ex.printStackTrace();
-		//}
+        //responseXml = new Document(1L, "a0001.xml", "/content", "owner", 1, 34, 1);
+        //responseJson = new Document(2L, "a0001.xml", "/content", "owner", 1, 30, 1); // why the same uri??
+        Map<String, Object> docHead = new HashMap<>();
+        docHead.put(DocumentAccessor.HDR_URI, "a0001.xml");
+        docHead.put(DocumentAccessor.HDR_CREATED_AT, System.currentTimeMillis());
+        docHead.put(DocumentAccessor.HDR_CREATED_BY, "owner");
+        docHead.put(DocumentAccessor.HDR_FORMAT, "XML");
+        docHead.put(DocumentAccessor.HDR_ENCODING, "utf-8");
+        docHead.put(DocumentAccessor.HDR_SIZE_IN_BYTES, 0);
+        responseXml = new DocumentAccessorImpl(docHead, "<content>initial content</content>");
+        responseJson = new DocumentAccessorImpl(docHead, "{\"content\": \"updated content\"}");
+        try {
+			when(docMgr.storeDocument("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
+			when(docMgr.storeDocument("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);
+			when(docMgr.getDocument("a0001.xml", propsXml)).thenReturn(responseXml);
+			when(docMgr.getDocument("a0001.xml", propsJson)).thenReturn(responseJson);
+		} catch (BagriException ex) {
+			ex.printStackTrace();
+		}
         BagriRestServer server = new BagriRestServer(mockPro, null, new Properties());
         return server.buildConfig();
     }
