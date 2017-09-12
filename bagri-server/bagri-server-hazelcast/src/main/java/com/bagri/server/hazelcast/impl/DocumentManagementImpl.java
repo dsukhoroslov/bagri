@@ -411,7 +411,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			for (DocumentKey key: keys) {
 				Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
 				if (content != null) {
-					cln.add(new DocumentAccessorImpl(null, content));
+					cln.add(new DocumentAccessorImpl((Document) null, content));
 					cnt++;
 				}
 			}
@@ -927,7 +927,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			Object converted = cc.convertFrom(content);
 			logger.trace("storeDocumentFrom; converted content: {}", converted); 
-			return storeDocument(uri, converted, props);
+			content = (T) converted;
 		}
 		return new DocumentAccessorImpl(storeDocumentInternal(uri, content, props), content);
 	}

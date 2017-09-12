@@ -20,7 +20,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 	}
@@ -33,7 +33,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
 		getTxManagement().commitTransaction(txId);
 		int version = doc.getVersion();
 		String uri = doc.getUri();
@@ -43,7 +43,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -53,7 +53,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -67,7 +67,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
 		getTxManagement().commitTransaction(txId);
 		long docKey = doc.getHeader(DocumentAccessor.HDR_KEY);
 		
@@ -100,7 +100,7 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		uris.add(doc.getUri());
 		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
 		getTxManagement().commitTransaction(txId);
 
 		doc = getDocManagement().getDocument(doc.getUri(), getDocumentProperties());

@@ -6,7 +6,6 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import com.bagri.core.api.impl.DocumentAccessorBase;
 import com.hazelcast.nio.ObjectDataInput;
