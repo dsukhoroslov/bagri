@@ -83,7 +83,7 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		xRepo.getTxManagement().commitTransaction(txId);
 		assertNotNull(xDoc);
 		assertEquals(uri, xDoc.getUri());
-		assertEquals(txId, xDoc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, xDoc.getTxStart());
 		uris.add(xDoc.getUri());
 		
 		String query = "for $doc in fn:collection()\n" +
@@ -101,6 +101,7 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		assertEquals("XML Content", text);
 		rc.close();
 		
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		xDoc = xRepo.getDocumentManagement().getDocument(uri, props);
 		assertEquals(xml, xDoc.getContent());
 	}

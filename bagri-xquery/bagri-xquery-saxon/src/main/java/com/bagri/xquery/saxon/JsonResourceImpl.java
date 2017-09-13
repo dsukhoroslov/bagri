@@ -2,6 +2,7 @@ package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.mt_json;
 import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.pn_document_headers;
 
 import java.util.Properties;
 
@@ -29,6 +30,7 @@ public class JsonResourceImpl extends ResourceImplBase {
 		if (json == null) {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "JSON");
+			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 			try {
 				DocumentAccessor doc = docMgr.getDocument(docKey, props);
 				json = doc.getContent();

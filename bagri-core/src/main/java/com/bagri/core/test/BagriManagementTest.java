@@ -4,12 +4,7 @@ import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -22,11 +17,6 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.model.Document;
-import com.bagri.core.server.api.df.map.MapHandler;
-import com.bagri.core.server.api.df.json.JsonpHandler;
-import com.bagri.core.server.api.df.xml.XmlHandler;
-import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Schema;
 
 public abstract class BagriManagementTest {
@@ -73,6 +63,7 @@ public abstract class BagriManagementTest {
 	protected ResultCursor query(String query, Map<String, Object> params, Properties props) throws Exception {
 		if (props == null) {
 			props = new Properties();
+			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		}
 		ResultCursor result = getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(result);

@@ -10,13 +10,13 @@ public class DocumentBean {
 	public String createdBy;
 	public String format;
 	public String encoding;
-	public int size;
+	public long size;
 
     public DocumentBean() {
     	//
     }
     
-    public DocumentBean(String uri, long createdAt, String createdBy, String format, String encoding, int size) {
+    public DocumentBean(String uri, long createdAt, String createdBy, String format, String encoding, long size) {
 		super();
 		this.uri = uri;
 		this.createdAt = createdAt;

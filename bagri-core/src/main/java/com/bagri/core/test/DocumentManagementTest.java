@@ -1,13 +1,15 @@
 package com.bagri.core.test;
 
+import static com.bagri.core.Constants.pn_document_headers;
 import static com.bagri.support.util.FileUtils.readTextFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Properties;
+
 import org.junit.Test;
 
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.model.Document;
 
 public abstract class DocumentManagementTest extends BagriManagementTest {
 
@@ -19,8 +21,8 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		DocumentAccessor doc = createDocumentTest(sampleRoot + uri);
 		assertNotNull(doc);
 		uris.add(doc.getUri());
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(0L, doc.getTxFinish());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 	}
@@ -32,8 +34,8 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(0L, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
 		int version = doc.getVersion();
 		String uri = doc.getUri();
@@ -42,8 +44,8 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(0L, doc.getTxFinish());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -52,8 +54,8 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(0L, doc.getTxFinish());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -66,10 +68,10 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(0L, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
-		long docKey = doc.getHeader(DocumentAccessor.HDR_KEY);
+		long docKey = doc.getDocumentKey();
 		
 		long txId2 = getTxManagement().beginTransaction();
 		removeDocumentTest(doc.getUri());
@@ -99,11 +101,13 @@ public abstract class DocumentManagementTest extends BagriManagementTest {
 		DocumentAccessor doc = createDocumentTest(fileName);
 		assertNotNull(doc);
 		uris.add(doc.getUri());
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
-		assertEquals(0L, doc.getHeader(DocumentAccessor.HDR_TX_FINISH));
+		assertEquals(txId, doc.getTxStart());
+		assertEquals(0L, doc.getTxFinish());
 		getTxManagement().commitTransaction(txId);
 
-		doc = getDocManagement().getDocument(doc.getUri(), getDocumentProperties());
+		Properties props = getDocumentProperties();
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
+		doc = getDocManagement().getDocument(doc.getUri(), props);
 		assertNotNull(doc);
 		assertNotNull(doc.getContent());
 		String content = doc.getContent();

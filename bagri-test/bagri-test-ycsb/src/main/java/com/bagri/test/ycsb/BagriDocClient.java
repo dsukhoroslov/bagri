@@ -64,22 +64,22 @@ public class BagriDocClient extends BagriClientBase {
 	
 	@Override
 	public Status scan(final String table, final String startkey, final int recordcount,
-				final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
+				final Set<String> fields, final Vector<HashMap<String, ByteIterator>> results) {
 		try {
 			long stamp = System.currentTimeMillis();
 			scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-			Iterable<?> results = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey, scanProps);
+			Iterable<DocumentAccessor> docs = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey, scanProps);
 			timer2.addAndGet(System.currentTimeMillis() - stamp);
-			result.ensureCapacity(recordcount);
-			for (Object o: results) {
-				Map<String, Object> map = (Map<String, Object>) o;
-				HashMap<String, ByteIterator> doc = new HashMap<>(map.size());
-				populateResult(map, fields, doc);
-				result.add(doc);
+			results.ensureCapacity(recordcount);
+			for (DocumentAccessor doc: docs) {
+				Map<String, Object> map = doc.getContent();
+				HashMap<String, ByteIterator> result = new HashMap<>(map.size());
+				populateResult(map, fields, result);
+				results.add(result);
 			}
 
-			if (result.size() > recordcount) {
-				logger.info("scan; got {} records when requested {}", result.size(), recordcount);
+			if (results.size() > recordcount) {
+				logger.info("scan; got {} records when requested {}", results.size(), recordcount);
 			}
 			timer.addAndGet(System.currentTimeMillis() - stamp);
 			counter++;

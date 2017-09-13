@@ -81,6 +81,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		uris.add(bDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		String xml = xRepo.getDocumentManagement().getDocument(bDoc.getUri(), props).getContent();
 		assertNotNull(xml);
 		
@@ -102,7 +103,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		props.setProperty(pn_document_data_format, "MAP");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test1.xml", m1, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
@@ -110,6 +111,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		//assertNotNull(xml);
 		//System.out.println(xml);
 		
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		Map<String, Object> m2 = xRepo.getDocumentManagement().getDocument(mDoc.getUri(), props).getContent();
 		assertEquals(m1.get("intProp"), m2.get("intProp"));
 		assertEquals(m1.get("boolProp"), m2.get("boolProp"));
@@ -163,7 +165,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map.xml", xml, null);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		

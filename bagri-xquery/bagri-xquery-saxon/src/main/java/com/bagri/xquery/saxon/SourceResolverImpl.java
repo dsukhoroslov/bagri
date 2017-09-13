@@ -4,20 +4,20 @@
 package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.bg_schema;
+import static com.bagri.core.Constants.pn_document_headers;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.Properties;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
@@ -118,10 +118,12 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 		DocumentAccessor doc;
 		try {
 			Object key = resolveUri(uri);
+			Properties props = new Properties();
+			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 			if (key instanceof Long) {
-				doc = ((DocumentManagement) repo.getDocumentManagement()).getDocument((Long) key, null);
+				doc = ((DocumentManagement) repo.getDocumentManagement()).getDocument((Long) key, props);
 			} else {
-				doc = repo.getDocumentManagement().getDocument((String) key, null);
+				doc = repo.getDocumentManagement().getDocument((String) key, props);
 			}
 			
 			// we want to get MAP here, not a String! need access to other parameters in context..

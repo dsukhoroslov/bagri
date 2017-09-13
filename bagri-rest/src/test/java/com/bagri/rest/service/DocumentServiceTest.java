@@ -7,8 +7,6 @@ import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.system.DataFormat.*;
 import static com.bagri.rest.RestConstants.bg_cookie;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.client.Entity;
@@ -51,15 +49,10 @@ public class DocumentServiceTest extends JerseyTest {
         when(mockRepo.getDocumentManagement()).thenReturn(docMgr);
         //responseXml = new Document(1L, "a0001.xml", "/content", "owner", 1, 34, 1);
         //responseJson = new Document(2L, "a0001.xml", "/content", "owner", 1, 30, 1); // why the same uri??
-        Map<String, Object> docHead = new HashMap<>();
-        docHead.put(DocumentAccessor.HDR_URI, "a0001.xml");
-        docHead.put(DocumentAccessor.HDR_CREATED_AT, System.currentTimeMillis());
-        docHead.put(DocumentAccessor.HDR_CREATED_BY, "owner");
-        docHead.put(DocumentAccessor.HDR_FORMAT, "XML");
-        docHead.put(DocumentAccessor.HDR_ENCODING, "utf-8");
-        docHead.put(DocumentAccessor.HDR_SIZE_IN_BYTES, 0);
-        responseXml = new DocumentAccessorImpl(docHead, "<content>initial content</content>");
-        responseJson = new DocumentAccessorImpl(docHead, "{\"content\": \"updated content\"}");
+        responseXml = new DocumentAccessorImpl(null, "<content>initial content</content>", "XML", System.currentTimeMillis(), "owner", "utf-8", 
+        		0, 0, 0, null, -1, -1, "a0001.xml", 0);
+        responseJson = new DocumentAccessorImpl(null, "{\"content\": \"updated content\"}", "XML", System.currentTimeMillis(), "owner", "utf-8", 
+        		0, 0, 0, null, -1, -1, "a0001.xml", 0); 
         try {
 			when(docMgr.storeDocument("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
 			when(docMgr.storeDocument("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);

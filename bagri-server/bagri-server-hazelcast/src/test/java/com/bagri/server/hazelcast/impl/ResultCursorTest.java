@@ -189,7 +189,7 @@ public class ResultCursorTest extends BagriManagementTest {
 		map.put("strProp", "ABC");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test", map, props);
 		assertNotNull(mDoc);
-		assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
@@ -224,7 +224,7 @@ public class ResultCursorTest extends BagriManagementTest {
 			map.put("strProp", "XYZ" + i);
 			DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test_" + i, map, props);
 			assertNotNull(mDoc);
-			assertEquals(txId, mDoc.getHeader(DocumentAccessor.HDR_TX_START));
+			assertEquals(txId, mDoc.getTxStart());
 			uris.add(mDoc.getUri());
 		}
 		xRepo.getTxManagement().commitTransaction(txId);

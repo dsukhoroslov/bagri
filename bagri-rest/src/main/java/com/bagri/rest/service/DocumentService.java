@@ -124,8 +124,8 @@ public class DocumentService  extends RestService {
     		logger.trace("postDocument; got params: {}", params);
             DocumentAccessor doc = docMgr.storeDocument(params.uri, params.content, params.props);
      		logger.trace("postDocument; got document: {}", doc);
-            DocumentBean dr = new DocumentBean(doc.getUri(), (Long) doc.getHeader(DocumentAccessor.HDR_CREATED_AT), (String) doc.getHeader(DocumentAccessor.HDR_CREATED_BY), 
-            		(String) doc.getHeader(DocumentAccessor.HDR_FORMAT), (String) doc.getHeader(DocumentAccessor.HDR_ENCODING), (Integer) doc.getHeader(DocumentAccessor.HDR_SIZE_IN_BYTES));
+            DocumentBean dr = new DocumentBean(doc.getUri(), doc.getCreateadAt(), doc.getCreatedBy(), doc.getContentType(), 
+            		doc.getEncoding(), doc.getSizeInBytes());
             return Response.created(UriBuilder.fromPath("/docs/" + dr.uri).build()).entity(dr).build();
     	} catch (Exception ex) {
     		logger.error("postDocument.error", ex);

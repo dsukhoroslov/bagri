@@ -41,7 +41,7 @@ public abstract class BagriClientBase extends DB {
     		format = "MAP";
     	} 
 		readProps.setProperty(pn_document_data_format, format);
-		readProps.setProperty(pn_document_headers, DocumentAccessor.HDR_CONTENT);
+		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 
 		String storeMode = System.getProperty(pn_client_storeMode);
 		if (storeMode != null) {
@@ -55,14 +55,14 @@ public abstract class BagriClientBase extends DB {
 		}
 		insertProps.setProperty(pn_document_collections, "usertable");
 		insertProps.setProperty(pn_document_data_format, format);
-		insertProps.setProperty(pn_document_headers, DocumentAccessor.HDR_URI);
+		insertProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
 
 		scanProps.setProperty(pn_document_data_format, format);
 		String fetchAsynch = System.getProperty(pn_client_fetchAsynch);
 		if (fetchAsynch != null) {
 			scanProps.setProperty(pn_client_fetchAsynch, fetchAsynch);
 		}
-		scanProps.setProperty(pn_document_headers, DocumentAccessor.HDR_CONTENT);
+		scanProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		
 		if (storeMode != null) {
 			updateProps.setProperty(pn_client_storeMode, storeMode);
@@ -80,7 +80,7 @@ public abstract class BagriClientBase extends DB {
 		updateProps.setProperty(pn_document_data_format, format);
 		boolean merge = Boolean.parseBoolean(System.getProperty(pn_document_map_merge, "true"));
 		updateProps.setProperty(pn_document_map_merge, String.valueOf(merge));
-		updateProps.setProperty(pn_document_headers, DocumentAccessor.HDR_URI);
+		updateProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
 
 		if (txLevel != null) {
 			deleteProps.setProperty(pn_client_txLevel, txLevel);

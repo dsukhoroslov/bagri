@@ -1,6 +1,7 @@
 package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.pn_document_headers;
 
 import java.util.Map;
 import java.util.Properties;
@@ -26,6 +27,7 @@ public class MapResourceImpl extends ResourceImplBase {
 		if (map == null) {
 			Properties props = new Properties();
 			props.setProperty(pn_document_data_format, "MAP");
+			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 			try {
 				DocumentAccessor doc = docMgr.getDocument(docKey, props);
 				map = doc.getContent();

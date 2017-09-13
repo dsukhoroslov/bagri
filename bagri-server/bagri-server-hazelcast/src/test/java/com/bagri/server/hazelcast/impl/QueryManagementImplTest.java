@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;

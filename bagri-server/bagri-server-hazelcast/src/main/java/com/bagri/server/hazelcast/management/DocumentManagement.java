@@ -158,7 +158,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		try {
 			DocumentAccessor doc = docManager.getDocument(uri, null);
 			if (doc != null) {
-				Map<String, Object> docInfo = doc.getHeaders();
+				Map<String, Object> docInfo = new HashMap<>(); //doc.getHeaders();
 				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
 			} 
 			return null;

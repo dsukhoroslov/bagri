@@ -134,14 +134,14 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		String uri = doc.getUri();
 		uris.add(uri);
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		getTxManagement().commitTransaction(txId);
 		int version = doc.getVersion();
 	
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		assertEquals(++version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().rollbackTransaction(txId);
@@ -149,7 +149,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		assertEquals(version, doc.getVersion());
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
@@ -164,7 +164,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security9012.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
@@ -186,7 +186,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security5621.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
@@ -208,7 +208,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
@@ -231,7 +231,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		long txId = getTxManagement().beginTransaction();
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
-		assertEquals(txId, doc.getHeader(DocumentAccessor.HDR_TX_START));
+		assertEquals(txId, doc.getTxStart());
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		final String uri = doc.getUri();
