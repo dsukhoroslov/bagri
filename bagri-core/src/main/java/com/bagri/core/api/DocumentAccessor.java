@@ -6,6 +6,7 @@ import java.util.Properties;
 public interface DocumentAccessor {
 	
 	public static String HDR_COLLECTIONS = "COLLECTIONS";
+	public static String HDR_CONTENT = "CONTENT";
 	public static String HDR_CONTENT_TYPE = "CONTENT_TYPE";
 	public static String HDR_CREATED_AT = "CREATED_AT";
 	public static String HDR_CREATED_BY = "CREATED_BY";

@@ -330,6 +330,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			});
 		} else {
+			// what if fetchSize = 0!?
 			cln = new FixedCollectionImpl<>(fetchSize);
 			fetchUris(pattern, fetchSize, cln);
 		}
@@ -564,7 +565,24 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (cc != null) {
 			content = cc.convertTo(content);
 		}
-		return new DocumentAccessorImpl(doc, content);
+		
+		String headers = props.getProperty(pn_document_headers);
+		if (headers == null) {
+			return new DocumentAccessorImpl(doc, content);
+		}
+		boolean needContent = false;
+		Set<String> keys = new HashSet<>();
+		String[] fields = headers.split(" ");
+		for (String field: fields) {
+			keys.add(field);
+			if (DocumentAccessor.HDR_CONTENT.equals(field)) {
+				needContent = true;
+			}
+		}
+		if (needContent) {
+			return new DocumentAccessorImpl(doc, keys, content);
+		}
+		return new DocumentAccessorImpl(doc, keys, null);
 	}
 
 	//public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
@@ -929,7 +947,25 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			logger.trace("storeDocumentFrom; converted content: {}", converted); 
 			content = (T) converted;
 		}
-		return new DocumentAccessorImpl(storeDocumentInternal(uri, content, props), content);
+
+		Document newDoc = storeDocumentInternal(uri, content, props);
+		String headers = props.getProperty(pn_document_headers);
+		if (headers == null) {
+			return new DocumentAccessorImpl(newDoc, null);
+		}
+		boolean needContent = false;
+		Set<String> keys = new HashSet<>();
+		String[] fields = headers.split(" ");
+		for (String field: fields) {
+			keys.add(field);
+			if (DocumentAccessor.HDR_CONTENT.equals(field)) {
+				needContent = true;
+			}
+		}
+		if (needContent) {
+			return new DocumentAccessorImpl(newDoc, keys, content);
+		}
+		return new DocumentAccessorImpl(newDoc, keys, null);
 	}
 
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
@@ -1092,6 +1128,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return null;
 		}
 		
+		doc = removeDocument(doc, props);
+		logger.trace("removeDocument.exit; removed: {}", doc);
+		// return content - depends on props
+		return new DocumentAccessorImpl(doc, null);
+	}
+	
+	private Document removeDocument(Document doc, Properties props) throws BagriException {
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
 		boolean locked = lockDocument(docKey, txManager.getTransactionTimeout());
 		if (locked) {
@@ -1105,7 +1148,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			} catch (BagriException ex) {
 				throw ex;
 			} catch (Exception ex) {
-				logger.error("removeDocument.error; uri: " + uri, ex);
+				logger.error("removeDocument.error; docKey: {}", docKey, ex);
 				throw new BagriException(ex, BagriException.ecDocument);
 			} finally {
 				unlockDocument(docKey);
@@ -1114,8 +1157,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     		throw new BagriException("Was not able to aquire lock while removing Document: " + docKey + 
     				", timeout: " + txManager.getTransactionTimeout(), BagriException.ecTransTimeout);
 		}
-		logger.trace("removeDocument.exit; removed: {}", doc);
-		return new DocumentAccessorImpl(doc, null);
+		return doc;
 	}
 	
 	public void cleanDocument(DocumentKey docKey, boolean complete) {
@@ -1235,56 +1277,51 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	public Iterable<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException {
+	public Iterable<DocumentAccessor> removeDocuments(final String pattern, final Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
 		boolean asynch = false;
 		if (props != null) {
 			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		}
 
-		final ResultCollection<DocumentAccessor> cln = null; 
-		//if (asynch) {
-		//	String clientId = props.getProperty(pn_client_id);
-		//	cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
-		//	try {
-		//		execSvc.execute(new Runnable() {
-		//			@Override
-		//			public void run() {
-		//				try {
-		//					fetchDocuments(String pattern, int fetchSize, ResultCollection<DocumentAccessor> cln) {
-		//					deleteDocuments(pattern, props, cln);
-		//				} catch (BagriException ex) {
-		//					throw new Error(ex);
-		//				}
-		//				cln.add(null); //Null._null);
-		//			}
-		//		});
-		//	} catch (Error er) {
-		//		throw (BagriException) er.getCause();
-		//	}
-		//} else {
-		//	cln = new FixedCollectionImpl<>(documents.size());
-		//	iterateDocuments((Map<String, Object>) documents, props, cln);
-		//}
+		final ResultCollection<DocumentAccessor> cln; 
+		if (asynch) {
+			String clientId = props.getProperty(pn_client_id);
+			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+			try {
+				execSvc.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							deleteDocuments(pattern, props, cln);
+						} catch (BagriException ex) {
+							throw new Error(ex);
+						}
+						cln.add(null); //Null._null);
+					}
+				});
+			} catch (Error er) {
+				throw (BagriException) er.getCause();
+			}
+		} else {
+			cln = new FixedCollectionImpl<>(4);
+			deleteDocuments(pattern, props, cln);
+		}
 		 
 		//logger.trace("storeDocuments.exit; returning: {}", cln);
 		return cln;
-		
-		// TODO: remove local documents only?! yes!
-		//Iterable<String> uris = getDocumentUris(pattern, props);
-		//for (String uri: uris) {
-		//	removeDocument(uri, props);
-		//}
-		//logger.trace("removeDocuments.exit; removed: {}", cnt);
-		//return cnt;
 	}
 	
-	private void deleteDocuments(Map<String, Object> documents, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
-		for (Map.Entry<String, Object> document: documents.entrySet()) {
-			if (ddSvc.isLocalKey(document.getKey().hashCode())) {
-				cln.add(storeDocument(document.getKey(), document.getValue(), props));
-			}
+	private void deleteDocuments(String pattern, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
+		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
+
+		// TODO: remove local documents only?! yes!
+		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, 0);
+		for (Document doc: docs) {
+			doc = removeDocument(doc, props);
+			cln.add(new DocumentAccessorImpl(doc, null));
 		}
+		//logger.trace("deleteDocuments.exit; removed: {}", cln.size());
 	}
 	
 	@Override

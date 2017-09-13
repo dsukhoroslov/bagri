@@ -2,7 +2,6 @@ package com.bagri.test.ycsb;
 
 import static com.bagri.core.Constants.pn_client_fetchSize;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

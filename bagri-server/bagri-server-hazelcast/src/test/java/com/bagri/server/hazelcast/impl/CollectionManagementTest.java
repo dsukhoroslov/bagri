@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
@@ -192,8 +193,12 @@ public class CollectionManagementTest extends BagriManagementTest {
 		assertEquals(4, uris.size());
 		
 		long txId = xRepo.getTxManagement().beginTransaction();
-		int cnt = 0; //getDocManagement().removeDocuments("collections.contains(CLN_Security)", null);
+		Iterable<DocumentAccessor> docs = getDocManagement().removeDocuments("collections.contains(CLN_Security)", null); 
 		xRepo.getTxManagement().commitTransaction(txId);
+		int cnt = 0; 
+		for (DocumentAccessor doc: docs) {
+			cnt++;
+		}
 		assertEquals(4, cnt);
 		
 		ResultCollection<String> ids = (ResultCollection<String>) this.getDocManagement().getDocumentUris("collections.contains(CLN_Security), txFinish = 0", null);
