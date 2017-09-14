@@ -34,6 +34,10 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 				doc.getTxFinish(), doc.getUri(), doc.getVersion());
 	}
 
+	public DocumentAccessorImpl(Document doc, long headers) {
+		this(doc, headers, null);
+	}
+	
 	public DocumentAccessorImpl(Document doc, long headers, Object content) {
 		this.headers = headers;
 		if ((headers & HDR_COLLECTIONS) != 0) {

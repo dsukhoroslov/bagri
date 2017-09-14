@@ -326,7 +326,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				@Override
 				public void run() {
 					fetchUris(pattern, fetchSize, cln);
-					cln.add("__null"); //Null._null);
+					// TODO: check terminator..
+					cln.add(null); //Null._null);
 				}
 			});
 		} else {
@@ -410,35 +411,33 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		int cnt = 0;
 		if (query != null) {
-			if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
-				if (headers > DocumentAccessor.HDR_CONTENT) {
-					// doc & content 
-					java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
-					for (Document doc: docs) {
-						DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
-						Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-						if (content != null) {
-							cln.add(new DocumentAccessorImpl(doc, headers, content));
-							cnt++;
-						}
-					}
-				} else {
-					// content only
-					java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
-					//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
-					for (DocumentKey key: keys) {
-						Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-						if (content != null) {
-							cln.add(new DocumentAccessorImpl(content));
-							cnt++;
-						}
+			if (headers == DocumentAccessor.HDR_CONTENT) {
+				// content only
+				java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
+				//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
+				for (DocumentKey key: keys) {
+					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
+					if (content != null) {
+						cln.add(new DocumentAccessorImpl(content));
+						cnt++;
 					}
 				}
 			} else {
 				java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
-				for (Document doc: docs) {
-					cln.add(new DocumentAccessorImpl(doc, headers, null));
-					cnt++;
+				if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
+					// doc & content
+					for (Document doc: docs) {
+						DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
+						Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
+						cln.add(new DocumentAccessorImpl(doc, headers, content));
+						cnt++;
+					}
+				} else {
+					// doc only
+					for (Document doc: docs) {
+						cln.add(new DocumentAccessorImpl(doc, headers));
+						cnt++;
+					}
 				}
 			}
 		}
@@ -515,12 +514,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		Document doc = getDocument(uri);
 		if (doc == null) {
-			logger.info("getDocumentAs; no document found for uri: {}", uri);
+			logger.info("getDocument; no document found for uri: {}", uri);
 			return null;
 		}
 
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		return getDocument(docKey, doc, props);
+		return getDocumentInternal(docKey, doc, props);
 	}
 
 	@Override
@@ -532,15 +531,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public DocumentAccessor getDocument(DocumentKey docKey, Properties props) throws BagriException {
 		Document doc = getDocument(docKey);
 		if (doc == null) {
-			logger.info("getDocumentAs; no document found for key: {}", docKey);
+			logger.info("getDocument; no document found for key: {}", docKey);
 			return null;
 		}
 
-		return getDocument(docKey, doc, props);
+		return getDocumentInternal(docKey, doc, props);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private DocumentAccessor getDocument(DocumentKey docKey, Document doc, Properties props) throws BagriException {
+	private DocumentAccessor getDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		if (props == null) {
 			props = new Properties();
 		}
@@ -566,7 +565,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			
 			Object content = getDocumentContent(docKey);
-			logger.trace("getDocumentAs; got content: {}", content); 
+			logger.trace("getDocument; got content: {}", content); 
 			if (content == null) {
 				// build it and store in cache
 				// if docId is not local then buildDocument returns null!
@@ -593,7 +592,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			return new DocumentAccessorImpl(doc, headMask, content);
 		}
-		return new DocumentAccessorImpl(doc, headMask, null);
+		return new DocumentAccessorImpl(doc, headMask);
 	}
 
 	//public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
@@ -935,7 +934,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public <T> DocumentAccessor storeDocument(String uri, T content, Properties props) throws BagriException {
-		logger.trace("storeDocumentFrom; got uri: {}; content: {}; props: {}", uri, content, props); 
+		logger.trace("storeDocument; got uri: {}; content: {}; props: {}", uri, content, props); 
 		String dataFormat = null;
 		if (props != null) {
 			dataFormat = props.getProperty(pn_document_data_format);
@@ -955,7 +954,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				throw new BagriException("No converter found between " + srcFormat + " and " + dataFormat, BagriException.ecDocument);
 			}
 			Object converted = cc.convertFrom(content);
-			logger.trace("storeDocumentFrom; converted content: {}", converted); 
+			logger.trace("storeDocument; converted content: {}", converted); 
 			content = (T) converted;
 		}
 
@@ -965,11 +964,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
 			return new DocumentAccessorImpl(newDoc, headMask, content);
 		}
-		return new DocumentAccessorImpl(newDoc, headMask, null);
+		return new DocumentAccessorImpl(newDoc, headMask);
 	}
 
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
-		logger.trace("storeDocument.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
+		logger.trace("storeDocumentInternal.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
 			throw new BagriException("Empty URI passed", ecDocument); 
 		}
@@ -1025,7 +1024,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, pRes, props));
 		if (result instanceof Exception) {
-			logger.error("storeDocument.error; uri: {}", uri, result);
+			logger.error("storeDocumentInternal.error; uri: {}", uri, result);
 			if (result instanceof BagriException) {
 				throw (BagriException) result;
 			}
@@ -1063,7 +1062,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		// invalidate cached query results.
 		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 		
-		logger.trace("storeDocument.exit; returning: {}", newDoc);
+		logger.trace("storeDocumentInternal.exit; returning: {}", newDoc);
 		return newDoc;
 	}
 
@@ -1114,10 +1113,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public DocumentAccessor removeDocument(String uri, Properties props) throws BagriException {
 		logger.trace("removeDocument.enter; uri: {}", uri);
-		//XDMDocumentKey docKey = getDocumentKey(docId);
-	    //if (docKey == null) {
-    	//	throw new XDMException("No document found for document Id: " + docId, XDMException.ecDocument);
-	    //}
 		if (uri == null) {
 			throw new BagriException("No Document URI passed", BagriException.ecDocument); 
 		}
@@ -1129,7 +1124,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		doc = removeDocument(docKey, doc, props);
+		doc = removeDocumentInternal(docKey, doc, props);
 		logger.trace("removeDocument.exit; removed: {}", doc);
 
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
@@ -1137,10 +1132,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
 			return new DocumentAccessorImpl(doc, headMask, getDocumentContent(docKey));
 		}
-		return new DocumentAccessorImpl(doc, headMask, null);
+		return new DocumentAccessorImpl(doc, headMask);
 	}
 	
-	private Document removeDocument(DocumentKey docKey, Document doc, Properties props) throws BagriException {
+	private Document removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		boolean locked = lockDocument(docKey, txManager.getTransactionTimeout());
 		if (locked) {
 			try {
@@ -1313,14 +1308,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			deleteDocuments(pattern, props, cln);
 		}
 		 
-		//logger.trace("storeDocuments.exit; returning: {}", cln);
+		logger.trace("removeDocuments.exit; returning: {}", cln);
 		return cln;
 	}
 	
 	private void deleteDocuments(String pattern, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
 		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
 
-		// TODO: remove local documents only?! yes!
+		// remove local documents only?! yes!
 		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, 0);
 		
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
@@ -1328,14 +1323,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
 			for (Document doc: docs) {
 				DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-				doc = removeDocument(docKey, doc, props);
+				doc = removeDocumentInternal(docKey, doc, props);
 				cln.add(new DocumentAccessorImpl(doc, headMask, getDocumentContent(docKey)));
 			}
 		} else {
 			for (Document doc: docs) {
 				DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-				doc = removeDocument(docKey, doc, props);
-				cln.add(new DocumentAccessorImpl(doc, headMask, null));
+				doc = removeDocumentInternal(docKey, doc, props);
+				cln.add(new DocumentAccessorImpl(doc, headMask));
 			}
 		}
 		//logger.trace("deleteDocuments.exit; removed: {}", cln.size());
