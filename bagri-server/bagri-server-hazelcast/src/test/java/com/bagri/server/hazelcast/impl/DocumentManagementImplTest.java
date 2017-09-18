@@ -3,7 +3,6 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
@@ -17,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +24,7 @@ import java.util.Properties;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
-import static com.bagri.support.util.FileUtils.readTextFile;
+import static com.bagri.support.util.FileUtils.*;
 import static org.junit.Assert.*;
 
 public class DocumentManagementImplTest extends DocumentManagementTest {
@@ -128,7 +126,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
 		ResultCollection<DocumentAccessor> results = (ResultCollection<DocumentAccessor>) getDocManagement().storeDocuments(docs, props);
-		assertEquals(4, docs.size());
+		assertEquals(4, results.size());
 	}
 
 }
