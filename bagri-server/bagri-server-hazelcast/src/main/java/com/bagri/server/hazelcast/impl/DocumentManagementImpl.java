@@ -46,6 +46,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.api.BagriException.*;
@@ -1051,7 +1052,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		doc = removeDocumentInternal(docKey, doc);
+		doc = removeDocumentInternal(docKey, doc, props);
 		logger.trace("removeDocument.exit; removed: {}", doc);
 
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
@@ -1062,9 +1063,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return new DocumentAccessorImpl(doc, headMask);
 	}
 
-	private Document removeDocumentInternal(DocumentKey docKey, Document doc) throws BagriException {
+	private Document removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
-		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(xddCache, txManager.getCurrentTransaction()));
+		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction()));
 		if (result instanceof Exception) {
 			logger.error("removeDocument.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
@@ -1245,13 +1246,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
 			for (Document doc: docs) {
 				DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-				doc = removeDocumentInternal(docKey, doc);
+				doc = removeDocumentInternal(docKey, doc, props);
 				cln.add(new DocumentAccessorImpl(doc, headMask, getDocumentContent(docKey)));
 			}
 		} else {
 			for (Document doc: docs) {
 				DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-				doc = removeDocumentInternal(docKey, doc);
+				doc = removeDocumentInternal(docKey, doc, props);
 				cln.add(new DocumentAccessorImpl(doc, headMask));
 			}
 		}
@@ -1325,4 +1326,25 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 	}
+
+    private boolean lockDocument(DocumentKey docKey, long timeout) { //throws XDMException {
+
+        boolean locked = false;
+        if (timeout > 0) {
+            try {
+                locked = xddCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ex) {
+                logger.error("lockDocument.error", ex);
+                //throw new XDMException(ex);
+            }
+        } else {
+            locked = xddCache.tryLock(docKey);
+        }
+        return locked;
+    }
+
+    private void unlockDocument(DocumentKey docKey) {
+
+        xddCache.unlock(docKey);
+    }
 }

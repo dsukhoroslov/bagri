@@ -6,7 +6,6 @@ import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Transaction;
 import com.bagri.server.hazelcast.impl.DataDistributionService;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.Offloadable;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
@@ -23,11 +22,9 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
 
     private static final long serialVersionUID = 1L;
 
-    private IMap<DocumentKey, Document> xddCache;
     private Transaction tx;
 
-    public DocumentRemoveProcessor(IMap<DocumentKey, Document> xddCache, Transaction tx) {
-        this.xddCache = xddCache;
+    public DocumentRemoveProcessor(Transaction tx) {
         this.tx = tx;
     }
 
@@ -52,7 +49,7 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
         }
 
         doc.finishDocument(txStart);
-        xddCache.set(entry.getKey(), doc);
+        entry.setValue(doc);
         return doc;
     }
 

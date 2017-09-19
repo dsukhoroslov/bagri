@@ -139,7 +139,6 @@ public class CollectionManagementTest extends BagriManagementTest {
 		addDocumentsToCollectionTest();
 		ResultCollection<String> ids = (ResultCollection<String>) this.getDocManagement().getDocumentUris("collections.contains(CLN_Custom), txFinish = 0", props);
 		assertEquals(4, ids.size());
-		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, "2");
 		ids = (ResultCollection<String>) this.getDocManagement().getDocumentUris("collections.contains(CLN_Custom), txFinish = 0", props);
 		assertEquals(2, ids.size());
