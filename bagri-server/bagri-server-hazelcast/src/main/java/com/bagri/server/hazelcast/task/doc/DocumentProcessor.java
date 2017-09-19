@@ -4,9 +4,6 @@ import static com.bagri.core.Constants.pn_client_storeMode;
 import static com.bagri.core.Constants.pv_client_storeMode_insert;
 import static com.bagri.core.Constants.pv_client_storeMode_merge;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
-import static com.bagri.core.model.Document.dvFirst;
-import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
-//import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProcessDocumentTask;
 
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -36,10 +33,10 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private static final long serialVersionUID = 1L;
 
 	private static final transient Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
-	
+
 	private transient DocumentManagementImpl docMgr;
 	private transient DataDistributionService ddSvc;
-	
+
 	private Transaction tx;
 	private String uri;
 	private Object content;
@@ -63,12 +60,12 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		//this.repo = repo;
 		this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
 	}
-	
+
     @Autowired
     public void setDistrService(DataDistributionService ddSvc) {
     	this.ddSvc = ddSvc;
     }
-	
+
 	@Override
 	public void processBackup(Entry<DocumentKey, Document> entry) {
 		//this.process(entry);
@@ -84,7 +81,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		long txStart = tx == null ? TX_NO : tx.getTxId();
 		if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
 			if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
-	    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri + 
+	    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
 	    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
 			}
 			Document lastDoc = docMgr.getDocument(lastKey);
@@ -126,5 +123,5 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	//}
 
 }
-	
+
 
