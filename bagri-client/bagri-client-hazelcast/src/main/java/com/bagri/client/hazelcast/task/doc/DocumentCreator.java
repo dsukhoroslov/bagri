@@ -19,8 +19,8 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		super();
 	}
 
-	public DocumentCreator(String clientId, long txId, String uri, Properties props, Object content) {
-		super(clientId, txId, uri, props);
+	public DocumentCreator(String clientId, long txId, Properties props, String uri, Object content) {
+		super(clientId, txId, props, uri);
 		this.content = content;
 	}
 

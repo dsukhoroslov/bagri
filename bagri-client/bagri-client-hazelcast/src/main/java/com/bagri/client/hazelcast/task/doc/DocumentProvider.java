@@ -10,8 +10,8 @@ public class DocumentProvider extends DocumentProcessor {
 		super();
 	}
 	
-	public DocumentProvider(String clientId, long txId, String uri, Properties props) {
-		super(clientId, txId, uri, props);
+	public DocumentProvider(String clientId, long txId, Properties props, String uri) {
+		super(clientId, txId, props, uri);
 	}
 
 	@Override

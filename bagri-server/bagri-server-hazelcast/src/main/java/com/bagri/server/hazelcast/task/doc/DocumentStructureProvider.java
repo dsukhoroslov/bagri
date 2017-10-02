@@ -5,6 +5,7 @@ import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import javax.management.openmbean.CompositeData;
@@ -30,7 +31,7 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	}
 	
 	public DocumentStructureProvider(String clientId, String uri) {
-		super(clientId, 0, uri, null);
+		super(clientId, 0, new Properties(), uri);
 	}
 
     @Autowired

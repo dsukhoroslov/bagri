@@ -22,7 +22,7 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryExecutor {
 
-	private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
+	//private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 	
 	private transient QueryManagement queryMgr;
     

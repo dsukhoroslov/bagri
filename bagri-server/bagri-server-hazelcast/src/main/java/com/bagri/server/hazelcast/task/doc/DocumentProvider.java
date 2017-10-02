@@ -32,7 +32,7 @@ public class DocumentProvider extends com.bagri.client.hazelcast.task.doc.Docume
     	try {
         	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
 	    	
-			return docMgr.getDocument(uri, props);
+			return docMgr.getDocument(uri, context);
     	} catch (BagriException ex) {
     		return null; //ex; think about this case!!
     	}

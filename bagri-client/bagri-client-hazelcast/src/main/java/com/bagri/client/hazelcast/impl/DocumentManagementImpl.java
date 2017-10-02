@@ -65,7 +65,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		CombinedCollectionImpl<String> result = new CombinedCollectionImpl<>();
 		props.setProperty(pn_client_id, repo.getClientId());
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
+		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<String>>> results = execService.submitToAllMembers(task);
 		for (Map.Entry<Member, Future<ResultCollection<String>>> entry: results.entrySet()) {
 			try {
@@ -98,7 +98,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		// actually, I can try just get it from Content cache!
 		logger.trace("getDocumentAs.enter; got uri: {}; props: {}", uri, props);
-		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), uri, props);
+		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri);
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
 		//Object result = cntCache.get(key);
@@ -113,7 +113,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
 		props.setProperty(pn_client_id, repo.getClientId());
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), pattern, props);
+		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
 		for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
 			try {
@@ -139,7 +139,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		repo.getHealthManagement().checkClusterState();
 		
-		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), uri, props, content);
+		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, content);
 		Future<DocumentAccessor> future = execService.submit(task);
 		try {
 			DocumentAccessor result = future.get();
@@ -162,7 +162,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		DocumentsCreator task = new DocumentsCreator(repo.getClientId(), repo.getTransactionId(), (Map<String, Object>) documents, props);
+		DocumentsCreator task = new DocumentsCreator(repo.getClientId(), repo.getTransactionId(), props, (Map<String, Object>) documents);
 		// TODO: split documents between members properly..
 		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
 		for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
@@ -188,7 +188,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
 		
-		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), uri, props);
+		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), props, uri);
 		Future<DocumentAccessor> future = execService.submit(task);
 		try {
 			DocumentAccessor result = future.get();
@@ -207,7 +207,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		DocumentsRemover task = new DocumentsRemover(repo.getClientId(), repo.getTransactionId(), pattern, props);
+		DocumentsRemover task = new DocumentsRemover(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
 		for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
 			try {
@@ -261,7 +261,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	private int updateDocumentCollections(String uri, boolean add, String[] collections) {
-		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), uri, add, collections);
+		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), new Properties(), uri, add, collections);
 		Future<Integer> result = execService.submit(task);
 		int cnt = 0;
 		try {

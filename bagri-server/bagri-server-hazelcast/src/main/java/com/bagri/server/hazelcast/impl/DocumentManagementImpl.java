@@ -554,7 +554,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						props.setProperty(pn_document_data_format, dataFormat);
 					}
 					// can cause distributed deadlock! call to EP from the same EP!
-					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), doc.getUri(), props);
+					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
 					content = xddCache.executeOnKey(docKey, xp);
 				}
 			}

@@ -34,10 +34,10 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
 
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
-    	String txLevel = props.getProperty(pn_client_txLevel);
+    	String txLevel = context.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely..?
-    		return docMgr.removeDocument(uri, props);
+    		return docMgr.removeDocument(uri, context);
     	}
     	
     	// do we have default isolation level?
@@ -49,7 +49,7 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
     	txMgr.callInTransaction(txId, false, tiLevel, new Callable<DocumentAccessor>() {
     		
 	    	public DocumentAccessor call() throws Exception {
-	    		return docMgr.removeDocument(uri, props);
+	    		return docMgr.removeDocument(uri, context);
 	    	}
     	});
     	return null;

@@ -36,10 +36,10 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
     	//checkPermission(Permission.Value.modify);
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
-    	String txLevel = props.getProperty(pn_client_txLevel);
+    	String txLevel = context.getProperty(pn_client_txLevel);
     	if (pv_client_txLevel_skip.equals(txLevel)) {
     		// bypass tx stack completely!
-    		return docMgr.storeDocument(uri, content, props);
+    		return docMgr.storeDocument(uri, content, context);
     	}
     	
     	// do we have default isolation level?
@@ -51,7 +51,7 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
     	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<DocumentAccessor>() {
     		
 	    	public DocumentAccessor call() throws Exception {
-	    		return docMgr.storeDocument(uri, content, props);
+	    		return docMgr.storeDocument(uri, content, context);
 	    	}
     	});
     }
