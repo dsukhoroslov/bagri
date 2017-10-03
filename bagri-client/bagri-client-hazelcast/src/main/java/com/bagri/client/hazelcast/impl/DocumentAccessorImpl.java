@@ -4,13 +4,21 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.impl.DocumentAccessorBase;
+import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import com.hazelcast.spring.context.SpringAware;
 
+@SpringAware
 public class DocumentAccessorImpl extends DocumentAccessorBase implements IdentifiedDataSerializable {
+	
+	private SchemaRepository repo;
 	
 	public DocumentAccessorImpl() {
 		super();
@@ -33,6 +41,10 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		return cli_DocumentAccessor;
 	}
 
+	public void setRepository(SchemaRepository repo) {
+		this.repo = repo;
+	}	
+
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		headers = in.readLong();
@@ -40,9 +52,15 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			collections = in.readIntArray();
 		}
 		if ((headers & HDR_CONTENT) != 0) {
-			content = in.readObject();
-		}
-		if ((headers & HDR_CONTENT_TYPE) != 0) {
+			contentType = in.readUTF();
+			ContentSerializer cs = repo.getSerializer(contentType);
+			if (cs != null) {
+				content = cs.readContent(in);
+			} else {
+				content = in.readObject();
+			}
+			//readContent(in);
+		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			contentType = in.readUTF();
 		}
 		if ((headers & HDR_CREATED_AT) != 0) {
@@ -90,9 +108,15 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			out.writeIntArray(collections);
 		}
 		if ((headers & HDR_CONTENT) != 0) {
-			out.writeObject(content);
-		}
-		if ((headers & HDR_CONTENT_TYPE) != 0) {
+			out.writeUTF(contentType);
+			ContentSerializer cs = repo.getSerializer(contentType);
+			if (cs != null) {
+				cs.writeContent(out, content);
+			} else {
+				out.writeObject(content);
+			}
+			//writeContent(out);
+		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			out.writeUTF(contentType);
 		}
 		if ((headers & HDR_CREATED_AT) != 0) {
@@ -133,4 +157,22 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		}
 	}
 
+	private void readContent(ObjectDataInput in) throws IOException {
+		int size = in.readInt();
+		Map<String, byte[]> doc = new HashMap<String, byte[]>(size);
+		for (int i=0; i < size; i++) {
+			doc.put(in.readUTF(), in.readByteArray());
+		}
+		content = doc;
+	}
+
+	private void writeContent(ObjectDataOutput out) throws IOException {
+		Map<String, byte[]> doc = (Map<String, byte[]>) content;
+		out.writeInt(doc.size());
+		for (Map.Entry<String, byte[]> e: doc.entrySet()) {
+			out.writeUTF(e.getKey());
+			out.writeByteArray(e.getValue());
+		}
+	}
+	
 }

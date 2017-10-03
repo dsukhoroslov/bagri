@@ -1,6 +1,7 @@
 package com.bagri.core.api.impl;
 
 import com.bagri.core.api.AccessManagement;
+import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.HealthManagement;
 import com.bagri.core.api.QueryManagement;
@@ -100,5 +101,9 @@ public abstract class SchemaRepositoryBase {
 		this.txMgr = txMgr;
 	}
 
+	public ContentSerializer<?> getSerializer(String dataFormat) {
+		return null;
+	}
+	
 
 }

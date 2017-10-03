@@ -2,6 +2,8 @@ package com.bagri.core.server.api;
 
 import java.util.Properties;
 
+import com.bagri.core.api.ContentSerializer;
+
 public interface ContentHandler {
 	
 	/**
@@ -40,6 +42,13 @@ public interface ContentHandler {
 	 * @return Parser which is used to parse original documents in corresponding data format
 	 */
 	ContentParser<?> getParser();
+	
+	/**
+	 * 
+	 * @param source
+	 * @return serializer to read/write document's content from/to the underlying stream 
+	 */
+	ContentSerializer<?> getSerializer();
 	
 	/**
 	 * 

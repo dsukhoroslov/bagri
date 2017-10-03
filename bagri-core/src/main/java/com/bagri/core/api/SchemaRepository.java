@@ -1,5 +1,7 @@
 package com.bagri.core.api;
 
+import com.bagri.core.server.api.ContentParser;
+
 /**
  * XDM repository interface, provided for the client side. The main entry point to work with XDM Schema from client side.
  * 
@@ -46,5 +48,12 @@ public interface SchemaRepository {
 	 * @return transaction management interface
 	 */
 	TransactionManagement getTxManagement();
+	
+	/**
+	 * 
+	 * @param dataFormat the name of dataFormat to search for
+	 * @return ContentSerializer instance associated with the dataFormat name 
+	 */
+	ContentSerializer<?> getSerializer(String dataFormat);
 	
 }

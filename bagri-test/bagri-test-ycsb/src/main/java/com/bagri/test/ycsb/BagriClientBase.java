@@ -16,6 +16,7 @@ import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.saxon.XQProcessorClient;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.yahoo.ycsb.ByteArrayByteIterator;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
@@ -111,7 +112,7 @@ public abstract class BagriClientBase extends DB {
 	}
 	
 	protected abstract Logger getLogger();
-	
+
 	protected void populateResult(final Map<String, Object> document, final Set<String> fields, 
 			final HashMap<String, ByteIterator> result) {
 		// fill results
@@ -124,6 +125,23 @@ public abstract class BagriClientBase extends DB {
 				Object value = document.get(field);
 				if (value != null) {
 					result.put(field, new StringByteIterator(value.toString()));
+				}
+			}
+		}
+	}
+	
+	protected void populateResult2(final Map document, final Set<String> fields, 
+			final HashMap<String, ByteIterator> result) {
+		// fill results
+		if (fields == null) {
+			for (Map.Entry<String, byte[]> entry: (Set<Map.Entry<String, byte[]>>) document.entrySet()) {
+				result.put(entry.getKey(), new ByteArrayByteIterator(entry.getValue()));
+			}
+		} else {
+			for (String field: fields) {
+				byte[] value = (byte[]) document.get(field);
+				if (value != null) {
+					result.put(field, new ByteArrayByteIterator(value));
 				}
 			}
 		}

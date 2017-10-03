@@ -38,6 +38,10 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
     	}
 	}
 
+	public void setRepository(SchemaRepository repo) {
+		this.repo = repo;
+	}
+	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		clientId = in.readUTF();

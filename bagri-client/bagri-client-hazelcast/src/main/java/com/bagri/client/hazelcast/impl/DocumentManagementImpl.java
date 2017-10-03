@@ -103,6 +103,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Object result = xddCache.executeOnKey(key, task);
 		//Object result = cntCache.get(key);
 		logger.trace("getDocumentAs.exit; got content: {}", result);
+		((DocumentAccessorImpl) result).setRepository(repo);
 		return (DocumentAccessor) result;
 	}
 
@@ -140,6 +141,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		repo.getHealthManagement().checkClusterState();
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, content);
+		task.setRepository(repo);
 		Future<DocumentAccessor> future = execService.submit(task);
 		try {
 			DocumentAccessor result = future.get();
