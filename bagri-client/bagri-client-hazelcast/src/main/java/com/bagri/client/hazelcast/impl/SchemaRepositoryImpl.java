@@ -56,12 +56,13 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	
 	private static Properties getSystemProps() {
 		Properties props = new Properties();
-		setProperty(props, pn_schema_name, null); // "schema"
-		setProperty(props, pn_schema_address, null); //"address"
-		setProperty(props, pn_schema_user, null); //"user"
-		setProperty(props, pn_schema_password, null); //"password"
-		setProperty(props, pn_client_smart, null); //"smart"
-		setProperty(props, pn_client_loginTimeout, null); //"loginTimeout"
+		setProperty(props, pn_schema_name, null);
+		setProperty(props, pn_schema_address, null);
+		setProperty(props, pn_schema_user, null);
+		setProperty(props, pn_schema_password, null);
+		setProperty(props, pn_client_smart, null);
+		setProperty(props, pn_client_loginTimeout, null);
+		setProperty(props, pn_client_sharedConnection, null);
 		setProperty(props, pn_client_bufferSize, null); 
 		setProperty(props, pn_client_connectAttempts, "3"); 
 		setProperty(props, pn_client_poolSize, "5");
@@ -80,6 +81,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
+		setProperty(original, props, pn_client_sharedConnection, "sharedConnection");
 		setProperty(original, props, pn_client_bufferSize, null); 
 		setProperty(original, props, pn_client_connectAttempts, null);
 		Object factory = original.get(pn_client_dataFactory);

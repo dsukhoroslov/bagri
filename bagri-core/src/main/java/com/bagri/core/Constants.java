@@ -30,6 +30,7 @@ public class Constants {
 
 	public static final String pn_client_connectedAt = "bdb.client.connectedAt"; 
 	public static final String pn_client_memberId = "bdb.client.member"; 
+	public static final String pn_client_sharedConnection = "bdb.client.sharedConnection"; 
 
 	public static final String pn_client_fetchAsynch = "bdb.client.fetchAsynch";
 	public static final String pn_client_fetchSize = "bdb.client.fetchSize";
@@ -211,6 +212,7 @@ public class Constants {
 			case pn_client_queryCache: return 24;
 			case pn_client_storeMode: return 25;
 			case pn_client_submitTo: return 26;
+			case pn_client_sharedConnection: return 27;
 
 			case pn_document_collections: return 50;
 			case pn_document_data_format: return 51;
@@ -266,6 +268,7 @@ public class Constants {
 			case 24: return pn_client_queryCache;
 			case 25: return pn_client_storeMode;
 			case 26: return pn_client_submitTo;
+			case 27: return pn_client_sharedConnection;
 
 			case 50: return pn_document_collections;
 			case 51: return pn_document_data_format;

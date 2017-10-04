@@ -50,8 +50,14 @@ public class ClientManagementImpl {
 
     public HazelcastInstance connect(String clientId, Properties props) {
     	String cKey = getConnectKey(props);
+    	boolean shareConnect = Boolean.parseBoolean(props.getProperty(pn_client_sharedConnection, "true"));
 		synchronized (clients) {
-			ClientContainer cc = clients.get(cKey);
+			ClientContainer cc = null;
+			if (shareConnect) {
+				cc = clients.get(cKey);
+			} else {
+				cKey += clientId;
+			}
    			if (cc == null) {
    				HazelcastInstance hzClient = initializeHazelcast(props);
    				cc = new ClientContainer(cKey, hzClient);
@@ -132,7 +138,7 @@ public class ClientManagementImpl {
 		    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
 		        		break;
 		    		} else {
-		    			logger.info("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
+		    			logger.trace("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
 		    		}
 				} catch (Exception ex) {
 					logger.info("disconnect; it seems the server has been stopped already");

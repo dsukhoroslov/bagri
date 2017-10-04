@@ -5,7 +5,7 @@ set app_home=.
 
 rem specify the JVM heap size
 rem set memory=1024m
-set memory=1024m
+set memory=2048m
 
 set schema_addr=localhost:10150
 rem set schema_addr=192.168.1.100:10150
@@ -40,6 +40,7 @@ set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
 set java_opts=%java_opts% -Dbdb.client.queryCache=true
 set java_opts=%java_opts% -Dbdb.client.customAuth=true
 set java_opts=%java_opts% -Dbdb.client.fetchAsynch=false
+rem set java_opts=%java_opts% -Dbdb.client.sharedConnection=true
 
 rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
