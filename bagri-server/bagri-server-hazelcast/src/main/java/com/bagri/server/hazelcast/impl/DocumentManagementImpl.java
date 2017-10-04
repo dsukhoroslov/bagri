@@ -382,6 +382,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		int cnt = 0;
 		if (query != null) {
+			// TODO: perform content conversion if requested..
+			DocumentAccessorImpl dai;
 			if (headers == DocumentAccessor.HDR_CONTENT) {
 				// content only
 				java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
@@ -389,7 +391,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				for (DocumentKey key: keys) {
 					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
 					if (content != null) {
-						cln.add(new DocumentAccessorImpl(content));
+						dai = new DocumentAccessorImpl(content);
+						dai.setRepository(repo);
+						cln.add(dai);
 						cnt++;
 					}
 				}
@@ -400,13 +404,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					for (Document doc: docs) {
 						DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 						Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-						cln.add(new DocumentAccessorImpl(doc, headers, content));
+						dai = new DocumentAccessorImpl(doc, headers, content);
+						dai.setRepository(repo);
+						cln.add(dai);
 						cnt++;
 					}
 				} else {
 					// doc only
 					for (Document doc: docs) {
-						cln.add(new DocumentAccessorImpl(doc, headers));
+						dai = new DocumentAccessorImpl(doc, headers);
+						dai.setRepository(repo);
+						cln.add(dai);
 						cnt++;
 					}
 				}
@@ -490,7 +498,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		return getDocumentInternal(docKey, doc, props);
+		DocumentAccessor result = getDocumentInternal(docKey, doc, props);
+		((DocumentAccessorImpl) result).setRepository(repo); 
+		return result;
 	}
 
 	@Override
@@ -506,7 +516,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return null;
 		}
 
-		return getDocumentInternal(docKey, doc, props);
+		DocumentAccessor result = getDocumentInternal(docKey, doc, props);
+		((DocumentAccessorImpl) result).setRepository(repo); 
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -889,10 +901,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Document newDoc = storeDocumentInternal(uri, content, props);
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
 		long headMask = Long.parseLong(headers);
+		DocumentAccessorImpl result;
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			return new DocumentAccessorImpl(newDoc, headMask, content);
+			result = new DocumentAccessorImpl(newDoc, headMask, content);
+		} else {
+			result = new DocumentAccessorImpl(newDoc, headMask);
 		}
-		return new DocumentAccessorImpl(newDoc, headMask);
+		result.setRepository(repo);
+		return result;
 	}
 
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
@@ -1057,10 +1073,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
 		long headMask = Long.parseLong(headers);
+		DocumentAccessorImpl result;
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			return new DocumentAccessorImpl(doc, headMask, getDocumentContent(docKey));
+			result = new DocumentAccessorImpl(doc, headMask, getDocumentContent(docKey));
+		} else {
+			result = new DocumentAccessorImpl(doc, headMask);
 		}
-		return new DocumentAccessorImpl(doc, headMask);
+		result.setRepository(repo);
+		return result;
 	}
 
 	private Document removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {

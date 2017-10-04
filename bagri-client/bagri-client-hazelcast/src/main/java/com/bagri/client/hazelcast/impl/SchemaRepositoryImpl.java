@@ -3,12 +3,17 @@ package com.bagri.client.hazelcast.impl;
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.setProperty;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
+import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.HealthCheckState;
 import com.bagri.core.api.QueryManagement;
@@ -25,6 +30,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	private String schemaName;
 	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
+	private Map<String, ContentSerializer<?>> css = new ConcurrentHashMap<>();
 	
 	public SchemaRepositoryImpl() {
 		initializeFromProperties(getSystemProps());
@@ -40,7 +46,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		//clientId = proxy.getLocalEndpoint().getUuid();
 
-		clientMgr = new ClientManagementImpl();
+		clientMgr = new ClientManagementImpl(this);
 		clientId = UUID.randomUUID().toString();
 		clientMgr.connect(clientId, proxy);
 		
@@ -91,7 +97,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	}
 	
 	private void initializeFromProperties(Properties props) {
-		clientMgr = new ClientManagementImpl();
+		clientMgr = new ClientManagementImpl(this);
 		clientId = UUID.randomUUID().toString();
 		hzClient = clientMgr.connect(clientId, props);
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
@@ -157,6 +163,18 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	@Override
 	public String getClientId() {
 		return clientId;
+	}
+
+	@Override
+	public ContentSerializer<?> getSerializer(String dataFormat) {
+		ContentSerializer<?> cs = css.get(dataFormat);
+		if (cs == null) {
+			if ("MAP".equals(dataFormat)) {
+				cs = new StringMapContentSerializer();
+				css.put(dataFormat, cs);
+			} 
+		}
+		return cs;
 	}
 	
 	@Override

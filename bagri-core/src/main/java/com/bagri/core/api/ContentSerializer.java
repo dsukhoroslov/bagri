@@ -22,6 +22,6 @@ public interface ContentSerializer<C> {
 	 * @param content document's content
 	 * @throws IOException
 	 */
-	void writeContent(DataOutput out, C content);
+	void writeContent(DataOutput out, C content) throws IOException;
 
 }

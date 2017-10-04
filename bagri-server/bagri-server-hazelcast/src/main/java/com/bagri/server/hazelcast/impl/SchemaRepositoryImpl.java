@@ -22,10 +22,13 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
@@ -46,6 +49,7 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.server.hazelcast.serialize.TaskSerializationFactory;
 import com.hazelcast.core.HazelcastInstance;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements ApplicationContextAware, SchemaRepository {
@@ -72,9 +76,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
-	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
-	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<String, ContentHandler>();
+    private Map<String, XQProcessor> processors = new ConcurrentHashMap<>();
+	private Map<String, ContentSerializer<?>> serializers = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<>();
 	
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -269,6 +274,24 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 			return ch.getModeler();
 		}
 		return null;
+	}
+	
+	@Override
+	public ContentSerializer<?> getSerializer(String dataFormat) {
+		//ContentHandler ch = getHandler(dataFormat);
+		//if (ch != null) {
+		//	return ch.getSerializer();
+		//}
+		//return null;
+		//logger.info("getSerializer; format: {}", dataFormat);
+		ContentSerializer<?> cs = serializers.get(dataFormat);
+		if (cs == null) {
+			if ("MAP".equals(dataFormat)) {
+				cs = new StringMapContentSerializer();
+				serializers.put(dataFormat, cs);
+			} 
+		}
+		return cs;
 	}
 	
 	@SuppressWarnings("unchecked")

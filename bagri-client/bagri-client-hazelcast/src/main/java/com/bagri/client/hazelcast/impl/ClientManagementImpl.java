@@ -18,9 +18,11 @@ import javax.xml.xquery.XQSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.client.hazelcast.serialize.SystemSerializationFactory;
 import com.bagri.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.client.hazelcast.serialize.XQSequenceSerializer;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.support.util.JMXUtils;
 import com.bagri.xqj.BagriXQDataFactory;
@@ -39,6 +41,12 @@ public class ClientManagementImpl {
     private final static Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
 	
     private final static Map<String, ClientContainer> clients = new HashMap<>();
+    
+    private SchemaRepository repo;
+    
+    public ClientManagementImpl(SchemaRepository repo) {
+    	this.repo = repo;
+    }
 
     public HazelcastInstance connect(String clientId, Properties props) {
     	String cKey = getConnectKey(props);
@@ -253,6 +261,10 @@ public class ClientManagementImpl {
 		}
 		xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
+		
+		SystemSerializationFactory sf = new SystemSerializationFactory();
+		sf.setRepository(repo);
+		config.getSerializationConfig().addDataSerializableFactory(SystemSerializationFactory.cli_factory_id, sf);
 		
 		XQItemTypeSerializer xqits = new XQItemTypeSerializer();
 		xqits.setXQDataFactory(xqFactory);

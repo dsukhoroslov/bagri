@@ -9,6 +9,7 @@ import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.client.hazelcast.impl.DocumentAccessorImpl;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.hazelcast.nio.serialization.DataSerializableFactory;
@@ -33,6 +34,12 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 	public static final int cli_QueryParamsKey = 123;
 	public static final int cli_UrlHashKey = 124;
 	
+	private SchemaRepository repo;
+	
+	public void setRepository(SchemaRepository repo) {
+		this.repo = repo;
+	}
+	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
@@ -41,7 +48,7 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 			case cli_FixedCursor: return new FixedCursorImpl();
 			case cli_QueuedCollection: return new QueuedCollectionImpl<>();
 			case cli_FixedCollection: return new FixedCollectionImpl<>();
-			case cli_DocumentAccessor: return new DocumentAccessorImpl();
+			case cli_DocumentAccessor: return new DocumentAccessorImpl(repo);
 			case cli_DocumentKey: return new DocumentPartKey(); 
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 

@@ -97,13 +97,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("unchecked")
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		// actually, I can try just get it from Content cache!
-		logger.trace("getDocumentAs.enter; got uri: {}; props: {}", uri, props);
+		logger.trace("getDocument.enter; got uri: {}; props: {}", uri, props);
 		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri);
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
 		//Object result = cntCache.get(key);
-		logger.trace("getDocumentAs.exit; got content: {}", result);
-		((DocumentAccessorImpl) result).setRepository(repo);
+		logger.trace("getDocument.exit; got content: {}", result);
 		return (DocumentAccessor) result;
 	}
 
@@ -134,7 +133,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	@Override
 	public <T> DocumentAccessor storeDocument(String uri, T content, Properties props) throws BagriException {
-		logger.trace("storeDocumentFrom.enter; uri: {}; content: {}; props: {}", uri, content, props);
+		logger.trace("storeDocument.enter; uri: {}; content: {}; props: {}", uri, content, props);
 		if (content == null) {
 			throw new BagriException("Document content can not be null", ecDocument);
 		}
@@ -145,11 +144,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Future<DocumentAccessor> future = execService.submit(task);
 		try {
 			DocumentAccessor result = future.get();
-			logger.trace("storeDocumentFrom.exit; returning: {}", result);
+			logger.trace("storeDocument.exit; returning: {}", result);
 			return (DocumentAccessor) result;
 		} catch (InterruptedException | ExecutionException ex) {
 			// the document could be stored anyway..
-			logger.error("storeDocumentFrom.error", ex);
+			logger.error("storeDocument.error", ex);
 			throw new BagriException(ex, ecDocument);
 		}
 	}
@@ -224,7 +223,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				throw new BagriException(ex, ecDocument);
 			}
 		}
-		logger.trace("storeDocuments.exit; results: {}", result);
+		logger.trace("removeDocuments.exit; results: {}", result);
 		return (Iterable<DocumentAccessor>) result;
 	}
 	

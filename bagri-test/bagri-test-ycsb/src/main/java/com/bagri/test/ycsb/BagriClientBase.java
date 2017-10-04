@@ -42,7 +42,7 @@ public abstract class BagriClientBase extends DB {
     		format = "MAP";
     	} 
 		readProps.setProperty(pn_document_data_format, format);
-		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
+		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
 
 		String storeMode = System.getProperty(pn_client_storeMode);
 		if (storeMode != null) {
@@ -63,7 +63,7 @@ public abstract class BagriClientBase extends DB {
 		if (fetchAsynch != null) {
 			scanProps.setProperty(pn_client_fetchAsynch, fetchAsynch);
 		}
-		scanProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
+		scanProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
 		
 		if (storeMode != null) {
 			updateProps.setProperty(pn_client_storeMode, storeMode);

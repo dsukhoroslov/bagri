@@ -28,7 +28,7 @@
 	<serialization>
 		<data-serializable-factories>
 			<!--data-serializable-factory factory-id="1000">com.bagri.client.hazelcast.serialize.DomainSerializationFactory</data-serializable-factory-->
-			<data-serializable-factory factory-id="2000">com.bagri.client.hazelcast.serialize.SystemSerializationFactory</data-serializable-factory>
+			<!--data-serializable-factory factory-id="2000">com.bagri.client.hazelcast.serialize.SystemSerializationFactory</data-serializable-factory-->
 			<data-serializable-factory factory-id="3000">com.bagri.client.hazelcast.serialize.TaskSerializationFactory</data-serializable-factory>
 		</data-serializable-factories>
 		<portable-factories>

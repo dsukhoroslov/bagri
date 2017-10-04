@@ -101,6 +101,11 @@ public abstract class SchemaRepositoryBase {
 		this.txMgr = txMgr;
 	}
 
+	/**
+	 * 
+	 * @param dataFormat
+	 * @return serializer for the dataFormat provided or null
+	 */
 	public ContentSerializer<?> getSerializer(String dataFormat) {
 		return null;
 	}

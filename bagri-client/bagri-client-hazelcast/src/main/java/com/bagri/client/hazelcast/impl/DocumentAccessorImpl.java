@@ -20,8 +20,9 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 	
 	private SchemaRepository repo;
 	
-	public DocumentAccessorImpl() {
+	public DocumentAccessorImpl(SchemaRepository repo) {
 		super();
+		this.repo = repo;
 	}
 
 	public DocumentAccessorImpl(int[] collections, Object content, String contentType, long createdAt, String createdBy, 
@@ -41,9 +42,9 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		return cli_DocumentAccessor;
 	}
 
-	public void setRepository(SchemaRepository repo) {
-		this.repo = repo;
-	}	
+	//public void setRepository(SchemaRepository repo) {
+	//	this.repo = repo;
+	//}	
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
@@ -157,22 +158,4 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		}
 	}
 
-	private void readContent(ObjectDataInput in) throws IOException {
-		int size = in.readInt();
-		Map<String, byte[]> doc = new HashMap<String, byte[]>(size);
-		for (int i=0; i < size; i++) {
-			doc.put(in.readUTF(), in.readByteArray());
-		}
-		content = doc;
-	}
-
-	private void writeContent(ObjectDataOutput out) throws IOException {
-		Map<String, byte[]> doc = (Map<String, byte[]>) content;
-		out.writeInt(doc.size());
-		for (Map.Entry<String, byte[]> e: doc.entrySet()) {
-			out.writeUTF(e.getKey());
-			out.writeByteArray(e.getValue());
-		}
-	}
-	
 }

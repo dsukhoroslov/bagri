@@ -39,8 +39,8 @@ public class BagriDocClient extends BagriClientBase {
 	@Override
 	@SuppressWarnings({ "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
-		//HashMap fields = StringByteIterator.getStringMap(values);
-		HashMap fields = convertContent(values);
+		HashMap fields = StringByteIterator.getStringMap(values);
+		//HashMap fields = convertContent(values);
 		try {
 			if (xRepo.getDocumentManagement().storeDocument(key, fields, insertProps) == null) {
 				logger.debug("insert; document was not created for some reason; key: {}", key);
@@ -63,7 +63,7 @@ public class BagriDocClient extends BagriClientBase {
 				return Status.NOT_FOUND;
 			}
 			Map<String, Object> map = doc.getContent();
-			populateResult2(map, fields, result);
+			populateResult(map, fields, result);
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("read.error; key: " + key, ex);
@@ -83,7 +83,7 @@ public class BagriDocClient extends BagriClientBase {
 			for (DocumentAccessor doc: docs) {
 				Map<String, Object> map = doc.getContent();
 				HashMap<String, ByteIterator> result = new HashMap<>(map.size());
-				populateResult2(map, fields, result);
+				populateResult(map, fields, result);
 				results.add(result);
 			}
 
@@ -102,8 +102,8 @@ public class BagriDocClient extends BagriClientBase {
 	@Override
 	@SuppressWarnings({ "rawtypes" })
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
-		//HashMap fields = StringByteIterator.getStringMap(values);
-		HashMap fields = convertContent(values);
+		HashMap fields = StringByteIterator.getStringMap(values);
+		//HashMap fields = convertContent(values);
 		try {
 			if (xRepo.getDocumentManagement().storeDocument(key, fields, updateProps) == null) {
 				logger.debug("update; document was not updated for some reason; key: {}", key);
