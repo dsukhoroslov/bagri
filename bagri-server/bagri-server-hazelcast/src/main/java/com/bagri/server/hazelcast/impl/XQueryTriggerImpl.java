@@ -72,9 +72,8 @@ public class XQueryTriggerImpl implements DocumentTrigger {
 			XQDataFactory xqFactory = xqp.getXQDataFactory();
 			XQItem item = xqFactory.createItemFromNode(xDoc, xqFactory.createDocumentType());
 			xqp.bindVariable("doc", item);
-			//Properties props = new Properties();
-			Iterator<?> iter = xqp.executeXQuery(query, props);
 			if (logger.isTraceEnabled()) {
+				Iterator<?> iter = xqp.executeXQuery(query, props);
 				while (iter.hasNext()) {
 					logger.trace("runTrigger; result: {}", iter.next()); 
 				}

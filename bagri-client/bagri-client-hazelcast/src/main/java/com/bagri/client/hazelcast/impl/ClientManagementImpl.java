@@ -5,11 +5,14 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_CLIENT;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.xml.xquery.XQItem;
 import javax.xml.xquery.XQItemType;
@@ -24,21 +27,19 @@ import com.bagri.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.client.hazelcast.serialize.XQSequenceSerializer;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessor;
-import com.bagri.support.util.JMXUtils;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
-import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
 
 public class ClientManagementImpl {
 	
     private final static Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
+    private final static String key_separator = "::"; 
 	
     private final static Map<String, ClientContainer> clients = new HashMap<>();
     
@@ -48,11 +49,11 @@ public class ClientManagementImpl {
     	this.repo = repo;
     }
 
-    public HazelcastInstance connect(String clientId, Properties props) {
+    public HazelcastInstance connect(final String clientId, Properties props) {
+		ClientContainer cc = null;
     	String cKey = getConnectKey(props);
     	boolean shareConnect = Boolean.parseBoolean(props.getProperty(pn_client_sharedConnection, "true"));
 		synchronized (clients) {
-			ClientContainer cc = null;
 			if (shareConnect) {
 				cc = clients.get(cKey);
 			} else {
@@ -64,106 +65,95 @@ public class ClientManagementImpl {
    				clients.put(cKey, cc);
 				logger.info("connect; new HZ instance created for clientId: {}", clientId);
    			} else {
-   				// TODO: check password -> authenticate();
+   				// TODO: check password -> authenticate(); ??
    			}
-
-   	    	HazelcastInstance hzClient = cc.hzInstance; 
-   	    	if (cc.addClient(clientId)) {
-   	    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-   	    		ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
-   	    		props.remove(pn_client_dataFactory);
-   	    		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
-   	    		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
-   	    		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString()); 
-   	    		//clientProps.set(clientId, props);
-   	    		clientProps.put(clientId, props);
-   				logger.trace("connect; got new connection for clientId: {}", clientId);
-   	    	} else {
-   				logger.info("connect; got existing connection for clientId: {}", clientId);
-   	    	}
-   	    	return hzClient;
 		}
+		props.remove(pn_client_dataFactory);
+		addClient(cc, clientId, props);
+    	return cc.hzInstance;
     }
 
-    public void connect(String clientId, HazelcastClientProxy hzProxy) {
+    public void connect(final String clientId, HazelcastClientProxy hzProxy) {
+    	ClientContainer cc = null;
     	String cKey = getConnectKey(hzProxy);
 		synchronized (clients) {
-			ClientContainer cc = clients.get(cKey);
+			cc = clients.get(cKey);
    			if (cc == null) {
    				cc = new ClientContainer(cKey, hzProxy);
    				clients.put(cKey, cc);
 				logger.info("connect; new container created for clientId: {}", clientId);
    			} else {
-   				// check password -> authenticate();
+   				// check password -> authenticate(); ??
    			}
-   			
-   	    	HazelcastInstance hzClient = cc.hzInstance; 
-   	    	if (cc.addClient(clientId)) {
-   	    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-   	    		//props.remove(pn_client_dataFactory);
-   	    		//clientProps.set(clientId, props);
-   				logger.trace("connect; got new connection for clientId: {}", clientId);
-   	    	} else {
-   				logger.info("connect; got existing connection for clientId: {}", clientId);
-   	    	}
 		}
+		Properties props = new Properties();
+    	ClientConfig config = hzProxy.getClientConfig(); 
+		props.setProperty(pn_schema_name, config.getGroupConfig().getName());
+		props.setProperty(pn_schema_address, config.getNetworkConfig().getAddresses().toString());
+		props.setProperty(pn_schema_user, config.getCredentials().getPrincipal());
+		props.setProperty(pn_client_smart, String.valueOf(config.getNetworkConfig().isSmartRouting()));
+		props.setProperty(pn_client_bufferSize, String.valueOf(config.getNetworkConfig().getSocketOptions().getBufferSize()));
+		addClient(cc, clientId, props);
     }
     
-    //private void addClient(ClientContainer cc, String clientId) {
-
-    //	HazelcastInstance hzClient = cc.hzInstance; 
-    //	if (cc.addClient(clientId)) {
-    //		IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
-    //		props.remove(pn_client_dataFactory);
-    //		clientProps.set(clientId, props);
-	//		logger.trace("connect; got new connection for clientId: {}", clientId);
-    //	} else {
-	//		logger.info("connect; got existing connection for clientId: {}", clientId);
-    //	}
-    //	
-    //}
+    private void addClient(final ClientContainer cc, final String clientId, Properties props) {
+    	HazelcastInstance hzClient = cc.hzInstance; 
+    	if (cc.addClient(clientId)) {
+    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
+    		ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
+    		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
+    		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
+    		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString()); 
+    		//clientProps.set(clientId, props);
+    		clientProps.put(clientId, props);
+			logger.trace("addClient; got new connection for clientId: {}", clientId);
+    	} else {
+			logger.trace("addClient; got existing connection for clientId: {}", clientId);
+    	}
+    }
     
-    public void disconnect(String clientId) {
+    public void disconnect(final String clientId) {
+    	ClientContainer found = null;
     	synchronized (clients) {
-        	ClientContainer found = null;
-	    	for (ClientContainer cc: clients.values()) {
-				logger.trace("disconnect; disconnecting: {}; current clients: {}", clientId, cc.getSize());
-				try {
-		    		if (cc.removeClient(clientId)) {
-		    			found = cc;
-		        		//IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
-		        		ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
-		        		//clientProps.delete(clientId);
-		        		clientProps.remove(clientId);
-		    			logger.trace("disconnect; clientId {} successfuly disconnected", clientId);
-		        		break;
-		    		} else {
-		    			logger.trace("disconnect; container don't see client ID: {}; existing: {}", clientId, cc.getClients());
-		    		}
-				} catch (Exception ex) {
-					logger.info("disconnect; it seems the server has been stopped already");
-				}
-	    	}
-	
-	    	if (found != null) {
-	    		if (found.isEmpty()) {
-					if (found.hzInstance.getLifecycleService().isRunning()) {
-						logger.info("disconnect; going to shutdown HZ instance: {}", found.hzInstance);
-						//found.hzInstance.getLifecycleService().shutdown();
-						// probably, should do something like this:
-						//execService.awaitTermination(100, TimeUnit.SECONDS);
-						found.hzInstance.shutdown();
-						logger.info("disconnect; the instance {} disconnected", found.hzInstance);
-					} else {
-						logger.info("disconnect; an attempt to shutdown not-running client!");
+        	Iterator<ClientContainer> itr = clients.values().iterator();
+        	while (itr.hasNext()) {
+        		ClientContainer cc = itr.next();
+	    		if (cc.removeClient(clientId)) {
+	    			found = cc;
+	        		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
+					try {
+						//IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
+						ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
+						//clientProps.delete(clientId);
+						clientProps.remove(clientId);
+			    		if (found.isEmpty()) {
+			    			clients.remove(found.clientKey);
+			    		}
+					} catch (Exception ex) {
+						logger.info("disconnect; it seems the server has been stopped already");
 					}
-					clients.remove(found.clientKey);
-	    		} else  {
-					logger.trace("disconnect; disconnected: {}; remaining clients: {}", clientId, found.getSize());
-				}
-	    	} else {
-	    		logger.info("disconnect; can not find container for client: {}", clientId);
+	        		break;
+	    		}
 	    	}
+    	}	
+
+    	if (found != null) {
+    		if (found.isEmpty()) {
+				if (found.hzInstance.getLifecycleService().isRunning()) {
+					logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
+					//found.hzInstance.getLifecycleService().shutdown();
+					// probably, should do something like this:
+					//execService.awaitTermination(100, TimeUnit.SECONDS);
+					found.hzInstance.shutdown();
+					logger.trace("disconnect; instance disconnected");
+				} else {
+					logger.info("disconnect; attempted to shutdown not-running client!");
+				}
+    		} else  {
+				logger.info("disconnect; disconnected  client: {}; remaining clients: {}", clientId, found.getSize());
+			}
+    	} else {
+    		logger.info("disconnect; can't find container for client: {}; clients: {}", clientId, clients);
     	}
     }
     
@@ -172,7 +162,7 @@ public class ClientManagementImpl {
     	if (cc == null) {
     		return null;
     	}
-    	String[] parts = cc.clientKey.split("::");
+    	String[] parts = cc.clientKey.split(key_separator);
     	return parts[2];
     }
     
@@ -182,16 +172,15 @@ public class ClientManagementImpl {
 		String user = props.getProperty(pn_schema_user);
 		String smart = props.getProperty(pn_client_smart);
 		String buffer = props.getProperty(pn_client_bufferSize); 
-		return schema + "::" + address + "::" + user + "::" + smart + "::" + buffer;
+		return schema + key_separator + address + key_separator + user + key_separator + smart + key_separator + buffer;
     }
 
     private String getConnectKey(HazelcastClientProxy hzProxy) {
     	ClientConfig config = hzProxy.getClientConfig(); 
-    	return config.getGroupConfig().getName() + "::" +
-    		   config.getNetworkConfig().getAddresses().toString() + "::" +
-    		   //JMXUtils.getCurrentUser() + "::" +
-    		   config.getCredentials().getPrincipal() + "::" + 
-    		   config.getNetworkConfig().isSmartRouting() + "::" + 
+    	return config.getGroupConfig().getName() + key_separator +
+    		   config.getNetworkConfig().getAddresses().toString() + key_separator +
+    		   config.getCredentials().getPrincipal() + key_separator + 
+    		   config.getNetworkConfig().isSmartRouting() + key_separator + 
     		   config.getNetworkConfig().getSocketOptions().getBufferSize();
     }
     
@@ -303,7 +292,7 @@ public class ClientManagementImpl {
 		
 		private String clientKey;
 		private HazelcastInstance hzInstance;
-		private Set<String> clientIds = new HashSet<>();
+		private Set<String> clientIds = new ConcurrentSkipListSet<>();
 		
 		ClientContainer(String clientKey, HazelcastInstance hzInstance) {
 			this.clientKey = clientKey;
@@ -332,6 +321,11 @@ public class ClientManagementImpl {
 		
 		boolean removeClient(String clientId) {
 			return clientIds.remove(clientId);
+		}
+		
+		@Override
+		public String toString() {
+			return "CC[key: " + clientKey + "; ids: " + clientIds + "]";
 		}
 		
 	}
