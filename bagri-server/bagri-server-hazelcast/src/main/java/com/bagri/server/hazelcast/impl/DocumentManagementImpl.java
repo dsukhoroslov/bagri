@@ -87,7 +87,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	//private IExecutorService execSvc;
 	private ExecutorService execSvc;
-	//private Map<String, String> sharedMap;
+	private Map<String, String> sharedMap;
 
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -102,10 +102,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	execSvc = Executors.newFixedThreadPool(32);
     	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
     	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
-		//sharedMap = new HashMap<>(10);
-		//for (int j=0; j < 10; j++) {
-		//	sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100));
-		//}
+		sharedMap = new HashMap<>(10);
+		for (int j=0; j < 10; j++) {
+			sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100));
+		}
     }
 
     IMap<DocumentKey, Object> getContentCache() {
@@ -402,9 +402,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
 					// doc & content
 					for (Document doc: docs) {
+					//for (int i=0; i < fetchSize; i++) {
 						DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 						Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
 						dai = new DocumentAccessorImpl(doc, headers, content);
+						//dai = new DocumentAccessorImpl(null, content, "MAP", 0, null, null, 0, 0, 0, 0, null, 0, 0, null, 0); 
 						dai.setRepository(repo);
 						cln.add(dai);
 						cnt++;

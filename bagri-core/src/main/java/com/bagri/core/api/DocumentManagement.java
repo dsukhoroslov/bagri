@@ -50,7 +50,7 @@ public interface DocumentManagement {
 	 * @param props Document processing instructions
 	 * @param <T> the type of Document content
 	 * @return Document accessor
-	 * @throws BagriException
+	 * @throws BagriException in case of any error
 	 */
 	<T> DocumentAccessor storeDocument(String uri, T content, Properties props) throws BagriException;
 
@@ -61,7 +61,7 @@ public interface DocumentManagement {
 	 * @param props documents processing instructions
 	 * @param <T> the type of Document content
 	 * @return Iterable over stored documents
-	 * @throws BagriException
+	 * @throws BagriException in case of any error
 	 */
 	<T> Iterable<DocumentAccessor> storeDocuments(Map<String, T> documents, Properties props) throws BagriException;
 	

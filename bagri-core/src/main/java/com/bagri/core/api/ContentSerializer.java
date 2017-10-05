@@ -11,7 +11,7 @@ public interface ContentSerializer<C> {
 	 * 
 	 * @param in input stream
 	 * @return document's content
-	 * @throws IOException
+	 * @throws IOException in case of read error
 	 */
 	C readContent(DataInput in) throws IOException;
 	
@@ -20,7 +20,7 @@ public interface ContentSerializer<C> {
 	 * 
 	 * @param out output stream
 	 * @param content document's content
-	 * @throws IOException
+	 * @throws IOException in case of write error
 	 */
 	void writeContent(DataOutput out, C content) throws IOException;
 

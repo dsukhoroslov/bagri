@@ -126,7 +126,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			} else {
 				content = in.readObject();
 			}
-			//readContent(in);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			contentType = in.readUTF();
 		}
@@ -182,7 +181,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			} else {
 				out.writeObject(content);
 			}
-			//writeContent(out);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			out.writeUTF(contentType);
 		}
@@ -223,25 +221,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			out.writeInt(version);
 		}
 	}
-
-	private void readContent(ObjectDataInput in) throws IOException {
-		int size = in.readInt();
-		Map<String, byte[]> doc = new HashMap<String, byte[]>(size);
-		for (int i=0; i < size; i++) {
-			doc.put(in.readUTF(), in.readByteArray());
-		}
-		content = doc;
-	}
-
-	private void writeContent(ObjectDataOutput out) throws IOException {
-		Map<String, byte[]> doc = (Map<String, byte[]>) content;
-		out.writeInt(doc.size());
-		for (Map.Entry<String, byte[]> e: doc.entrySet()) {
-			out.writeUTF(e.getKey());
-			out.writeByteArray(e.getValue());
-		}
-	}
-	
 
 }
 

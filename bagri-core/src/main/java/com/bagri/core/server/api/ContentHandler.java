@@ -45,7 +45,6 @@ public interface ContentHandler {
 	
 	/**
 	 * 
-	 * @param source
 	 * @return serializer to read/write document's content from/to the underlying stream 
 	 */
 	ContentSerializer<?> getSerializer();
