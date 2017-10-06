@@ -75,10 +75,10 @@ public class BagriDocClient extends BagriClientBase {
 	public Status scan(final String table, final String startkey, final int recordcount,
 				final Set<String> fields, final Vector<HashMap<String, ByteIterator>> results) {
 		try {
-			long stamp = System.currentTimeMillis();
+			//long stamp = System.currentTimeMillis();
 			scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
 			Iterable<DocumentAccessor> docs = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey, scanProps);
-			timer2.addAndGet(System.currentTimeMillis() - stamp);
+			//timer2.addAndGet(System.currentTimeMillis() - stamp);
 			results.ensureCapacity(recordcount);
 			for (DocumentAccessor doc: docs) {
 				Map<String, Object> map = doc.getContent();
@@ -90,8 +90,8 @@ public class BagriDocClient extends BagriClientBase {
 			if (results.size() > recordcount) {
 				logger.info("scan; got {} records when requested {}", results.size(), recordcount);
 			}
-			timer.addAndGet(System.currentTimeMillis() - stamp);
-			counter++;
+			//timer.addAndGet(System.currentTimeMillis() - stamp);
+			//counter++;
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("scan.error", ex);

@@ -28,7 +28,12 @@ public abstract class ContextAwareTask extends TransactionAwareTask {
 		if (size > 0) {
 			context = new Properties(); 
 			for (int i=0; i < size; i++) {
-				context.setProperty(Constants.intToProp(in.readInt()), in.readUTF());
+				String prop = Constants.intToProp(in.readInt());
+				try {
+					context.setProperty(prop, in.readUTF());
+				} catch (Exception e) {
+					System.out.println("NULL PROP: " + prop);
+				}
 			}
 		}
 	}

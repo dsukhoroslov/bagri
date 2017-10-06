@@ -4,8 +4,6 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.impl.DocumentAccessorBase;
@@ -18,17 +16,14 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentAccessorImpl extends DocumentAccessorBase implements IdentifiedDataSerializable {
 	
-	private SchemaRepository repo;
-	
 	public DocumentAccessorImpl(SchemaRepository repo) {
-		super();
-		this.repo = repo;
+		super(repo);
 	}
 
-	public DocumentAccessorImpl(int[] collections, Object content, String contentType, long createdAt, String createdBy, 
-			String encoding, long sizeInBytes, int sizeInElements, int sizeInFragments, String typeRoot, 
+	public DocumentAccessorImpl(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
+			String encoding, long docKey, long sizeInBytes, int sizeInElements, int sizeInFragments, String typeRoot, 
 			long txStart, long txFinish, String uri, int version) {
-		super(collections, content, contentType, createdAt, createdBy, encoding, 0, sizeInBytes, sizeInElements, sizeInFragments, typeRoot,
+		super(repo, collections, content, contentType, createdAt, createdBy, encoding, docKey, sizeInBytes, sizeInElements, sizeInFragments, typeRoot,
 				txStart, txFinish, uri, version);
 	}
 
@@ -41,10 +36,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 	public int getId() {
 		return cli_DocumentAccessor;
 	}
-
-	//public void setRepository(SchemaRepository repo) {
-	//	this.repo = repo;
-	//}	
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {

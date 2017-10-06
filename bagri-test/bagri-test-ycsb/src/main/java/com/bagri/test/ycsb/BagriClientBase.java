@@ -105,10 +105,10 @@ public abstract class BagriClientBase extends DB {
 	    //getLogger().info("cleanup; xRepo: {}", xRepo);
 	    xRepo.close();
 
-	    double time1 = timer.get();
-	    double time2 = timer2.get();
-		getLogger().info("cleanup; scan count: {}; full scan time: {}; full query time: {}; avg scan time: {}; avg query time: {}",
-				counter, time1, time2, time1/counter, time2/counter);
+	    //double time1 = timer.get();
+	    //double time2 = timer2.get();
+		//getLogger().info("cleanup; scan count: {}; full scan time: {}; full query time: {}; avg scan time: {}; avg query time: {}",
+		//		counter, time1, time2, time1/counter, time2/counter);
 	}
 	
 	protected abstract Logger getLogger();

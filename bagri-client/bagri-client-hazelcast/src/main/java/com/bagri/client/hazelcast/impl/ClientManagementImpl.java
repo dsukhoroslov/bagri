@@ -106,7 +106,7 @@ public class ClientManagementImpl {
     		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString()); 
     		//clientProps.set(clientId, props);
     		clientProps.put(clientId, props);
-			logger.trace("addClient; got new connection for clientId: {}", clientId);
+			logger.debug("addClient; got new connection for clientId: {}", clientId);
     	} else {
 			logger.trace("addClient; got existing connection for clientId: {}", clientId);
     	}
@@ -150,7 +150,7 @@ public class ClientManagementImpl {
 					logger.info("disconnect; attempted to shutdown not-running client!");
 				}
     		} else  {
-				logger.info("disconnect; disconnected  client: {}; remaining clients: {}", clientId, found.getSize());
+				logger.debug("disconnect; disconnected  client: {}; remaining clients: {}", clientId, found.getSize());
 			}
     	} else {
     		logger.info("disconnect; can't find container for client: {}; clients: {}", clientId, clients);

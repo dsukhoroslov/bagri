@@ -6,11 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.SchemaRepository;
 
 public class DocumentAccessorBase implements DocumentAccessor {
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
+	protected SchemaRepository repo;
+	
     protected long headers;
 
 	protected int[] collections;
@@ -29,18 +32,24 @@ public class DocumentAccessorBase implements DocumentAccessor {
 	protected String uri;
 	protected int version;
 	
-	public DocumentAccessorBase() {
+	//public DocumentAccessorBase() {
 		// for de-ser..
+	//}
+
+	public DocumentAccessorBase(SchemaRepository repo) {
+		this.repo = repo;
 	}
 
-	public DocumentAccessorBase(Object content) {
+	public DocumentAccessorBase(SchemaRepository repo, Object content) {
+		this(repo);
 		headers = HDR_CONTENT;
 		this.content = content;
 	}
 	
-	public DocumentAccessorBase(int[] collections, Object content, String contentType, long createdAt, String createdBy, 
+	public DocumentAccessorBase(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
 			String encoding, long documentKey, long sizeInBytes, int sizeInElements, int sizeInFragments, String typeRoot, 
 			long txStart, long txFinish, String uri, int version) {
+		this(repo);
 		if (collections != null) {
 			this.collections = collections;
 			headers = 1L;
