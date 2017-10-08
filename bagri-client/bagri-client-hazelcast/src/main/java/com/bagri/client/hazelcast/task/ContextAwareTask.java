@@ -46,6 +46,7 @@ public abstract class ContextAwareTask extends TransactionAwareTask {
 		} else {
 			out.writeInt(context.size());
 			for (Map.Entry entry: context.entrySet()) {
+				//System.out.println(entry.getKey() + ":" + entry.getValue());
 				out.writeInt(Constants.propToInt(entry.getKey().toString()));
 				out.writeUTF(entry.getValue().toString());
 			}

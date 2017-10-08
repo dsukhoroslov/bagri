@@ -213,6 +213,8 @@ public class Constants {
 			case pn_client_storeMode: return 25;
 			case pn_client_submitTo: return 26;
 			case pn_client_sharedConnection: return 27;
+			
+			case pn_query_command: return 40;
 
 			case pn_document_collections: return 50;
 			case pn_document_data_format: return 51;
@@ -270,6 +272,8 @@ public class Constants {
 			case 26: return pn_client_submitTo;
 			case 27: return pn_client_sharedConnection;
 
+			case 40: return pn_query_command;
+			
 			case 50: return pn_document_collections;
 			case 51: return pn_document_data_format;
 			case 52: return pn_document_headers;

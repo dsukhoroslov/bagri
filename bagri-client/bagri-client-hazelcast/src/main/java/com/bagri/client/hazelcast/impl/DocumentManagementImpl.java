@@ -2,6 +2,9 @@ package com.bagri.client.hazelcast.impl;
 
 import static com.bagri.core.Constants.pn_client_fetchAsynch;
 import static com.bagri.core.Constants.pn_client_id;
+import static com.bagri.core.Constants.pn_client_txId;
+import static com.bagri.core.Constants.pn_client_txLevel;
+import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.api.BagriException.ecDocument;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
@@ -58,12 +61,25 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return new DocumentPartKey(uri.hashCode(), 0, 1);
 	}
 
+	private Properties checkDocumentProperties(Properties props) {
+		if (props == null) {
+			props = new Properties();
+		}
+		props.setProperty(pn_client_id, repo.getClientId());
+		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
+		props.setProperty(pn_schema_name, repo.getSchemaName());
+		//if (defTxLevel != null) {
+		//	props.setProperty(pn_client_txLevel, defTxLevel);
+		//}
+		return props;
+	}
+	
 	@Override
 	@SuppressWarnings("resource")
 	public Iterable<String> getDocumentUris(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
 		CombinedCollectionImpl<String> result = new CombinedCollectionImpl<>();
-		props.setProperty(pn_client_id, repo.getClientId());
+		checkDocumentProperties(props);
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<String>>> results = execService.submitToAllMembers(task);
@@ -98,6 +114,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		// actually, I can try just get it from Content cache!
 		logger.trace("getDocument.enter; got uri: {}; props: {}", uri, props);
+		checkDocumentProperties(props);
 		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri);
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
@@ -111,7 +128,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
 		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
-		props.setProperty(pn_client_id, repo.getClientId());
+		checkDocumentProperties(props);
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
@@ -138,6 +155,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Document content can not be null", ecDocument);
 		}
 		repo.getHealthManagement().checkClusterState();
+		checkDocumentProperties(props);
 		
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, content);
 		task.setRepository(repo);
@@ -160,6 +178,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Empty Document collection provided", ecDocument);
 		}
 		repo.getHealthManagement().checkClusterState();
+		checkDocumentProperties(props);
 
 		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
@@ -188,6 +207,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		repo.getHealthManagement().checkClusterState();
 		//XDMDocumentRemover proc = new XDMDocumentRemover();
 		//Object result = xddCache.executeOnKey(docId, proc);
+		checkDocumentProperties(props);
 		
 		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), props, uri);
 		Future<DocumentAccessor> future = execService.submit(task);
@@ -205,6 +225,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Iterable<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
 		repo.getHealthManagement().checkClusterState();
+		checkDocumentProperties(props);
 
 		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));

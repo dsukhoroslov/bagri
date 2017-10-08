@@ -76,6 +76,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (props == null) {
 			props = new Properties();
 		}
+		props.setProperty(pn_schema_name, repo.getSchemaName());
 		props.setProperty(pn_client_id, repo.getClientId());
 		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		if (defTxLevel != null) {

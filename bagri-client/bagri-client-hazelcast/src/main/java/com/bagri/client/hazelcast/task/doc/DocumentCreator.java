@@ -35,18 +35,21 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	public int getId() {
 		return cli_CreateDocumentTask;
 	}
+	
+	protected void checkRepo() {
+		// nothing..
+	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
+		checkRepo();
 		String format = context.getProperty(pn_document_data_format);
 		if (format != null) {
-			if (repo != null) {
-				ContentSerializer cs = repo.getSerializer(format);
-				if (cs != null) {
-					content = cs.readContent(in);
-					return;
-				}
+			ContentSerializer cs = repo.getSerializer(format);
+			if (cs != null) {
+				content = cs.readContent(in);
+				return;
 			}
 		} 
 		content = in.readObject();
@@ -54,7 +57,6 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeUTF("YCSB");
 		super.writeData(out);
 		String format = context.getProperty(pn_document_data_format);
 		if (format != null) {

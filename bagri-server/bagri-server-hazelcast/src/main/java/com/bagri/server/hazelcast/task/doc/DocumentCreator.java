@@ -1,6 +1,8 @@
 package com.bagri.server.hazelcast.task.doc;
 
 import static com.bagri.core.Constants.pn_client_txLevel;
+import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pv_client_txLevel_skip;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext;
 
@@ -62,13 +64,13 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
 	    	}
     	});
     }
-	
+
 	@Override
-	public void readData(ObjectDataInput in) throws IOException {
-		String schemaName = in.readUTF();
+	protected void checkRepo() {
+		String schemaName = context.getProperty(pn_schema_name);
 		ApplicationContext ctx = getContext(schemaName);
 		repo = ctx.getBean(SchemaRepositoryImpl.class);
-		super.readData(in);
 	}
+
 	
 }

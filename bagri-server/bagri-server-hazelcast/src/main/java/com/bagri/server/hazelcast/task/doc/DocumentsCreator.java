@@ -1,11 +1,14 @@
 package com.bagri.server.hazelcast.task.doc;
 
 import static com.bagri.core.Constants.pn_client_txLevel;
+import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pv_client_txLevel_skip;
+import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext;
 
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
@@ -15,6 +18,7 @@ import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
+import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 
 public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.DocumentsCreator {
 
@@ -55,6 +59,12 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
     	});
     }
 	
+	@Override
+	protected void checkRepo() {
+		String schemaName = context.getProperty(pn_schema_name);
+		ApplicationContext ctx = getContext(schemaName);
+		repo = ctx.getBean(SchemaRepositoryImpl.class);
+	}
 
 
 }
