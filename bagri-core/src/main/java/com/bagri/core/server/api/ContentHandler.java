@@ -10,7 +10,7 @@ public interface ContentHandler {
 	 *  
 	 * @return the corresponding DataFormat abbreviation
 	 */
-	String getDataFormat();
+	//String getDataFormat();
 	
 	/**
 	 * 

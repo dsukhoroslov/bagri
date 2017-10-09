@@ -72,7 +72,6 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		//results = in.readObject();
 		int size = in.readInt();
 		results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
@@ -82,7 +81,6 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		//out.writeObject(results);
 		out.writeInt(results.size());
 		for (Object result: results) {
 			out.writeObject(result);

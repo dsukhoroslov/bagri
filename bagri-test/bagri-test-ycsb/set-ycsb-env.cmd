@@ -41,11 +41,13 @@ set java_opts=%java_opts% -Dbdb.client.queryCache=true
 set java_opts=%java_opts% -Dbdb.client.customAuth=true
 set java_opts=%java_opts% -Dbdb.client.fetchAsynch=false
 rem set java_opts=%java_opts% -Dbdb.client.sharedConnection=true
+rem set java_opts=%java_opts% -Dbdb.client.contentSerializers=MAP
+rem set java_opts=%java_opts% -Dbdb.client.contentSerializer.MAP= 
 
 rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
 set java_opts=%java_opts% -Dbdb.client.txLevel=skip
-set java_opts=%java_opts% -Dbdb.document.data.format=MAP
+set java_opts=%java_opts% -Dbdb.document.data.format=BMAP
 set java_opts=%java_opts% -Dbdb.document.map.merge=true
 
 rem set java_opts=%java_opts% -Duser.country=US -Duser.language=en

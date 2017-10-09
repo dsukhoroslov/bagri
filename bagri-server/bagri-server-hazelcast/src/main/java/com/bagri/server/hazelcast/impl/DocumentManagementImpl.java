@@ -623,7 +623,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			long txStart, int[] collections, boolean addContent) throws BagriException {
 
 		ParseResults pRes;
-		dataFormat = repo.getHandler(dataFormat).getDataFormat();
+		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		try {
 			pRes = parser.parse(content);
@@ -947,7 +947,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		String dataFormat = props.getProperty(pn_document_data_format);
-		dataFormat = repo.getHandler(dataFormat).getDataFormat();
+		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		ParseResults pRes = parser.parse(content);
 		// ??

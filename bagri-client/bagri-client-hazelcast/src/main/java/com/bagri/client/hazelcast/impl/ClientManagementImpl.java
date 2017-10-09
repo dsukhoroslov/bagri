@@ -54,6 +54,11 @@ public class ClientManagementImpl {
     	String cKey = getConnectKey(props);
     	boolean shareConnect = Boolean.parseBoolean(props.getProperty(pn_client_sharedConnection, "true"));
 		synchronized (clients) {
+			// register ShutdownHook
+			//if (clients.isEmpty()) {
+			//	Runtime.getRuntime().addShutdownHook(new ClientTerminationHook());
+			//}
+			
 			if (shareConnect) {
 				cc = clients.get(cKey);
 			} else {
@@ -112,7 +117,7 @@ public class ClientManagementImpl {
     	}
     }
     
-    public void disconnect(final String clientId) {
+    public static void disconnect(final String clientId) {
     	ClientContainer found = null;
     	synchronized (clients) {
         	Iterator<ClientContainer> itr = clients.values().iterator();
@@ -326,6 +331,23 @@ public class ClientManagementImpl {
 		@Override
 		public String toString() {
 			return "CC[key: " + clientKey + "; ids: " + clientIds + "]";
+		}
+		
+	}
+	
+	private static class ClientTerminationHook extends Thread {
+		
+		@Override
+		public void run() {
+			synchronized (clients) {
+	        	Iterator<ClientContainer> itr = clients.values().iterator();
+	        	while (itr.hasNext()) {
+	        		ClientContainer cc = itr.next();
+	        		for (String clientId: cc.getClients()) {
+	        			disconnect(clientId);
+	        		}
+	        	}
+			}			
 		}
 		
 	}

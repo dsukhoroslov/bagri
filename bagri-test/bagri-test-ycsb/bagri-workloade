@@ -50,4 +50,4 @@ address=localhost:10150
 user=guest
 password=password
 loginTimeout=30
-bdb.client.sharedConnection=false
+bdb.client.sharedConnection=true

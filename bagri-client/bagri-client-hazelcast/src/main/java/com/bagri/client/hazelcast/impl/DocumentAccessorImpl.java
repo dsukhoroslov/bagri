@@ -51,7 +51,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			} else {
 				content = in.readObject();
 			}
-			//readContent(in);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			contentType = in.readUTF();
 		}
@@ -107,7 +106,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			} else {
 				out.writeObject(content);
 			}
-			//writeContent(out);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			out.writeUTF(contentType);
 		}

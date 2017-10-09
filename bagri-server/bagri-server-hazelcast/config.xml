@@ -811,6 +811,7 @@
             <extensions>xml</extensions>
             <type>application/xml</type>
             <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringContentSerializer</entry>
 		<entry name="bdb.schema.parser.schemas"></entry>
 		<entry name="bdb.schema.builder.pretty">false</entry>
 		<entry name="bdb.schema.builder.ident">4</entry>
@@ -835,6 +836,7 @@
             <extensions>json</extensions>
             <type>application/json</type>
             <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringContentSerializer</entry>
 		<entry name="javax.json.spi.JsonProvider">org.glassfish.json.JsonProviderImpl</entry>
 		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
             </properties>
@@ -848,7 +850,35 @@
             <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
             <extensions></extensions>
             <type></type>
-            <properties/>
+            <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.ObjectMapContentSerializer</entry>
+            </properties>
+        </dataFormat>
+        <dataFormat name="BMAP">
+            <version>1</version>
+            <createdAt>2017-04-30T15:17:20.542+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>ByteMap Handler</description>
+            <enabled>true</enabled>
+            <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
+            <extensions></extensions>
+            <type></type>
+            <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.ByteMapContentSerializer</entry>
+            </properties>
+        </dataFormat>
+        <dataFormat name="SMAP">
+            <version>1</version>
+            <createdAt>2017-04-30T15:17:20.542+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>ByteMap Handler</description>
+            <enabled>true</enabled>
+            <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
+            <extensions></extensions>
+            <type></type>
+            <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringMapContentSerializer</entry>
+            </properties>
         </dataFormat>
     </dataFormats>
     <dataStores>

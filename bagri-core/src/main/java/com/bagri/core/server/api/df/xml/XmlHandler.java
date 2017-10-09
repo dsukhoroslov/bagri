@@ -24,10 +24,10 @@ public class XmlHandler extends ContentHandlerBase implements ContentHandler {
 		this.modelMgr = modelMgr;
 	}
 
-	@Override
-	public String getDataFormat() {
-		return "XML";
-	}
+	//@Override
+	//public String getDataFormat() {
+	//	return "XML";
+	//}
 
 	@Override
 	public boolean isStringFormat() {

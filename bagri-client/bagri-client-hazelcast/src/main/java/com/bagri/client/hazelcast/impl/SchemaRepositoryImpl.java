@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.ObjectMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.StringContentSerializer;
 import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentManagement;
@@ -71,6 +73,12 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_txLevel, null);
 		setProperty(props, pn_client_txTimeout, null);
 		setProperty(props, pn_client_customAuth, null);
+		setProperty(props, pn_client_contentSerializers, pv_client_defaultSerializers);
+		setProperty(props, pn_client_contentSerializer + "." + "MAP", ObjectMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "BMAP", ByteMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "SMAP", StringMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
 		return props;
 	}
 	
@@ -95,9 +103,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_txLevel, null);
 		setProperty(props, pn_client_txTimeout, null);
 		setProperty(props, pn_client_customAuth, null);
+		setProperty(props, pn_client_contentSerializers, pv_client_defaultSerializers);
+		setProperty(props, pn_client_contentSerializer + "." + "MAP", ObjectMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "BMAP", ByteMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "SMAP", StringMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
 		return props;
 	}
-	
+
 	private void initializeFromProperties(Properties props) {
 		clientMgr = new ClientManagementImpl(this);
 		clientId = UUID.randomUUID().toString();
@@ -105,6 +119,40 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		initializeServices(props);
+		initializeSerializers(props);
+	}
+
+	private void initializeSerializers(Properties props) {
+		String srs = props.getProperty(pn_client_contentSerializers);
+		if (srs == null) {
+			srs = pv_client_defaultSerializers;
+		}
+		String[] sra = srs.split(" ");
+		for (String csn: sra) {
+			String csp = pn_client_contentSerializer + "." + csn;
+			String csc = props.getProperty(csp);
+			if (csc != null) {
+				try {
+					Class<?> cs = Class.forName(csc);
+					css.put(csn, (ContentSerializer<?>) cs.newInstance());
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+					logger.warn("initializeSerializers. error instaintiating serializer '{}' for format '{}'", csc, csn, ex);
+				}
+			}
+		}
+		
+		//if (!css.containsKey("MAP")) {
+		//	css.put("MAP", new StringMapContentSerializer());
+		//}
+		//if (!css.containsKey("BMAP")) {
+		//	css.put("BMAP", new ByteMapContentSerializer());
+		//}
+		//if (!css.containsKey("JSON")) {
+		//	css.put("JSON", new StringContentSerializer());
+		//}
+		//if (!css.containsKey("XML")) {
+		//	css.put("XML", new StringContentSerializer());
+		//}
 	}
 	
 	private void initializeServices(Properties props) {
@@ -169,14 +217,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 
 	@Override
 	public ContentSerializer<?> getSerializer(String dataFormat) {
-		ContentSerializer<?> cs = css.get(dataFormat);
-		if (cs == null) {
-			if ("MAP".equals(dataFormat)) {
-				cs = new StringMapContentSerializer();
-				css.put(dataFormat, cs);
-			} 
-		}
-		return cs;
+		return css.get(dataFormat);
 	}
 	
 	@Override

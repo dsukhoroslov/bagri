@@ -278,20 +278,11 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	
 	@Override
 	public ContentSerializer<?> getSerializer(String dataFormat) {
-		//ContentHandler ch = getHandler(dataFormat);
-		//if (ch != null) {
-		//	return ch.getSerializer();
-		//}
-		//return null;
-		//logger.info("getSerializer; format: {}", dataFormat);
-		ContentSerializer<?> cs = serializers.get(dataFormat);
-		if (cs == null) {
-			if ("MAP".equals(dataFormat)) {
-				cs = new StringMapContentSerializer();
-				serializers.put(dataFormat, cs);
-			} 
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getSerializer();
 		}
-		return cs;
+		return null;
 	}
 	
 	@SuppressWarnings("unchecked")

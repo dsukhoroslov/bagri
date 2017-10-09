@@ -51,6 +51,11 @@ public class Constants {
 	public static final String pv_client_submitTo_any = "any";
 	public static final String pv_client_submitTo_member = "member";
 	public static final String pv_client_submitTo_owner = "owner";
+
+	public static final String pn_client_contentSerializer = "bdb.client.contentSerializer";
+	public static final String pn_client_contentSerializers = "bdb.client.contentSerializers";
+
+	public static final String pv_client_defaultSerializers = "MAP BMAP SMAP JSON XML";
 	
 	public static final String pn_query_command = "bdb.query.command";
 	

@@ -36,11 +36,14 @@ public abstract class BagriClientBase extends DB {
     protected final Properties updateProps = new Properties();
     protected final Properties deleteProps = new Properties();
     
+    protected final boolean byteFormat;
+    
     public BagriClientBase() {
     	String format = System.getProperty(pn_document_data_format);
     	if (format == null) {
-    		format = "MAP";
+    		format = "BMAP";
     	} 
+    	byteFormat = "BMAP".equals(format);
 		readProps.setProperty(pn_document_data_format, format);
 		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
 
@@ -113,7 +116,7 @@ public abstract class BagriClientBase extends DB {
 	
 	protected abstract Logger getLogger();
 
-	protected void populateResult(final Map<String, Object> document, final Set<String> fields, 
+	protected void populateStringResult(final Map<String, Object> document, final Set<String> fields, 
 			final HashMap<String, ByteIterator> result) {
 		// fill results
 		if (fields == null) {
@@ -130,7 +133,7 @@ public abstract class BagriClientBase extends DB {
 		}
 	}
 	
-	protected void populateResult2(final Map document, final Set<String> fields, 
+	protected void populateByteResult(final Map document, final Set<String> fields, 
 			final HashMap<String, ByteIterator> result) {
 		// fill results
 		if (fields == null) {
