@@ -106,9 +106,9 @@ public abstract class SchemaRepositoryBase {
 	 * @param dataFormat the name of dataFormat to search for
 	 * @return serializer for the dataFormat provided or null
 	 */
-	public ContentSerializer<?> getSerializer(String dataFormat) {
-		return null;
-	}
+	//public ContentSerializer<?> getSerializer(String dataFormat) {
+	//	return null;
+	//}
 	
 
 }

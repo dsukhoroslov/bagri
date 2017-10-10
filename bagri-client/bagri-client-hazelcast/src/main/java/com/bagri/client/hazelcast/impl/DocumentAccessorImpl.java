@@ -16,8 +16,8 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentAccessorImpl extends DocumentAccessorBase implements IdentifiedDataSerializable {
 	
-	public DocumentAccessorImpl(SchemaRepository repo) {
-		super(repo);
+	public DocumentAccessorImpl() {
+		super();
 	}
 
 	public DocumentAccessorImpl(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
@@ -45,6 +45,7 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		}
 		if ((headers & HDR_CONTENT) != 0) {
 			contentType = in.readUTF();
+			SchemaRepository repo = SchemaRepositoryImpl.getRepository();
 			ContentSerializer cs = repo.getSerializer(contentType);
 			if (cs != null) {
 				content = cs.readContent(in);

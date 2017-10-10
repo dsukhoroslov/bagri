@@ -32,24 +32,22 @@ public class DocumentAccessorBase implements DocumentAccessor {
 	protected String uri;
 	protected int version;
 	
-	//public DocumentAccessorBase() {
+	public DocumentAccessorBase() {
 		// for de-ser..
-	//}
-
-	public DocumentAccessorBase(SchemaRepository repo) {
-		this.repo = repo;
 	}
 
 	public DocumentAccessorBase(SchemaRepository repo, Object content) {
-		this(repo);
-		headers = HDR_CONTENT;
+		this();
+		this.repo = repo;
 		this.content = content;
+		headers = HDR_CONTENT;
 	}
 	
 	public DocumentAccessorBase(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
 			String encoding, long documentKey, long sizeInBytes, int sizeInElements, int sizeInFragments, String typeRoot, 
 			long txStart, long txFinish, String uri, int version) {
-		this(repo);
+		this();
+		this.repo = repo;
 		if (collections != null) {
 			this.collections = collections;
 			headers = 1L;

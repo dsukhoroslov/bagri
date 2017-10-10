@@ -34,12 +34,6 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 	public static final int cli_QueryParamsKey = 123;
 	public static final int cli_UrlHashKey = 124;
 	
-	private SchemaRepository repo;
-	
-	public void setRepository(SchemaRepository repo) {
-		this.repo = repo;
-	}
-	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		switch (typeId) {
@@ -48,7 +42,7 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 			case cli_FixedCursor: return new FixedCursorImpl();
 			case cli_QueuedCollection: return new QueuedCollectionImpl<>();
 			case cli_FixedCollection: return new FixedCollectionImpl<>();
-			case cli_DocumentAccessor: return new DocumentAccessorImpl(repo);
+			case cli_DocumentAccessor: return new DocumentAccessorImpl();
 			case cli_DocumentKey: return new DocumentPartKey(); 
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 

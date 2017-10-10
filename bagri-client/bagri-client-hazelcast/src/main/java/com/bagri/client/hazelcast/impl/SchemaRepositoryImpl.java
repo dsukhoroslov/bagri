@@ -3,6 +3,7 @@ package com.bagri.client.hazelcast.impl;
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.setProperty;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -26,20 +27,27 @@ import com.hazelcast.core.HazelcastInstance;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements SchemaRepository {
 	
-    private final static Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
-	
+    private static final Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
+    private static final ThreadLocal<SchemaRepository> repo = new ThreadLocal<>();
+    
 	private String clientId;
 	private String schemaName;
 	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
-	private Map<String, ContentSerializer<?>> css = new ConcurrentHashMap<>();
+	private Map<String, ContentSerializer<?>> css = new HashMap<>(); //ConcurrentHashMap<>();
+	
+	public static SchemaRepository getRepository() {
+		return repo.get();
+	}
 	
 	public SchemaRepositoryImpl() {
 		initializeFromProperties(getSystemProps());
+		repo.set(this);
 	}
 
 	public SchemaRepositoryImpl(Properties props) {
 		initializeFromProperties(getConvertedProps(props));
+		repo.set(this);
 	}
 	
 	public SchemaRepositoryImpl(HazelcastInstance hzInstance) {
@@ -48,12 +56,14 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		//clientId = proxy.getLocalEndpoint().getUuid();
 
-		clientMgr = new ClientManagementImpl(this);
+		clientMgr = new ClientManagementImpl();
 		clientId = UUID.randomUUID().toString();
 		clientMgr.connect(clientId, proxy);
 		
 		logger.debug("<init>; connected to HZ server as: {}; {}", clientId, proxy);
 		initializeServices(null);
+		// TODO: serializers!?
+		repo.set(this);
 	}
 	
 	private static Properties getSystemProps() {
@@ -113,7 +123,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	}
 
 	private void initializeFromProperties(Properties props) {
-		clientMgr = new ClientManagementImpl(this);
+		clientMgr = new ClientManagementImpl();
 		clientId = UUID.randomUUID().toString();
 		hzClient = clientMgr.connect(clientId, props);
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
@@ -140,7 +150,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 				}
 			}
 		}
-		
+		logger.info("initializeSerializers.exit; css: {}", css);
 		//if (!css.containsKey("MAP")) {
 		//	css.put("MAP", new StringMapContentSerializer());
 		//}
@@ -217,7 +227,11 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 
 	@Override
 	public ContentSerializer<?> getSerializer(String dataFormat) {
-		return css.get(dataFormat);
+		ContentSerializer<?> cs = css.get(dataFormat);
+		if (cs == null) {
+			logger.info("getSerializer; no serializer for type: {}; css: {}; this: {}", dataFormat, css, this);
+		}
+		return cs;
 	}
 	
 	@Override

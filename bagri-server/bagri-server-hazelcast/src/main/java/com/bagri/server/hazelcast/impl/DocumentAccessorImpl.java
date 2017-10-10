@@ -5,8 +5,8 @@ import com.bagri.core.api.SchemaRepository;
 
 public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.DocumentAccessorImpl {
 	
-	public DocumentAccessorImpl(SchemaRepository repo) {
-		super(repo);
+	public DocumentAccessorImpl() {
+		super();
 	}
 	
 	public DocumentAccessorImpl(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
@@ -27,7 +27,8 @@ public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.Docume
 	}
 	
 	public DocumentAccessorImpl(SchemaRepository repo, Document doc, long headers, Object content) {
-		super(repo);
+		super();
+		this.repo = repo;
 		this.headers = headers;
 		if ((headers & HDR_COLLECTIONS) != 0) {
 			this.collections = doc.getCollections();

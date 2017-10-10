@@ -87,7 +87,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	//private IExecutorService execSvc;
 	private ExecutorService execSvc;
-	private Map<String, String> sharedMap;
+	private Map<String, byte[]> sharedMap;
 
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -104,7 +104,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
 		sharedMap = new HashMap<>(10);
 		for (int j=0; j < 10; j++) {
-			sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100));
+			sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100).getBytes());
 		}
     }
 
@@ -501,7 +501,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						content = cc.convertTo(content);
 					}
 					dai = new DocumentAccessorImpl(repo, doc, headers, content);
-					//dai = new DocumentAccessorImpl(null, sharedMap, "MAP", 0, null, null, 0, 0, 0, 0, null, 0, 0, null, 0); 
+					//dai = new DocumentAccessorImpl(repo, null, sharedMap, "BMAP", 0, null, null, 0, 0, 0, 0, null, 0, 0, null, 0); 
 					cln.add(dai);
 					cnt++;
 				}
@@ -510,7 +510,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				for (Document doc: docs) {
 				//for (int i=0; i < fetchSize; i++) {
 					dai = new DocumentAccessorImpl(repo, doc, headers);
-					//dai = new DocumentAccessorImpl(null, sharedMap); 
+					//dai = new DocumentAccessorImpl(repo, null, sharedMap); 
 					cln.add(dai);
 					cnt++;
 				}

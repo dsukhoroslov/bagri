@@ -43,12 +43,6 @@ public class ClientManagementImpl {
 	
     private final static Map<String, ClientContainer> clients = new HashMap<>();
     
-    private SchemaRepository repo;
-    
-    public ClientManagementImpl(SchemaRepository repo) {
-    	this.repo = repo;
-    }
-
     public HazelcastInstance connect(final String clientId, Properties props) {
 		ClientContainer cc = null;
     	String cKey = getConnectKey(props);
@@ -261,10 +255,6 @@ public class ClientManagementImpl {
 		}
 		xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
-		
-		SystemSerializationFactory sf = new SystemSerializationFactory();
-		sf.setRepository(repo);
-		config.getSerializationConfig().addDataSerializableFactory(SystemSerializationFactory.cli_factory_id, sf);
 		
 		XQItemTypeSerializer xqits = new XQItemTypeSerializer();
 		xqits.setXQDataFactory(xqFactory);
