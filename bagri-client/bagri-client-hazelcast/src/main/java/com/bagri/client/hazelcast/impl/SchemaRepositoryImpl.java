@@ -150,7 +150,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 				}
 			}
 		}
-		logger.info("initializeSerializers.exit; css: {}", css);
+
 		//if (!css.containsKey("MAP")) {
 		//	css.put("MAP", new StringMapContentSerializer());
 		//}
