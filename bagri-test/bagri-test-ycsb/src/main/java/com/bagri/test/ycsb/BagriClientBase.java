@@ -61,6 +61,10 @@ public abstract class BagriClientBase extends DB {
 		insertProps.setProperty(pn_document_data_format, format);
 		insertProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
 
+    	String compress = System.getProperty(pn_document_compress);
+    	if (compress != null) {
+    		scanProps.setProperty(pn_document_compress, Boolean.valueOf(compress).toString());
+    	}
 		scanProps.setProperty(pn_document_data_format, format);
 		String fetchAsynch = System.getProperty(pn_client_fetchAsynch);
 		if (fetchAsynch != null) {

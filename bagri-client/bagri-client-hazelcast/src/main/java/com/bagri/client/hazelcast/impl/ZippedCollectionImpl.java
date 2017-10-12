@@ -6,9 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.zip.ZipEntry;
@@ -26,6 +24,7 @@ import com.hazelcast.nio.ObjectDataOutput;
 public class ZippedCollectionImpl<T> extends FixedCollectionImpl<T> {
 	
     private static final Logger logger = LoggerFactory.getLogger(ZippedCollectionImpl.class);
+    private static final int sz_buff = 2048;
 	
 	private InternalSerializationService ss;
 
@@ -54,21 +53,34 @@ public class ZippedCollectionImpl<T> extends FixedCollectionImpl<T> {
 		HazelcastClientProxy proxy = (HazelcastClientProxy) repo.getHazelcastClient();
 		ss = (InternalSerializationService) proxy.getSerializationService();
 
+		int length = 0;
 		int size = in.readInt();
 		results = new ArrayList<>(size);
 		byte[] data = in.readByteArray();
-		BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(data)); 
-		ZipInputStream zin = new ZipInputStream(bis); 
-		//try { 
-			ZipEntry entry; 
-			while ((entry = zin.getNextEntry()) != null) { 
-				//entry.
-				byte[] data2 = new byte[0];
-				//while ((length = zin.read(buf, 0, buf.length)) >= 0) { fos.write(buf, 0, length); }
-				ObjectDataInput tmp = ss.createObjectDataInput(data2);
-				results.add((T) tmp.readObject());
-			}
-		//}
+		logger.info("readData; src length: {}; entry count: {}", data.length, size);
+		ByteArrayInputStream bais = new ByteArrayInputStream(data);
+		ZipInputStream zin = new ZipInputStream(new BufferedInputStream(bais)); 
+		ZipEntry entry; 
+		while ((entry = zin.getNextEntry()) != null) {
+        	logger.info("readData; entry: {}", entry);
+	        int count;
+			byte[] data2 = new byte[sz_buff];  
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			BufferedOutputStream tmp = new BufferedOutputStream(baos, sz_buff);
+            while ((count = zin.read(data2, 0, sz_buff)) >= 0) {
+            	logger.info("readData; count: {}", count);
+            	tmp.write(data2, 0, count);
+            }
+            tmp.flush();
+            data2 = baos.toByteArray();
+            length += data2.length;
+        	logger.info("readData; length: {}", length);
+			ObjectDataInput odi = ss.createObjectDataInput(data2);
+			results.add((T) odi.readObject());
+            tmp.close();				
+		}
+		zin.close();
+		logger.info("readData; src length: {}; result length: {}", data.length, length);
 	}
 
 	@Override
@@ -90,8 +102,9 @@ public class ZippedCollectionImpl<T> extends FixedCollectionImpl<T> {
 		}
 		zout.flush();
 		byte[] data = baos.toByteArray();
-		logger.info("writeData; src length: {}; result length: {}", length, data.length);
+		logger.info("writeData; src length: {}; result length: {}; entry count: {}", length, data.length, results.size());
 		out.writeByteArray(data);
+		zout.close();
 	}
 	
 }

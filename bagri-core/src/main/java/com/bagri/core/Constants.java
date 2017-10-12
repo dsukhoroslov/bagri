@@ -102,6 +102,7 @@ public class Constants {
     public static final String pn_schema_parser_schemas = "bdb.schema.parser.schemas";
     
     public static final String pn_document_collections = "bdb.document.collections";
+    public static final String pn_document_compress = "bdb.document.compress";
     public static final String pn_document_data_format = "bdb.document.data.format";
     public static final String pn_document_headers = "bdb.document.headers";
     public static final String pn_document_data_source = "bdb.document.data.source";
@@ -227,6 +228,7 @@ public class Constants {
 			case pn_document_headers: return 52;
 			case pn_document_data_source: return 53;
 			case pn_document_map_merge: return 54;
+			case pn_document_compress: return 55;
 			
 			case pn_xqj_baseURI: return 100;
 			case pn_xqj_constructionMode: return 101;
@@ -285,6 +287,7 @@ public class Constants {
 			case 52: return pn_document_headers;
 			case 53: return pn_document_data_source;
 			case 54: return pn_document_map_merge;
+			case 55: return pn_document_compress;
 			
 			case 100: return pn_xqj_baseURI;
 			case 101: return pn_xqj_constructionMode;

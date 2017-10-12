@@ -458,8 +458,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			});
 		} else {
-			cln = new FixedCollectionImpl<>(fetchSize);
-			//cln = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
+			boolean compress = Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"));
+			if (compress) {
+				cln = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
+			} else {
+				cln = new FixedCollectionImpl<>(fetchSize);
+			}
 			fetchDocuments(pattern, props, cln);
 		}
 

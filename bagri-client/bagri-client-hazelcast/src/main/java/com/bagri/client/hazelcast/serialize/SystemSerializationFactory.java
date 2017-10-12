@@ -10,7 +10,6 @@ import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.client.hazelcast.impl.ZippedCollectionImpl;
-import com.bagri.core.api.SchemaRepository;
 import com.bagri.client.hazelcast.impl.DocumentAccessorImpl;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.hazelcast.nio.serialization.DataSerializableFactory;
