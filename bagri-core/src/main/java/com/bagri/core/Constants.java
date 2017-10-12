@@ -106,6 +106,7 @@ public class Constants {
     public static final String pn_document_headers = "bdb.document.headers";
     public static final String pn_document_data_source = "bdb.document.data.source";
     public static final String pn_document_map_merge = "bdb.document.map.merge";
+    public static final String pn_document_map_fields = "bdb.document.map.fields";
     
     public static final String pv_document_data_source_file = "FILE"; 
     public static final String pv_document_data_source_map = "MAP"; 

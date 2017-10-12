@@ -241,6 +241,8 @@ public class ClientManagementImpl {
 		}
 		
 		config.setProperty("hazelcast.logging.type", "slf4j");
+		// for HZ-3.9
+		//config.setProperty("hazelcast.socket.client.buffer.direct", "true");
 		
 		if (custom == null || "true".equalsIgnoreCase(custom)) {
 			SecureCredentials creds = new SecureCredentials(user, password);
