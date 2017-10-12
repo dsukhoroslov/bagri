@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
+import com.bagri.client.hazelcast.impl.ZippedCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
@@ -458,6 +459,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			});
 		} else {
 			cln = new FixedCollectionImpl<>(fetchSize);
+			//cln = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
 			fetchDocuments(pattern, props, cln);
 		}
 

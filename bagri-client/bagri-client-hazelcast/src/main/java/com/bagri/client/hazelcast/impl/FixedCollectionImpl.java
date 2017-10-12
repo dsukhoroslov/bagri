@@ -18,9 +18,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDataSerializable {
 	
-    //private final static Logger logger = LoggerFactory.getLogger(FixedCollectionImpl.class);
-
-	private ArrayList<T> results;
+	protected ArrayList<T> results;
 	
 	public FixedCollectionImpl() {
 		//
@@ -34,11 +32,6 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 		this(results.size());
 		this.results.addAll(results);
 	}
-	
-	//@Override
-	//public void init(SchemaRepository repo) {
-		// no-op
-	//}
 	
 	@Override
 	public void close() throws Exception {
