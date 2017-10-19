@@ -427,23 +427,29 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		return cc;
 	}
+	
+	private ResultCollection<DocumentAccessor> getResultIterator(Properties props) {
+		ResultCollection<DocumentAccessor> iter;
+		if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
+			String clientId = props.getProperty(pn_client_id);
+			iter = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		} else {
+			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
+				iter = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
+			} else {
+				iter = new FixedCollectionImpl<>(fetchSize);
+			}
+		}
+		return iter;
+	}
 
 	@Override
 	public Iterable<DocumentAccessor> getDocuments(final String pattern, final Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		final int fetchSize;
-		boolean asynch = false;
-		if (props != null) {
-			fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		} else {
-			fetchSize = 0;
-		}
 
-		final ResultCollection<DocumentAccessor> cln;
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		if (cln.isAsynch()) {
 			execSvc.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -452,18 +458,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					} catch (BagriException ex) {
 						throw new RuntimeException(ex);
 					}
-					// TODO: add terminator..
-					//cln.add(Null._null);
-					cln.add(null);
+					cln.finish();
 				}
 			});
 		} else {
-			boolean compress = Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"));
-			if (compress) {
-				cln = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
-			} else {
-				cln = new FixedCollectionImpl<>(fetchSize);
-			}
 			fetchDocuments(pattern, props, cln);
 		}
 
@@ -1014,15 +1012,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public <T> Iterable<DocumentAccessor> storeDocuments(final Map<String, T> documents, final Properties props) throws BagriException {
 		logger.trace("storeDocuments.enter; got documents: {}; props: {}", documents, props);
-		boolean asynch = false;
-		if (props != null) {
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		}
-
-		final ResultCollection<DocumentAccessor> cln;
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		if (cln.isAsynch()) {
 			try {
 				execSvc.execute(new Runnable() {
 					@Override
@@ -1032,14 +1023,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						} catch (BagriException ex) {
 							throw new Error(ex);
 						}
-						cln.add(null); //Null._null);
+						cln.finish();
 					}
 				});
 			} catch (Error er) {
 				throw (BagriException) er.getCause();
 			}
 		} else {
-			cln = new FixedCollectionImpl<>(documents.size());
 			iterateDocuments((Map<String, Object>) documents, props, cln);
 		}
 
@@ -1222,15 +1212,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Iterable<DocumentAccessor> removeDocuments(final String pattern, final Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
-		boolean asynch = false;
-		if (props != null) {
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		}
-
-		final ResultCollection<DocumentAccessor> cln;
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		if (cln.isAsynch()) {
 			try {
 				execSvc.execute(new Runnable() {
 					@Override
@@ -1240,14 +1223,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						} catch (BagriException ex) {
 							throw new Error(ex);
 						}
-						cln.add(null); //Null._null);
+						cln.finish();
 					}
 				});
 			} catch (Error er) {
 				throw (BagriException) er.getCause();
 			}
 		} else {
-			cln = new FixedCollectionImpl<>(4);
 			deleteDocuments(pattern, props, cln);
 		}
 

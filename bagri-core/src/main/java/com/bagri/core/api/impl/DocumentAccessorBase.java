@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.SchemaRepository;
 
-public class DocumentAccessorBase implements DocumentAccessor {
+public abstract class DocumentAccessorBase implements DocumentAccessor {
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
 

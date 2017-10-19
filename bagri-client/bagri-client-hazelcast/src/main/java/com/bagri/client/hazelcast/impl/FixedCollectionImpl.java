@@ -44,6 +44,16 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 	}
 	
 	@Override
+	public void finish() {
+		// no-op
+	}
+	
+	@Override
+	public boolean isAsynch() {
+		return false;
+	}
+	
+	@Override
 	public Iterator<T> iterator() {
 		return results.iterator();
 	}

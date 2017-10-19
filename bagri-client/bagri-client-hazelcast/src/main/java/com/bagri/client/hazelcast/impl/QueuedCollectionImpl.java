@@ -23,9 +23,9 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
     //private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
 
 	private String queueName;
-	private T current;
+	private Object current;
 
-	private IQueue<T> queue;
+	private IQueue<Object> queue;
 	private HazelcastInstance hzi;
     
 	public QueuedCollectionImpl() {
@@ -65,6 +65,16 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	}
 	
 	@Override
+	public void finish() {
+		queue.add(Null._null);
+	}
+	
+	@Override
+	public boolean isAsynch() {
+		return true;
+	}
+	
+	@Override
 	public Iterator<T> iterator() {
 		return this;
 		//return queue.iterator();
@@ -90,7 +100,7 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	@Override
 	public T next() {
-		return current;
+		return (T) current;
 	}
 
 	@Override
