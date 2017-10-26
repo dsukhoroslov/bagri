@@ -59,6 +59,7 @@
                 <entry name="bdb.schema.data.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">60000</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">5</entry>
@@ -263,6 +264,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -414,6 +416,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -534,6 +537,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -598,6 +602,7 @@
                 <entry name="bdb.schema.partition.count">157</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -661,6 +666,7 @@
                 <entry name="bdb.schema.partition.count">271</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level"></entry>
                 <entry name="bdb.schema.health.threshold.low">250</entry>
                 <entry name="bdb.schema.health.threshold.high">250</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>

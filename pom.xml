@@ -91,7 +91,7 @@
 
         <jcache.version>1.0.0</jcache.version>
         <!--hazelcast.version>3.9-SNAPSHOT</hazelcast.version-->
-        <hazelcast.version>3.8.6</hazelcast.version>
+        <hazelcast.version>3.9</hazelcast.version>
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>

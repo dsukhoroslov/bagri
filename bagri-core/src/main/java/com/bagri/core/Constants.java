@@ -96,6 +96,8 @@ public class Constants {
     public static final String pn_schema_population_buffer_size = "bdb.schema.population.buffer.size";
     public static final String pn_schema_fetch_size = "bdb.schema.fetch.size";
     public static final String pn_schema_query_cache = "bdb.schema.query.cache";
+    public static final String pn_schema_tx_level = "bdb.schema.transaction.level";
+    public static final String pn_schema_tx_timeout = "bdb.schema.transaction.timeout";
     
     public static final String pn_schema_builder_pretty = "bdb.schema.builder.pretty";
     public static final String pn_schema_builder_ident = "bdb.schema.builder.ident";

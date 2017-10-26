@@ -9,19 +9,24 @@ import com.bagri.server.hazelcast.impl.DataDistributionService;
 import com.hazelcast.core.Offloadable;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.spring.context.SpringAware;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
+import static com.bagri.core.Constants.pn_client_storeMode;
+import static com.bagri.core.Constants.pv_client_storeMode_insert;
+import static com.bagri.core.Constants.pv_client_storeMode_merge;
 import static com.bagri.core.api.TransactionManagement.*;
 
 @SpringAware
 public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Document>, EntryBackupProcessor<DocumentKey, Document>, Offloadable {
-    private transient DataDistributionService ddSvc;
-
+    
     private static final long serialVersionUID = 1L;
 
+	private transient DataDistributionService ddSvc;
+    
     private Transaction tx;
 
     public DocumentRemoveProcessor(Transaction tx) {
@@ -40,12 +45,18 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
 
     @Override
     public Object process(Map.Entry<DocumentKey, Document> entry) {
+    	
         Document doc = entry.getValue();
         DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
         long txStart = tx == null ? TX_NO : tx.getTxId();
-        if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+		if (lastKey == null) {
             return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
-                    " has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+                    " has been concurrently removed", BagriException.ecDocument);
+		} else if (lastKey.getVersion() > entry.getKey().getVersion()) {
+            if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+                return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
+                        " has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+            }
         }
 
         doc.finishDocument(txStart);

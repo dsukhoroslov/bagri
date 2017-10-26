@@ -1,7 +1,5 @@
 package com.bagri.server.hazelcast.task.query;
 
-import static com.bagri.core.Constants.pn_client_txLevel;
-import static com.bagri.core.Constants.pv_client_txLevel_skip;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 import java.util.concurrent.Callable;
@@ -49,15 +47,9 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
     		checkPermission(Permission.Value.modify);
     	}
 
-    	String txLevel = context.getProperty(pn_client_txLevel);
-    	if (pv_client_txLevel_skip.equals(txLevel) || (txId == TX_NO && readOnly)) {
+    	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
+    	if ((tiLevel == null) || (txId == TX_NO && readOnly)) {
 			return queryMgr.executeQuery(query, params, context);
-    	}
-
-    	// do we have default isolation level?
-    	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
-    	if (txLevel != null) {
-    		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
 
     	ResultCursor rc = ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, tiLevel, new Callable<ResultCursor>() {

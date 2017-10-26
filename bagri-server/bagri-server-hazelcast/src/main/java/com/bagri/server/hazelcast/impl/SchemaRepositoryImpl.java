@@ -1,8 +1,10 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.ctx_repo;
+import static com.bagri.core.Constants.pn_client_txLevel;
 import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_schema_format_default;
+import static com.bagri.core.Constants.pv_client_txLevel_skip;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemInstance;
@@ -13,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,6 +32,7 @@ import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.ContentSerializer;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
@@ -300,7 +304,19 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public void close() {
 		// TODO: disconnect all clients ?
 	}
-	
+
+	public TransactionIsolation getTransactionLevel(Properties context) { 
+		String txLevel = context.getProperty(pn_client_txLevel);
+		if (txLevel == null) {
+	    	return ((TransactionManagementImpl) getTxManagement()).getTransactionLevel(); 
+		} else {
+	    	if (pv_client_txLevel_skip.equals(txLevel)) {
+	    		return null;
+	    	}
+			return TransactionIsolation.valueOf(txLevel);
+		}
+	}
+			
 	public DataFormat getDataFormat(String dataFormat) {
 
 		// TODO: make it as fast as possible as it is called from many other places!

@@ -1,8 +1,6 @@
 package com.bagri.server.hazelcast.task.doc;
 
-import static com.bagri.core.Constants.pn_client_txLevel;
 import static com.bagri.core.Constants.pn_schema_name;
-import static com.bagri.core.Constants.pv_client_txLevel_skip;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.getContext;
 
 import java.util.concurrent.Callable;
@@ -35,20 +33,12 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
 	@Override
 	public ResultCollection<DocumentAccessor> call() throws Exception {
     	
-    	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-    	//checkPermission(Permission.Value.modify);
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
-    	String txLevel = context.getProperty(pn_client_txLevel);
-    	if (pv_client_txLevel_skip.equals(txLevel)) {
+    	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
+    	if (tiLevel == null) {
     		// bypass tx stack completely!
     		return (ResultCollection<DocumentAccessor>) docMgr.storeDocuments(documents, context);
-    	}
-    	
-    	// do we have default isolation level?
-    	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
-    	if (txLevel != null) {
-    		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
     	
     	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection<DocumentAccessor>>() {

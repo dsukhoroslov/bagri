@@ -1,8 +1,5 @@
 package com.bagri.server.hazelcast.task.doc;
 
-import static com.bagri.core.Constants.pn_client_txLevel;
-import static com.bagri.core.Constants.pv_client_txLevel_skip;
-
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +31,10 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
 
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
     	
-    	String txLevel = context.getProperty(pn_client_txLevel);
-    	if (pv_client_txLevel_skip.equals(txLevel)) {
+    	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
+    	if (tiLevel == null) {
     		// bypass tx stack completely..?
     		return docMgr.removeDocument(uri, context);
-    	}
-    	
-    	// do we have default isolation level?
-    	TransactionIsolation tiLevel = TransactionIsolation.readCommited; 
-    	if (txLevel != null) {
-    		tiLevel = TransactionIsolation.valueOf(txLevel);
     	}
     	
     	txMgr.callInTransaction(txId, false, tiLevel, new Callable<DocumentAccessor>() {
