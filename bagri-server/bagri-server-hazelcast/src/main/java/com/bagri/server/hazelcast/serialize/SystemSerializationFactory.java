@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.serialize;
 
+import com.bagri.server.hazelcast.impl.DocumentAccessorImpl;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
 import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
@@ -22,7 +23,8 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	public static final int cli_DocVisiblePredicate = 206;
 	public static final int cli_LimitPredicate = 207;
 	public static final int cli_LimitAggregator = 208;
-	
+	public static final int cli_ServerDocumentAccessor = 209;
+
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		
@@ -36,6 +38,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_DocVisiblePredicate: return new DocVisiblePredicate(); 
 			case cli_LimitPredicate: return new LimitPredicate<>(); 
 			case cli_LimitAggregator: return new LimitAggregator<>(); 
+			case cli_ServerDocumentAccessor: return new DocumentAccessorImpl();
 		}
 		return super.create(typeId);
 	}

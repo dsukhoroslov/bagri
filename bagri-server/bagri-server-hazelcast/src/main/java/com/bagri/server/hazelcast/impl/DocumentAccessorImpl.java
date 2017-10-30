@@ -1,8 +1,5 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_DocumentAccessor;
-import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
-
 import java.io.IOException;
 
 import com.bagri.core.api.impl.DocumentAccessorBase;
@@ -10,6 +7,8 @@ import com.bagri.core.model.Document;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.*;
 
 public class DocumentAccessorImpl extends DocumentAccessorBase implements IdentifiedDataSerializable {
 	
@@ -94,7 +93,7 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 
 	@Override
 	public int getId() {
-		return cli_DocumentAccessor;
+		return cli_ServerDocumentAccessor;
 	}
 
 	@Override
