@@ -101,7 +101,7 @@ public class BagriQueryClient extends BagriClientBase {
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, queryProps)) {
 			if (cursor.next()) {
 				Map<String, Object> map = cursor.getMap();
-				populateResult(map, fields, result);
+				populateStringResult(map, fields, result);
 				return Status.OK;
 			} else {
 				logger.debug("read; not found document for key: {}", key);
@@ -129,7 +129,7 @@ public class BagriQueryClient extends BagriClientBase {
 			while (cursor.next()) {
 				Map<String, Object> map = cursor.getMap();
 				doc = new HashMap<>(map.size());
-				populateResult(map, fields, doc);
+				populateStringResult(map, fields, doc);
 				result.add(doc);
 				count++;
 			}

@@ -13,8 +13,8 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<Docum
 		super();
 	}
 
-	public DocumentRemover(String clientId, long txId, String uri, Properties props) {
-		super(clientId, txId, uri, props);
+	public DocumentRemover(String clientId, long txId, Properties props, String uri) {
+		super(clientId, txId, props, uri);
 	}
 
 	@Override

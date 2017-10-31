@@ -6,6 +6,10 @@ public interface ResultCollection<T> extends AutoCloseable, Iterable<T> {
 	
 	boolean add(T result);
 	
+	void finish();
+	
+	boolean isAsynch();
+	
 	int size();
 
 }

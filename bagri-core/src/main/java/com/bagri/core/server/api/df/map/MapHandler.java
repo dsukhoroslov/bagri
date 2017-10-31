@@ -17,10 +17,10 @@ public class MapHandler extends ContentHandlerBase implements ContentHandler {
 		this.modelMgr = modelMgr;
 	}
 
-	@Override
-	public String getDataFormat() {
-		return "MAP";
-	}
+	//@Override
+	//public String getDataFormat() {
+	//	return "MAP";
+	//}
 
 	@Override
 	public boolean isStringFormat() {

@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
+import com.bagri.client.hazelcast.impl.ZippedCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
@@ -87,7 +88,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	//private IExecutorService execSvc;
 	private ExecutorService execSvc;
-	//private Map<String, String> sharedMap;
+	private Map<String, byte[]> sharedMap;
 
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -102,10 +103,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	execSvc = Executors.newFixedThreadPool(32);
     	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
     	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
-		//sharedMap = new HashMap<>(10);
-		//for (int j=0; j < 10; j++) {
-		//	sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100));
-		//}
+		sharedMap = new HashMap<>(10);
+		for (int j=0; j < 10; j++) {
+			sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100).getBytes());
+		}
     }
 
     IMap<DocumentKey, Object> getContentCache() {
@@ -333,48 +334,157 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public Iterable<DocumentAccessor> getDocuments(final String pattern, final Properties props) {
-		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		final int fetchSize;
-		final long headers;
-		boolean asynch = false;
-		if (props != null) {
-			fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-			headers = Long.parseLong(props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI_WITH_CONTENT)));
-		} else {
-			fetchSize = 0;
-			headers = DocumentAccessor.HDR_URI_WITH_CONTENT;
+	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
+		Document doc = getDocument(uri);
+		if (doc == null) {
+			logger.info("getDocument; no document found for uri: {}", uri);
+			return null;
 		}
 
-		final ResultCollection<DocumentAccessor> cln;
-		if (asynch) {
+		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
+		return getDocumentInternal(docKey, doc, props);
+	}
+
+	@Override
+	public DocumentAccessor getDocument(long docKey, Properties props) throws BagriException {
+		return getDocument(factory.newDocumentKey(docKey), props);
+	}
+
+	@Override
+	public DocumentAccessor getDocument(DocumentKey docKey, Properties props) throws BagriException {
+		Document doc = getDocument(docKey);
+		if (doc == null) {
+			logger.info("getDocument; no document found for key: {}", docKey);
+			return null;
+		}
+
+		return getDocumentInternal(docKey, doc, props);
+	}
+
+	@SuppressWarnings("unchecked")
+	private DocumentAccessor getDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
+		if (props == null) {
+			props = new Properties();
+		}
+		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI_WITH_CONTENT)); //CLIENT_DOCUMENT
+		long headMask = Long.parseLong(headers);
+		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
+			Object content = getDocumentContent(docKey);
+			logger.trace("getDocument; got content: {}", content);
+			if (content == null) {
+				String dataFormat = props.getProperty(pn_document_data_format);
+				// build it and store in cache
+				// if docId is not local then buildDocument returns null!
+				// query docId owner node for the XML instead
+				if (ddSvc.isLocalKey(docKey)) {
+					Map<String, Object> params = new HashMap<>();
+					params.put(":doc", doc.getTypeRoot());
+					java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
+					if (results.isEmpty()) {
+						content = results.iterator().next();
+						cntCache.set(docKey, content);
+					}
+				} else {
+					// can cause distributed deadlock! call to EP from the same EP!
+					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
+					content = xddCache.executeOnKey(docKey, xp);
+				}
+			}
+			if (cc != null) {
+				content = cc.convertTo(content);
+			}
+			return new DocumentAccessorImpl(repo, doc, headMask, content);
+		}
+		return new DocumentAccessorImpl(repo, doc, headMask);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> ContentConverter<Object, T> getConverter(Properties props, String srcFormat, Class<T> contentType) throws BagriException {
+		String dataFormat = props.getProperty(pn_document_data_format);
+		if (dataFormat == null) {
+			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
+			props.setProperty(pn_document_data_format, dataFormat);
+		}
+		if (srcFormat == null) {
+			srcFormat = dataFormat;
+		}
+		ContentConverter<Object, T> cc = null;
+		if (!srcFormat.equals(dataFormat)) {
+			Class<?> cType = null;
+			if (contentType == null) {
+				if (pv_document_data_source_map.equals(dataFormat)) {
+					cType = Map.class;
+				} 
+				// else repo will return common Bean converter
+			} else {
+				cType = contentType;
+			}
+			cc = repo.getConverter(srcFormat, cType); 
+			if (cc == null) {
+				throw new BagriException("No converter found from " + srcFormat + " to " + dataFormat, BagriException.ecDocument);
+			}
+		}
+		return cc;
+	}
+	
+	private ResultCollection<DocumentAccessor> getResultIterator(Properties props) {
+		ResultCollection<DocumentAccessor> iter;
+		if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
 			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+			iter = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		} else {
+			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
+				iter = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
+			} else {
+				iter = new FixedCollectionImpl<>(fetchSize);
+			}
+		}
+		return iter;
+	}
+
+	@Override
+	public Iterable<DocumentAccessor> getDocuments(final String pattern, final Properties props) throws BagriException {
+		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
+
+		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		if (cln.isAsynch()) {
 			execSvc.execute(new Runnable() {
 				@Override
 				public void run() {
-					fetchDocuments(pattern, fetchSize, headers, cln);
-					// TODO: add terminator..
-					//cln.add(Null._null);
-					cln.add(null);
+					try {
+						fetchDocuments(pattern, props, cln);
+					} catch (BagriException ex) {
+						throw new RuntimeException(ex);
+					}
+					cln.finish();
 				}
 			});
 		} else {
-			cln = new FixedCollectionImpl<>(fetchSize);
-			fetchDocuments(pattern, fetchSize, headers, cln);
+			fetchDocuments(pattern, props, cln);
 		}
 
 		logger.trace("getDocuments.exit; returning: {}", cln);
 		return cln;
 	}
 
-	private void fetchDocuments(String pattern, int fetchSize, long headers, ResultCollection<DocumentAccessor> cln) {
+	private void fetchDocuments(String pattern, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
 		Predicate<DocumentKey, Document> query;
 		if (pattern == null) {
 			query = Predicates.equal(fnTxFinish, TX_NO);
 		} else {
 			query = DocumentPredicateBuilder.getQuery(repo, pattern);
+		}
+
+		final int fetchSize;
+		final long headers;
+		if (props != null) {
+			fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+			headers = Long.parseLong(props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI_WITH_CONTENT)));
+		} else {
+			fetchSize = 0;
+			headers = DocumentAccessor.HDR_URI_WITH_CONTENT;
 		}
 		if (fetchSize > 0) {
 			query = new LimitPredicate<>(fetchSize, query);
@@ -382,33 +492,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		int cnt = 0;
 		if (query != null) {
-			if (headers == DocumentAccessor.HDR_CONTENT) {
-				// content only
-				java.util.Collection<DocumentKey> keys = ddSvc.getLastKeysForQuery(query, fetchSize);
-				//java.util.Collection<DocumentKey> keys = xddCache.localKeySet(query);
-				for (DocumentKey key: keys) {
+			DocumentAccessorImpl dai;
+			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+			if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
+				// doc & content
+				for (Document doc: docs) {
+				//for (int i=0; i < fetchSize; i++) {
+					DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-					if (content != null) {
-						cln.add(new DocumentAccessorImpl(content));
-						cnt++;
+					ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
+					if (cc != null) {
+						content = cc.convertTo(content);
 					}
+					dai = new DocumentAccessorImpl(repo, doc, headers, content);
+					//dai = new DocumentAccessorImpl(repo, null, sharedMap, "BMAP", 0, null, null, 0, 0, 0, 0, null, 0, 0, null, 0); 
+					cln.add(dai);
+					cnt++;
 				}
 			} else {
-				java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
-				if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
-					// doc & content
-					for (Document doc: docs) {
-						DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
-						Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
-						cln.add(new DocumentAccessorImpl(doc, headers, content));
-						cnt++;
-					}
-				} else {
-					// doc only
-					for (Document doc: docs) {
-						cln.add(new DocumentAccessorImpl(doc, headers));
-						cnt++;
-					}
+				// doc only
+				for (Document doc: docs) {
+				//for (int i=0; i < fetchSize; i++) {
+					dai = new DocumentAccessorImpl(repo, doc, headers);
+					//dai = new DocumentAccessorImpl(repo, null, sharedMap); 
+					cln.add(dai);
+					cnt++;
 				}
 			}
 		}
@@ -481,91 +589,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	return builder.buildContent(xdmCache.getAll(xdKeys));
     }
 
-	@Override
-	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
-		Document doc = getDocument(uri);
-		if (doc == null) {
-			logger.info("getDocument; no document found for uri: {}", uri);
-			return null;
-		}
-
-		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		return getDocumentInternal(docKey, doc, props);
-	}
-
-	@Override
-	public DocumentAccessor getDocument(long docKey, Properties props) throws BagriException {
-		return getDocument(factory.newDocumentKey(docKey), props);
-	}
-
-	@Override
-	public DocumentAccessor getDocument(DocumentKey docKey, Properties props) throws BagriException {
-		Document doc = getDocument(docKey);
-		if (doc == null) {
-			logger.info("getDocument; no document found for key: {}", docKey);
-			return null;
-		}
-
-		return getDocumentInternal(docKey, doc, props);
-	}
-
-	@SuppressWarnings("unchecked")
-	private DocumentAccessor getDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
-		if (props == null) {
-			props = new Properties();
-		}
-		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
-		long headMask = Long.parseLong(headers);
-		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			String dataFormat = props.getProperty(pn_document_data_format);
-			if (dataFormat == null) {
-				dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
-			}
-
-			ContentConverter<Object, Object> cc = null;
-			String srcFormat = doc.getContentType();
-			if (!srcFormat.equals(dataFormat)) {
-				Class<?> to = null;
-				if (pv_document_data_source_map.equals(dataFormat)) {
-					to = Map.class;
-				} // else it'll return common Bean converter
-				cc = repo.getConverter(srcFormat, to);
-				if (cc == null) {
-					throw new BagriException("No converter found between " + srcFormat + " and " + dataFormat, BagriException.ecDocument);
-				}
-			}
-
-			Object content = getDocumentContent(docKey);
-			logger.trace("getDocument; got content: {}", content);
-			if (content == null) {
-				// build it and store in cache
-				// if docId is not local then buildDocument returns null!
-				// query docId owner node for the XML instead
-				if (ddSvc.isLocalKey(docKey)) {
-					Map<String, Object> params = new HashMap<>();
-					params.put(":doc", doc.getTypeRoot());
-					java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
-					if (results.isEmpty()) {
-						content = results.iterator().next();
-						cntCache.set(docKey, content);
-					}
-				} else {
-					if (!props.containsKey(pn_document_data_format)) {
-						props.setProperty(pn_document_data_format, dataFormat);
-					}
-					// can cause distributed deadlock! call to EP from the same EP!
-					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), doc.getUri(), props);
-					content = xddCache.executeOnKey(docKey, xp);
-				}
-			}
-			if (cc != null) {
-				content = cc.convertTo(content);
-			}
-			return new DocumentAccessorImpl(doc, headMask, content);
-		}
-		return new DocumentAccessorImpl(doc, headMask);
-	}
-
 	//public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
 	//	String content = getDocumentAsString(docKey, props);
 	//	if (content != null) {
@@ -604,7 +627,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			long txStart, int[] collections, boolean addContent) throws BagriException {
 
 		ParseResults pRes;
-		dataFormat = repo.getHandler(dataFormat).getDataFormat();
+		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		try {
 			pRes = parser.parse(content);
@@ -863,24 +886,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public <T> DocumentAccessor storeDocument(String uri, T content, Properties props) throws BagriException {
 		logger.trace("storeDocument; got uri: {}; content: {}; props: {}", uri, content, props);
-		String dataFormat = null;
-		if (props != null) {
-			dataFormat = props.getProperty(pn_document_data_format);
-		} else {
+
+		if (props == null) {
 			props = new Properties();
 		}
-		if (dataFormat == null) {
-			dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
-		}
-		if (!props.containsKey(pn_document_data_format)) {
-			props.setProperty(pn_document_data_format, dataFormat);
-		}
-		String srcFormat = props.getProperty(pn_document_data_source, dataFormat);
-		if (!srcFormat.equals(dataFormat)) {
-			ContentConverter<Object, T> cc = repo.getConverter(dataFormat, content.getClass());
-			if (cc == null) {
-				throw new BagriException("No converter found between " + srcFormat + " and " + dataFormat, BagriException.ecDocument);
-			}
+		String srcFormat = props.getProperty(pn_document_data_source);
+		ContentConverter<Object, T> cc = getConverter(props, srcFormat, (Class<T>) content.getClass());
+		if (cc != null) {
 			Object converted = cc.convertFrom(content);
 			logger.trace("storeDocument; converted content: {}", converted);
 			content = (T) converted;
@@ -889,10 +901,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Document newDoc = storeDocumentInternal(uri, content, props);
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
 		long headMask = Long.parseLong(headers);
+		DocumentAccessorImpl result;
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			return new DocumentAccessorImpl(newDoc, headMask, content);
+			result = new DocumentAccessorImpl(repo, newDoc, headMask, content);
+		} else {
+			result = new DocumentAccessorImpl(repo, newDoc, headMask);
 		}
-		return new DocumentAccessorImpl(newDoc, headMask);
+		return result;
 	}
 
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
@@ -936,7 +951,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		String dataFormat = props.getProperty(pn_document_data_format);
-		dataFormat = repo.getHandler(dataFormat).getDataFormat();
+		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		ParseResults pRes = parser.parse(content);
 		// ??
@@ -997,15 +1012,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public <T> Iterable<DocumentAccessor> storeDocuments(final Map<String, T> documents, final Properties props) throws BagriException {
 		logger.trace("storeDocuments.enter; got documents: {}; props: {}", documents, props);
-		boolean asynch = false;
-		if (props != null) {
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		}
-
-		final ResultCollection<DocumentAccessor> cln;
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		if (cln.isAsynch()) {
 			try {
 				execSvc.execute(new Runnable() {
 					@Override
@@ -1015,14 +1023,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						} catch (BagriException ex) {
 							throw new Error(ex);
 						}
-						cln.add(null); //Null._null);
+						cln.finish();
 					}
 				});
 			} catch (Error er) {
 				throw (BagriException) er.getCause();
 			}
 		} else {
-			cln = new FixedCollectionImpl<>(documents.size());
 			iterateDocuments((Map<String, Object>) documents, props, cln);
 		}
 
@@ -1198,15 +1205,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Iterable<DocumentAccessor> removeDocuments(final String pattern, final Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
-		boolean asynch = false;
-		if (props != null) {
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		}
-
-		final ResultCollection<DocumentAccessor> cln;
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		if (cln.isAsynch()) {
 			try {
 				execSvc.execute(new Runnable() {
 					@Override
@@ -1216,14 +1216,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						} catch (BagriException ex) {
 							throw new Error(ex);
 						}
-						cln.add(null); //Null._null);
+						cln.finish();
 					}
 				});
 			} catch (Error er) {
 				throw (BagriException) er.getCause();
 			}
 		} else {
-			cln = new FixedCollectionImpl<>(4);
 			deleteDocuments(pattern, props, cln);
 		}
 

@@ -5,21 +5,25 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 
 import java.io.IOException;
 
+import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.impl.DocumentAccessorBase;
+import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import com.hazelcast.spring.context.SpringAware;
 
+@SpringAware
 public class DocumentAccessorImpl extends DocumentAccessorBase implements IdentifiedDataSerializable {
 	
 	public DocumentAccessorImpl() {
 		super();
 	}
 
-	public DocumentAccessorImpl(int[] collections, Object content, String contentType, long createdAt, String createdBy, 
-			String encoding, long sizeInBytes, int sizeInElements, int sizeInFragments, String typeRoot, 
+	public DocumentAccessorImpl(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
+			String encoding, long docKey, long sizeInBytes, int sizeInElements, int sizeInFragments, String typeRoot, 
 			long txStart, long txFinish, String uri, int version) {
-		super(collections, content, contentType, createdAt, createdBy, encoding, 0, sizeInBytes, sizeInElements, sizeInFragments, typeRoot,
+		super(repo, collections, content, contentType, createdAt, createdBy, encoding, docKey, sizeInBytes, sizeInElements, sizeInFragments, typeRoot,
 				txStart, txFinish, uri, version);
 	}
 
@@ -40,9 +44,15 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			collections = in.readIntArray();
 		}
 		if ((headers & HDR_CONTENT) != 0) {
-			content = in.readObject();
-		}
-		if ((headers & HDR_CONTENT_TYPE) != 0) {
+			contentType = in.readUTF();
+			SchemaRepository repo = SchemaRepositoryImpl.getRepository();
+			ContentSerializer cs = repo.getSerializer(contentType);
+			if (cs != null) {
+				content = cs.readContent(in);
+			} else {
+				content = in.readObject();
+			}
+		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			contentType = in.readUTF();
 		}
 		if ((headers & HDR_CREATED_AT) != 0) {
@@ -90,9 +100,14 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			out.writeIntArray(collections);
 		}
 		if ((headers & HDR_CONTENT) != 0) {
-			out.writeObject(content);
-		}
-		if ((headers & HDR_CONTENT_TYPE) != 0) {
+			out.writeUTF(contentType);
+			ContentSerializer cs = repo.getSerializer(contentType);
+			if (cs != null) {
+				cs.writeContent(out, content);
+			} else {
+				out.writeObject(content);
+			}
+		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			out.writeUTF(contentType);
 		}
 		if ((headers & HDR_CREATED_AT) != 0) {

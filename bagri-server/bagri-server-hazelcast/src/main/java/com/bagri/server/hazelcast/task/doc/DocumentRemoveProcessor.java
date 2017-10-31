@@ -24,10 +24,12 @@ import static com.bagri.core.api.TransactionManagement.*;
 
 @SpringAware
 public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Document>, EntryBackupProcessor<DocumentKey, Document>, Offloadable {
-    private transient DataDistributionService ddSvc;
-    private transient DocumentManagementImpl docMgr;
 
     private static final long serialVersionUID = 1L;
+
+    private transient DataDistributionService ddSvc;
+    private transient DocumentManagementImpl docMgr;
+    private transient SchemaRepository repo;
 
     private Transaction tx;
     private Properties properties;
@@ -44,7 +46,7 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
 
     @Autowired
     public void setRepository(SchemaRepository repo) {
-        //this.repo = repo;
+        this.repo = repo;
         this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
     }
 
@@ -55,19 +57,21 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
 
     @Override
     public Object process(Map.Entry<DocumentKey, Document> entry) {
+    	
         Document doc = entry.getValue();
         DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
-        if (lastKey == null) {
-            return new BagriException("Document with uri: " + doc.getUri() + " was not found", BagriException.ecDocument);
-        }
         long txStart = tx == null ? TX_NO : tx.getTxId();
-        if (lastKey.getVersion() > entry.getKey().getVersion()) {
+        if (lastKey == null) {
+            return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
+                    " has been concurrently removed", BagriException.ecDocument);
+        } else if (lastKey.getVersion() > entry.getKey().getVersion()) {
                 if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
                     return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
                         " has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
             }
             doc = docMgr.getDocument(lastKey);
         }
+
         if (txStart == TX_NO) {
             doc = null;
             docMgr.deleteDocumentFromContentCache(entry);
@@ -78,9 +82,9 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
         String headers = properties.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
         long headMask = Long.parseLong(headers);
         if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-            return new DocumentAccessorImpl(doc, headMask, docMgr.getDocumentContent(entry.getKey()));
+            return new DocumentAccessorImpl(repo, doc, headMask, docMgr.getDocumentContent(entry.getKey()));
         }
-        return new DocumentAccessorImpl(doc, headMask);
+        return new DocumentAccessorImpl(repo, doc, headMask);
     }
 
     @Override

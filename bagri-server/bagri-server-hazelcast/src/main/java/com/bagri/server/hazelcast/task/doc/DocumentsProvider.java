@@ -26,7 +26,7 @@ public class DocumentsProvider extends com.bagri.client.hazelcast.task.doc.Docum
     	
     	// not sure we have to check it at all..
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
-    	return (ResultCollection<DocumentAccessor>) docMgr.getDocuments(pattern, props);
+    	return (ResultCollection<DocumentAccessor>) docMgr.getDocuments(pattern, context);
 	}
 
 

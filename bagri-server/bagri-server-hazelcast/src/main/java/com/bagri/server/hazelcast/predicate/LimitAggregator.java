@@ -54,7 +54,7 @@ public class LimitAggregator<K, I, V> extends AbstractAggregator<I, V, Collectio
 		accumulateExtracted(value);
 	}
 
-	@Override
+	//@Override
 	protected void accumulateExtracted(V value) {
 		logger.info("accumulateExtracted.enter; value: {}; }", value); 
 		if (found < limit) {

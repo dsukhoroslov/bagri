@@ -1,8 +1,10 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.ctx_repo;
+import static com.bagri.core.Constants.pn_client_txLevel;
 import static com.bagri.core.Constants.ctx_popService;
 import static com.bagri.core.Constants.pn_schema_format_default;
+import static com.bagri.core.Constants.pv_client_txLevel_skip;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemInstance;
@@ -13,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,10 +25,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.ContentSerializer;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
@@ -46,6 +53,7 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.server.hazelcast.serialize.TaskSerializationFactory;
 import com.hazelcast.core.HazelcastInstance;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements ApplicationContextAware, SchemaRepository {
@@ -72,9 +80,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
-	private Map<String, XQProcessor> processors = new ConcurrentHashMap<String, XQProcessor>();
 
-	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<String, ContentHandler>();
+    private Map<String, XQProcessor> processors = new ConcurrentHashMap<>();
+	private Map<String, ContentSerializer<?>> serializers = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<>();
 	
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -271,6 +280,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		return null;
 	}
 	
+	@Override
+	public ContentSerializer<?> getSerializer(String dataFormat) {
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getSerializer();
+		}
+		return null;
+	}
+	
 	@SuppressWarnings("unchecked")
 	private <T> T instantiateClass(String className) {
 		try {
@@ -286,7 +304,19 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public void close() {
 		// TODO: disconnect all clients ?
 	}
-	
+
+	public TransactionIsolation getTransactionLevel(Properties context) { 
+		String txLevel = context.getProperty(pn_client_txLevel);
+		if (txLevel == null) {
+	    	return ((TransactionManagementImpl) getTxManagement()).getTransactionLevel(); 
+		} else {
+	    	if (pv_client_txLevel_skip.equals(txLevel)) {
+	    		return null;
+	    	}
+			return TransactionIsolation.valueOf(txLevel);
+		}
+	}
+			
 	public DataFormat getDataFormat(String dataFormat) {
 
 		// TODO: make it as fast as possible as it is called from many other places!

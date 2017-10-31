@@ -16,6 +16,7 @@ import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.bagri.xquery.saxon.XQProcessorClient;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
+import com.yahoo.ycsb.ByteArrayByteIterator;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
@@ -35,13 +36,16 @@ public abstract class BagriClientBase extends DB {
     protected final Properties updateProps = new Properties();
     protected final Properties deleteProps = new Properties();
     
+    protected final boolean byteFormat;
+    
     public BagriClientBase() {
     	String format = System.getProperty(pn_document_data_format);
     	if (format == null) {
-    		format = "MAP";
+    		format = "BMAP";
     	} 
+    	byteFormat = "BMAP".equals(format);
 		readProps.setProperty(pn_document_data_format, format);
-		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
+		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
 
 		String storeMode = System.getProperty(pn_client_storeMode);
 		if (storeMode != null) {
@@ -57,12 +61,16 @@ public abstract class BagriClientBase extends DB {
 		insertProps.setProperty(pn_document_data_format, format);
 		insertProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
 
+    	String compress = System.getProperty(pn_document_compress);
+    	if (compress != null) {
+    		scanProps.setProperty(pn_document_compress, Boolean.valueOf(compress).toString());
+    	}
 		scanProps.setProperty(pn_document_data_format, format);
 		String fetchAsynch = System.getProperty(pn_client_fetchAsynch);
 		if (fetchAsynch != null) {
 			scanProps.setProperty(pn_client_fetchAsynch, fetchAsynch);
 		}
-		scanProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
+		scanProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
 		
 		if (storeMode != null) {
 			updateProps.setProperty(pn_client_storeMode, storeMode);
@@ -104,15 +112,15 @@ public abstract class BagriClientBase extends DB {
 	    //getLogger().info("cleanup; xRepo: {}", xRepo);
 	    xRepo.close();
 
-	    double time1 = timer.get();
-	    double time2 = timer2.get();
-		getLogger().info("cleanup; scan count: {}; full scan time: {}; full query time: {}; avg scan time: {}; avg query time: {}",
-				counter, time1, time2, time1/counter, time2/counter);
+	    //double time1 = timer.get();
+	    //double time2 = timer2.get();
+		//getLogger().info("cleanup; scan count: {}; full scan time: {}; full query time: {}; avg scan time: {}; avg query time: {}",
+		//		counter, time1, time2, time1/counter, time2/counter);
 	}
 	
 	protected abstract Logger getLogger();
-	
-	protected void populateResult(final Map<String, Object> document, final Set<String> fields, 
+
+	protected void populateStringResult(final Map<String, Object> document, final Set<String> fields, 
 			final HashMap<String, ByteIterator> result) {
 		// fill results
 		if (fields == null) {
@@ -124,6 +132,23 @@ public abstract class BagriClientBase extends DB {
 				Object value = document.get(field);
 				if (value != null) {
 					result.put(field, new StringByteIterator(value.toString()));
+				}
+			}
+		}
+	}
+	
+	protected void populateByteResult(final Map document, final Set<String> fields, 
+			final HashMap<String, ByteIterator> result) {
+		// fill results
+		if (fields == null) {
+			for (Map.Entry<String, byte[]> entry: (Set<Map.Entry<String, byte[]>>) document.entrySet()) {
+				result.put(entry.getKey(), new ByteArrayByteIterator(entry.getValue()));
+			}
+		} else {
+			for (String field: fields) {
+				byte[] value = (byte[]) document.get(field);
+				if (value != null) {
+					result.put(field, new ByteArrayByteIterator(value));
 				}
 			}
 		}

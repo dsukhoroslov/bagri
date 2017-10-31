@@ -23,8 +23,8 @@ public abstract class DocumentProcessor extends DocumentAwareTask implements Ent
 		super();
 	}
 
-	public DocumentProcessor(String clientId, long txId, String uri, Properties props) {
-		super(clientId, txId, uri, props);
+	public DocumentProcessor(String clientId, long txId, Properties props, String uri) {
+		super(clientId, txId, props, uri);
 	}
 	
 	@Override

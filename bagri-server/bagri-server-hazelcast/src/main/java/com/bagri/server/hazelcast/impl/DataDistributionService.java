@@ -28,6 +28,7 @@ import com.bagri.core.model.Document;
 import com.bagri.core.model.Elements;
 import com.hazelcast.aggregation.Aggregators;
 import com.hazelcast.core.IMap;
+import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.map.impl.MapEntries;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
@@ -357,6 +358,10 @@ public class DataDistributionService implements ManagedService {
 			logger.error("getElementKeys.error", ex);
 		}
 		return result;
+	}
+	
+	public InternalSerializationService getSerializationService() {
+		return (InternalSerializationService) nodeEngine.getSerializationService();
 	}
 
 	public Object storeData(Object key, Object value, String storeName) {

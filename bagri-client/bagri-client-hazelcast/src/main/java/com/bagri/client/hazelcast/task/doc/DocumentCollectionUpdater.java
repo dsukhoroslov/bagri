@@ -3,6 +3,7 @@ package com.bagri.client.hazelcast.task.doc;
 import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_UpdateDocumentCollectionTask;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.hazelcast.nio.ObjectDataInput;
@@ -17,8 +18,8 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentCollectionUpdater(String clientId, String uri, boolean add, String[] collections) {
-		super(clientId, 0, uri, null);
+	public DocumentCollectionUpdater(String clientId, Properties props, String uri, boolean add, String[] collections) {
+		super(clientId, 0, props, uri);
 		this.add = add;
 		this.collections = collections;
 	}

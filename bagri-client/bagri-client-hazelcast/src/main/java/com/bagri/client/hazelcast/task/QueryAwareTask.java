@@ -8,21 +8,19 @@ import java.util.Properties;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public abstract class QueryAwareTask extends TransactionAwareTask {
+public abstract class QueryAwareTask extends ContextAwareTask {
 
 	protected String query;
 	protected Map<String, Object> params;
-	protected Properties context;
 	
 	public QueryAwareTask() {
 		super();
 	}
 	
 	public QueryAwareTask(String clientId, long txId, String query, Map<String, Object> params, Properties context) {
-		super(clientId, txId);
+		super(clientId, txId, context);
 		this.query = query;
 		this.params = params;
-		this.context = context;
 	}
 
 	@Override
@@ -36,7 +34,6 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 				params.put(in.readUTF(), in.readObject());
 			}
 		}
-		context = in.readObject();
 	}
 
 	@Override
@@ -52,7 +49,6 @@ public abstract class QueryAwareTask extends TransactionAwareTask {
 				out.writeObject(param.getValue());
 			}
 		}
-		out.writeObject(context);
 	}
 
 }

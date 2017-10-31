@@ -3,12 +3,20 @@ package com.bagri.client.hazelcast.impl;
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.setProperty;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.ObjectMapContentSerializer;
+import com.bagri.client.hazelcast.serialize.StringContentSerializer;
+import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
+import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.HealthCheckState;
 import com.bagri.core.api.QueryManagement;
@@ -19,19 +27,27 @@ import com.hazelcast.core.HazelcastInstance;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements SchemaRepository {
 	
-    private final static Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
-	
+    private static final Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
+    private static final ThreadLocal<SchemaRepository> repo = new ThreadLocal<>();
+    
 	private String clientId;
 	private String schemaName;
 	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
+	private Map<String, ContentSerializer<?>> css = new HashMap<>(); //ConcurrentHashMap<>();
+	
+	public static SchemaRepository getRepository() {
+		return repo.get();
+	}
 	
 	public SchemaRepositoryImpl() {
 		initializeFromProperties(getSystemProps());
+		repo.set(this);
 	}
 
 	public SchemaRepositoryImpl(Properties props) {
 		initializeFromProperties(getConvertedProps(props));
+		repo.set(this);
 	}
 	
 	public SchemaRepositoryImpl(HazelcastInstance hzInstance) {
@@ -46,16 +62,19 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		
 		logger.debug("<init>; connected to HZ server as: {}; {}", clientId, proxy);
 		initializeServices(null);
+		// TODO: serializers!?
+		repo.set(this);
 	}
 	
 	private static Properties getSystemProps() {
 		Properties props = new Properties();
-		setProperty(props, pn_schema_name, null); // "schema"
-		setProperty(props, pn_schema_address, null); //"address"
-		setProperty(props, pn_schema_user, null); //"user"
-		setProperty(props, pn_schema_password, null); //"password"
-		setProperty(props, pn_client_smart, null); //"smart"
-		setProperty(props, pn_client_loginTimeout, null); //"loginTimeout"
+		setProperty(props, pn_schema_name, null);
+		setProperty(props, pn_schema_address, null);
+		setProperty(props, pn_schema_user, null);
+		setProperty(props, pn_schema_password, null);
+		setProperty(props, pn_client_smart, null);
+		setProperty(props, pn_client_loginTimeout, null);
+		setProperty(props, pn_client_sharedConnection, null);
 		setProperty(props, pn_client_bufferSize, null); 
 		setProperty(props, pn_client_connectAttempts, "3"); 
 		setProperty(props, pn_client_poolSize, "5");
@@ -64,6 +83,12 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_txLevel, null);
 		setProperty(props, pn_client_txTimeout, null);
 		setProperty(props, pn_client_customAuth, null);
+		setProperty(props, pn_client_contentSerializers, pv_client_defaultSerializers);
+		setProperty(props, pn_client_contentSerializer + "." + "MAP", ObjectMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "BMAP", ByteMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "SMAP", StringMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
 		return props;
 	}
 	
@@ -74,6 +99,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(original, props, pn_schema_user, "user");
 		setProperty(original, props, pn_schema_password, "password");
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
+		setProperty(original, props, pn_client_sharedConnection, "sharedConnection");
 		setProperty(original, props, pn_client_bufferSize, null); 
 		setProperty(original, props, pn_client_connectAttempts, null);
 		Object factory = original.get(pn_client_dataFactory);
@@ -87,9 +113,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_txLevel, null);
 		setProperty(props, pn_client_txTimeout, null);
 		setProperty(props, pn_client_customAuth, null);
+		setProperty(props, pn_client_contentSerializers, pv_client_defaultSerializers);
+		setProperty(props, pn_client_contentSerializer + "." + "MAP", ObjectMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "BMAP", ByteMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "SMAP", StringMapContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
+		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
 		return props;
 	}
-	
+
 	private void initializeFromProperties(Properties props) {
 		clientMgr = new ClientManagementImpl();
 		clientId = UUID.randomUUID().toString();
@@ -97,6 +129,40 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		initializeServices(props);
+		initializeSerializers(props);
+	}
+
+	private void initializeSerializers(Properties props) {
+		String srs = props.getProperty(pn_client_contentSerializers);
+		if (srs == null) {
+			srs = pv_client_defaultSerializers;
+		}
+		String[] sra = srs.split(" ");
+		for (String csn: sra) {
+			String csp = pn_client_contentSerializer + "." + csn;
+			String csc = props.getProperty(csp);
+			if (csc != null) {
+				try {
+					Class<?> cs = Class.forName(csc);
+					css.put(csn, (ContentSerializer<?>) cs.newInstance());
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+					logger.warn("initializeSerializers. error instaintiating serializer '{}' for format '{}'", csc, csn, ex);
+				}
+			}
+		}
+
+		//if (!css.containsKey("MAP")) {
+		//	css.put("MAP", new StringMapContentSerializer());
+		//}
+		//if (!css.containsKey("BMAP")) {
+		//	css.put("BMAP", new ByteMapContentSerializer());
+		//}
+		//if (!css.containsKey("JSON")) {
+		//	css.put("JSON", new StringContentSerializer());
+		//}
+		//if (!css.containsKey("XML")) {
+		//	css.put("XML", new StringContentSerializer());
+		//}
 	}
 	
 	private void initializeServices(Properties props) {
@@ -157,6 +223,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	@Override
 	public String getClientId() {
 		return clientId;
+	}
+
+	@Override
+	public ContentSerializer<?> getSerializer(String dataFormat) {
+		ContentSerializer<?> cs = css.get(dataFormat);
+		if (cs == null) {
+			logger.info("getSerializer; no serializer for type: {}; css: {}; this: {}", dataFormat, css, this);
+		}
+		return cs;
 	}
 	
 	@Override

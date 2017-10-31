@@ -49,10 +49,10 @@ public class DocumentServiceTest extends JerseyTest {
         when(mockRepo.getDocumentManagement()).thenReturn(docMgr);
         //responseXml = new Document(1L, "a0001.xml", "/content", "owner", 1, 34, 1);
         //responseJson = new Document(2L, "a0001.xml", "/content", "owner", 1, 30, 1); // why the same uri??
-        responseXml = new DocumentAccessorImpl(null, "<content>initial content</content>", "XML", System.currentTimeMillis(), "owner", "utf-8", 
-        		0, 0, 0, null, -1, -1, "a0001.xml", 0);
-        responseJson = new DocumentAccessorImpl(null, "{\"content\": \"updated content\"}", "XML", System.currentTimeMillis(), "owner", "utf-8", 
-        		0, 0, 0, null, -1, -1, "a0001.xml", 0); 
+        responseXml = new DocumentAccessorImpl(mockRepo, null, "<content>initial content</content>", "XML", System.currentTimeMillis(), "owner", "utf-8", 
+        		0, 0, 0, 0, null, -1, -1, "a0001.xml", 0);
+        responseJson = new DocumentAccessorImpl(mockRepo, null, "{\"content\": \"updated content\"}", "XML", System.currentTimeMillis(), "owner", "utf-8", 
+        		0, 0, 0, 0, null, -1, -1, "a0001.xml", 0); 
         try {
 			when(docMgr.storeDocument("a0001.xml", "<content>initial content</content>", propsXml)).thenReturn(responseXml);
 			when(docMgr.storeDocument("a0001.xml", "{\"content\": \"updated content\"}", propsJson)).thenReturn(responseJson);

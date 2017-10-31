@@ -18,9 +18,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDataSerializable {
 	
-    //private final static Logger logger = LoggerFactory.getLogger(FixedCollectionImpl.class);
-
-	private ArrayList<T> results;
+	protected ArrayList<T> results;
 	
 	public FixedCollectionImpl() {
 		//
@@ -35,11 +33,6 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 		this.results.addAll(results);
 	}
 	
-	//@Override
-	//public void init(SchemaRepository repo) {
-		// no-op
-	//}
-	
 	@Override
 	public void close() throws Exception {
 		results.clear();		
@@ -48,6 +41,16 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 	@Override
 	public boolean add(T result) {
 		return results.add(result);
+	}
+	
+	@Override
+	public void finish() {
+		// no-op
+	}
+	
+	@Override
+	public boolean isAsynch() {
+		return false;
 	}
 	
 	@Override
@@ -72,7 +75,6 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		//results = in.readObject();
 		int size = in.readInt();
 		results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
@@ -82,7 +84,6 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		//out.writeObject(results);
 		out.writeInt(results.size());
 		for (Object result: results) {
 			out.writeObject(result);

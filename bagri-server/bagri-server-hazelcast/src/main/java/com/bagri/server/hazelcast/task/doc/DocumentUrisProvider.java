@@ -26,7 +26,7 @@ public class DocumentUrisProvider extends com.bagri.client.hazelcast.task.doc.Do
     	// not sure we have to check it at all..
     	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
     	
-    	return (ResultCollection<String>) docMgr.getDocumentUris(pattern, props);
+    	return (ResultCollection<String>) docMgr.getDocumentUris(pattern, context);
 	}
 
 

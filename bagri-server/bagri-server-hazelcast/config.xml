@@ -59,6 +59,7 @@
                 <entry name="bdb.schema.data.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">60000</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">5</entry>
@@ -263,6 +264,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -414,6 +416,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -534,6 +537,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -598,6 +602,7 @@
                 <entry name="bdb.schema.partition.count">157</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -651,7 +656,7 @@
                 <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.trans.backup.sync">1</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.buffer.size">16</entry>
+                <entry name="bdb.schema.buffer.size">32</entry>
                 <entry name="bdb.schema.dict.backup.async">1</entry>
                 <entry name="bdb.schema.dict.backup.read">true</entry>
                 <entry name="bdb.schema.trans.backup.read">false</entry>
@@ -661,6 +666,7 @@
                 <entry name="bdb.schema.partition.count">271</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">0</entry>
+		<entry name="bdb.schema.transaction.level"></entry>
                 <entry name="bdb.schema.health.threshold.low">250</entry>
                 <entry name="bdb.schema.health.threshold.high">250</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
@@ -811,6 +817,7 @@
             <extensions>xml</extensions>
             <type>application/xml</type>
             <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringContentSerializer</entry>
 		<entry name="bdb.schema.parser.schemas"></entry>
 		<entry name="bdb.schema.builder.pretty">false</entry>
 		<entry name="bdb.schema.builder.ident">4</entry>
@@ -835,6 +842,7 @@
             <extensions>json</extensions>
             <type>application/json</type>
             <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringContentSerializer</entry>
 		<entry name="javax.json.spi.JsonProvider">org.glassfish.json.JsonProviderImpl</entry>
 		<!--entry name="javax.json.spi.JsonProvider">com.github.pgelinas.jackson.javax.json.spi.JacksonProvider</entry-->
             </properties>
@@ -848,7 +856,35 @@
             <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
             <extensions></extensions>
             <type></type>
-            <properties/>
+            <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.ObjectMapContentSerializer</entry>
+            </properties>
+        </dataFormat>
+        <dataFormat name="BMAP">
+            <version>1</version>
+            <createdAt>2017-04-30T15:17:20.542+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>ByteMap Handler</description>
+            <enabled>true</enabled>
+            <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
+            <extensions></extensions>
+            <type></type>
+            <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.ByteMapContentSerializer</entry>
+            </properties>
+        </dataFormat>
+        <dataFormat name="SMAP">
+            <version>1</version>
+            <createdAt>2017-04-30T15:17:20.542+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>ByteMap Handler</description>
+            <enabled>true</enabled>
+            <handlerClass>com.bagri.core.server.api.df.map.MapHandler</handlerClass>
+            <extensions></extensions>
+            <type></type>
+            <properties>
+		<entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringMapContentSerializer</entry>
+            </properties>
         </dataFormat>
     </dataFormats>
     <dataStores>

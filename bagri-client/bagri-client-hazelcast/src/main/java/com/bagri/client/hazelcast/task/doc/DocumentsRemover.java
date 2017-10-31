@@ -6,26 +6,24 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.client.hazelcast.task.ContextAwareTask;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class DocumentsRemover extends TransactionAwareTask implements Callable<ResultCollection<DocumentAccessor>>, IdentifiedDataSerializable {
+public class DocumentsRemover extends ContextAwareTask implements Callable<ResultCollection<DocumentAccessor>>, IdentifiedDataSerializable {
 	
 	protected String pattern;
-	protected Properties props;
 
 	public DocumentsRemover() {
 		super();
 	}
 	
-	public DocumentsRemover(String clientId, long txId, String pattern, Properties props) {
-		super(clientId, txId);
+	public DocumentsRemover(String clientId, long txId, Properties props, String pattern) {
+		super(clientId, txId, props);
 		this.pattern = pattern;
-		this.props = props;
 	}
 
 	@Override
@@ -42,14 +40,12 @@ public class DocumentsRemover extends TransactionAwareTask implements Callable<R
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		pattern = in.readUTF();
-		props = in.readObject(Properties.class);
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeUTF(pattern);
-		out.writeObject(props);
 	}
 
 

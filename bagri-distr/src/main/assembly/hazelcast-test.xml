@@ -80,6 +80,7 @@
             <directory>src/main/resources/test</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
+                <include>access.xml</include>
                 <include>config.xml</include>
             </includes>
         </fileSet>

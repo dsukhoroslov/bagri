@@ -30,6 +30,7 @@ public class Constants {
 
 	public static final String pn_client_connectedAt = "bdb.client.connectedAt"; 
 	public static final String pn_client_memberId = "bdb.client.member"; 
+	public static final String pn_client_sharedConnection = "bdb.client.sharedConnection"; 
 
 	public static final String pn_client_fetchAsynch = "bdb.client.fetchAsynch";
 	public static final String pn_client_fetchSize = "bdb.client.fetchSize";
@@ -50,6 +51,11 @@ public class Constants {
 	public static final String pv_client_submitTo_any = "any";
 	public static final String pv_client_submitTo_member = "member";
 	public static final String pv_client_submitTo_owner = "owner";
+
+	public static final String pn_client_contentSerializer = "bdb.client.contentSerializer";
+	public static final String pn_client_contentSerializers = "bdb.client.contentSerializers";
+
+	public static final String pv_client_defaultSerializers = "MAP BMAP SMAP JSON XML";
 	
 	public static final String pn_query_command = "bdb.query.command";
 	
@@ -90,16 +96,20 @@ public class Constants {
     public static final String pn_schema_population_buffer_size = "bdb.schema.population.buffer.size";
     public static final String pn_schema_fetch_size = "bdb.schema.fetch.size";
     public static final String pn_schema_query_cache = "bdb.schema.query.cache";
+    public static final String pn_schema_tx_level = "bdb.schema.transaction.level";
+    public static final String pn_schema_tx_timeout = "bdb.schema.transaction.timeout";
     
     public static final String pn_schema_builder_pretty = "bdb.schema.builder.pretty";
     public static final String pn_schema_builder_ident = "bdb.schema.builder.ident";
     public static final String pn_schema_parser_schemas = "bdb.schema.parser.schemas";
     
     public static final String pn_document_collections = "bdb.document.collections";
+    public static final String pn_document_compress = "bdb.document.compress";
     public static final String pn_document_data_format = "bdb.document.data.format";
     public static final String pn_document_headers = "bdb.document.headers";
     public static final String pn_document_data_source = "bdb.document.data.source";
     public static final String pn_document_map_merge = "bdb.document.map.merge";
+    public static final String pn_document_map_fields = "bdb.document.map.fields";
     
     public static final String pv_document_data_source_file = "FILE"; 
     public static final String pv_document_data_source_map = "MAP"; 
@@ -182,5 +192,123 @@ public class Constants {
 	public static final String bg_remove_document = bg_schema + ":" + cmd_remove_document;
 	public static final String bg_remove_cln_documents = bg_schema + ":" + cmd_remove_cln_documents;
 	public static final String bg_store_document = bg_schema + ":" + cmd_store_document;
+	
+	public static int propToInt(String property) {
+		switch (property) {
+			case pn_schema_address: return 1;
+			case pn_schema_host: return 2;
+			case pn_schema_port: return 3;
+			case pn_schema_name: return 4;
+			case pn_schema_user: return 5;
+			case pn_schema_password: return 6;
+			case pn_client_id: return 7;
+			case pn_client_txId: return 8;
+			case pn_client_txLevel: return 9;
+			case pn_client_txTimeout: return 10;
+			case pn_client_smart: return 11;
+			case pn_client_bufferSize: return 12;
+			case pn_client_connectAttempts: return 13;
+			case pn_client_poolSize: return 14;
+			case pn_client_connectedAt: return 15; 
+			case pn_client_memberId: return 16; 
+			case pn_client_fetchAsynch: return 17;
+			case pn_client_fetchSize: return 18;
+			case pn_client_healthCheck: return 19;
+			case pn_client_loginTimeout: return 20;
+			case pn_client_dataFactory: return 21;
+			case pn_client_pageSize: return 22;
+			case pn_client_customAuth: return 23;
+			case pn_client_queryCache: return 24;
+			case pn_client_storeMode: return 25;
+			case pn_client_submitTo: return 26;
+			case pn_client_sharedConnection: return 27;
+			
+			case pn_query_command: return 40;
+
+			case pn_document_collections: return 50;
+			case pn_document_data_format: return 51;
+			case pn_document_headers: return 52;
+			case pn_document_data_source: return 53;
+			case pn_document_map_merge: return 54;
+			case pn_document_compress: return 55;
+			
+			case pn_xqj_baseURI: return 100;
+			case pn_xqj_constructionMode: return 101;
+			case pn_xqj_defaultCollationUri: return 102;
+			case pn_xqj_defaultElementTypeNamespace: return 103;
+			case pn_xqj_defaultFunctionNamespace: return 104;
+			case pn_xqj_orderingMode: return 105;
+			case pn_xqj_defaultOrderForEmptySequences: return 106;
+			case pn_xqj_boundarySpacePolicy: return 107;
+			case pn_xqj_copyNamespacesModePreserve: return 108;
+			case pn_xqj_copyNamespacesModeInherit: return 109;
+			case pn_xqj_bindingMode: return 110;
+			case pn_xqj_queryLanguageTypeAndVersion: return 111;
+			case pn_xqj_holdability: return 112;
+			case pn_xqj_scrollability: return 113;
+			case pn_xqj_queryTimeout: return 114;
+			case pn_xqj_defaultNamespaces: return 115;
+		}
+		return 0;
+	}
+	
+	public static String intToProp(int idx) {
+		switch (idx) {
+			case 1: return pn_schema_address;
+			case 2: return pn_schema_host;
+			case 3: return pn_schema_port;
+			case 4: return pn_schema_name;
+			case 5: return pn_schema_user;
+			case 6: return pn_schema_password;
+			case 7: return pn_client_id;
+			case 8: return pn_client_txId;
+			case 9: return pn_client_txLevel;
+			case 10: return pn_client_txTimeout;
+			case 11: return pn_client_smart;
+			case 12: return pn_client_bufferSize;
+			case 13: return pn_client_connectAttempts;
+			case 14: return pn_client_poolSize;
+			case 15: return pn_client_connectedAt; 
+			case 16: return pn_client_memberId; 
+			case 17: return pn_client_fetchAsynch;
+			case 18: return pn_client_fetchSize;
+			case 19: return pn_client_healthCheck;
+			case 20: return pn_client_loginTimeout;
+			case 21: return pn_client_dataFactory;
+			case 22: return pn_client_pageSize;
+			case 23: return pn_client_customAuth;
+			case 24: return pn_client_queryCache;
+			case 25: return pn_client_storeMode;
+			case 26: return pn_client_submitTo;
+			case 27: return pn_client_sharedConnection;
+
+			case 40: return pn_query_command;
+			
+			case 50: return pn_document_collections;
+			case 51: return pn_document_data_format;
+			case 52: return pn_document_headers;
+			case 53: return pn_document_data_source;
+			case 54: return pn_document_map_merge;
+			case 55: return pn_document_compress;
+			
+			case 100: return pn_xqj_baseURI;
+			case 101: return pn_xqj_constructionMode;
+			case 102: return pn_xqj_defaultCollationUri;
+			case 103: return pn_xqj_defaultElementTypeNamespace;
+			case 104: return pn_xqj_defaultFunctionNamespace;
+			case 105: return pn_xqj_orderingMode;
+			case 106: return pn_xqj_defaultOrderForEmptySequences;
+			case 107: return pn_xqj_boundarySpacePolicy;
+			case 108: return pn_xqj_copyNamespacesModePreserve;
+			case 109: return pn_xqj_copyNamespacesModeInherit;
+			case 110: return pn_xqj_bindingMode;
+			case 111: return pn_xqj_queryLanguageTypeAndVersion;
+			case 112: return pn_xqj_holdability;
+			case 113: return pn_xqj_scrollability;
+			case 114: return pn_xqj_queryTimeout;
+			case 115: return pn_xqj_defaultNamespaces;
+		}
+		return null;
+	}
 	
 }

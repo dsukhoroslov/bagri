@@ -6,24 +6,22 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.client.hazelcast.task.TransactionAwareTask;
+import com.bagri.client.hazelcast.task.ContextAwareTask;
 import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentUrisProvider extends TransactionAwareTask implements Callable<ResultCollection<String>> {
+public class DocumentUrisProvider extends ContextAwareTask implements Callable<ResultCollection<String>> {
 	
 	protected String pattern;
-	protected Properties props;
 	
 	public DocumentUrisProvider() {
 		super();
 	}
 	
-	public DocumentUrisProvider(String clientId, long txId, String pattern, Properties props) {
-		super(clientId, txId);
+	public DocumentUrisProvider(String clientId, long txId, Properties props, String pattern) {
+		super(clientId, txId, props);
 		this.pattern = pattern;
-		this.props = props;
 	}
 
 	@Override
@@ -40,14 +38,12 @@ public class DocumentUrisProvider extends TransactionAwareTask implements Callab
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		pattern = in.readUTF();
-		props = in.readObject();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeUTF(pattern);
-		out.writeObject(props);
 	}
 
 }

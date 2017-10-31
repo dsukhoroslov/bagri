@@ -80,6 +80,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	private IMap<Long, Transaction> txCache; 
     private TriggerManagementImpl triggerManager;
 
+	private TransactionIsolation txLevel = TransactionIsolation.readCommited;
 	private long txTimeout = 0;
 	
     public void setRepository(SchemaRepositoryImpl repo) {
@@ -99,6 +100,14 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		execService = hzInstance.getExecutorService(PN_XDM_TRANS_POOL);
     	execPool = Executors.newFixedThreadPool(32);
+	}
+	
+	public TransactionIsolation getTransactionLevel() {
+		return txLevel;
+	}
+	
+	public void setTransactionLevel(TransactionIsolation txLevel) throws BagriException {
+		this.txLevel = txLevel;
 	}
 	
 	public long getTransactionTimeout() {
@@ -123,8 +132,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	
 	@Override
 	public long beginTransaction() throws BagriException {
-		// get default isolation level from some config..
-		return beginTransaction(TransactionIsolation.readCommited);
+		return beginTransaction(txLevel);
 	}
 
 	@Override
