@@ -11,6 +11,7 @@ import com.bagri.core.KeyFactory;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Element;
@@ -259,7 +260,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return doc;
 	}
 
-	public Object getDocumentContent(DocumentKey docKey) {
+	private Object getDocumentContent(DocumentKey docKey) {
 		return ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
 	}
 
@@ -1047,14 +1048,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public DocumentAccessor removeDocument(String uri, Properties props) throws BagriException {
-		logger.trace("removeDocument.enter; uri: {}", uri);
+		logger.trace("processDocumentRemoval.enter; uri: {}", uri);
 		if (uri == null) {
 			throw new BagriException("No Document URI passed", BagriException.ecDocument);
 		}
 
 		Document doc = getDocument(uri);
 		if (doc == null) {
-			logger.info("removeDocument; no active document found for uri: {}", uri);
+			logger.info("processDocumentRemoval; no active document found for uri: {}", uri);
 			return null;
 		}
 
@@ -1065,9 +1066,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
-		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
+		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(props));
 		if (result instanceof Exception) {
-			logger.error("removeDocument.error; uri: {}", doc.getUri(), result);
+			logger.error("processDocumentRemoval.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
 				throw (BagriException) result;
 			}
@@ -1081,7 +1082,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
         if (newDoc != null) {
 			triggerManager.applyTrigger(newDoc, Order.after, Scope.delete);
         }
-		((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docAccessor.getDocumentKey());
+		((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 
 		return docAccessor;
 	}
@@ -1303,8 +1304,36 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return remCount;
 	}
 
-	public void deleteDocumentFromContentCache(Map.Entry<DocumentKey, Document> entry) {
-		cntCache.delete(entry.getKey());
+	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties) {
+		Document doc = entry.getValue();
+		Transaction tx = txManager.getCurrentTransaction();
+		DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
+		long txStart = tx == null ? TX_NO : tx.getTxId();
+		if (lastKey == null) {
+			return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
+					" has been concurrently removed", BagriException.ecDocument);
+		} else if (lastKey.getVersion() > entry.getKey().getVersion()) {
+			if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+				return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
+						" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+			}
+			doc = getDocument(lastKey);
+		}
+
+		if (txStart == TX_NO) {
+			entry.setValue(null);
+			cntCache.delete(entry.getKey());
+			return new DocumentAccessorImpl();
+		} else {
+			doc.finishDocument(txStart);
+		}
+		entry.setValue(doc);
+		String headers = properties.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
+		long headMask = Long.parseLong(headers);
+		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			return new DocumentAccessorImpl(repo, doc, headMask, getDocumentContent(entry.getKey()));
+		}
+		return new DocumentAccessorImpl(repo, doc, headMask);
 	}
 
 	private void updateStats(String name, boolean add, int elements, int fragments) {
