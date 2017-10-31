@@ -11,7 +11,6 @@ import com.bagri.core.KeyFactory;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
-import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Element;
@@ -1048,14 +1047,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public DocumentAccessor removeDocument(String uri, Properties props) throws BagriException {
-		logger.trace("processDocumentRemoval.enter; uri: {}", uri);
+		logger.trace("removeDocument.enter; uri: {}", uri);
 		if (uri == null) {
 			throw new BagriException("No Document URI passed", BagriException.ecDocument);
 		}
 
 		Document doc = getDocument(uri);
 		if (doc == null) {
-			logger.info("processDocumentRemoval; no active document found for uri: {}", uri);
+			logger.info("removeDocument; no active document found for uri: {}", uri);
 			return null;
 		}
 
@@ -1066,9 +1065,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
-		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(props));
+		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), ddSvc.getLastKeyForUri(doc.getUri()), props));
 		if (result instanceof Exception) {
-			logger.error("processDocumentRemoval.error; uri: {}", doc.getUri(), result);
+			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
 				throw (BagriException) result;
 			}
@@ -1304,22 +1303,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return remCount;
 	}
 
-	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties) {
-		Document doc = entry.getValue();
-		Transaction tx = txManager.getCurrentTransaction();
-		DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
-		long txStart = tx == null ? TX_NO : tx.getTxId();
-		if (lastKey == null) {
-			return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
-					" has been concurrently removed", BagriException.ecDocument);
-		} else if (lastKey.getVersion() > entry.getKey().getVersion()) {
-			if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
-				return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
-						" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
-			}
-			doc = getDocument(lastKey);
-		}
-
+	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties, long txStart, Document doc) {
 		if (txStart == TX_NO) {
 			entry.setValue(null);
 			cntCache.delete(entry.getKey());

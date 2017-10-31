@@ -78,10 +78,6 @@ public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.Docume
 			this.version = doc.getVersion();
 		}
 	}
-	
-	@Override
-	public int getId() {
-		return cli_ServerDocumentAccessor;
-	}
+
 }
 
