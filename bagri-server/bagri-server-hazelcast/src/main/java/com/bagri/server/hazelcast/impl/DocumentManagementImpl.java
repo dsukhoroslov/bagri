@@ -1065,7 +1065,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
-		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), ddSvc.getLastKeyForUri(doc.getUri()), props));
+		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
 		if (result instanceof Exception) {
 			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
@@ -1307,11 +1307,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (txStart == TX_NO) {
 			entry.setValue(null);
 			cntCache.delete(entry.getKey());
-			return new DocumentAccessorImpl();
 		} else {
 			doc.finishDocument(txStart);
+			entry.setValue(doc);
 		}
-		entry.setValue(doc);
 		String headers = properties.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
 		long headMask = Long.parseLong(headers);
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {

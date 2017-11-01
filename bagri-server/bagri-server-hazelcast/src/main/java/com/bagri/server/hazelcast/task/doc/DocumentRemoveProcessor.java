@@ -6,6 +6,7 @@ import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.server.hazelcast.impl.DataDistributionService;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
 import com.hazelcast.core.Offloadable;
 import com.hazelcast.map.EntryBackupProcessor;
@@ -24,21 +25,25 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
     private static final long serialVersionUID = 1L;
 
     private transient DocumentManagementImpl docMgr;
+	private transient DataDistributionService ddSvc;
 
     private Transaction tx;
-    private DocumentKey lastKey;
     private Properties properties;
 
 
-    public DocumentRemoveProcessor(Transaction tx, DocumentKey lastKey, Properties properties) {
+    public DocumentRemoveProcessor(Transaction tx, Properties properties) {
         this.properties = properties;
         this.tx = tx;
-        this.lastKey = lastKey;
     }
 
     @Autowired
     public void setRepository(SchemaRepository repo) {
         this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
+    }
+
+    @Autowired
+    public void setDistrService(DataDistributionService ddSvc) {
+    	this.ddSvc = ddSvc;
     }
 
     @Override
@@ -50,6 +55,7 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
     public Object process(Map.Entry<DocumentKey, Document> entry) {
         Document doc = entry.getValue();
         long txStart = tx == null ? TX_NO : tx.getTxId();
+		DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
         if (lastKey == null) {
             return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
                     " has been concurrently removed", BagriException.ecDocument);
