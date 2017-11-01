@@ -3,6 +3,8 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.core.model.Document;
 import com.bagri.core.api.SchemaRepository;
 
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.*;
+
 public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.DocumentAccessorImpl {
 	
 	public DocumentAccessorImpl() {
@@ -76,6 +78,6 @@ public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.Docume
 			this.version = doc.getVersion();
 		}
 	}
-	
+
 }
 

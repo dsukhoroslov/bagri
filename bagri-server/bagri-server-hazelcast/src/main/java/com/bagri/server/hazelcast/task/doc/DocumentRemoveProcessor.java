@@ -5,37 +5,40 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Transaction;
-import com.bagri.server.hazelcast.impl.DataDistributionService;
+import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
 import com.hazelcast.core.Offloadable;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
-import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.spring.context.SpringAware;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.Properties;
 
-import static com.bagri.core.Constants.pn_client_storeMode;
-import static com.bagri.core.Constants.pv_client_storeMode_insert;
-import static com.bagri.core.Constants.pv_client_storeMode_merge;
-import static com.bagri.core.api.TransactionManagement.*;
+import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 @SpringAware
 public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Document>, EntryBackupProcessor<DocumentKey, Document>, Offloadable {
-    
+
     private static final long serialVersionUID = 1L;
 
-	private transient DataDistributionService ddSvc;
-    
-    private Transaction tx;
+    private transient DocumentManagementImpl docMgr;
 
-    public DocumentRemoveProcessor(Transaction tx) {
+    private Transaction tx;
+    private DocumentKey lastKey;
+    private Properties properties;
+
+
+    public DocumentRemoveProcessor(Transaction tx, DocumentKey lastKey, Properties properties) {
+        this.properties = properties;
         this.tx = tx;
+        this.lastKey = lastKey;
     }
 
     @Autowired
-    public void setDistrService(DataDistributionService ddSvc) {
-        this.ddSvc = ddSvc;
+    public void setRepository(SchemaRepository repo) {
+        this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
     }
 
     @Override
@@ -45,23 +48,19 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
 
     @Override
     public Object process(Map.Entry<DocumentKey, Document> entry) {
-    	
         Document doc = entry.getValue();
-        DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
         long txStart = tx == null ? TX_NO : tx.getTxId();
-		if (lastKey == null) {
+        if (lastKey == null) {
             return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
                     " has been concurrently removed", BagriException.ecDocument);
-		} else if (lastKey.getVersion() > entry.getKey().getVersion()) {
+        } else if (lastKey.getVersion() > entry.getKey().getVersion()) {
             if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
                 return new BagriException("Document with key: " + entry.getKey() + ", uri: " + doc.getUri() +
                         " has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
             }
+            doc = docMgr.getDocument(lastKey);
         }
-
-        doc.finishDocument(txStart);
-        entry.setValue(doc);
-        return doc;
+        return docMgr.processDocumentRemoval(entry, properties, txStart, doc);
     }
 
     @Override

@@ -1059,38 +1059,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-		doc = removeDocumentInternal(docKey, doc, props);
-		logger.trace("removeDocument.exit; removed: {}", doc);
 
-		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
-		long headMask = Long.parseLong(headers);
-		DocumentAccessorImpl result;
-		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			result = new DocumentAccessorImpl(repo, doc, headMask, getDocumentContent(docKey));
-		} else {
-			result = new DocumentAccessorImpl(repo, doc, headMask);
-		}
-		return result;
+		return removeDocumentInternal(docKey, doc, props);
 	}
 
-	private Document removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
+	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
-		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction()));
+		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), ddSvc.getLastKeyForUri(doc.getUri()), props));
 		if (result instanceof Exception) {
-			logger.error("removeDocument.error; uri: {}", doc.getUri(), result);
+			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
 				throw (BagriException) result;
 			}
 			throw new BagriException((Exception) result, ecDocument);
 		}
 
-		Document newDoc = (Document) result;
+		DocumentAccessorImpl docAccessor = (DocumentAccessorImpl) result;
 
 		txManager.updateCounters(0, 0, 1);
-		triggerManager.applyTrigger(newDoc, Order.after, Scope.delete);
-		((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(doc.getDocumentKey());
+		Document newDoc = xddCache.get(docKey);
+        if (newDoc != null) {
+			triggerManager.applyTrigger(newDoc, Order.after, Scope.delete);
+        }
+		((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 
-		return newDoc;
+		return docAccessor;
 	}
 
 	public void cleanDocument(DocumentKey docKey, boolean complete) {
@@ -1243,20 +1236,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		// remove local documents only?! yes!
 		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, 0);
 
-		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
-		long headMask = Long.parseLong(headers);
-		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			for (Document doc: docs) {
-				DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-				doc = removeDocumentInternal(docKey, doc, props);
-				cln.add(new DocumentAccessorImpl(repo, doc, headMask, getDocumentContent(docKey)));
-			}
-		} else {
-			for (Document doc: docs) {
-				DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-				doc = removeDocumentInternal(docKey, doc, props);
-				cln.add(new DocumentAccessorImpl(repo, doc, headMask));
-			}
+		for (Document doc: docs) {
+			DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
+			cln.add(removeDocumentInternal(docKey, doc, props));
 		}
 		//logger.trace("deleteDocuments.exit; removed: {}", cln.size());
 	}
@@ -1321,6 +1303,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return remCount;
 	}
 
+	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties, long txStart, Document doc) {
+		if (txStart == TX_NO) {
+			entry.setValue(null);
+			cntCache.delete(entry.getKey());
+			return new DocumentAccessorImpl();
+		} else {
+			doc.finishDocument(txStart);
+		}
+		entry.setValue(doc);
+		String headers = properties.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
+		long headMask = Long.parseLong(headers);
+		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			return new DocumentAccessorImpl(repo, doc, headMask, getDocumentContent(entry.getKey()));
+		}
+		return new DocumentAccessorImpl(repo, doc, headMask);
+	}
+
 	private void updateStats(String name, boolean add, int elements, int fragments) {
 		if (enableStats) {
 			if (!queue.offer(new StatisticsEvent(name, add, new Object[] {fragments, elements}))) {
@@ -1349,4 +1348,5 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
         xddCache.unlock(docKey);
     }
+
 }
