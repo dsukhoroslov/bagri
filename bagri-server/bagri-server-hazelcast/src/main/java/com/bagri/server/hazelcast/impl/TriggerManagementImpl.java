@@ -36,6 +36,7 @@ import com.bagri.core.system.XQueryTrigger;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.core.xquery.api.XQCompiler;
+import com.bagri.server.hazelcast.task.trigger.TriggerExecutor;
 import com.bagri.server.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.FileUtils;
@@ -109,16 +110,14 @@ public class TriggerManagementImpl implements TriggerManagement {
     	if (impls != null) {
     		for (TriggerContainer impl: impls) {
 				logger.trace("applyTrigger; about to fire trigger {}, on transaction: {}", impl, xTx);
-				final TransactionTrigger trigger = (TransactionTrigger) impl.getImplementation();
-				//if (impl.isSynchronous()) {
-				//  submit synchronous tasks to all members
-				//	runTrigger(order, scope, xDoc, trigger);
-				//} else {
-				//	String clientId = repo.getClientId();
-				//  submit asynch tasks to all members
-				//	execService.submitToMember(new TriggerRunner(order, scope, impl.getIndex(), xDoc, clientId),					
-				//			hzInstance.getCluster().getLocalMember()); 
-				//}
+				TriggerExecutor exec = new TriggerExecutor(order, scope, impl.getIndex(), xTx, repo.getClientId());
+				if (impl.isSynchronous()) {
+					// submit synchronous tasks to all members
+					execService.executeOnAllMembers(exec);
+				} else {
+					// submit asynch tasks to all members
+					execService.submitToAllMembers(exec); 
+				}
     		}
     	}
     }
@@ -142,27 +141,84 @@ public class TriggerManagementImpl implements TriggerManagement {
 					case insert: 
 						trigger.beforeInsert(xDoc, repo);
 						break;
+					case update: 
+						trigger.beforeUpdate(xDoc, repo);
+						break;
 					case delete: 
 						trigger.beforeDelete(xDoc, repo);
 						break;
-					default: 
-						trigger.beforeUpdate(xDoc, repo);
+					default:
+						throw new BagriException("Wrong scope " + scope + " used in document-scope trigger", BagriException.ecDocument);
 				}
 			} else {
 				switch (scope) {
 					case insert: 
 						trigger.afterInsert(xDoc, repo);
 						break;
+					case update: 
+						trigger.afterUpdate(xDoc, repo);
+						break;
 					case delete: 
 						trigger.afterDelete(xDoc, repo);
 						break;
-					default: 
-						trigger.afterUpdate(xDoc, repo);
+					default:
+						throw new BagriException("Wrong scope " + scope + " used in document-scope trigger", BagriException.ecDocument);
 				}
 			}
     		updateStats(trName, true, 1);
 		} catch (Throwable ex) {
-			logger.error("applyTrigger.error; exception in trigger {} on Document: {}", trName, xDoc, ex);
+			logger.error("runTrigger.error; exception in trigger {} on Document: {}", trName, xDoc, ex);
+    		updateStats(trName, false, 1);
+    		throw ex;
+		}
+    }
+
+    public void runTrigger(Order order, Scope scope, Transaction xTx, int index, String clientId) throws BagriException {
+
+		String key = getTriggerKey("tx", order, scope);
+    	List<TriggerContainer> impls = triggers.get(key);
+    	if (impls != null) {
+    		TriggerContainer impl = impls.get(index);
+    		repo.getXQProcessor(clientId);
+    		runTrigger(order, scope, xTx, (TransactionTrigger) impl.getImplementation());
+    	}    	
+    }
+    
+    private void runTrigger(Order order, Scope scope, Transaction xTx, TransactionTrigger trigger) throws BagriException {
+		String trName = order + " " + scope;
+		try {
+			if (order == Order.before) {
+				switch (scope) {
+					case begin: 
+						trigger.beforeBegin(xTx, repo);
+						break;
+					case commit: 
+						trigger.beforeCommit(xTx, repo);
+						break;
+					case rollback: 
+						trigger.beforeRollback(xTx, repo);
+						break;
+					default:
+						throw new BagriException("Wrong scope " + scope + " used in transaction-scope trigger", BagriException.ecTransaction);
+				}
+			} else {
+				switch (scope) {
+					case begin: 
+						trigger.afterBegin(xTx, repo);
+						break;
+					case commit: 
+						trigger.afterCommit(xTx, repo);
+						break;
+					case rollback: 
+						trigger.afterRollback(xTx, repo);
+						break;
+					default:
+						throw new BagriException("Wrong scope " + scope + " used in transaction-scope trigger", BagriException.ecTransaction);
+				}
+			}
+    		updateStats(trName, true, 1);
+		} catch (Throwable ex) {
+			logger.error("runTrigger.error; exception in trigger {} on Transaction: {}", trName, xTx, ex);
     		updateStats(trName, false, 1);
     		throw ex;
 		}
@@ -193,6 +249,10 @@ public class TriggerManagementImpl implements TriggerManagement {
 		return result;
 	}
 	
+	private boolean isTransactionalAction(TriggerAction action) {
+		return action.getScope() == Scope.begin || action.getScope() == Scope.commit || action.getScope() == Scope.rollback;
+	}
+	
 	@Override
 	public boolean addTrigger(TriggerDefinition trigger, Trigger impl) {
 		logger.trace("addTrigger.enter; trigger: {}; impl: {}", trigger, impl);
@@ -200,7 +260,12 @@ public class TriggerManagementImpl implements TriggerManagement {
 		if (trigger.isEnabled()) {
 			if (impl != null) {
 				for (TriggerAction action: trigger.getActions()) {
-					String key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
+					String key;
+					if (isTransactionalAction(action)) {
+						key = getTriggerKey("tx", action.getOrder(), action.getScope());
+					} else {
+						key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
+					}
 					List<TriggerContainer> impls = triggers.get(key);
 					if (impls == null) {
 						impls = new LinkedList<>();

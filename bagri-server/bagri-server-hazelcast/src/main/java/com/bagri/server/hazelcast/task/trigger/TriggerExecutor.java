@@ -1,5 +1,8 @@
 package com.bagri.server.hazelcast.task.trigger;
 
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_ExecuteTriggerTask;
+
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -7,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.core.model.Document;
+import com.bagri.core.model.Transaction;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.impl.TriggerManagementImpl;
@@ -16,30 +19,27 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
-import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
-import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_RunTriggerTask;
-
 @SpringAware
-public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable { //Runnable
+public class TriggerExecutor implements Runnable, Callable<Void>, IdentifiedDataSerializable { 
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerRunner.class);
 
 	private Order order;
 	private Scope scope;
 	private int index;
-	private Document xDoc;
+	private Transaction xTx;
 	private String clientId;
 	private TriggerManagementImpl trManager;
 
-	public TriggerRunner() {
+	public TriggerExecutor() {
 		// for de-ser
 	}
 	
-	public TriggerRunner(Order order, Scope scope, int index, Document xDoc, String clientId) {
+	public TriggerExecutor(Order order, Scope scope, int index, Transaction xTx, String clientId) {
 		this.order = order;
 		this.scope = scope;
 		this.index = index;
-		this.xDoc = xDoc;
+		this.xTx = xTx;
 		this.clientId = clientId;
 	}
 		
@@ -51,7 +51,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 	@Override
 	public Void call() {
 		try {
-			trManager.runTrigger(order, scope, xDoc, index, clientId);
+			trManager.runTrigger(order, scope, xTx, index, clientId);
 		} catch (Throwable ex) {
 			logger.error("call.error", ex);
 		}
@@ -59,13 +59,22 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 	}
 	
 	@Override
+	public void run() {
+		try {
+			trManager.runTrigger(order, scope, xTx, index, clientId);
+		} catch (Throwable ex) {
+			logger.error("run.error", ex);
+		}
+	}
+
+	@Override
 	public int getFactoryId() {
 		return cli_factory_id;
 	}
 
 	@Override
 	public int getId() {
-		return cli_RunTriggerTask;
+		return cli_ExecuteTriggerTask;
 	}
 
 	@Override
@@ -73,7 +82,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 		order = Order.values()[in.readInt()];
 		scope = Scope.values()[in.readInt()];
 		index = in.readInt();
-		xDoc = in.readObject();
+		xTx = in.readObject();
 		clientId = in.readUTF();
 	}
 
@@ -82,9 +91,10 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 		out.writeInt(order.ordinal());
 		out.writeInt(scope.ordinal());
 		out.writeInt(index);
-		out.writeObject(xDoc);
+		out.writeObject(xTx);
 		out.writeUTF(clientId);
 	}
 
 }
+
 

@@ -6,13 +6,15 @@ import java.util.Map;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Document;
+import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.DocumentTrigger;
+import com.bagri.core.server.api.TransactionTrigger;
 import com.bagri.core.system.TriggerAction;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 
-public class DocumentTriggerImpl implements DocumentTrigger {
-	
+public class GenericTriggerImpl implements DocumentTrigger, TransactionTrigger {
+
 	private Map<TriggerAction, Integer> fires = new HashMap<>();
 
 	@Override
@@ -51,6 +53,43 @@ public class DocumentTriggerImpl implements DocumentTrigger {
 		addFires(Order.after, Scope.delete);
 	}
 	
+	@Override
+	public void beforeBegin(Transaction tx, SchemaRepository repo) throws BagriException {
+		addFires(Order.before, Scope.begin);
+		System.out.println("beforeBegin; tx: " + tx); 
+	}
+
+	@Override
+	public void afterBegin(Transaction tx, SchemaRepository repo) throws BagriException {
+		addFires(Order.after, Scope.begin);
+		System.out.println("afterBegin; tx: " + tx); 
+	}
+
+	@Override
+	public void beforeCommit(Transaction tx, SchemaRepository repo) throws BagriException {
+		addFires(Order.before, Scope.commit);
+		System.out.println("beforeCommit; tx: " + tx); 
+	}
+
+	@Override
+	public void afterCommit(Transaction tx, SchemaRepository repo) throws BagriException {
+		addFires(Order.after, Scope.commit);
+		System.out.println("afterCommit; tx: " + tx); 
+	}
+
+	@Override
+	public void beforeRollback(Transaction tx, SchemaRepository repo) throws BagriException {
+		addFires(Order.before, Scope.rollback);
+		System.out.println("beforeRollback; tx: " + tx); 
+	}
+
+	@Override
+	public void afterRollback(Transaction tx, SchemaRepository repo) throws BagriException {
+		addFires(Order.after, Scope.rollback);
+		System.out.println("afterRollback; tx: " + tx); 
+	}
+
+
 	private void addFires(Order order, Scope scope) {
 		TriggerAction ta = getTA(order, scope);
 		Integer cnt = fires.get(ta);

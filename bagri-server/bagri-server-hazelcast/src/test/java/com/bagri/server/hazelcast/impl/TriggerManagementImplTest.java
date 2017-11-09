@@ -31,13 +31,12 @@ import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.test.BagriManagementTest;
-import com.bagri.server.hazelcast.bean.DocumentTriggerImpl;
-import com.bagri.server.hazelcast.bean.TransactionTriggerImpl;
+import com.bagri.server.hazelcast.bean.GenericTriggerImpl;
 
 public class TriggerManagementImplTest extends BagriManagementTest {
 
     private static ClassPathXmlApplicationContext context;
-    private DocumentTriggerImpl trigger;
+    private GenericTriggerImpl trigger;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -65,21 +64,21 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 			Properties props = loadProperties("src/test/resources/test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
-			trigger = new DocumentTriggerImpl(); 
-			TriggerDefinition docTrigger = new JavaTrigger(1, new Date(), xRepo.getUserName(), "", //null, 
-					DocumentTriggerImpl.class.getName(), "/{http://tpox-benchmark.com/security}Security", true, true, 0);
-			docTrigger.getActions().add(new TriggerAction(Order.before, Scope.insert));
-			docTrigger.getActions().add(new TriggerAction(Order.after, Scope.insert));
-			docTrigger.getActions().add(new TriggerAction(Order.before, Scope.update));
-			docTrigger.getActions().add(new TriggerAction(Order.after, Scope.update));
-			docTrigger.getActions().add(new TriggerAction(Order.before, Scope.delete));
-			docTrigger.getActions().add(new TriggerAction(Order.after, Scope.delete));
-			xdmRepo.addSchemaTrigger(docTrigger, trigger);
-			TriggerDefinition txTrigger = new JavaTrigger(1, new Date(), xRepo.getUserName(), "", //null, 
-					TransactionTriggerImpl.class.getName(), "", true, true, 1);
-			txTrigger.getActions().add(new TriggerAction(Order.after, Scope.begin));
-			txTrigger.getActions().add(new TriggerAction(Order.before, Scope.commit));
-			xdmRepo.addSchemaTrigger(txTrigger);
+			trigger = new GenericTriggerImpl(); 
+			TriggerDefinition docTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), "", //null, 
+					GenericTriggerImpl.class.getName(), "/{http://tpox-benchmark.com/security}Security", true, true, 0);
+			docTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.insert));
+			docTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.insert));
+			docTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.update));
+			docTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.update));
+			docTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.delete));
+			docTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.delete));
+			xdmRepo.addSchemaTrigger(docTriggerDef, trigger);
+			TriggerDefinition txTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), "", //null, 
+					GenericTriggerImpl.class.getName(), "", true, true, 1);
+			txTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.begin));
+			txTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.commit));
+			xdmRepo.addSchemaTrigger(txTriggerDef, trigger);
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
@@ -101,6 +100,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 	public void updateSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
+		//assertEquals(1, trigger.getFires(Order.after, Scope.begin));
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
@@ -109,6 +109,8 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 		getTxManagement().commitTransaction(txId);
 		String uri = doc.getUri();
 		assertEquals(1, trigger.getFires(Order.after, Scope.insert));
+		assertEquals(1, trigger.getFires(Order.before, Scope.commit));
+		assertEquals(0, trigger.getFires(Order.after, Scope.commit));
 		
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));
@@ -119,6 +121,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		assertEquals(1, trigger.getFires(Order.after, Scope.update));
+		assertEquals(2, trigger.getFires(Order.before, Scope.commit));
 
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security5621.xml"));
@@ -129,6 +132,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		assertEquals(2, trigger.getFires(Order.after, Scope.update));
+		assertEquals(3, trigger.getFires(Order.before, Scope.commit));
 	}
 	
 

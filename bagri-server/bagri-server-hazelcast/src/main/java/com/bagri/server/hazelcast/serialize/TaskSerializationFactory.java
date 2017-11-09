@@ -56,6 +56,7 @@ import com.bagri.server.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.server.hazelcast.task.stats.StatisticTotalsCollector;
 import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.server.hazelcast.task.trigger.TriggerCreator;
+import com.bagri.server.hazelcast.task.trigger.TriggerExecutor;
 import com.bagri.server.hazelcast.task.trigger.TriggerRemover;
 import com.bagri.server.hazelcast.task.trigger.TriggerRunner;
 import com.bagri.server.hazelcast.task.tx.TransactionAborter;
@@ -85,6 +86,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public static final int cli_CreateTriggerTask = 215;
 	public static final int cli_RemoveTriggerTask = 216;
 	public static final int cli_RunTriggerTask = 217;
+	public static final int cli_ExecuteTriggerTask = 218;
 	
 	public static final int cli_CreateRoleTask = 220;
 	public static final int cli_UpdateRoleTask = 221;
@@ -175,6 +177,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_CreateTriggerTask: return new TriggerCreator(); 
 			case cli_RemoveTriggerTask: return new TriggerRemover(); 
 			case cli_RunTriggerTask: return new TriggerRunner(); 
+			case cli_ExecuteTriggerTask: return new TriggerExecutor(); 
 			case cli_RegisterModelTask: return new ModelRegistrator();
 			case cli_AuthenticateTask: return new UserAuthenticator();
 			case cli_AggregateSchemaHealthTask: return new SchemaHealthAggregator();
