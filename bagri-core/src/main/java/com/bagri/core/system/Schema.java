@@ -1,7 +1,9 @@
 package com.bagri.core.system;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -67,7 +69,7 @@ public class Schema extends Entity {
 	
 	@XmlElement(name="trigger")
 	@XmlElementWrapper(name="triggers")
-	private Set<TriggerDefinition> triggers = new HashSet<>();
+	private List<TriggerDefinition> triggers = new ArrayList<>();
 	
 	/**
 	 * default constructor
@@ -443,7 +445,7 @@ public class Schema extends Entity {
 	 * 
 	 * @return XDM triggers registered in schema
 	 */
-	public Set<TriggerDefinition> getTriggers() {
+	public List<TriggerDefinition> getTriggers() {
 		return triggers;
 	}
 	

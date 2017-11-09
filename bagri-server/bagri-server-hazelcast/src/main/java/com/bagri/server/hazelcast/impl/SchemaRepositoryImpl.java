@@ -410,7 +410,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		}
 		
 		// now init triggers..
-		Set<TriggerDefinition> triggers = xdmSchema.getTriggers();
+		List<TriggerDefinition> triggers = xdmSchema.getTriggers();
 		if (triggers.size() > 0) {
 			for (TriggerDefinition trg: triggers) {
 				triggerMgr.createTrigger(trg);

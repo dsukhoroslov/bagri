@@ -78,6 +78,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 					GenericTriggerImpl.class.getName(), "", true, true, 1);
 			txTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.begin));
 			txTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.commit));
+			txTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.commit));
 			xdmRepo.addSchemaTrigger(txTriggerDef, trigger);
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
@@ -89,18 +90,15 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
 		assertEquals(1, trigger.getFires(Order.after, Scope.delete));
+		assertEquals(4, trigger.getFires(Order.after, Scope.commit));
 		//Thread.sleep(1000);
-	}
-
-	private ModelManagement getModelManagement() {
-		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
 	@Test
 	public void updateSecurityTest() throws Exception {
 		
 		long txId = getTxManagement().beginTransaction();
-		//assertEquals(1, trigger.getFires(Order.after, Scope.begin));
+		assertEquals(1, trigger.getFires(Order.after, Scope.begin));
 		DocumentAccessor doc = createDocumentTest(sampleRoot + getFileName("security1500.xml"));
 		assertNotNull(doc);
 		uris.add(doc.getUri());
@@ -110,7 +108,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 		String uri = doc.getUri();
 		assertEquals(1, trigger.getFires(Order.after, Scope.insert));
 		assertEquals(1, trigger.getFires(Order.before, Scope.commit));
-		assertEquals(0, trigger.getFires(Order.after, Scope.commit));
+		assertEquals(1, trigger.getFires(Order.after, Scope.commit));
 		
 		txId = getTxManagement().beginTransaction();
 		doc = updateDocumentTest(uri, sampleRoot + getFileName("security9012.xml"));

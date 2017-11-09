@@ -19,74 +19,62 @@ public class GenericTriggerImpl implements DocumentTrigger, TransactionTrigger {
 
 	@Override
 	public void beforeInsert(Document doc, SchemaRepository repo) throws BagriException {
-		System.out.println("beforeInsert; doc: " + doc); 
 		addFires(Order.before, Scope.insert);
 	}
 
 	@Override
 	public void afterInsert(Document doc, SchemaRepository repo) throws BagriException {
-		System.out.println("afterInsert; doc: " + doc); 
 		addFires(Order.after, Scope.insert);
 	}
 
 	@Override
 	public void beforeUpdate(Document doc, SchemaRepository repo) throws BagriException {
-		System.out.println("beforeUpdate; doc: " + doc); 
 		addFires(Order.before, Scope.update);
 	}
 
 	@Override
 	public void afterUpdate(Document doc, SchemaRepository repo) throws BagriException {
-		System.out.println("afterUpdate; doc: " + doc); 
 		addFires(Order.after, Scope.update);
 	}
 
 	@Override
 	public void beforeDelete(Document doc, SchemaRepository repo) throws BagriException {
-		System.out.println("beforeDelete; doc: " + doc); 
 		addFires(Order.before, Scope.delete);
 	}
 
 	@Override
 	public void afterDelete(Document doc, SchemaRepository repo) throws BagriException {
-		System.out.println("afterDelete; doc: " + doc);
 		addFires(Order.after, Scope.delete);
 	}
 	
 	@Override
 	public void beforeBegin(Transaction tx, SchemaRepository repo) throws BagriException {
 		addFires(Order.before, Scope.begin);
-		System.out.println("beforeBegin; tx: " + tx); 
 	}
 
 	@Override
 	public void afterBegin(Transaction tx, SchemaRepository repo) throws BagriException {
 		addFires(Order.after, Scope.begin);
-		System.out.println("afterBegin; tx: " + tx); 
 	}
 
 	@Override
 	public void beforeCommit(Transaction tx, SchemaRepository repo) throws BagriException {
 		addFires(Order.before, Scope.commit);
-		System.out.println("beforeCommit; tx: " + tx); 
 	}
 
 	@Override
 	public void afterCommit(Transaction tx, SchemaRepository repo) throws BagriException {
 		addFires(Order.after, Scope.commit);
-		System.out.println("afterCommit; tx: " + tx); 
 	}
 
 	@Override
 	public void beforeRollback(Transaction tx, SchemaRepository repo) throws BagriException {
 		addFires(Order.before, Scope.rollback);
-		System.out.println("beforeRollback; tx: " + tx); 
 	}
 
 	@Override
 	public void afterRollback(Transaction tx, SchemaRepository repo) throws BagriException {
 		addFires(Order.after, Scope.rollback);
-		System.out.println("afterRollback; tx: " + tx); 
 	}
 
 
