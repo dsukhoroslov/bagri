@@ -10,7 +10,7 @@ import com.bagri.core.model.Document;
  * @author Denis Sukhoroslov
  *
  */
-public interface DocumentTrigger {
+public interface DocumentTrigger extends Trigger {
 
 	/**
 	 * fires before document inserted into XDM Schema

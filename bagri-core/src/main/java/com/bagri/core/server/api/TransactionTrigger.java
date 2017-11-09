@@ -4,7 +4,7 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Transaction;
 
-public interface TransactionTrigger {
+public interface TransactionTrigger extends Trigger {
 
 	/**
 	 * fires before transaction started in repository

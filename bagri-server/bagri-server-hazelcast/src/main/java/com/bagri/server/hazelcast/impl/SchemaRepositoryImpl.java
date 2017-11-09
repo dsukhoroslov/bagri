@@ -45,6 +45,7 @@ import com.bagri.core.server.api.IndexManagement;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.PopulationManagement;
 import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.server.api.Trigger;
 import com.bagri.core.server.api.TriggerManagement;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Index;
@@ -489,6 +490,14 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		
 		if (xdmSchema.addTrigger(trigger)) {
 			return triggerMgr.createTrigger(trigger);
+		}
+		return false;
+	}
+
+	public boolean addSchemaTrigger(TriggerDefinition trigger, Trigger impl) {
+		
+		if (xdmSchema.addTrigger(trigger)) {
+			return triggerMgr.addTrigger(trigger, impl);
 		}
 		return false;
 	}

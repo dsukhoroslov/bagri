@@ -1,14 +1,14 @@
 package com.bagri.server.hazelcast.impl;
 
-import com.bagri.core.server.api.DocumentTrigger;
+import com.bagri.core.server.api.Trigger;
 
-public class TriggerContainer<T> {
+public class TriggerContainer {
 	
 	private int index;
 	private boolean synch;
-	private T impl;
+	private Trigger impl;
 	
-	public TriggerContainer(int index, boolean synch, T impl) {
+	public TriggerContainer(int index, boolean synch, Trigger impl) {
 		this.index = index;
 		this.synch = synch;
 		this.impl = impl;
@@ -35,7 +35,7 @@ public class TriggerContainer<T> {
 	/**
 	 * @return the impl
 	 */
-	public T getImplementation() {
+	public Trigger getImplementation() {
 		return impl;
 	}
 
