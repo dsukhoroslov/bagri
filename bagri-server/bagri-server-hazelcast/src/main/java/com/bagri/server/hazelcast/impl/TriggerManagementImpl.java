@@ -80,23 +80,23 @@ public class TriggerManagementImpl implements TriggerManagement {
     	this.enableStats = enable;
     }
     
-    private String getTriggerKey(String root, Order order, Scope scope) {
-    	return root + ":" + order.name() + ":" + scope.name();
+    private String getTriggerKey(String collection, Order order, Scope scope) {
+    	return collection + ":" + order.name() + ":" + scope.name();
     }
     
     void applyTrigger(final Document xDoc, final Order order, final Scope scope) throws BagriException {
     	//
 		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
+		//xDoc.getCollections()
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		for (TriggerContainer impl: impls) {
-				logger.trace("applyTrigger; about to fire trigger {}, on document: {}", impl, xDoc);
+				logger.trace("applyTrigger; about to fire trigger {} on document: {}", impl, xDoc);
 				final DocumentTrigger trigger = (DocumentTrigger) impl.getImplementation(); 
 				if (impl.isSynchronous()) {
 					runTrigger(order, scope, xDoc, trigger);
 				} else {
-					String clientId = repo.getClientId();
-					execService.submitToMember(new TriggerRunner(order, scope, impl.getIndex(), xDoc, clientId),					
+					execService.submitToMember(new TriggerRunner(order, scope, impl.getIndex(), xDoc, repo.getClientId()),					
 							hzInstance.getCluster().getLocalMember()); 
 				}
     		}
@@ -109,7 +109,7 @@ public class TriggerManagementImpl implements TriggerManagement {
     	List<TriggerContainer> impls = triggers.get(key);
     	if (impls != null) {
     		for (TriggerContainer impl: impls) {
-				logger.trace("applyTrigger; about to fire trigger {}, on transaction: {}", impl, xTx);
+				logger.trace("applyTrigger; about to fire trigger {} on transaction: {}", impl, xTx);
 				TriggerExecutor exec = new TriggerExecutor(order, scope, impl.getIndex(), xTx, repo.getClientId());
 				if (impl.isSynchronous()) {
 					// submit synchronous tasks to all members
@@ -264,7 +264,7 @@ public class TriggerManagementImpl implements TriggerManagement {
 					if (isTransactionalAction(action)) {
 						key = getTriggerKey("tx", action.getOrder(), action.getScope());
 					} else {
-						key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
+						key = getTriggerKey(trigger.getCollection(), action.getOrder(), action.getScope());
 					}
 					List<TriggerContainer> impls = triggers.get(key);
 					if (impls == null) {
@@ -384,14 +384,14 @@ public class TriggerManagementImpl implements TriggerManagement {
 	public boolean deleteTrigger(TriggerDefinition trigger) {
 		int cnt = 0;
 		for (TriggerAction action: trigger.getActions()) {
-			String key = getTriggerKey(trigger.getDocType(), action.getOrder(), action.getScope());
+			String key = getTriggerKey(trigger.getCollection(), action.getOrder(), action.getScope());
 			List<TriggerContainer> impls = triggers.get(key);
 			if (impls != null) {
 				impls.remove(trigger.getIndex());
 				cnt++;
 			}
 		}
-		logger.trace("deleteTrigger.exit; {} triggers deleted, for type: {}", cnt, trigger.getDocType());
+		logger.trace("deleteTrigger.exit; {} triggers deleted, for collection: {}", cnt, trigger.getCollection());
 		return cnt > 0;
 	}
 

@@ -48,8 +48,8 @@ public class XQueryTrigger extends TriggerDefinition {
 	 * @param index the order at which trigger will be invoked 
 	 */
 	public XQueryTrigger(int version, Date createdAt, String createdBy, String module, 
-			String function, String docType, boolean synchronous, boolean enabled, int index) {
-		super(version, createdAt, createdBy, docType, synchronous, enabled, index);
+			String function, boolean synchronous, boolean enabled, int index, String collection) {
+		super(version, createdAt, createdBy, synchronous, enabled, index, collection);
 		this.module = module;
 		this.function = function;
 	}
@@ -82,42 +82,6 @@ public class XQueryTrigger extends TriggerDefinition {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = prime + module.hashCode();
-		result = prime * result	+ function.hashCode();
-		return result;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		
-		XQueryTrigger other = (XQueryTrigger) obj;
-		if (!module.equals(other.module)) {
-			return false;
-		}
-		if (!function.equals(other.function)) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
 		result.put("module", module);
@@ -131,7 +95,7 @@ public class XQueryTrigger extends TriggerDefinition {
 	@Override
 	public String toString() {
 		return "XQueryTrigger [module=" + module + ", function=" + function
-				+ ", docType=" + getDocType() + ", enabled=" + isEnabled()
+				+ ", collection=" + getCollection() + ", enabled=" + isEnabled()
 				+ ", actions=" + getActions().toString() + "]";
 	}
 	

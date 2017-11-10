@@ -65,8 +65,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			trigger = new GenericTriggerImpl(); 
-			TriggerDefinition docTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), "", //null, 
-					GenericTriggerImpl.class.getName(), "/{http://tpox-benchmark.com/security}Security", true, true, 0);
+			TriggerDefinition docTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), null, GenericTriggerImpl.class.getName(), true, true, 0, null);
 			docTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.insert));
 			docTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.insert));
 			docTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.update));
@@ -74,8 +73,7 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 			docTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.delete));
 			docTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.delete));
 			xdmRepo.addSchemaTrigger(docTriggerDef, trigger);
-			TriggerDefinition txTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), "", //null, 
-					GenericTriggerImpl.class.getName(), "", true, true, 1);
+			TriggerDefinition txTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), null, GenericTriggerImpl.class.getName(), true, true, 1, null);
 			txTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.begin));
 			txTriggerDef.getActions().add(new TriggerAction(Order.before, Scope.commit));
 			txTriggerDef.getActions().add(new TriggerAction(Order.after, Scope.commit));

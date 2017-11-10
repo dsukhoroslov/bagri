@@ -522,15 +522,13 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		return false;
 	}
 	
-	TriggerDefinition addTrigger(boolean java, String container, String implementation, String docType, 
-			boolean synchronous, java.util.Collection<TriggerAction> actions, int index) {
+	TriggerDefinition addTrigger(boolean java, String container, String implementation,  
+			boolean synchronous, String collection, java.util.Collection<TriggerAction> actions, int index) {
 		TriggerDefinition trigger;
 		if (java) {
-			trigger = new JavaTrigger(1, new Date(), getCurrentUser(), container, 
-				 implementation, docType, synchronous, true, index);
+			trigger = new JavaTrigger(1, new Date(), getCurrentUser(), container, implementation, synchronous, true, index, collection);
 		} else {
-			trigger = new XQueryTrigger(1, new Date(), getCurrentUser(), container, 
-					 implementation, docType, synchronous, true, index);
+			trigger = new XQueryTrigger(1, new Date(), getCurrentUser(), container, implementation, synchronous, true, index, collection);
 		}
 		trigger.setActions(actions);
 		Schema schema = getEntity();

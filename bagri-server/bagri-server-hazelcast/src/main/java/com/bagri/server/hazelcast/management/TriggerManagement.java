@@ -61,7 +61,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "library", description = "Java Library with Trigger implementation"),
 		@ManagedOperationParameter(name = "className", description = "Trigger class name"),
-		@ManagedOperationParameter(name = "docType", description = "Document type to fire on"),
+		@ManagedOperationParameter(name = "collection", description = "Collection to fire on"),
 		@ManagedOperationParameter(name = "synchronous", description = "Sync/Async trigger behaviour"),
 		@ManagedOperationParameter(name = "actions", description = "Triggered actions and scope")})
 	public void addJavaTrigger(String library, String className, String docType, boolean synchronous, String actions) {
@@ -72,19 +72,18 @@ public class TriggerManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "module", description = "XQuery Module with Trigger function"),
 		@ManagedOperationParameter(name = "function", description = "Trigger function name"),
-		@ManagedOperationParameter(name = "docType", description = "Document type to fire on"),
+		@ManagedOperationParameter(name = "collection", description = "Collection to fire on"),
 		@ManagedOperationParameter(name = "synchronous", description = "Sync/Async trigger behaviour"),
 		@ManagedOperationParameter(name = "actions", description = "Triggered actions and scope")})
 	public void addXQueryTrigger(String module, String function, String docType, boolean synchronous, String actions) {
 		addTrigger(false, module, function, docType, synchronous, actions);
 	}
 	
-	private void addTrigger(boolean java, String container, String implementation, String docType, 
-			boolean synchronous, String actions) {
+	private void addTrigger(boolean java, String container, String implementation, String collection, boolean synchronous, String actions) {
 
 		logger.trace("addTrigger.enter;");
 		long stamp = System.currentTimeMillis();
-		String type = (docType == null || docType.trim().length() == 0) ? null : docType;
+		String cln = (collection == null || collection.trim().length() == 0) ? null : collection;
 		
 		StringTokenizer st = new StringTokenizer(actions, " ,");
 		List<TriggerAction> acts = new ArrayList<>();
@@ -95,7 +94,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		}
 		
 		int index = schemaManager.getEntity().getTriggers().size();
-		TriggerDefinition trigger = schemaManager.addTrigger(java, container, implementation, type, synchronous, acts, index);
+		TriggerDefinition trigger = schemaManager.addTrigger(java, container, implementation, synchronous, cln, acts, index);
 		if (trigger == null) {
 			throw new IllegalArgumentException("Trigger '" + implementation + "' in schema '" + schemaName + "' already registered");
 		}

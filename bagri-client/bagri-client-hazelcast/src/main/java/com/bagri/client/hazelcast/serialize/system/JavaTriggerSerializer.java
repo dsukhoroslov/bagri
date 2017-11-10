@@ -25,8 +25,8 @@ public class JavaTriggerSerializer extends TriggerDefinitionSerializer implement
 		String library = in.readUTF();
 		String className = in.readUTF();
 		JavaTrigger xTrigger = new JavaTrigger((int) fields[0], (Date) fields[1], 
-				(String) fields[2],	library, className, (String) fields[3], (Boolean) fields[4], 
-				(Boolean) fields[5], (Integer) fields[6]);
+				(String) fields[2],	library, className, (Boolean) fields[3], (Boolean) fields[4], 
+				(Integer) fields[5], (String) fields[6]);
 		xTrigger.setActions((Collection<TriggerAction>) fields[7]);
 		return xTrigger; 
 	}

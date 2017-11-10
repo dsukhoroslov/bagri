@@ -21,10 +21,10 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/schema/system", propOrder = {
-		"docType",
 		"synchronous",
 		"enabled",
 		"index",
+		"collection",
 		"actions"
 })
 @XmlSeeAlso({
@@ -33,9 +33,6 @@ import javax.xml.bind.annotation.XmlType;
 })
 public abstract class TriggerDefinition extends Entity {
 	
-	@XmlElement(required = false)
-	private String docType;
-
 	@XmlElement(required = true)
 	private boolean synchronous;
 	
@@ -45,6 +42,9 @@ public abstract class TriggerDefinition extends Entity {
 	@XmlElement(required = true)
 	private int index;
 	
+	@XmlElement(required = false)
+	private String collection;
+
 	@XmlElement(name="action")
 	@XmlElementWrapper(name="actions")
 	private Set<TriggerAction> actions = new HashSet<TriggerAction>();
@@ -67,13 +67,13 @@ public abstract class TriggerDefinition extends Entity {
 	 * @param enabled the trigger enabled flag
 	 * @param index the order at which trigger will be invoked 
 	 */
-	public TriggerDefinition(int version, Date createdAt, String createdBy, String docType, 
-			boolean synchronous, boolean enabled, int index) {
+	public TriggerDefinition(int version, Date createdAt, String createdBy,  
+			boolean synchronous, boolean enabled, int index, String collection) {
 		super(version, createdAt, createdBy);
-		this.docType = docType;
 		this.synchronous = synchronous;
 		this.enabled = enabled;
 		this.index = index;
+		this.collection = collection;
 	}
 
 	/**
@@ -82,8 +82,8 @@ public abstract class TriggerDefinition extends Entity {
 	 */
 	public abstract String getName();
 
-	public String getDocType() {
-		return docType;
+	public String getCollection() {
+		return collection;
 	}
 
 	/**
@@ -134,6 +134,15 @@ public abstract class TriggerDefinition extends Entity {
 
 	/**
 	 * 
+	 * @param order action fire order (before/after)
+	 * @param scope action fire scope
+	 */
+	public void addAction(TriggerAction.Order order, TriggerAction.Scope scope) {
+		actions.add(new TriggerAction(order, scope));
+	}
+	
+	/**
+	 * 
 	 * @return a collection of trigger actions  
 	 */
 	public Set<TriggerAction> getActions() {
@@ -157,7 +166,7 @@ public abstract class TriggerDefinition extends Entity {
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
-		result.put("docType", docType); // can be null!
+		result.put("collection", collection); // can be null!
 		result.put("synchronous", synchronous); 
 		result.put("enabled", enabled);
 		result.put("index", index);
