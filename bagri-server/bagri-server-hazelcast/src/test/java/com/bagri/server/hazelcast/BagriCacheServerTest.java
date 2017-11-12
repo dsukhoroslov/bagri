@@ -31,12 +31,6 @@ public class BagriCacheServerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-        //<sysproperty key="node.logdir" value="./logs"/>
-        //<sysproperty key="node.name" value="admin"/>
-        //<sysproperty key="com.sun.management.jmxremote" value="true"/>
-        //<sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
-        //<sysproperty key="bdb.cluster.node.role" value="admin"/>
-		
 		System.setProperty("hz.log.level", "info");
 		//System.setProperty("bdb.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
@@ -79,6 +73,17 @@ public class BagriCacheServerTest {
         //System.out.println("got nodes: " + Arrays.toString((String[]) nodes));
         String[] sNodes = (String[]) nodes;
         assertTrue(sNodes.length > 0);
+	}
+
+	//@Test
+	public void testCacheServer() throws Exception {
+		//
+		System.setProperty(pn_node_instance, "0");
+        //<sysproperty key="node.name" value="admin"/>
+        //<sysproperty key="bdb.cluster.node.role" value="admin"/>
+        System.setProperty(pn_config_context_file, "spring/cache-system-context.xml");
+		System.setProperty(pn_config_properties_file, "first.properties");
+		BagriCacheServer.main(null);
 	}
 	
 	private boolean containsDomain(String[] domains, String domain) {

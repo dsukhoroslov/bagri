@@ -208,6 +208,7 @@ public class BagriCacheServer {
             		}
             	}            	
            	}
+       		logger.debug("initServerNode; schema {} initialized: {}", schemaName, initialized);
        		// notify admin node about new schema Member
        		if (admins.size() > 0) {
        			notifyAdmins(systemInstance, local, schemaName, initialized);

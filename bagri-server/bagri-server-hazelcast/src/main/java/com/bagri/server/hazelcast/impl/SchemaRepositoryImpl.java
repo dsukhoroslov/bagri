@@ -416,6 +416,14 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 				triggerMgr.createTrigger(trg);
 			}
 		}
+
+		if (xdmFormats == null) {
+			HazelcastInstance dataInstance = findSystemInstance();
+			if (dataInstance != null && hasStorageMembers(dataInstance)) {
+				Map<String, DataFormat> formats = dataInstance.getMap(CN_SYS_FORMATS);
+				setDataFormats(formats.values());
+			}
+		}
 	}
 	
 	public boolean isInitialized() {
