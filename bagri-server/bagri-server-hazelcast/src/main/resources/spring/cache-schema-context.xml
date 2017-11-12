@@ -59,7 +59,7 @@
 			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
 				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}"
 				cache-deserialized-values="NEVER">
-				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
+				<hz:near-cache serialize-keys="false" time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/>
 				<hz:indexes>
 					<hz:index attribute="pathId" ordered="true"/>
@@ -71,7 +71,8 @@
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
 			</hz:map>
 			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
-				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
+				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
+				cache-deserialized-values="${bdb.schema.data.cache}">
 				<hz:map-store enabled="${bdb.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
@@ -88,7 +89,7 @@
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
-				cache-deserialized-values="NEVER" statistics-enabled="${bdb.schema.data.stats.enabled}">
+				cache-deserialized-values="${bdb.schema.data.cache}" statistics-enabled="${bdb.schema.data.stats.enabled}">
 				<hz:indexes>
 					<!--hz:index attribute="__key#documentKey"/-->
 					<hz:index attribute="pathId" ordered="true"/>
@@ -105,7 +106,7 @@
 			<hz:map name="xdm-content" in-memory-format="OBJECT" async-backup-count="${bdb.schema.query.backup.async}" 
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="25">
+					 max-size="25" cache-deserialized-values="${bdb.schema.data.cache}">
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 

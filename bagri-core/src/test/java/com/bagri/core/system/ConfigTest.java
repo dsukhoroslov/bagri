@@ -71,10 +71,10 @@ public class ConfigTest {
 				new QName(xs_ns, "string", xs_prefix), true, false, true, "description", true);
 		schema.addIndex(index);
 		TriggerDefinition javaTrigger = new JavaTrigger(1, new Date(), "test", "sample_library", 
-				"my.class.Name", "/{http://tpox-benchmark.com/security}Security", true, true, 0);
+				"my.class.Name", true, true, 0, "cln_security");
 		schema.addTrigger(javaTrigger);
 		TriggerDefinition xqTrigger = new XQueryTrigger(1, new Date(), "test", "sample_module", 
-				"trg:function", "/{http://tpox-benchmark.com/security}Security", true, true, 1);
+				"trg:function", true, true, 1, "cln_security");
 		schema.addTrigger(xqTrigger);
 		Config config = new Config();
 		config.getSchemas().add(schema);

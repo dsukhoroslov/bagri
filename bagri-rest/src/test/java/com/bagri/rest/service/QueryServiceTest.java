@@ -54,6 +54,12 @@ public class QueryServiceTest extends JerseyTest {
         return server.buildConfig();
     }
     
+    @Override
+    public void tearDown() throws Exception {
+		Thread.sleep(100);
+    	super.tearDown();
+    }
+    
 	@Test
 	//@Ignore
     @SuppressWarnings("unchecked")
