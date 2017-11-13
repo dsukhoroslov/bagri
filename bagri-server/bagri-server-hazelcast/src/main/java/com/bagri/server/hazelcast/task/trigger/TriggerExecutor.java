@@ -20,7 +20,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class TriggerExecutor implements Runnable, Callable<Void>, IdentifiedDataSerializable { 
+public class TriggerExecutor implements Callable<Void>, IdentifiedDataSerializable { 
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerRunner.class);
 
@@ -58,15 +58,6 @@ public class TriggerExecutor implements Runnable, Callable<Void>, IdentifiedData
 		return null;
 	}
 	
-	@Override
-	public void run() {
-		try {
-			trManager.runTrigger(order, scope, xTx, index, clientId);
-		} catch (Throwable ex) {
-			logger.error("run.error", ex);
-		}
-	}
-
 	@Override
 	public int getFactoryId() {
 		return cli_factory_id;

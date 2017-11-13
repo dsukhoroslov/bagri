@@ -74,7 +74,7 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "function", description = "Trigger function name"),
 		@ManagedOperationParameter(name = "collection", description = "Collection to fire on"),
 		@ManagedOperationParameter(name = "synchronous", description = "Sync/Async trigger behaviour"),
-		@ManagedOperationParameter(name = "actions", description = "Triggered actions and scope")})
+		@ManagedOperationParameter(name = "actions", description = "Triggered actions in \"index order scope\" format")})
 	public void addXQueryTrigger(String module, String function, String docType, boolean synchronous, String actions) {
 		addTrigger(false, module, function, docType, synchronous, actions);
 	}
@@ -88,13 +88,14 @@ public class TriggerManagement extends SchemaFeatureManagement {
 		StringTokenizer st = new StringTokenizer(actions, " ,");
 		List<TriggerAction> acts = new ArrayList<>();
 		while (st.hasMoreTokens()) {
+			int index = Integer.parseInt(st.nextToken());
 			String order = st.nextToken();
 			String scope = st.nextToken();
-			acts.add(new TriggerAction(Order.valueOf(order), Scope.valueOf(scope)));
+			acts.add(new TriggerAction(index, Order.valueOf(order), Scope.valueOf(scope)));
 		}
 		
 		int index = schemaManager.getEntity().getTriggers().size();
-		TriggerDefinition trigger = schemaManager.addTrigger(java, container, implementation, synchronous, cln, acts, index);
+		TriggerDefinition trigger = schemaManager.addTrigger(java, container, implementation, synchronous, cln, acts);
 		if (trigger == null) {
 			throw new IllegalArgumentException("Trigger '" + implementation + "' in schema '" + schemaName + "' already registered");
 		}

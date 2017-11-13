@@ -86,6 +86,9 @@ public class TriggerAction {
 	}
 	
 	@XmlAttribute(required = true)
+	private int index;
+	
+	@XmlAttribute(required = true)
 	private Scope scope;
 	
 	@XmlAttribute(required = true)
@@ -103,9 +106,18 @@ public class TriggerAction {
 	 * @param order the action order
 	 * @param scope the action scope
 	 */
-	public TriggerAction(Order order, Scope scope) {
+	public TriggerAction(int index, Order order, Scope scope) {
+		this.index = index;
 		this.order = order;
 		this.scope = scope;
+	}
+	
+	/**
+	 * 
+	 * @return the action index
+	 */
+	public int getIndex() {
+		return index;
 	}
 
 	/**
@@ -129,8 +141,8 @@ public class TriggerAction {
 	 */
 	@Override
 	public int hashCode() {
-		int result = 1;
-		result = 31 + order.ordinal();
+		int result = index;
+		result = 31 * result + order.ordinal();
 		result = 31 * result + scope.ordinal();
 		return result;
 	}
@@ -150,6 +162,9 @@ public class TriggerAction {
 			return false;
 		}
 		TriggerAction other = (TriggerAction) obj;
+		if (index != other.index) {
+			return false;
+		}
 		if (order != other.order) {
 			return false;
 		}
@@ -164,7 +179,7 @@ public class TriggerAction {
 	 */
 	@Override
 	public String toString() {
-		return order + " " + scope;
+		return order + " " + scope + " " + index;
 	}
 
 	

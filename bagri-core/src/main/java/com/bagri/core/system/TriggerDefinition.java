@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(namespace = "http://www.bagridb.com/schema/system", propOrder = {
 		"synchronous",
 		"enabled",
-		"index",
 		"collection",
 		"actions"
 })
@@ -39,9 +38,6 @@ public abstract class TriggerDefinition extends Entity {
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
-	@XmlElement(required = true)
-	private int index;
-	
 	@XmlElement(required = false)
 	private String collection;
 
@@ -62,17 +58,14 @@ public abstract class TriggerDefinition extends Entity {
 	 * @param version the version
 	 * @param createdAt the date/time of version creation
 	 * @param createdBy the user who has created the version
-	 * @param docType the document type for which trigger is registered
 	 * @param synchronous is trigger invoked synchronously or not
 	 * @param enabled the trigger enabled flag
-	 * @param index the order at which trigger will be invoked 
+	 * @param collection the documents collection for which trigger is registered
 	 */
-	public TriggerDefinition(int version, Date createdAt, String createdBy,  
-			boolean synchronous, boolean enabled, int index, String collection) {
+	public TriggerDefinition(int version, Date createdAt, String createdBy,	boolean synchronous, boolean enabled, String collection) {
 		super(version, createdAt, createdBy);
 		this.synchronous = synchronous;
 		this.enabled = enabled;
-		this.index = index;
 		this.collection = collection;
 	}
 
@@ -118,27 +111,11 @@ public abstract class TriggerDefinition extends Entity {
 	
 	/**
 	 * 
-	 * @return the order at which trigger will be invoked
-	 */
-	public int getIndex() {
-		return index;
-	}
-	
-	/**
-	 * 
-	 * @param index the order at which trigger will be invoked
-	 */
-	public void setIndex(int index) {
-		this.index = index;
-	}
-
-	/**
-	 * 
 	 * @param order action fire order (before/after)
 	 * @param scope action fire scope
 	 */
-	public void addAction(TriggerAction.Order order, TriggerAction.Scope scope) {
-		actions.add(new TriggerAction(order, scope));
+	public void addAction(int index, TriggerAction.Order order, TriggerAction.Scope scope) {
+		actions.add(new TriggerAction(index, order, scope));
 	}
 	
 	/**
@@ -169,7 +146,6 @@ public abstract class TriggerDefinition extends Entity {
 		result.put("collection", collection); // can be null!
 		result.put("synchronous", synchronous); 
 		result.put("enabled", enabled);
-		result.put("index", index);
 		result.put("actions", actions.toString());
 		return result;
 	}

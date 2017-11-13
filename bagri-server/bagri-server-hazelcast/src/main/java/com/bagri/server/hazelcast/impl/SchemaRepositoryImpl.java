@@ -505,7 +505,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public boolean addSchemaTrigger(TriggerDefinition trigger, Trigger impl) {
 		
 		if (xdmSchema.addTrigger(trigger)) {
-			return triggerMgr.addTrigger(trigger, impl);
+			return triggerMgr.addTrigger(trigger, impl) > 0;
 		}
 		return false;
 	}

@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class Collection extends Entity {
 	
+	public static final int default_collection = 0;
+	
 	@XmlAttribute(required = true)
 	private int id;
 		

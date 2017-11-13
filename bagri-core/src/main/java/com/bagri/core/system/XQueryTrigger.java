@@ -42,14 +42,13 @@ public class XQueryTrigger extends TriggerDefinition {
 	 * @param createdBy the user who has created the version
 	 * @param module the XQuery module containing function which implements trigger
 	 * @param function the XQuery function implementing trigger
-	 * @param docType the document type for which trigger is registered
 	 * @param synchronous is trigger invoked synchronously or not
 	 * @param enabled the trigger enabled flag
-	 * @param index the order at which trigger will be invoked 
+	 * @param collection the documents collection for which trigger is registered
 	 */
 	public XQueryTrigger(int version, Date createdAt, String createdBy, String module, 
-			String function, boolean synchronous, boolean enabled, int index, String collection) {
-		super(version, createdAt, createdBy, synchronous, enabled, index, collection);
+			String function, boolean synchronous, boolean enabled, String collection) {
+		super(version, createdAt, createdBy, synchronous, enabled, collection);
 		this.module = module;
 		this.function = function;
 	}

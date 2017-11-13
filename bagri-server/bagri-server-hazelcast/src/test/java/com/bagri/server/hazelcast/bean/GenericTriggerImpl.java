@@ -89,7 +89,7 @@ public class GenericTriggerImpl implements DocumentTrigger, TransactionTrigger {
 	}
 	
 	private TriggerAction getTA(Order order, Scope scope) {
-		return new TriggerAction(order, scope);
+		return new TriggerAction(0, order, scope);
 	}
 	
 	public int getFires(Order order, Scope scope) {

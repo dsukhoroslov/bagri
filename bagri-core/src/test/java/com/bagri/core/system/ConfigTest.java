@@ -27,6 +27,8 @@ import com.bagri.core.system.Node;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.system.XQueryTrigger;
+import com.bagri.core.system.TriggerAction.Order;
+import com.bagri.core.system.TriggerAction.Scope;
 
 public class ConfigTest {
 
@@ -70,11 +72,12 @@ public class ConfigTest {
 				"/{http://tpox-benchmark.com/security}Security", "/Security", "/Security/Symbol",
 				new QName(xs_ns, "string", xs_prefix), true, false, true, "description", true);
 		schema.addIndex(index);
-		TriggerDefinition javaTrigger = new JavaTrigger(1, new Date(), "test", "sample_library", 
-				"my.class.Name", true, true, 0, "cln_security");
+		TriggerDefinition javaTrigger = new JavaTrigger(1, new Date(), "test", "sample_library", "my.class.Name", true, true, "cln_security");
+		javaTrigger.addAction(0, Order.before, Scope.commit);
+		javaTrigger.addAction(1, Order.after, Scope.update);
 		schema.addTrigger(javaTrigger);
-		TriggerDefinition xqTrigger = new XQueryTrigger(1, new Date(), "test", "sample_module", 
-				"trg:function", true, true, 1, "cln_security");
+		TriggerDefinition xqTrigger = new XQueryTrigger(1, new Date(), "test", "sample_module",	"trg:function", true, true, "cln_security");
+		xqTrigger.addAction(0, Order.before, Scope.commit);
 		schema.addTrigger(xqTrigger);
 		Config config = new Config();
 		config.getSchemas().add(schema);

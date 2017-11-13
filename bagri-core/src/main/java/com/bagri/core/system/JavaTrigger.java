@@ -42,14 +42,13 @@ public class JavaTrigger extends TriggerDefinition {
 	 * @param createdBy the user who has created the version
 	 * @param library the library containing trigger implementation
 	 * @param className the implementing Java class name
-	 * @param docType the document type for which trigger is registered
 	 * @param synchronous is trigger invoked synchronously or not
 	 * @param enabled the trigger enabled flag
-	 * @param index the order at which trigger will be invoked 
+	 * @param docType the documents collection for which trigger is registered
 	 */
 	public JavaTrigger(int version, Date createdAt, String createdBy, String library, 
-			String className, boolean synchronous, boolean enabled, int index, String collection) {
-		super(version, createdAt, createdBy, synchronous, enabled, index, collection);
+			String className, boolean synchronous, boolean enabled, String collection) {
+		super(version, createdAt, createdBy, synchronous, enabled, collection);
 		this.library = library;
 		this.className = className;
 	}

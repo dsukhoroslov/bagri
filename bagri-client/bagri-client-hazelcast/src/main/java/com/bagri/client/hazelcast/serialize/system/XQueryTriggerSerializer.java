@@ -24,10 +24,9 @@ public class XQueryTriggerSerializer extends TriggerDefinitionSerializer impleme
 		Object[] fields = super.readTrigger(in);
 		String module = in.readUTF();
 		String function = in.readUTF();
-		XQueryTrigger xTrigger = new XQueryTrigger((int) fields[0], (Date) fields[1], 
-				(String) fields[2],	module, function, (Boolean) fields[3], (Boolean) fields[4], 
-				(Integer) fields[5], (String) fields[6]);
-		xTrigger.setActions((Collection<TriggerAction>) fields[7]);
+		XQueryTrigger xTrigger = new XQueryTrigger((int) fields[0], (Date) fields[1], (String) fields[2],
+				module, function, (Boolean) fields[3], (Boolean) fields[4], (String) fields[5]);
+		xTrigger.setActions((Collection<TriggerAction>) fields[6]);
 		return xTrigger; 
 	}
 

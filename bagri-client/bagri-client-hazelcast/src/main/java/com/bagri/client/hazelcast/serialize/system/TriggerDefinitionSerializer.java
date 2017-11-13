@@ -13,30 +13,27 @@ public abstract class TriggerDefinitionSerializer extends EntitySerializer {
 
 	public Object[] readTrigger(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);
-		Object[] trigger = new Object[8];
+		Object[] trigger = new Object[7];
 		trigger[0] = entity[0];
 		trigger[1] = entity[1];
 		trigger[2] = entity[2];
 		trigger[3] = in.readBoolean();
 		trigger[4] = in.readBoolean();
-		trigger[5] = in.readInt();
-		trigger[6] = in.readUTF();
+		trigger[5] = in.readUTF();
 		int size = in.readInt();
 		List<TriggerAction> actions = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
 			TriggerAction xAction = in.readObject();
 			actions.add(xAction);
 		}
-		trigger[7] = actions;
+		trigger[6] = actions;
 		return trigger;
 	}
 
 	public void writeTrigger(ObjectDataOutput out, TriggerDefinition xTrigger) throws IOException {
-		
 		super.writeEntity(out, xTrigger);
 		out.writeBoolean(xTrigger.isSynchronous());
 		out.writeBoolean(xTrigger.isEnabled());
-		out.writeInt(xTrigger.getIndex());
 		out.writeUTF(xTrigger.getCollection());
 		out.writeInt(xTrigger.getActions().size());
 		for (TriggerAction xAction: xTrigger.getActions()) {

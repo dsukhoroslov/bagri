@@ -183,7 +183,7 @@
                     <version>1</version>
                     <createdAt>2015-05-30T02:25:21.887+03:00</createdAt>
                     <createdBy>Denis</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <collection>CLN_Security</collection>
                     <synchronous>false</synchronous>
                     <enabled>true</enabled>
                     <index>1</index>
@@ -198,7 +198,7 @@
                     <version>1</version>
                     <createdAt>2015-06-27T02:25:21.887+03:00</createdAt>
                     <createdBy>Denis</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <collection>CLN_Security</collection>
                     <synchronous>true</synchronous>
                     <enabled>true</enabled>
                     <index>1</index>
@@ -212,7 +212,7 @@
                     <version>1</version>
                     <createdAt>2015-06-11T09:44:20.184+03:00</createdAt>
                     <createdBy>Denis</createdBy>
-                    <docType>/{http://tpox-benchmark.com/security}Security</docType>
+                    <collection>CLN_Security</collection>
                     <synchronous>false</synchronous>
                     <enabled>true</enabled>
                     <index>0</index>

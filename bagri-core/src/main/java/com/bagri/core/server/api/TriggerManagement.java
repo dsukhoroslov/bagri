@@ -15,10 +15,10 @@ public interface TriggerManagement {
 	 *
 	 * @param trigger the {@link TriggerDefinition} definition to register in the current schema
 	 * @param impl the {@link Trigger} implementation
-	 * @return true if trigger registered, false otherwise
+	 * @return number of registered trigger actions
 	 * 
 	 */
-	boolean addTrigger(TriggerDefinition trigger, Trigger impl);
+	int addTrigger(TriggerDefinition trigger, Trigger impl);
 	
 	/**
 	 * registers a new trigger

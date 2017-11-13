@@ -24,6 +24,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerRunner.class);
 
+	private int clnId;
 	private Order order;
 	private Scope scope;
 	private int index;
@@ -35,7 +36,8 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 		// for de-ser
 	}
 	
-	public TriggerRunner(Order order, Scope scope, int index, Document xDoc, String clientId) {
+	public TriggerRunner(int clnId, Order order, Scope scope, int index, Document xDoc, String clientId) {
+		this.clnId = clnId;
 		this.order = order;
 		this.scope = scope;
 		this.index = index;
@@ -51,7 +53,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 	@Override
 	public Void call() {
 		try {
-			trManager.runTrigger(order, scope, xDoc, index, clientId);
+			trManager.runTrigger(clnId, order, scope, xDoc, index, clientId);
 		} catch (Throwable ex) {
 			logger.error("call.error", ex);
 		}
@@ -70,6 +72,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
+		clnId = in.readInt();
 		order = Order.values()[in.readInt()];
 		scope = Scope.values()[in.readInt()];
 		index = in.readInt();
@@ -79,6 +82,7 @@ public class TriggerRunner implements Callable<Void>, IdentifiedDataSerializable
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeInt(clnId);
 		out.writeInt(order.ordinal());
 		out.writeInt(scope.ordinal());
 		out.writeInt(index);

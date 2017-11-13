@@ -780,7 +780,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    	Document updated = old.getValue();
 	    	if (txId > TX_NO) {
 		    	// we must finish old Document and create a new one!
-				//triggerManager.applyTrigger(doc, Order.before, Scope.update);
+				triggerManager.applyTrigger(updated, Order.before, Scope.update);
 		    	updated.finishDocument(txId);
 			    old.setValue(updated);
 			    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); // docKey.getKey() + 1);

@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
+import static com.bagri.core.system.Collection.default_collection;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -11,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -30,6 +33,7 @@ import com.bagri.core.server.api.TriggerManagement;
 import com.bagri.core.system.JavaTrigger;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
+import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerAction;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.system.XQueryTrigger;
@@ -42,14 +46,18 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.FileUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MultiExecutionCallback;
 
 public class TriggerManagementImpl implements TriggerManagement {
 
 	private static final transient Logger logger = LoggerFactory.getLogger(TriggerManagementImpl.class);
+	
+	private static final int tx_collection = -1;
 
 	private HazelcastInstance hzInstance;
 	//private IMap<Integer, TriggerDefinition> trgDict;
-    private Map<String, List<TriggerContainer>> triggers = new HashMap<>();
+    private Map<String, Map<Integer, List<TriggerContainer>>> triggers = new HashMap<>();
 	private IExecutorService execService;
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -80,57 +88,93 @@ public class TriggerManagementImpl implements TriggerManagement {
     	this.enableStats = enable;
     }
     
-    private String getTriggerKey(String collection, Order order, Scope scope) {
-    	return collection + ":" + order.name() + ":" + scope.name();
+    //private String getTriggerKey(String collection, Order order, Scope scope) {
+    //	return collection + ":" + order.name() + ":" + scope.name();
+    //}
+    
+    private String getTriggerScopeKey(final Order order, final Scope scope) {
+    	return scope.name() + ":" + order.name();
     }
     
     void applyTrigger(final Document xDoc, final Order order, final Scope scope) throws BagriException {
     	//
-		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
-		//xDoc.getCollections()
-    	List<TriggerContainer> impls = triggers.get(key);
-    	if (impls != null) {
-    		for (TriggerContainer impl: impls) {
-				logger.trace("applyTrigger; about to fire trigger {} on document: {}", impl, xDoc);
-				final DocumentTrigger trigger = (DocumentTrigger) impl.getImplementation(); 
-				if (impl.isSynchronous()) {
-					runTrigger(order, scope, xDoc, trigger);
-				} else {
-					execService.submitToMember(new TriggerRunner(order, scope, impl.getIndex(), xDoc, repo.getClientId()),					
-							hzInstance.getCluster().getLocalMember()); 
-				}
+		String key = getTriggerScopeKey(order, scope);
+		Map<Integer, List<TriggerContainer>> current = triggers.get(key);
+    	if (current != null) {
+    		for (int collectId: current.keySet()) {
+    			if (collectId == default_collection || xDoc.hasCollection(collectId)) {
+    				List<TriggerContainer> impls = current.get(collectId);
+    	    		for (TriggerContainer impl: impls) {
+    					logger.trace("applyTrigger; about to fire trigger {} on document: {}", impl, xDoc);
+    					final DocumentTrigger trigger = (DocumentTrigger) impl.getImplementation(); 
+    					if (impl.isSynchronous()) {
+    						runTrigger(order, scope, xDoc, trigger);
+    					} else {
+    						TriggerRunner tr = new TriggerRunner(collectId, order, scope, impl.getIndex(), xDoc, repo.getClientId());
+    						execService.submitToMember(tr, hzInstance.getCluster().getLocalMember()); 
+    					}
+    	    		}
+    			}
     		}
     	}
     }
 
     void applyTrigger(final Transaction xTx, final Order order, final Scope scope) throws BagriException {
     	//
-		String key = getTriggerKey("tx", order, scope);
-    	List<TriggerContainer> impls = triggers.get(key);
-    	if (impls != null) {
-    		for (TriggerContainer impl: impls) {
-				logger.trace("applyTrigger; about to fire trigger {} on transaction: {}", impl, xTx);
-				TriggerExecutor exec = new TriggerExecutor(order, scope, impl.getIndex(), xTx, repo.getClientId());
-				if (impl.isSynchronous()) {
-					// submit synchronous tasks to all members
-					execService.executeOnAllMembers(exec);
-				} else {
-					// submit asynch tasks to all members
-					execService.submitToAllMembers(exec); 
-				}
-    		}
+		String key = getTriggerScopeKey(order, scope);
+		Map<Integer, List<TriggerContainer>> current = triggers.get(key);
+    	if (current != null) {
+        	List<TriggerContainer> impls = current.get(tx_collection);
+        	if (impls != null) {
+				final CountDownLatch cdl = new CountDownLatch(impls.size()); 
+	    		for (TriggerContainer impl: impls) {
+					logger.trace("applyTrigger; about to fire trigger {} on transaction: {}", impl, xTx);
+					TriggerExecutor exec = new TriggerExecutor(order, scope, impl.getIndex(), xTx, repo.getClientId());
+					if (impl.isSynchronous()) {
+						// submit tasks to all members and wait synchronously for their completion 
+						execService.submitToAllMembers(exec, new MultiExecutionCallback() {
+
+							@Override
+							public void onResponse(Member member, Object value) {
+								//
+							}
+
+							@Override
+							public void onComplete(Map<Member, Object> values) {
+								cdl.countDown();
+							}
+							
+						});
+					} else {
+						cdl.countDown();
+						// submit asynch tasks to all members
+						execService.submitToAllMembers(exec); 
+					}
+	    		}
+	    		try {
+	    			cdl.await();
+	    		} catch (InterruptedException ex) {
+	    			logger.warn("applyTrigger.interrupted", ex);
+	    			//Thread.interrupted() - do we need to do this?
+	    			// do we need to throw BagriEx ?
+	    		}
+        	}
     	}
     }
     
-    public void runTrigger(Order order, Scope scope, Document xDoc, int index, String clientId) throws BagriException {
-
-		String key = getTriggerKey(xDoc.getTypeRoot(), order, scope);
-    	List<TriggerContainer> impls = triggers.get(key);
-    	if (impls != null) {
-    		TriggerContainer impl = impls.get(index);
-    		repo.getXQProcessor(clientId);
-    		runTrigger(order, scope, xDoc, (DocumentTrigger) impl.getImplementation());
-    	}    	
+    public void runTrigger(int collectId, Order order, Scope scope, Document xDoc, int index, String clientId) throws BagriException {
+		String key = getTriggerScopeKey(order, scope);
+		Map<Integer, List<TriggerContainer>> current = triggers.get(key);
+		if (current != null) {
+	    	List<TriggerContainer> impls = current.get(collectId);
+	    	if (impls != null) {
+	    		TriggerContainer impl = impls.get(index);
+	    		if (impl != null) {
+	    			repo.getXQProcessor(clientId);
+	    			runTrigger(order, scope, xDoc, (DocumentTrigger) impl.getImplementation());
+	    		}
+	    	}    	
+		}
     }
     
     private void runTrigger(Order order, Scope scope, Document xDoc, DocumentTrigger trigger) throws BagriException {
@@ -174,14 +218,18 @@ public class TriggerManagementImpl implements TriggerManagement {
     }
 
     public void runTrigger(Order order, Scope scope, Transaction xTx, int index, String clientId) throws BagriException {
-
-		String key = getTriggerKey("tx", order, scope);
-    	List<TriggerContainer> impls = triggers.get(key);
-    	if (impls != null) {
-    		TriggerContainer impl = impls.get(index);
-    		repo.getXQProcessor(clientId);
-    		runTrigger(order, scope, xTx, (TransactionTrigger) impl.getImplementation());
-    	}    	
+		String key = getTriggerScopeKey(order, scope);
+		Map<Integer, List<TriggerContainer>> current = triggers.get(key);
+		if (current != null) {
+	    	List<TriggerContainer> impls = current.get(tx_collection);
+	    	if (impls != null) {
+	    		TriggerContainer impl = impls.get(index);
+	    		if (impl != null) {
+	    			repo.getXQProcessor(clientId);
+	        		runTrigger(order, scope, xTx, (TransactionTrigger) impl.getImplementation());
+	    		}
+	    	}    	
+		}
     }
     
     private void runTrigger(Order order, Scope scope, Transaction xTx, TransactionTrigger trigger) throws BagriException {
@@ -254,40 +302,78 @@ public class TriggerManagementImpl implements TriggerManagement {
 	}
 	
 	@Override
-	public boolean addTrigger(TriggerDefinition trigger, Trigger impl) {
+	public int addTrigger(TriggerDefinition trigger, Trigger impl) {
 		logger.trace("addTrigger.enter; trigger: {}; impl: {}", trigger, impl);
-		boolean result = false;
-		if (trigger.isEnabled()) {
-			if (impl != null) {
-				for (TriggerAction action: trigger.getActions()) {
-					String key;
-					if (isTransactionalAction(action)) {
-						key = getTriggerKey("tx", action.getOrder(), action.getScope());
-					} else {
-						key = getTriggerKey(trigger.getCollection(), action.getOrder(), action.getScope());
-					}
-					List<TriggerContainer> impls = triggers.get(key);
-					if (impls == null) {
-						impls = new LinkedList<>();
-						triggers.put(key, impls);
-					}
-					int index = trigger.getIndex(); 
-					if (index > impls.size()) {
-						logger.info("addTrigger; wrong trigger index specified: {}, when size is: {}", 
-								index, impls.size());
-						index = impls.size();
-					}
-					TriggerContainer cont = new TriggerContainer(index, trigger.isSynchronous(), impl);
-					impls.add(index, cont);
+		int cnt = 0;
+		Schema schema = repo.getSchema();
+		if (trigger.isEnabled() && impl != null) {
+			for (TriggerAction action: trigger.getActions()) {
+				String key = getTriggerScopeKey(action.getOrder(), action.getScope());
+				Map<Integer, List<TriggerContainer>> current = triggers.get(key);
+				if (current == null) {
+					current = new HashMap<>();
+					triggers.put(key, current);
 				}
-				result = true;
-				logger.trace("addTrigger; registered so far: {}", triggers);
+				
+				int collectId = tx_collection;
+				if (!isTransactionalAction(action)) {
+					if (trigger.getCollection() == null) {
+						collectId = default_collection;
+					} else {
+						collectId = schema.getCollection(trigger.getCollection()).getId();
+					}
+				}
+				List<TriggerContainer> impls = current.get(collectId);
+				if (impls == null) {
+					impls = new LinkedList<>();
+					current.put(collectId, impls);
+				}
+				int index = action.getIndex(); 
+				if (index > impls.size()) {
+					logger.info("addTrigger; wrong trigger index specified: {}, when size is: {}", index, impls.size());
+					index = impls.size();
+				}
+				TriggerContainer cont = new TriggerContainer(index, trigger.isSynchronous(), impl);
+				impls.add(index, cont);
+				cnt++;
 			}
+			logger.trace("addTrigger; registered so far: {}", triggers);
 		}
-		logger.trace("addTrigger.exit; returning: {}", result);
-		return result;
+		logger.trace("addTrigger.exit; returning: {}", cnt);
+		return cnt;
 	}
 	
+	@Override
+	public boolean deleteTrigger(TriggerDefinition trigger) {
+		logger.trace("deleteTrigger.enter; git trigger definition: {}", trigger);
+		int cnt = 0;
+		Schema schema = repo.getSchema();
+		for (TriggerAction action: trigger.getActions()) {
+			String key = getTriggerScopeKey(action.getOrder(), action.getScope());
+			Map<Integer, List<TriggerContainer>> current = triggers.get(key);
+			if (current == null) {
+				continue;
+			}
+
+			int collectId = tx_collection;
+			if (!isTransactionalAction(action)) {
+				if (trigger.getCollection() == null) {
+					collectId = default_collection;
+				} else {
+					collectId = schema.getCollection(trigger.getCollection()).getId();
+				}
+			}
+			List<TriggerContainer> impls = current.get(collectId);
+			if (impls != null) {
+				if (impls.remove(action.getIndex()) != null) {
+					cnt++;
+				}
+			}
+		}
+		logger.trace("deleteTrigger.exit; {} triggers deleted, for collection: {}", cnt, trigger.getCollection());
+		return cnt > 0;
+	}
+
 	private Trigger createJavaTrigger(JavaTrigger trigger) {
 		Library library = getLibrary(trigger.getLibrary());
 		if (library == null) {
@@ -380,21 +466,6 @@ public class TriggerManagementImpl implements TriggerManagement {
 		return null;
 	}
 	
-	@Override
-	public boolean deleteTrigger(TriggerDefinition trigger) {
-		int cnt = 0;
-		for (TriggerAction action: trigger.getActions()) {
-			String key = getTriggerKey(trigger.getCollection(), action.getOrder(), action.getScope());
-			List<TriggerContainer> impls = triggers.get(key);
-			if (impls != null) {
-				impls.remove(trigger.getIndex());
-				cnt++;
-			}
-		}
-		logger.trace("deleteTrigger.exit; {} triggers deleted, for collection: {}", cnt, trigger.getCollection());
-		return cnt > 0;
-	}
-
 	private void addURL(URL u) throws IOException {
 	    URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
 	    try {

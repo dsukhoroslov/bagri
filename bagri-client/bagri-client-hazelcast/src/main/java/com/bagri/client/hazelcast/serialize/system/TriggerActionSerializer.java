@@ -25,6 +25,7 @@ public class TriggerActionSerializer implements StreamSerializer<TriggerAction> 
 	@Override
 	public TriggerAction read(ObjectDataInput in) throws IOException {
 		TriggerAction xAction = new TriggerAction(
+				in.readInt(),
 				Order.values()[in.readInt()],
 				Scope.values()[in.readInt()]);
 		return xAction;
@@ -32,6 +33,7 @@ public class TriggerActionSerializer implements StreamSerializer<TriggerAction> 
 
 	@Override
 	public void write(ObjectDataOutput out, TriggerAction xAction) throws IOException {
+		out.writeInt(xAction.getIndex());
 		out.writeInt(xAction.getOrder().ordinal());
 		out.writeInt(xAction.getScope().ordinal());
 	}
