@@ -90,8 +90,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jcache.version>1.0.0</jcache.version>
-        <!--hazelcast.version>3.9-SNAPSHOT</hazelcast.version-->
-        <hazelcast.version>3.9</hazelcast.version>
+        <hazelcast.version>3.8.7</hazelcast.version>
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>
@@ -104,7 +103,10 @@
         <aalto.version>1.0.0</aalto.version>
 
         <jetty.version>9.2.18.v20160721</jetty.version>
+        <!--jetty.version>9.4.7.v20170914</jetty.version-->
+
         <jersey.version>2.25.1</jersey.version>
+        <!--jersey.version>2.26</jersey.version-->
         <swagger.version>1.5.16</swagger.version>
 
         <!--spring.version>4.3.0.RELEASE</spring.version-->

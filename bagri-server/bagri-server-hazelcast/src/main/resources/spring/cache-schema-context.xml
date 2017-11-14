@@ -5,7 +5,7 @@
 	xmlns:hz="http://www.hazelcast.com/schema/spring"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
-		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.9.xsd">
+		http://www.hazelcast.com/schema/spring http://www.hazelcast.com/schema/spring/hazelcast-spring-3.8.xsd">
 
 	<!-- Beans Declaration -->
 	<context:property-placeholder ignore-unresolvable="true" location="file:${bdb.config.path}/${bdb.config.properties.file}" />
@@ -23,7 +23,6 @@
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
-				<!--hz:property name="hazelcast.socket.buffer.direct">true</hz:property-->
 				<hz:property name="hazelcast.partition.count">${bdb.schema.partition.count}</hz:property>
 				<hz:property name="hazelcast.operation.thread.count">${bdb.schema.partition.pool}</hz:property>
 				<hz:property name="hazelcast.operation.generic.thread.count">${bdb.schema.partition.pool}</hz:property>
@@ -59,7 +58,7 @@
 			<hz:map name="dict-path" in-memory-format="BINARY" async-backup-count="${bdb.schema.dict.backup.async}" 
 				backup-count="${bdb.schema.dict.backup.sync}" read-backup-data="${bdb.schema.dict.backup.read}"
 				cache-deserialized-values="NEVER">
-				<hz:near-cache serialize-keys="false" time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
+				<hz:near-cache time-to-live-seconds="0" max-idle-seconds="0" eviction-policy="LRU" 
 					max-size="0" invalidate-on-change="true" in-memory-format="OBJECT" cache-local-entries="true"/>
 				<hz:indexes>
 					<hz:index attribute="pathId" ordered="true"/>
@@ -71,8 +70,7 @@
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
 			</hz:map>
 			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
-				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
-				cache-deserialized-values="${bdb.schema.data.cache}">
+				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
 				<hz:map-store enabled="${bdb.schema.store.enabled}" write-delay-seconds="10" factory-implementation="xdmStoreFactory">
 					<hz:properties>
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
@@ -89,7 +87,7 @@
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
-				cache-deserialized-values="${bdb.schema.data.cache}" statistics-enabled="${bdb.schema.data.stats.enabled}">
+				cache-deserialized-values="NEVER" statistics-enabled="${bdb.schema.data.stats.enabled}">
 				<hz:indexes>
 					<!--hz:index attribute="__key#documentKey"/-->
 					<hz:index attribute="pathId" ordered="true"/>
@@ -106,7 +104,7 @@
 			<hz:map name="xdm-content" in-memory-format="OBJECT" async-backup-count="${bdb.schema.query.backup.async}" 
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="25" cache-deserialized-values="${bdb.schema.data.cache}">
+					 max-size="25">
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 
@@ -422,7 +420,6 @@
 
 	<bean id="txManager" class="com.bagri.server.hazelcast.impl.TransactionManagementImpl">
 		<!--property name="hzInstance" ref="hzInstance"/-->
-		<property name="transactionLevel" value="${bdb.schema.transaction.level}"/>
 		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/>
 	</bean>
 	
