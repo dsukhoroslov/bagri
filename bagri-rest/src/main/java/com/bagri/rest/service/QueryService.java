@@ -48,21 +48,22 @@ public class QueryService extends RestService {
 	public ChunkedOutput<String> postQuery(final QueryParams params) {
 		logger.debug("postQuery; got query: {}", params);
     	final ChunkedOutput<String> output = new ChunkedOutput<String>(String.class);
-    	 
+    	
+    	// TODO: think about thread pool for this? 
         new Thread() {
             public void run() {
         		QueryManagement queryMgr = getQueryManager();
                 try {
             		ResultCursor cursor = queryMgr.executeQuery(params.query, params.params, params.props);
-            		int cnt = 0;
+            		int idx = 0;
                     while (cursor.next()) {
-                    	if (cnt > 0) {
+                    	if (idx > 0) {
                             output.write(splitter);
                     	}
                     	String chunk = cursor.getItemAsString(null); 
-                        logger.trace("postQuery; out: {}", chunk);
+                        logger.trace("postQuery; idx: {}; chunk: {}", idx, chunk);
                         output.write(chunk);
-                        cnt++;
+                        idx++;
                     }
                 } catch (Exception ex) {
                 	// XDMException, IOException. handle it somehow ?

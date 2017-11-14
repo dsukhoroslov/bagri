@@ -97,7 +97,8 @@ public class TriggerManagementImpl implements TriggerManagement {
     }
     
     void applyTrigger(final Document xDoc, final Order order, final Scope scope) throws BagriException {
-    	//
+    	if (triggers.isEmpty()) return;
+    	
 		String key = getTriggerScopeKey(order, scope);
 		Map<Integer, List<TriggerContainer>> current = triggers.get(key);
     	if (current != null) {
@@ -120,8 +121,9 @@ public class TriggerManagementImpl implements TriggerManagement {
     }
 
     void applyTrigger(final Transaction xTx, final Order order, final Scope scope) throws BagriException {
-    	//
-		String key = getTriggerScopeKey(order, scope);
+    	if (triggers.isEmpty()) return;
+
+    	String key = getTriggerScopeKey(order, scope);
 		Map<Integer, List<TriggerContainer>> current = triggers.get(key);
     	if (current != null) {
         	List<TriggerContainer> impls = current.get(tx_collection);

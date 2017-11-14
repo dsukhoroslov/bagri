@@ -16,6 +16,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.xquery.XQItemType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +46,7 @@ public class QueryServiceTest extends JerseyTest {
 	
     @Override
     protected Application configure() {
+    	System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         queryMgr = mock(QueryManagement.class);
         mockRepo = mock(SchemaRepository.class);
     	mockPro = mock(RepositoryProvider.class);
@@ -56,7 +58,6 @@ public class QueryServiceTest extends JerseyTest {
     
     @Override
     public void tearDown() throws Exception {
-		Thread.sleep(100);
     	super.tearDown();
     }
     
@@ -74,22 +75,34 @@ public class QueryServiceTest extends JerseyTest {
         response1.add(xqFactory.createItemFromAtomicValue("<response>constructed from security5621.xml</response>", sType));
         response1.add(xqFactory.createItemFromAtomicValue("<response>constructed from security9012.xml</response>", sType));
 		when(queryMgr.executeQuery(q1, null, null)).thenReturn(new FixedCursorImpl(response1));
-
     	QueryParams params = new QueryParams(q1, null, null);
-    	Response response = target("query").request()
-        		.header("Content-Type", "application/json")
-        		.cookie(bg_cookie, "client-id")
-        		.post(Entity.json(params));
-    	ChunkedInput<String> input = response.readEntity(new GenericType<ChunkedInput<String>>() {});
-    	input.setParser(ChunkedInput.createParser(QueryService.splitter));
-    	String chunk;
+
+    	//int cnt = 0;
     	Collection<String> results = new ArrayList<>();
-    	while ((chunk = input.read()) != null) {
-        	//System.out.println(chunk);
-			results.add(chunk);
-    	}    	
-    	input.close();
-    	//System.out.println(results);
+    	// try it several times in order to solve jetty issue; #119
+    	//do {
+    		//results.clear();
+	    	Response response = target("query").request()
+	        		.header("Content-Type", "application/json")
+	        		.header("Keep-Alive", "timeout=5, max=5")
+	        		.cookie(bg_cookie, "client-id")
+	        		.post(Entity.json(params));
+	        assertEquals(Status.OK.getStatusCode(), response.getStatus());
+	    	ChunkedInput<String> input = response.readEntity(new GenericType<ChunkedInput<String>>() {});
+	    	input.setParser(ChunkedInput.createParser(QueryService.splitter));
+	    	
+	    	String chunk;
+	    	while ((chunk = input.read()) != null) {
+	        //	System.out.println(chunk);
+				results.add(chunk);
+	    	}    	
+	    	input.close();
+	    	//cnt++;
+	    	//if (results.size() == 0) {
+	    	//	System.out.println(response);
+	    	//}
+    	//} while (results.size() == 0 && cnt < 5);
+    	
     	assertEquals(3, results.size());
     	assertTrue(results.contains("<response>constructed from security1500.xml</response>"));
     	assertTrue(results.contains("<response>constructed from security5621.xml</response>"));
