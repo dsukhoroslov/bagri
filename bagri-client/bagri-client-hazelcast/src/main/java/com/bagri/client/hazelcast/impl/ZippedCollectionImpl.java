@@ -1,6 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
 import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_ZippedCollection;
+import static com.bagri.client.hazelcast.serialize.CompressingSerializer.*;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
+import com.hazelcast.nio.IOUtil;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -53,9 +55,13 @@ public class ZippedCollectionImpl<T> extends FixedCollectionImpl<T> {
 		HazelcastClientProxy proxy = (HazelcastClientProxy) repo.getHazelcastClient();
 		ss = (InternalSerializationService) proxy.getSerializationService();
 
-		int length = 0;
 		int size = in.readInt();
 		results = new ArrayList<>(size);
+		for (int i=0; i < size; i++) {
+			results.add((T) readCompressedData(ss, in));
+		}
+		/*
+		int length = 0;
 		byte[] data = in.readByteArray();
 		//logger.info("readData; src length: {}; entry count: {}", data.length, size);
 		ByteArrayInputStream bais = new ByteArrayInputStream(data);
@@ -82,11 +88,16 @@ public class ZippedCollectionImpl<T> extends FixedCollectionImpl<T> {
 		}
 		zin.close();
 		//logger.info("readData; src length: {}; result length: {}", data.length, length);
+	   */
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeInt(results.size());
+		for (Object result: results) {
+			writeCompressedData(ss, out, result);
+		}
+		/*
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ZipOutputStream zout = new ZipOutputStream(new BufferedOutputStream(baos));
 		zout.setMethod(ZipOutputStream.DEFLATED);
@@ -107,6 +118,7 @@ public class ZippedCollectionImpl<T> extends FixedCollectionImpl<T> {
 		//logger.info("writeData; src length: {}; result length: {}; entry count: {}", length, data.length, results.size());
 		out.writeByteArray(data);
 		zout.close();
+		*/
 	}
 	
 }

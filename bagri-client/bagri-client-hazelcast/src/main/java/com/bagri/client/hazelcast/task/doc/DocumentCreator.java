@@ -1,14 +1,19 @@
 package com.bagri.client.hazelcast.task.doc;
 
+import static com.bagri.client.hazelcast.serialize.CompressingSerializer.*;
 import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_CreateDocumentTask;
+import static com.bagri.core.Constants.pn_document_compress;
 import static com.bagri.core.Constants.pn_document_data_format;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentAccessor;
+import com.hazelcast.client.impl.HazelcastClientProxy;
+import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -44,29 +49,57 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		checkRepo();
+		boolean compress = Boolean.parseBoolean(context.getProperty(pn_document_compress, "false"));
 		String format = context.getProperty(pn_document_data_format);
 		if (format != null) {
-			ContentSerializer cs = repo.getSerializer(format);
+			ContentSerializer<Object> cs = (ContentSerializer<Object>) repo.getSerializer(format);
 			if (cs != null) {
-				content = cs.readContent(in);
+				if (compress) {
+					HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
+					InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
+					content = readCompressedContent(ss, in, cs);
+				} else {
+					content = cs.readContent(in);
+				}
 				return;
 			}
 		} 
-		content = in.readObject();
+
+		if (compress) {
+			HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
+			InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
+			content = readCompressedData(ss, in);
+		} else {
+			content = in.readObject();
+		}
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
+		boolean compress = Boolean.parseBoolean(context.getProperty(pn_document_compress, "false"));
 		String format = context.getProperty(pn_document_data_format);
 		if (format != null) {
-			ContentSerializer cs = repo.getSerializer(format);
+			ContentSerializer<Object> cs = (ContentSerializer<Object>) repo.getSerializer(format);
 			if (cs != null) {
-				cs.writeContent(out, content);
+				if (compress) {
+					HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
+					InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
+					writeCompressedContent(ss, out, cs, content);
+				} else {
+					cs.writeContent(out, content);
+				}
 				return;
 			}
 		} 
-		out.writeObject(content);
+
+		if (compress) {
+			HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
+			InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
+			writeCompressedData(ss, out, content);
+		} else {
+			out.writeObject(content);
+		}
 	}
 
 }

@@ -244,7 +244,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		return "SchemaRepositoryImpl[" + clientId + "]";
 	}
 	
-	HazelcastInstance getHazelcastClient() {
+	public HazelcastInstance getHazelcastClient() {
 		return hzClient;
 	}
 	
