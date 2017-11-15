@@ -17,6 +17,8 @@ import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.hazelcast.instance.HazelcastInstanceProxy;
+import com.hazelcast.internal.serialization.InternalSerializationService;
 
 public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.DocumentsCreator {
 
@@ -56,5 +58,10 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
 		repo = ctx.getBean(SchemaRepositoryImpl.class);
 	}
 
+	@Override
+	protected InternalSerializationService getSerializationService() {
+		HazelcastInstanceProxy proxy = (HazelcastInstanceProxy) ((SchemaRepositoryImpl) repo).getHzInstance();
+		return (InternalSerializationService) proxy.getSerializationService();
+	}
 
 }

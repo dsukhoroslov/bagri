@@ -44,6 +44,11 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	protected void checkRepo() {
 		// nothing..
 	}
+	
+	protected InternalSerializationService getSerializationService() {
+		HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
+		return (InternalSerializationService) proxy.getSerializationService();
+	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
@@ -55,9 +60,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 			ContentSerializer<Object> cs = (ContentSerializer<Object>) repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
-					HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-					InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
-					content = readCompressedContent(ss, in, cs);
+					content = readCompressedContent(getSerializationService(), in, cs);
 				} else {
 					content = cs.readContent(in);
 				}
@@ -66,9 +69,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		} 
 
 		if (compress) {
-			HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-			InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
-			content = readCompressedData(ss, in);
+			content = readCompressedData(getSerializationService(), in);
 		} else {
 			content = in.readObject();
 		}
@@ -83,9 +84,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 			ContentSerializer<Object> cs = (ContentSerializer<Object>) repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
-					HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-					InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
-					writeCompressedContent(ss, out, cs, content);
+					writeCompressedContent(getSerializationService(), out, cs, content);
 				} else {
 					cs.writeContent(out, content);
 				}
@@ -94,9 +93,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		} 
 
 		if (compress) {
-			HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-			InternalSerializationService ss = (InternalSerializationService) proxy.getSerializationService();
-			writeCompressedData(ss, out, content);
+			writeCompressedData(getSerializationService(), out, content);
 		} else {
 			out.writeObject(content);
 		}

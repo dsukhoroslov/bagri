@@ -496,25 +496,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
 			if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
 				// doc & content
+				boolean compress = Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"));
 				for (Document doc: docs) {
-				//for (int i=0; i < fetchSize; i++) {
 					DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
 					ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 					if (cc != null) {
 						content = cc.convertTo(content);
 					}
-					dai = new DocumentAccessorImpl(repo, doc, headers, content);
-					//dai = new DocumentAccessorImpl(repo, null, sharedMap, "BMAP", 0, null, null, 0, 0, 0, 0, null, 0, 0, null, 0); 
+					if (compress) {
+						dai = new CompressingDocumentAccessorImpl(repo, doc, headers, content);
+					} else {
+						dai = new DocumentAccessorImpl(repo, doc, headers, content);
+					}
 					cln.add(dai);
 					cnt++;
 				}
 			} else {
 				// doc only
 				for (Document doc: docs) {
-				//for (int i=0; i < fetchSize; i++) {
 					dai = new DocumentAccessorImpl(repo, doc, headers);
-					//dai = new DocumentAccessorImpl(repo, null, sharedMap); 
 					cln.add(dai);
 					cnt++;
 				}

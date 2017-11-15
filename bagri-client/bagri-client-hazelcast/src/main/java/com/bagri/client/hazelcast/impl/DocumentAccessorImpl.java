@@ -36,6 +36,14 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 	public int getId() {
 		return cli_DocumentAccessor;
 	}
+	
+	protected Object readContent(ObjectDataInput in) throws IOException {
+		ContentSerializer cs = repo.getSerializer(contentType);
+		if (cs != null) {
+			return cs.readContent(in);
+		} 
+		return in.readObject();
+	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
@@ -45,13 +53,8 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		}
 		if ((headers & HDR_CONTENT) != 0) {
 			contentType = in.readUTF();
-			SchemaRepository repo = SchemaRepositoryImpl.getRepository();
-			ContentSerializer cs = repo.getSerializer(contentType);
-			if (cs != null) {
-				content = cs.readContent(in);
-			} else {
-				content = in.readObject();
-			}
+			repo = SchemaRepositoryImpl.getRepository();
+			content = readContent(in);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			contentType = in.readUTF();
 		}
@@ -92,6 +95,15 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 			version = in.readInt();
 		}
 	}
+	
+	protected void writeContent(ObjectDataOutput out) throws IOException {
+		ContentSerializer cs = repo.getSerializer(contentType);
+		if (cs != null) {
+			cs.writeContent(out, content);
+		} else {
+			out.writeObject(content);
+		}
+	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
@@ -101,12 +113,7 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		}
 		if ((headers & HDR_CONTENT) != 0) {
 			out.writeUTF(contentType);
-			ContentSerializer cs = repo.getSerializer(contentType);
-			if (cs != null) {
-				cs.writeContent(out, content);
-			} else {
-				out.writeObject(content);
-			}
+			writeContent(out);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			out.writeUTF(contentType);
 		}

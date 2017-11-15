@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.serialize;
 
+import com.bagri.server.hazelcast.impl.CompressingDocumentAccessorImpl;
 import com.bagri.server.hazelcast.impl.DocumentAccessorImpl;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocVisiblePredicate;
@@ -38,6 +39,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_LimitPredicate: return new LimitPredicate<>(); 
 			case cli_LimitAggregator: return new LimitAggregator<>();
 			case cli_DocumentAccessor: return new DocumentAccessorImpl();
+			case cli_CompressingDocumentAccessor: return new CompressingDocumentAccessorImpl(); 
 		}
 		return super.create(typeId);
 	}

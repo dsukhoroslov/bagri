@@ -47,6 +47,12 @@ public abstract class BagriClientBase extends DB {
 		readProps.setProperty(pn_document_data_format, format);
 		readProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
 
+    	String compress = System.getProperty(pn_document_compress);
+    	if (compress != null) {
+    		compress = Boolean.valueOf(compress).toString();
+    		readProps.setProperty(pn_document_compress, compress);
+    	}
+		
 		String storeMode = System.getProperty(pn_client_storeMode);
 		if (storeMode != null) {
 			insertProps.setProperty(pn_client_storeMode, storeMode);
@@ -60,17 +66,19 @@ public abstract class BagriClientBase extends DB {
 		insertProps.setProperty(pn_document_collections, "usertable");
 		insertProps.setProperty(pn_document_data_format, format);
 		insertProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
-
-    	String compress = System.getProperty(pn_document_compress);
     	if (compress != null) {
-    		scanProps.setProperty(pn_document_compress, Boolean.valueOf(compress).toString());
+    		insertProps.setProperty(pn_document_compress, compress);
     	}
+
 		scanProps.setProperty(pn_document_data_format, format);
 		String fetchAsynch = System.getProperty(pn_client_fetchAsynch);
 		if (fetchAsynch != null) {
 			scanProps.setProperty(pn_client_fetchAsynch, fetchAsynch);
 		}
 		scanProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT | DocumentAccessor.HDR_CONTENT_TYPE));
+    	if (compress != null) {
+    		scanProps.setProperty(pn_document_compress, compress);
+    	}
 		
 		if (storeMode != null) {
 			updateProps.setProperty(pn_client_storeMode, storeMode);
@@ -89,11 +97,17 @@ public abstract class BagriClientBase extends DB {
 		boolean merge = Boolean.parseBoolean(System.getProperty(pn_document_map_merge, "true"));
 		updateProps.setProperty(pn_document_map_merge, String.valueOf(merge));
 		updateProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
+    	if (compress != null) {
+    		updateProps.setProperty(pn_document_compress, compress);
+    	}
 
 		if (txLevel != null) {
 			deleteProps.setProperty(pn_client_txLevel, txLevel);
 		}
 		deleteProps.setProperty(pn_document_headers, "");
+    	if (compress != null) {
+    		deleteProps.setProperty(pn_document_compress, compress);
+    	}
     }
 	
 	@Override
