@@ -13,6 +13,8 @@ import com.hazelcast.nio.IOUtil;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
+// implemented to be used in Queue, but it does not show any performance improve
+// can be removed in future release
 public class CompressingDocumentAccessorImpl extends DocumentAccessorImpl {
 
 	public CompressingDocumentAccessorImpl() {

@@ -82,7 +82,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private boolean binaryDocs;
 	private boolean binaryElts;
 	private boolean binaryContent;
-	private boolean fullCompression;
 
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -100,7 +99,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryDocs = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_DOCUMENT).getInMemoryFormat();
     	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
-    	fullCompression = Boolean.parseBoolean(System.getProperty(pn_schema_compression_full, "true"));
 
     	execSvc = Executors.newFixedThreadPool(32);
     	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
@@ -437,7 +435,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			iter = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
 		} else {
 			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false")) && fullCompression) {
+			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
 				iter = new CompressingCollectionImpl<>(repo, fetchSize);
 			} else {
 				iter = new FixedCollectionImpl<>(fetchSize);
@@ -494,7 +492,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		int cnt = 0;
-		boolean compress = Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"));
 		if (query != null) {
 			DocumentAccessorImpl dai;
 			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
@@ -507,22 +504,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					if (cc != null) {
 						content = cc.convertTo(content);
 					}
-					if (compress && !fullCompression) {
-						dai = new CompressingDocumentAccessorImpl(repo, doc, headers, content);
-					} else {
-						dai = new DocumentAccessorImpl(repo, doc, headers, content);
-					}
+					dai = new DocumentAccessorImpl(repo, doc, headers, content);
 					cln.add(dai);
 					cnt++;
 				}
 			} else {
 				// doc only
 				for (Document doc: docs) {
-					if (compress && !fullCompression) {
-						dai = new CompressingDocumentAccessorImpl(repo, doc, headers);
-					} else {
-						dai = new DocumentAccessorImpl(repo, doc, headers);
-					}
+					dai = new DocumentAccessorImpl(repo, doc, headers);
 					cln.add(dai);
 					cnt++;
 				}
