@@ -1,9 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.CompressingSerializer.readCompressedContent;
-import static com.bagri.client.hazelcast.serialize.CompressingSerializer.readCompressedData;
-import static com.bagri.client.hazelcast.serialize.CompressingSerializer.writeCompressedContent;
-import static com.bagri.client.hazelcast.serialize.CompressingSerializer.writeCompressedData;
+import static com.bagri.client.hazelcast.serialize.CompressingSerializer.*;
 import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_StoreDocumentsTask;
 import static com.bagri.core.Constants.pn_document_compress;
 import static com.bagri.core.Constants.pn_document_data_format;
@@ -57,6 +54,7 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		int size = in.readInt();
@@ -94,6 +92,7 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeInt(documents.size());

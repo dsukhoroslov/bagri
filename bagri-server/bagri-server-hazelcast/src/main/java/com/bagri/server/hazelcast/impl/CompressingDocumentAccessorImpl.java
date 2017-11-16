@@ -1,23 +1,26 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.client.hazelcast.serialize.CompressingSerializer.writeCompressedContent;
-import static com.bagri.client.hazelcast.serialize.CompressingSerializer.writeCompressedData;
 import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_CompressingDocumentAccessor;
 
 import java.io.IOException;
 
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
-import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Document;
 import com.hazelcast.instance.HazelcastInstanceProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
+import com.hazelcast.nio.IOUtil;
+import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
 public class CompressingDocumentAccessorImpl extends DocumentAccessorImpl {
 
 	public CompressingDocumentAccessorImpl() {
 		super();
+	}
+	
+	public CompressingDocumentAccessorImpl(SchemaRepository repo, Document doc, long headers) {
+		super(repo, doc, headers);
 	}
 	
 	public CompressingDocumentAccessorImpl(SchemaRepository repo, Document doc, long headers, Object content) {
@@ -35,14 +38,18 @@ public class CompressingDocumentAccessorImpl extends DocumentAccessorImpl {
 	}
 
 	@Override
-	protected void writeContent(ObjectDataOutput out) throws IOException {
-		ContentSerializer cs = repo.getSerializer(contentType);
-		if (cs != null) {
-			writeCompressedContent(getSerializationService(), out, cs, content);
-		} else {
-			writeCompressedData(getSerializationService(), out, content);
-		}
+	public void readData(ObjectDataInput in) throws IOException {
+		InternalSerializationService ss = getSerializationService();
+		ObjectDataInput odi = ss.createObjectDataInput(IOUtil.decompress(in.readByteArray()));
+		super.readData(odi);
 	}
-
 	
+	@Override
+	public void writeData(ObjectDataOutput out) throws IOException {
+		InternalSerializationService ss = getSerializationService();
+		ObjectDataOutput tmp = ss.createObjectDataOutput();
+		super.writeData(tmp);
+		out.writeByteArray(IOUtil.compress(tmp.toByteArray()));
+	}
+		
 }

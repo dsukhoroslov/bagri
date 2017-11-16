@@ -51,13 +51,14 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		checkRepo();
 		boolean compress = Boolean.parseBoolean(context.getProperty(pn_document_compress, "false"));
 		String format = context.getProperty(pn_document_data_format);
 		if (format != null) {
-			ContentSerializer<Object> cs = (ContentSerializer<Object>) repo.getSerializer(format);
+			ContentSerializer cs = repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
 					content = readCompressedContent(getSerializationService(), in, cs);
@@ -76,12 +77,13 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		boolean compress = Boolean.parseBoolean(context.getProperty(pn_document_compress, "false"));
 		String format = context.getProperty(pn_document_data_format);
 		if (format != null) {
-			ContentSerializer<Object> cs = (ContentSerializer<Object>) repo.getSerializer(format);
+			ContentSerializer cs = repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
 					writeCompressedContent(getSerializationService(), out, cs, content);

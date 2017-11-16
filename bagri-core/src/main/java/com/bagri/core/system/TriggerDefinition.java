@@ -111,6 +111,7 @@ public abstract class TriggerDefinition extends Entity {
 	
 	/**
 	 * 
+	 * @param index action fire index
 	 * @param order action fire order (before/after)
 	 * @param scope action fire scope
 	 */

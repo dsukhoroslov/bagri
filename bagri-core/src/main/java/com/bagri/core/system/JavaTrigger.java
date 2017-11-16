@@ -44,7 +44,7 @@ public class JavaTrigger extends TriggerDefinition {
 	 * @param className the implementing Java class name
 	 * @param synchronous is trigger invoked synchronously or not
 	 * @param enabled the trigger enabled flag
-	 * @param docType the documents collection for which trigger is registered
+	 * @param collection the documents collection for which trigger is registered
 	 */
 	public JavaTrigger(int version, Date createdAt, String createdBy, String library, 
 			String className, boolean synchronous, boolean enabled, String collection) {

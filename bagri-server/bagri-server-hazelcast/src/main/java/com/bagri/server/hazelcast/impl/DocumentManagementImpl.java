@@ -3,7 +3,6 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
-import com.bagri.client.hazelcast.impl.ZippedCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
@@ -30,6 +29,7 @@ import com.bagri.core.system.Fragment;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
+import com.bagri.server.hazelcast.impl.CompressingCollectionImpl;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.server.hazelcast.predicate.LimitPredicate;
@@ -82,6 +82,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private boolean binaryDocs;
 	private boolean binaryElts;
 	private boolean binaryContent;
+	private boolean fullCompression;
 
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -99,6 +100,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryDocs = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_DOCUMENT).getInMemoryFormat();
     	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
+    	fullCompression = Boolean.parseBoolean(System.getProperty(pn_schema_compression_full, "true"));
 
     	execSvc = Executors.newFixedThreadPool(32);
     	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
@@ -312,6 +314,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cln;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void fetchUris(String pattern, int fetchSize, ResultCollection<String> cln) {
 		Predicate<DocumentKey, Document> query;
 		if (pattern == null) {
@@ -361,7 +364,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return getDocumentInternal(docKey, doc, props);
 	}
 
-	@SuppressWarnings("unchecked")
 	private DocumentAccessor getDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		if (props == null) {
 			props = new Properties();
@@ -435,8 +437,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			iter = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
 		} else {
 			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
-				iter = new ZippedCollectionImpl<>(fetchSize, ddSvc.getSerializationService());
+			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false")) && fullCompression) {
+				iter = new CompressingCollectionImpl<>(repo, fetchSize);
 			} else {
 				iter = new FixedCollectionImpl<>(fetchSize);
 			}
@@ -469,6 +471,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cln;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void fetchDocuments(String pattern, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
 		Predicate<DocumentKey, Document> query;
 		if (pattern == null) {
@@ -491,12 +494,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		int cnt = 0;
+		boolean compress = Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"));
 		if (query != null) {
 			DocumentAccessorImpl dai;
 			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
 			if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
 				// doc & content
-				boolean compress = Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"));
 				for (Document doc: docs) {
 					DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 					Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, key, binaryContent);
@@ -504,7 +507,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					if (cc != null) {
 						content = cc.convertTo(content);
 					}
-					if (compress) {
+					if (compress && !fullCompression) {
 						dai = new CompressingDocumentAccessorImpl(repo, doc, headers, content);
 					} else {
 						dai = new DocumentAccessorImpl(repo, doc, headers, content);
@@ -515,7 +518,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			} else {
 				// doc only
 				for (Document doc: docs) {
-					dai = new DocumentAccessorImpl(repo, doc, headers);
+					if (compress && !fullCompression) {
+						dai = new CompressingDocumentAccessorImpl(repo, doc, headers);
+					} else {
+						dai = new DocumentAccessorImpl(repo, doc, headers);
+					}
 					cln.add(dai);
 					cnt++;
 				}
@@ -535,7 +542,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		long stamp = System.currentTimeMillis();
         java.util.Collection<String> result = new ArrayList<>(docKeys.size());
-
 
         String root = null;
 		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
