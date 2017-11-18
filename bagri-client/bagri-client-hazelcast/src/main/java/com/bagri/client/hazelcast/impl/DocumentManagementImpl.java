@@ -6,15 +6,12 @@ import static com.bagri.core.Constants.pn_client_txId;
 import static com.bagri.core.Constants.pn_client_txLevel;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.api.BagriException.ecDocument;
-import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
+//import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +33,7 @@ import com.hazelcast.core.Member;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
 
-	private IMap<DocumentKey, Object> cntCache;
+	//private IMap<DocumentKey, Object> cntCache;
 	private IMap<DocumentKey, Document> xddCache;
 	private IExecutorService execService;
     private SchemaRepositoryImpl repo;
@@ -52,7 +49,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	void initialize(SchemaRepositoryImpl repo) {
 		this.repo = repo;
 		HazelcastInstance hzClient = repo.getHazelcastClient();
-		cntCache = hzClient.getMap(CN_XDM_CONTENT);
+		//cntCache = hzClient.getMap(CN_XDM_CONTENT);
 		xddCache = hzClient.getMap(CN_XDM_DOCUMENT);
 		execService = hzClient.getExecutorService(PN_XDM_SCHEMA_POOL);
 	}
@@ -87,7 +84,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<String> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl) cln).init(repo.getHazelcastClient());
+					((QueuedCollectionImpl<String>) cln).init(repo.getHazelcastClient());
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
@@ -97,28 +94,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		logger.trace("getDocumentUris.exit; got results: {}", result);
 		return result;
-
-		//Future<Collection<String>> future = execService.submit(task);
-		//try {
-		//	result = future.get();
-		//	logger.trace("getDocumentUris.exit; got results: {}", result);
-		//	return result;
-		//} catch (InterruptedException | ExecutionException ex) {
-		//	logger.error("getDocumentUris; error getting result", ex);
-		//	throw new BagriException(ex, ecDocument);
-		//}
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
-		// actually, I can try just get it from Content cache!
 		logger.trace("getDocument.enter; got uri: {}; props: {}", uri, props);
 		checkDocumentProperties(props);
 		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri);
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
-		//Object result = cntCache.get(key);
 		logger.trace("getDocument.exit; got content: {}", result);
 		return (DocumentAccessor) result;
 	}
@@ -283,16 +267,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	private int updateDocumentCollections(String uri, boolean add, String[] collections) {
-		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), new Properties(), uri, add, collections);
-		Future<Integer> result = execService.submit(task);
-		int cnt = 0;
-		try {
-			cnt = result.get();
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("updateDocumentsCollections.error: ", ex);
-			//throw new XDMException(ex, ecDocument);
-		}
-		return cnt;
+		Properties props = checkDocumentProperties(null);
+		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), props, uri, add, collections);
+		DocumentKey key = getDocumentKey(uri);
+		return (Integer) xddCache.executeOnKey(key, task);
 	}
 
 }

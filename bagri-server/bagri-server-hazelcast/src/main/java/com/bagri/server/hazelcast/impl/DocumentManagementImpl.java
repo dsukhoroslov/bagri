@@ -40,6 +40,7 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -1242,9 +1243,38 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public int addDocumentToCollections(String uri, String[] collections) {
 		logger.trace("addDocumentsToCollections.enter; got uri: {}; collectIds: {}", uri, Arrays.toString(collections));
-		int addCount = 0;
-		int unkCount = 0;
+		int cnt = 0;
 		Document doc = getDocument(uri);
+		if (doc != null) {
+			DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
+			cnt = updateDocumentCollections(true, new MapEntrySimple<>(key, doc), collections);
+			if (cnt > 0) {
+				xddCache.set(key, doc);
+			}
+		}
+		logger.trace("addDocumentsToCollections.exit; added: {}", cnt);
+		return cnt;
+	}
+
+	@Override
+	public int removeDocumentFromCollections(String uri, String[] collections) {
+		logger.trace("removeDocumentsFromCollections.enter; got uri: {}; collectIds: {}", uri, Arrays.toString(collections));
+		int cnt = 0;
+		Document doc = getDocument(uri);
+		if (doc != null) {
+			DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
+			cnt = updateDocumentCollections(false, new MapEntrySimple<>(key, doc), collections);
+			if (cnt > 0) {
+				xddCache.set(key, doc);
+			}
+		}
+		logger.trace("removeDocumentsFromCollections.exit; removed: {}", cnt);
+		return cnt;
+	}
+	
+	public int updateDocumentCollections(boolean add, Map.Entry<DocumentKey, Document> entry, String[] collections) {
+		int updCount = 0;
+		Document doc = entry.getValue();
 		if (doc != null) {
 			// TODO: cache size in the doc itself? yes, done
 			// but must fix stats to account this size
@@ -1252,51 +1282,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			for (Collection cln: repo.getSchema().getCollections()) {
 				for (String collection: collections) {
 					if (collection.equals(cln.getName())) {
-						if (doc.addCollection(cln.getId())) {
-							addCount++;
-							updateStats(cln.getName(), true, size, doc.getFragments().length);
+						if (add) {
+							if (doc.addCollection(cln.getId())) {
+								updCount++;
+								updateStats(cln.getName(), true, size, doc.getFragments().length);
+							}
+						} else {
+							if (doc.removeCollection(cln.getId())) {
+								updCount++;
+								updateStats(cln.getName(), false, size, doc.getFragments().length);
+							}
 						}
 						break;
 					}
 				}
 			}
-			if (addCount > 0) {
-				xddCache.set(factory.newDocumentKey(doc.getDocumentKey()), doc);
+			if (updCount > 0) {
+				entry.setValue(doc);
 			}
-		} else {
-			unkCount++;
 		}
-		logger.trace("addDocumentsToCollections.exit; added: {}; unknown: {}", addCount, unkCount);
-		return addCount;
-	}
-
-	@Override
-	public int removeDocumentFromCollections(String uri, String[] collections) {
-		logger.trace("removeDocumentsFromCollections.enter; got uri: {}; collectIds: {}", uri, Arrays.toString(collections));
-		int remCount = 0;
-		int unkCount = 0;
-		Document doc = getDocument(uri);
-		if (doc != null) {
-			int size = 0;
-			for (Collection cln: repo.getSchema().getCollections()) {
-				for (String collection: collections) {
-					if (collection.equals(cln.getName())) {
-						if (doc.removeCollection(cln.getId())) {
-							remCount++;
-							updateStats(cln.getName(), false, size, doc.getFragments().length);
-						}
-						break;
-					}
-				}
-			}
-			if (remCount > 0) {
-				xddCache.set(factory.newDocumentKey(doc.getDocumentKey()), doc);
-			}
-		} else {
-			unkCount++;
-		}
-		logger.trace("removeDocumentsFromCollections.exit; removed: {}; unknown: {}", remCount, unkCount);
-		return remCount;
+		return updCount;
 	}
 
 	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties, long txStart, Document doc) {
