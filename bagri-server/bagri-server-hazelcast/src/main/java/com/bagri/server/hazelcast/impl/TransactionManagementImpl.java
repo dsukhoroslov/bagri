@@ -4,6 +4,7 @@ import static com.bagri.core.api.BagriException.ecTransaction;
 import static com.bagri.core.api.BagriException.ecTransNoNested;
 import static com.bagri.core.api.BagriException.ecTransNotFound;
 import static com.bagri.core.api.BagriException.ecTransWrongState;
+import static com.bagri.core.Constants.pv_client_txLevel_skip;
 import static com.bagri.core.server.api.CacheConstants.*;
 
 import java.util.Collection;
@@ -26,19 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.client.hazelcast.impl.IdGeneratorImpl;
-import com.bagri.core.api.HealthState;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionState;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Counter;
-import com.bagri.core.model.Null;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.task.doc.DocumentCleaner;
 import com.bagri.support.idgen.IdGenerator;
-import com.bagri.support.idgen.SimpleIdGenerator;
 import com.bagri.support.stats.StatisticsProvider;
 import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.Cluster;
@@ -48,7 +46,6 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
-import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -106,8 +103,14 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		return txLevel;
 	}
 	
-	public void setTransactionLevel(TransactionIsolation txLevel) throws BagriException {
-		this.txLevel = txLevel;
+	public void setTransactionLevel(String txLevel) throws BagriException {
+		logger.debug("setTransactionLevel.enter; got tx level: {}", txLevel);
+		if (txLevel == null || txLevel.isEmpty() || txLevel.equals(pv_client_txLevel_skip)) {
+			this.txLevel = null;
+		} else {
+			this.txLevel = TransactionIsolation.valueOf(txLevel);
+		}
+		logger.debug("setTransactionLevel.exit; default tx level set to: {}", this.txLevel);
 	}
 	
 	public long getTransactionTimeout() {
@@ -387,6 +390,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public TabularData getStatisticSeries() {
 		// return InProgress Transactions here!?
    		Predicate<Long, Transaction> f = Predicates.equal("txState", TransactionState.started);
