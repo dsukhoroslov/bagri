@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.TransactionIsolation;
+import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.model.Document;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
@@ -223,7 +224,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		th2.start();
 		cdl.await();
 		// how should we check it properly??
-		//assertFalse("expected less than 3 docs commited", ids.size() == 3);
+		assertFalse("expected less than 3 docs commited", keys.size() == 3);
 	}	
 
 	@Test
@@ -246,8 +247,31 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		th2.start();
 		cdl.await();
 		// fails sometime, not clear why
-		//assertFalse("expected less than 3 docs commited", ids.size() == 3);
+		assertFalse("expected less than 3 docs commited", keys.size() == 3);
 	}
+	
+	@Test
+	public void noTransactionTest() throws Exception {
+		String doc1 = "<product id=\"product-1\"><type>product</type><name>Pokemon Red</name><price>29.99</price></product>";
+		Properties props = new Properties(); //getDocumentProperties();
+		props.setProperty(pn_document_data_format, "XML");
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_FULL_DOCUMENT));
+		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
+		DocumentAccessor da = getDocManagement().storeDocument("product.xml", doc1, props);
+		uris.add(da.getUri());
+		assertEquals(TransactionManagement.TX_NO, da.getTxStart());
+		assertEquals(TransactionManagement.TX_NO, da.getTxFinish());
+		assertEquals(1, da.getVersion());
+		assertEquals(doc1, da.getContent());
+		
+		String doc2 = "<product id=\"product-2\"><type>product</type><name>Pokemon Black</name><price>19.01</price></product>";
+		DocumentAccessor da2 = getDocManagement().storeDocument("product.xml", doc2, props);
+		uris.add(da2.getUri());
+		assertEquals(TransactionManagement.TX_NO, da2.getTxStart());
+		assertEquals(TransactionManagement.TX_NO, da2.getTxFinish());
+		assertEquals(1, da2.getVersion());
+		assertEquals(doc2, da2.getContent());
+	}	
 	
 	private class DocUpdater implements Runnable {
 		

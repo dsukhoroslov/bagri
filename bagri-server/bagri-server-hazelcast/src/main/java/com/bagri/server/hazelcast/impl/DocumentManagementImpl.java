@@ -299,8 +299,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				@Override
 				public void run() {
 					fetchUris(pattern, fetchSize, cln);
-					// TODO: check terminator..
-					cln.add(null); //Null._null);
+					cln.finish(); 
 				}
 			});
 		} else {
