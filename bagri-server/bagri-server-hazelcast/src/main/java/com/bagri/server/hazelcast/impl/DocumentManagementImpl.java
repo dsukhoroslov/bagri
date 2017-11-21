@@ -851,32 +851,27 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private Set<Integer> processElements(long docKey, List<Data> data) throws BagriException {
 
-		Data dRoot = getDataRoot(data);
-		if (dRoot != null) {
-			//String root = dRoot.getDataPath().getRoot();
-			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
-			Set<Integer> pathIds = new HashSet<>(data.size());
-			for (Data xdm: data) {
-				if (xdm.getValue() != null) {
-					pathIds.add(xdm.getPathId());
-					DataKey xdk = factory.newDataKey(docKey, xdm.getPathId());
-					Elements xdes = elements.get(xdk);
-					if (xdes == null) {
-						xdes = new Elements(xdk.getPathId(), null);
-						elements.put(xdk, xdes);
-					}
-					xdes.addElement(xdm.getElement());
+		Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
+		Set<Integer> pathIds = new HashSet<>(data.size());
+		for (Data xdm: data) {
+			if (xdm.getValue() != null) {
+				pathIds.add(xdm.getPathId());
+				DataKey xdk = factory.newDataKey(docKey, xdm.getPathId());
+				Elements xdes = elements.get(xdk);
+				if (xdes == null) {
+					xdes = new Elements(xdk.getPathId(), null);
+					elements.put(xdk, xdes);
 				}
+				xdes.addElement(xdm.getElement());
 			}
-			// TODO: do it directly via RecordStore
-			//xdmCache.putAll(elements);
-			for (Map.Entry<DataKey, Elements> e: elements.entrySet()) {
-				xdmCache.set(e.getKey(), e.getValue());
-				//ddSvc.storeData(e.getKey(), e.getValue(), CN_XDM_ELEMENT);
-			}
-			return pathIds;
 		}
-		throw new BagriException("invalid document: has no root element", ecDocument);
+		// TODO: do it directly via RecordStore
+		//xdmCache.putAll(elements);
+		for (Map.Entry<DataKey, Elements> e: elements.entrySet()) {
+			xdmCache.set(e.getKey(), e.getValue());
+			//ddSvc.storeData(e.getKey(), e.getValue(), CN_XDM_ELEMENT);
+		}
+		return pathIds;
 	}
 
 	@Override
@@ -947,12 +942,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		String dataFormat = props.getProperty(pn_document_data_format);
-		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		ParseResults pRes = parser.parse(content);
-		// ??
-		props.setProperty(pn_document_data_format, dataFormat);
-
+		// TODO: check for parse results?
+		
 		// if fragmented document - process it in the old style!
 
 		Transaction tx = null;

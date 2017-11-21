@@ -96,8 +96,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 
 	@Override
 	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
-		// TODO: run it on backups..
-		return null;
+		return this;
 	}
 
 	@Override

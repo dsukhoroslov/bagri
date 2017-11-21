@@ -1,6 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
 import static com.bagri.core.Constants.pn_client_fetchAsynch;
+import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_client_id;
 import static com.bagri.core.Constants.pn_client_txId;
 import static com.bagri.core.Constants.pn_client_txLevel;
@@ -111,7 +112,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("resource")
 	public Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
+		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>(fSize);
 		checkDocumentProperties(props);
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
