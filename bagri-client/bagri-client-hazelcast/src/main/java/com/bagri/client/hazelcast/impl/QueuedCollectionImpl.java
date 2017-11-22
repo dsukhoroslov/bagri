@@ -22,6 +22,8 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
     //private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
 
+	private int limit;
+	private int index = 0;
 	private String queueName;
 	private Object current;
 
@@ -34,19 +36,21 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	public QueuedCollectionImpl(HazelcastInstance hzi, String queueName) {
 		this.queueName = queueName;
-		init(hzi);
+		init(hzi, 0);
 	}
 	
 	//@Override
-	public void init(HazelcastInstance hzi) {
+	public void init(HazelcastInstance hzi, int limit) {
 		//logger.trace("init.enter; queue: {}", queueName);
 		this.hzi = hzi;
+		this.limit = limit;
 		this.queue = hzi.getQueue(queueName);
 	}
 
 	@Override
 	public void close() throws Exception {
-		//queue.clear();		
+		queue.clear();		
+		index = 0;
 	}
 
 	@Override
@@ -87,10 +91,15 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	
 	@Override
 	public boolean hasNext() {
+		if (limit > 0 && index >= limit) {
+			return false;
+		}
 		try {
 			current = queue.take();
 			if (current instanceof Null) {
 				current = null;
+			} else {
+				index++;
 			}
 		} catch (InterruptedException e) {
 			current = null;

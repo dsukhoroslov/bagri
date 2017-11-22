@@ -103,6 +103,7 @@ public class BagriDocClient extends BagriClientBase {
 					results.add(result);
 				}
 			}
+			((AutoCloseable) docs).close();
 
 			if (results.size() > recordcount) {
 				logger.info("scan; got {} records when requested {}", results.size(), recordcount);

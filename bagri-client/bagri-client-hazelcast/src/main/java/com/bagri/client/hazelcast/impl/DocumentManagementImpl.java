@@ -85,7 +85,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<String> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl<String>) cln).init(repo.getHazelcastClient());
+					((QueuedCollectionImpl<String>) cln).init(repo.getHazelcastClient(), 0);
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
@@ -113,25 +113,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
 		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>(fSize);
 		checkDocumentProperties(props);
+		Iterable<DocumentAccessor> result;
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
-			try {
-				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
-				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
+		try {
+			if (asynch) {
+				ResultCollection<DocumentAccessor> cln;
+				cln = results.values().iterator().next().get();
+				((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient(), fSize);
+				result = cln;
+			} else {
+				CombinedCollectionImpl<DocumentAccessor> comb = new CombinedCollectionImpl<>(fSize);
+				for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
+					ResultCollection<DocumentAccessor> cln = entry.getValue().get();
+					comb.addResults(cln);
 				}
-				result.addResults(cln);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getDocuments; error getting result", ex);
-				throw new BagriException(ex, ecDocument);
+				result = comb;
 			}
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("getDocuments; error getting result", ex);
+			throw new BagriException(ex, ecDocument);
 		}
 		logger.trace("getDocuments.exit; got results: {}", result);
-		return (Iterable<DocumentAccessor>) result;
+		return result;
 	}
 	
 	@Override
@@ -175,7 +181,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
+					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient(), 0);
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
@@ -221,7 +227,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
+					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient(), 0);
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
