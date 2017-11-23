@@ -4,7 +4,6 @@ import static com.bagri.core.Constants.pn_client_fetchAsynch;
 import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_client_id;
 import static com.bagri.core.Constants.pn_client_txId;
-import static com.bagri.core.Constants.pn_client_txLevel;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.api.BagriException.ecDocument;
 //import static com.bagri.core.server.api.CacheConstants.CN_XDM_CONTENT;
@@ -85,7 +84,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<String> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl<String>) cln).init(repo.getHazelcastClient(), 0);
+					((QueuedCollectionImpl<String>) cln).init(repo.getHazelcastClient());
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
@@ -112,7 +111,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("resource")
 	public Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		checkDocumentProperties(props);
 		Iterable<DocumentAccessor> result;
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
@@ -122,9 +120,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (asynch) {
 				ResultCollection<DocumentAccessor> cln;
 				cln = results.values().iterator().next().get();
-				((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient(), fSize);
+				((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
 				result = cln;
 			} else {
+				int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 				CombinedCollectionImpl<DocumentAccessor> comb = new CombinedCollectionImpl<>(fSize);
 				for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
 					ResultCollection<DocumentAccessor> cln = entry.getValue().get();
@@ -181,7 +180,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient(), 0);
+					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {
@@ -227,7 +226,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			try {
 				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
 				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient(), 0);
+					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
 				}
 				result.addResults(cln);
 			} catch (InterruptedException | ExecutionException ex) {

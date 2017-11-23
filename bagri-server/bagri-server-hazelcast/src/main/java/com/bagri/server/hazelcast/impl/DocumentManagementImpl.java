@@ -294,7 +294,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		final ResultCollection<String> cln;
 		if (asynch) {
 			String clientId = props.getProperty(pn_client_id);
-			cln = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+			String queueName = "client:" + clientId;
+			cln = new QueuedCollectionImpl<>(hzInstance, queueName, fetchSize);
 			execSvc.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -430,11 +431,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	private ResultCollection<DocumentAccessor> getResultIterator(Properties props) {
 		ResultCollection<DocumentAccessor> iter;
+		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
 			String clientId = props.getProperty(pn_client_id);
-			iter = new QueuedCollectionImpl<>(hzInstance, "client:" + clientId);
+			String queueName = "client:" + clientId;
+			iter = new QueuedCollectionImpl<>(hzInstance, queueName, fetchSize);
 		} else {
-			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
 				iter = new CompressingCollectionImpl<>(repo, fetchSize);
 			} else {

@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.server.api.ClientManagement;
-import com.bagri.server.hazelcast.predicate.PropertyPredicate;
 import com.bagri.support.stats.StatisticsEvent;
 import com.hazelcast.core.Client;
 import com.hazelcast.core.ClientListener;
@@ -19,7 +18,6 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.ReplicatedMap;
 
@@ -38,7 +36,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	public void setHzInstance(HazelcastInstance hzInstance) {
 		this.hzInstance = hzInstance;
 		hzInstance.getClientService().addClientListener(this);
-		logger.debug("setHzInstange; got instance: {}", hzInstance.getName());
+		logger.trace("setHzInstange; got instance: {}", hzInstance.getName());
 	}
 	
 	public void setClientsCache(ReplicatedMap<String, Properties> clientsCache) {
@@ -98,7 +96,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	@Override
 	public void clientConnected(Client client) {
 		String clientId = client.getUuid();
-		logger.trace("clientConnected.enter; client: {}", clientId); 
+		logger.info("clientConnected.enter; client: {}", clientId); 
 		// create queue
 		//IQueue queue = hzInstance.getQueue("client:" + clientId);
 		// create/cache new XQProcessor
@@ -118,30 +116,35 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 		//for (String member: members) {
 		//	clientsCache.delete(member);
 		//}
+		
+		// TODO: check and destroy client's resources
 
-		//String qName = "client:" + clientId;
-		//boolean destroyed = false;
-		//Collection<DistributedObject> all = hzInstance.getDistributedObjects();
-		//int sizeBefore = all.size();
-		//for (DistributedObject obj: all) {
-		//	if (qName.equals(obj.getName())) {
-				// remove queue
-				//IQueue queue = hzInstance.getQueue(qName);
-				//queue.destroy();
-		//		obj.destroy();
-		//		destroyed = true;
-		//		break;
-		//	}
-		//}
-		//int sizeAfter = hzInstance.getDistributedObjects().size(); 
+		//removeClient(clientId);
 		//XQProcessor proc = processors.remove(client.getUuid());
-		//logger.trace("clientDisconnected.exit; queue {} {} for client: {}; size before: {}, after: {}", 
-		//		qName, destroyed ? "destroyed" : "skipped", clientId, sizeBefore, sizeAfter); 
+	}
+	
+	private boolean removeClient(String clientId) {
+		String qName = "client:" + clientId;
+		boolean removed = false;
+		java.util.Collection<DistributedObject> all = hzInstance.getDistributedObjects();
+		int sizeBefore = all.size();
+		for (DistributedObject obj: all) {
+			if (qName.equals(obj.getName())) {
+				// remove queue
+				obj.destroy();
+				removed = true;
+				break;
+			}
+		}
+		int sizeAfter = hzInstance.getDistributedObjects().size(); 
+		logger.debug("removeClient.exit; queue {} {} for client: {}; size before: {}, after: {}", 
+				qName, removed ? "destroyed" : "skipped", clientId, sizeBefore, sizeAfter); 
+		return removed;
 	}
 
 	@Override
 	public void entryAdded(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
+		logger.trace("clientAdded.enter; key: {}; value: {}", event.getKey(), event.getValue());
 	}
 
 	@Override
@@ -151,7 +154,8 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 
 	@Override
 	public void entryRemoved(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
+		logger.trace("clientRemoved.enter; key: {}; value: {}", event.getKey(), event.getValue());
+		removeClient(event.getKey());
 	}
 
 	@Override

@@ -6,8 +6,8 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Iterator;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.SchemaRepository;
@@ -20,7 +20,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>, IdentifiedDataSerializable {  
 
-    //private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
 
 	private int limit;
 	private int index = 0;
@@ -34,16 +34,16 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 		//
 	}
 
-	public QueuedCollectionImpl(HazelcastInstance hzi, String queueName) {
+	public QueuedCollectionImpl(HazelcastInstance hzi, String queueName, int limit) {
 		this.queueName = queueName;
-		init(hzi, 0);
+		this.limit = limit;
+		init(hzi);
 	}
 	
 	//@Override
-	public void init(HazelcastInstance hzi, int limit) {
+	public void init(HazelcastInstance hzi) {
 		//logger.trace("init.enter; queue: {}", queueName);
 		this.hzi = hzi;
-		this.limit = limit;
 		this.queue = hzi.getQueue(queueName);
 	}
 
@@ -65,6 +65,13 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	@Override
 	public boolean add(T result) {
+		if (limit > 0) {
+			if (queue.size() < limit) {
+				return queue.add(result);
+			}
+			logger.trace("add; queue is full: {}; limit: {}", queue.size(), limit);
+			return false;
+		}
 		return queue.add(result);
 	}
 	
@@ -120,11 +127,13 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
+		limit = in.readInt();
 		queueName = in.readUTF();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeInt(limit);
 		out.writeUTF(queueName);
 	}
 
