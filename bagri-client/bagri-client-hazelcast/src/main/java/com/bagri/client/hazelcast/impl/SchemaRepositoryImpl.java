@@ -54,7 +54,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		this.hzClient = hzInstance;
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient;
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
-		//clientId = proxy.getLocalEndpoint().getUuid();
 
 		clientMgr = new ClientManagementImpl();
 		clientId = UUID.randomUUID().toString();

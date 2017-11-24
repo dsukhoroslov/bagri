@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.client.hazelcast.UrlHashKey;
+import com.bagri.client.hazelcast.impl.BoundedQueueCollectionImpl;
 import com.bagri.client.hazelcast.impl.FixedCollectionImpl;
 import com.bagri.client.hazelcast.impl.QueuedCollectionImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
@@ -295,7 +296,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (asynch) {
 			String clientId = props.getProperty(pn_client_id);
 			String queueName = "client:" + clientId;
-			cln = new QueuedCollectionImpl<>(hzInstance, queueName, fetchSize);
+			cln = new BoundedQueueCollectionImpl<>(hzInstance, queueName, fetchSize);
 			execSvc.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -329,7 +330,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (query != null) {
 			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
 			for (Document doc: docs) {
-				cln.add(doc.getUri());
+				if (!cln.add(doc.getUri())) {
+					break;
+				}
 			}
 		}
 		logger.trace("fetchUris.exit; fetched {} uris", cnt);
@@ -435,7 +438,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
 			String clientId = props.getProperty(pn_client_id);
 			String queueName = "client:" + clientId;
-			iter = new QueuedCollectionImpl<>(hzInstance, queueName, fetchSize);
+			if (hzInstance.getCluster().getMembers().size() > 1) {
+				iter = new BoundedQueueCollectionImpl<>(hzInstance, queueName, fetchSize);
+			} else {
+				iter = new QueuedCollectionImpl<>(hzInstance, queueName);
+			}
 		} else {
 			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
 				iter = new CompressingCollectionImpl<>(repo, fetchSize);
@@ -507,14 +514,18 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						content = cc.convertTo(content);
 					}
 					dai = new DocumentAccessorImpl(repo, doc, headers, content);
-					cln.add(dai);
+					if (!cln.add(dai)) {
+						break;
+					}
 					cnt++;
 				}
 			} else {
 				// doc only
 				for (Document doc: docs) {
 					dai = new DocumentAccessorImpl(repo, doc, headers);
-					cln.add(dai);
+					if (!cln.add(dai)) {
+						break;
+					}
 					cnt++;
 				}
 			}

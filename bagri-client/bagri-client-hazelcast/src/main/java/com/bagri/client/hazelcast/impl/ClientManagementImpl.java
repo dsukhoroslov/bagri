@@ -98,12 +98,12 @@ public class ClientManagementImpl {
     private void addClient(final ClientContainer cc, final String clientId, Properties props) {
     	HazelcastInstance hzClient = cc.hzInstance; 
     	if (cc.addClient(clientId)) {
-    		//IMap<String, Properties> clientProps = hzClient.getMap(CN_XDM_CLIENT);
     		ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
     		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
     		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
-    		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString()); 
-    		//clientProps.set(clientId, props);
+    		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString());
+    		//clientId = proxy.getLocalEndpoint().getUuid();
+
     		clientProps.put(clientId, props);
 			logger.debug("addClient; got new connection for clientId: {}", clientId);
     	} else {
@@ -121,9 +121,7 @@ public class ClientManagementImpl {
 	    			found = cc;
 	        		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
 					try {
-						//IMap<String, Properties> clientProps = cc.hzInstance.getMap(CN_XDM_CLIENT);
 						ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
-						//clientProps.delete(clientId);
 						clientProps.remove(clientId);
 			    		if (found.isEmpty()) {
 			    			clients.remove(found.clientKey);
@@ -240,7 +238,7 @@ public class ClientManagementImpl {
 			}
 		}
 		
-		config.setProperty("hazelcast.logging.type", "slf4j");
+		//config.setProperty("hazelcast.logging.type", "slf4j");
 		// for HZ-3.9
 		//config.setProperty("hazelcast.socket.client.buffer.direct", "true");
 		

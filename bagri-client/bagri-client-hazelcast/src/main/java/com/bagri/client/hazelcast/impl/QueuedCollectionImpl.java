@@ -6,9 +6,6 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Null;
@@ -20,23 +17,18 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>, IdentifiedDataSerializable {  
 
-    private final static Logger logger = LoggerFactory.getLogger(QueuedCollectionImpl.class);
+	protected String queueName;
+	protected Object current;
 
-	private int limit;
-	private int index = 0;
-	private String queueName;
-	private Object current;
-
-	private IQueue<Object> queue;
-	private HazelcastInstance hzi;
+	protected IQueue<Object> queue;
+	protected HazelcastInstance hzi;
     
 	public QueuedCollectionImpl() {
 		//
 	}
 
-	public QueuedCollectionImpl(HazelcastInstance hzi, String queueName, int limit) {
+	public QueuedCollectionImpl(HazelcastInstance hzi, String queueName) {
 		this.queueName = queueName;
-		this.limit = limit;
 		init(hzi);
 	}
 	
@@ -50,7 +42,6 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	@Override
 	public void close() throws Exception {
 		queue.clear();		
-		index = 0;
 	}
 
 	@Override
@@ -65,13 +56,6 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	@Override
 	public boolean add(T result) {
-		if (limit > 0) {
-			if (queue.size() < limit) {
-				return queue.add(result);
-			}
-			logger.trace("add; queue is full: {}; limit: {}", queue.size(), limit);
-			return false;
-		}
 		return queue.add(result);
 	}
 	
@@ -93,20 +77,15 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException("size() is not supported in the asynch collection impl");
+		return queue.size();
 	}
 	
 	@Override
 	public boolean hasNext() {
-		if (limit > 0 && index >= limit) {
-			return false;
-		}
 		try {
 			current = queue.take();
 			if (current instanceof Null) {
 				current = null;
-			} else {
-				index++;
 			}
 		} catch (InterruptedException e) {
 			current = null;
@@ -124,16 +103,13 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 		throw new UnsupportedOperationException("remove() is not supported");
 	}
 
-
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		limit = in.readInt();
 		queueName = in.readUTF();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeInt(limit);
 		out.writeUTF(queueName);
 	}
 

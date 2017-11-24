@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_client_memberId;
 import static com.bagri.core.Constants.pn_schema_user;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -97,29 +98,20 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	public void clientConnected(Client client) {
 		String clientId = client.getUuid();
 		logger.info("clientConnected.enter; client: {}", clientId); 
-		// create queue
-		//IQueue queue = hzInstance.getQueue("client:" + clientId);
-		// create/cache new XQProcessor
-		//XQProcessor proc = getXQProcessor(client.getUuid());
-		//logger.trace("clientConnected.exit; queue {} created for client: {}; XQProcessor: {}", 
-		//		queue.getName(), clientId, proc);
 	}
 
 	@Override
 	public void clientDisconnected(Client client) {
 		String clientId = client.getUuid();
 		logger.trace("clientDisconnected.enter; client: {}", clientId);
-		
-		// TODO: repair this!
-		//PropertyPredicate pp = new PropertyPredicate(pn_client_memberId, clientId);
-		//Set<String> members = clientsCache.localKeySet(pp);
-		//for (String member: members) {
-		//	clientsCache.delete(member);
-		//}
-		
-		// TODO: check and destroy client's resources
-
-		//removeClient(clientId);
+		// check and destroy client's resources
+		for (Map.Entry<String, Properties> entry: clientsCache.entrySet()) {
+			Properties props = entry.getValue();
+    		String uuid = props.getProperty(pn_client_memberId);
+    		if (clientId.equals(uuid)) {
+    			clientsCache.remove(entry.getKey());
+    		}
+		}
 		//XQProcessor proc = processors.remove(client.getUuid());
 	}
 	

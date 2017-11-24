@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -106,35 +107,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("getDocument.exit; got content: {}", result);
 		return (DocumentAccessor) result;
 	}
-
+	
 	@Override
 	@SuppressWarnings("resource")
 	public Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		checkDocumentProperties(props);
-		Iterable<DocumentAccessor> result;
-		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		//checkDocumentProperties(props);
 		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
-		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
-		try {
-			if (asynch) {
-				ResultCollection<DocumentAccessor> cln;
-				cln = results.values().iterator().next().get();
-				((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
-				result = cln;
-			} else {
-				int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-				CombinedCollectionImpl<DocumentAccessor> comb = new CombinedCollectionImpl<>(fSize);
-				for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
-					ResultCollection<DocumentAccessor> cln = entry.getValue().get();
-					comb.addResults(cln);
-				}
-				result = comb;
-			}
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("getDocuments; error getting result", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		Iterable<DocumentAccessor> result = runIterableDocumentTask(task, props);
 		logger.trace("getDocuments.exit; got results: {}", result);
 		return result;
 	}
@@ -146,20 +126,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Document content can not be null", ecDocument);
 		}
 		repo.getHealthManagement().checkClusterState();
-		checkDocumentProperties(props);
-		
+		//checkDocumentProperties(props);
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, content);
 		task.setRepository(repo);
-		Future<DocumentAccessor> future = execService.submit(task);
-		try {
-			DocumentAccessor result = future.get();
-			logger.trace("storeDocument.exit; returning: {}", result);
-			return (DocumentAccessor) result;
-		} catch (InterruptedException | ExecutionException ex) {
-			// the document could be stored anyway..
-			logger.error("storeDocument.error", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		DocumentAccessor result = runSimpleDocumentTask(task, props);
+		logger.trace("storeDocument.exit; returning: {}", result);
+		return result;
 	}
 
 	@Override
@@ -169,25 +141,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Empty Document collection provided", ecDocument);
 		}
 		repo.getHealthManagement().checkClusterState();
-		checkDocumentProperties(props);
-
-		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
-		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		//checkDocumentProperties(props);
 		DocumentsCreator task = new DocumentsCreator(repo.getClientId(), repo.getTransactionId(), props, (Map<String, Object>) documents);
 		// TODO: split documents between members properly..
-		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
-			try {
-				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
-				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
-				}
-				result.addResults(cln);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("storeDocuments; error getting result", ex);
-				throw new BagriException(ex, ecDocument);
-			}
-		}
+		Iterable<DocumentAccessor> result = runIterableDocumentTask(task, props);
 		logger.trace("storeDocuments.exit; results: {}", result);
 		return (Iterable<DocumentAccessor>) result;
 	}
@@ -196,45 +153,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public DocumentAccessor removeDocument(String uri, Properties props) throws BagriException {
 		logger.trace("removeDocument.enter; uri: {}", uri);
 		repo.getHealthManagement().checkClusterState();
-		//XDMDocumentRemover proc = new XDMDocumentRemover();
-		//Object result = xddCache.executeOnKey(docId, proc);
-		checkDocumentProperties(props);
-		
+		//checkDocumentProperties(props);
 		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), props, uri);
-		Future<DocumentAccessor> future = execService.submit(task);
-		try {
-			DocumentAccessor result = future.get();
-			logger.trace("removeDocument.exit; returning: {}", result);
-			return result;
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.error("removeDocument.error: ", ex);
-			throw new BagriException(ex, ecDocument);
-		}
+		DocumentAccessor result = runSimpleDocumentTask(task, props);
+		logger.trace("removeDocument.exit; returning: {}", result);
+		return result;
 	}
 
 	@Override
 	public Iterable<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
 		repo.getHealthManagement().checkClusterState();
-		checkDocumentProperties(props);
-
-		CombinedCollectionImpl<DocumentAccessor> result = new CombinedCollectionImpl<>();
-		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentsRemover task = new DocumentsRemover(repo.getClientId(), repo.getTransactionId(), props, pattern);
-		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
-			try {
-				ResultCollection<DocumentAccessor> cln = entry.getValue().get();
-				if (asynch) {
-					((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
-				}
-				result.addResults(cln);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("removeDocuments.error; ", ex);
-				// process all results first?!
-				throw new BagriException(ex, ecDocument);
-			}
-		}
+		Iterable<DocumentAccessor> result = runIterableDocumentTask(task, props);
 		logger.trace("removeDocuments.exit; results: {}", result);
 		return (Iterable<DocumentAccessor>) result;
 	}
@@ -273,6 +204,47 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cnt;
 	}
 	
+	private DocumentAccessor runSimpleDocumentTask(Callable<DocumentAccessor> task, Properties props) throws BagriException {
+		checkDocumentProperties(props);
+		Future<DocumentAccessor> future = execService.submit(task);
+		try {
+			DocumentAccessor result = future.get();
+			logger.trace("storeDocument.exit; returning: {}", result);
+			return (DocumentAccessor) result;
+		} catch (InterruptedException | ExecutionException ex) {
+			// the document could be processed anyway..
+			logger.error("runSimpleDocumentTask.error", ex);
+			throw new BagriException(ex, ecDocument);
+		}
+	}
+	
+	private Iterable<DocumentAccessor> runIterableDocumentTask(Callable<ResultCollection<DocumentAccessor>> task, Properties props) throws BagriException {
+		Iterable<DocumentAccessor> result;
+		checkDocumentProperties(props);
+		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
+		try {
+			if (asynch) {
+				ResultCollection<DocumentAccessor> cln;
+				cln = results.values().iterator().next().get();
+				((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
+				result = cln;
+			} else {
+				int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+				CombinedCollectionImpl<DocumentAccessor> comb = new CombinedCollectionImpl<>(fSize);
+				for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
+					ResultCollection<DocumentAccessor> cln = entry.getValue().get();
+					comb.addResults(cln);
+				}
+				result = comb;
+			}
+		} catch (InterruptedException | ExecutionException ex) {
+			logger.error("runIterableDocumentTask; error getting result", ex);
+			throw new BagriException(ex, ecDocument);
+		}
+		return result;
+	}
+
 	private int updateDocumentCollections(String uri, boolean add, String[] collections) {
 		Properties props = checkDocumentProperties(null);
 		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), props, uri, add, collections);
