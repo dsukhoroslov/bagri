@@ -43,10 +43,11 @@ public class BoundedQueueCollectionImpl<T> extends QueuedCollectionImpl<T> {
 
 	@Override
 	public boolean add(T result) {
-		if (queue.size() < limit) {
+		int size = queue.size();
+		if (size < limit) {
 			return queue.add(result);
 		}
-		logger.info("add; queue is full: {}; limit: {}", queue.size(), limit);
+		logger.debug("add; queue {} is full: {}; limit: {}", queueName, size, limit);
 		return false;
 	}
 	
