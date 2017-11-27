@@ -54,9 +54,20 @@ public class Constants {
 
 	public static final String pn_client_contentSerializer = "bdb.client.contentSerializer";
 	public static final String pn_client_contentSerializers = "bdb.client.contentSerializers";
-
 	public static final String pv_client_defaultSerializers = "MAP BMAP SMAP JSON XML";
 	
+    public static final String pn_document_collections = "bdb.document.collections";
+    public static final String pn_document_compress = "bdb.document.compress";
+    public static final String pn_document_data_format = "bdb.document.data.format";
+    public static final String pn_document_headers = "bdb.document.headers";
+    public static final String pn_document_data_source = "bdb.document.data.source";
+    public static final String pn_document_map_merge = "bdb.document.map.merge";
+    public static final String pn_document_cache_content = "bdb.document.cache.content";
+    public static final String pn_document_cache_elements = "bdb.document.cache.elements";
+    
+    public static final String pv_document_data_source_file = "FILE"; 
+    public static final String pv_document_data_source_map = "MAP"; 
+
 	public static final String pn_query_command = "bdb.query.command";
 	
 	// XDM Server configuration constants
@@ -103,17 +114,6 @@ public class Constants {
     public static final String pn_schema_builder_ident = "bdb.schema.builder.ident";
     public static final String pn_schema_parser_schemas = "bdb.schema.parser.schemas";
     
-    public static final String pn_document_collections = "bdb.document.collections";
-    public static final String pn_document_compress = "bdb.document.compress";
-    public static final String pn_document_data_format = "bdb.document.data.format";
-    public static final String pn_document_headers = "bdb.document.headers";
-    public static final String pn_document_data_source = "bdb.document.data.source";
-    public static final String pn_document_map_merge = "bdb.document.map.merge";
-    public static final String pn_document_map_fields = "bdb.document.map.fields";
-    
-    public static final String pv_document_data_source_file = "FILE"; 
-    public static final String pv_document_data_source_map = "MAP"; 
-
 	// XQJ configuration constants
 	public static final String pn_xqj_baseURI = "xqj.schema.baseUri";
 	public static final String pn_xqj_constructionMode = "xqj.schema.constructionMode";
@@ -231,7 +231,9 @@ public class Constants {
 			case pn_document_data_source: return 53;
 			case pn_document_map_merge: return 54;
 			case pn_document_compress: return 55;
-			
+			case pn_document_cache_content: return 56;
+			case pn_document_cache_elements: return 57;
+
 			case pn_xqj_baseURI: return 100;
 			case pn_xqj_constructionMode: return 101;
 			case pn_xqj_defaultCollationUri: return 102;
@@ -290,6 +292,8 @@ public class Constants {
 			case 53: return pn_document_data_source;
 			case 54: return pn_document_map_merge;
 			case 55: return pn_document_compress;
+			case 56: return pn_document_cache_content;
+			case 57: return pn_document_cache_elements;
 			
 			case 100: return pn_xqj_baseURI;
 			case 101: return pn_xqj_constructionMode;

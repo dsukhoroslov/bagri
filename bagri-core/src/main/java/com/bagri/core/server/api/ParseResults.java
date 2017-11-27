@@ -15,10 +15,17 @@ public class ParseResults {
 	}
 
 	/**
-	 * @return the contentLength
+	 * @return the content length
 	 */
 	public int getContentLength() {
 		return contentLength;
+	}
+
+	/**
+	 * @return the content root
+	 */
+	public String getContentRoot() {
+		return results.get(0).getRoot();
 	}
 
 	/**
@@ -28,5 +35,11 @@ public class ParseResults {
 		return results;
 	}
 
+	/**
+	 * @return the result size
+	 */
+	public int getResultSize() {
+		return results.size();
+	}
 	
 }

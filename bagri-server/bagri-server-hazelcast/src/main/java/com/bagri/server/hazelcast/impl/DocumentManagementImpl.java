@@ -816,7 +816,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		int length = pRes.getContentLength();
-		String root = data.get(0).getRoot();
+		String root = pRes.getContentRoot();
 		Set<Integer> ids = processElements(docId, data);
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
 		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());
@@ -829,17 +829,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				Collection cln = repo.getSchema().getCollection(clName);
 				if (cln != null) {
 					newDoc.addCollection(cln.getId());
-					updateStats(clName, true, data.size(), 0);
+					updateStats(clName, true, pRes.getResultSize(), 0);
 					//updateStats(clName, true, paths.size(), doc.getFragments().length);
 				}
 			}
 		} else {
 			String clName = checkDefaultDocumentCollection(newDoc);
 			if (clName != null) {
-				updateStats(clName, true, data.size(), 0);
+				updateStats(clName, true, pRes.getResultSize(), 0);
 			}
 		}
-		updateStats(null, true, data.size(), 0);
+		updateStats(null, true, pRes.getResultSize(), 0);
 
 		if (old.getValue() == null || txId == TX_NO) {
 	    	old.setValue(newDoc);
