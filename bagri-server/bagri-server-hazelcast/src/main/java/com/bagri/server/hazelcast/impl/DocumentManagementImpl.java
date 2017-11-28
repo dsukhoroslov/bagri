@@ -90,7 +90,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	//private IExecutorService execSvc;
 	private ExecutorService execSvc;
-	private Map<String, byte[]> sharedMap;
 
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -105,10 +104,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	execSvc = Executors.newFixedThreadPool(32);
     	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
     	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
-		sharedMap = new HashMap<>(10);
-		for (int j=0; j < 10; j++) {
-			sharedMap.put("field" + j, org.apache.commons.lang3.RandomStringUtils.random(100).getBytes());
-		}
     }
 
     IMap<DocumentKey, Object> getContentCache() {
@@ -783,6 +778,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		//boolean update = (old.getValue() != null); // && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
 		DocumentKey docKey = old.getKey();
 		long docId = docKey.getKey();
+		int rSize = pRes.getResultSize(); 
 		List<Data> data = pRes.getResults();
 		if (old.getValue() != null) {
 	    	logger.trace("processDocument; going to update document: {}", old);
@@ -797,8 +793,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    	} else {
 		    	// we do changes inplace, no new version created
 	    		boolean mergeElts = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
-	    		if (!mergeElts) {
-			    	Set<Integer> pIds = new HashSet<>(data.size());
+	    		if (!mergeElts && rSize > 0) {
+			    	Set<Integer> pIds = new HashSet<>(rSize);
 			    	for (Data dt: data) {
 			    		pIds.add(dt.getPathId());
 			    	}
@@ -817,9 +813,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		int length = pRes.getContentLength();
 		String root = pRes.getContentRoot();
-		Set<Integer> ids = processElements(docId, data);
+		if (rSize > 0) {
+			processElements(docId, data);
+		}
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
-		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, data.size());
+		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, rSize);
 
 		String collections = props.getProperty(pn_document_collections);
 		if (collections != null) {
@@ -829,17 +827,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				Collection cln = repo.getSchema().getCollection(clName);
 				if (cln != null) {
 					newDoc.addCollection(cln.getId());
-					updateStats(clName, true, pRes.getResultSize(), 0);
+					updateStats(clName, true, rSize, 0);
 					//updateStats(clName, true, paths.size(), doc.getFragments().length);
 				}
 			}
 		} else {
 			String clName = checkDefaultDocumentCollection(newDoc);
 			if (clName != null) {
-				updateStats(clName, true, pRes.getResultSize(), 0);
+				updateStats(clName, true, rSize, 0);
 			}
 		}
-		updateStats(null, true, pRes.getResultSize(), 0);
+		updateStats(null, true, rSize, 0);
 
 		if (old.getValue() == null || txId == TX_NO) {
 	    	old.setValue(newDoc);
@@ -849,14 +847,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 		cntCache.set(docKey, content);
-
-		//UrlHashKey hash = new UrlHashKey(uri);
-		//List<DocumentKey> keys = ddSvc.getCachedObject(CN_XDM_KEY, hash, true);
-		//if (keys == null) {
-		//	keys = new ArrayList<>();
-		//}
-		//keys.add(docKey);
-		//keyCache.set(hash, keys);
 
 		logger.trace("processDocument.exit; returning: {}", newDoc);
 		return newDoc;
@@ -954,11 +944,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//}
 		}
 
-		String dataFormat = props.getProperty(pn_document_data_format);
-		ContentParser<Object> parser = repo.getParser(dataFormat);
-		ParseResults pRes = parser.parse(content);
-		// TODO: check for parse results?
-		
+		ParseResults pRes = parseContent(content, props);
 		// if fragmented document - process it in the old style!
 
 		Transaction tx = null;
@@ -1009,6 +995,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		logger.trace("storeDocumentInternal.exit; returning: {}", newDoc);
 		return newDoc;
+	}
+	
+	private ParseResults parseContent(Object content, Properties props) throws BagriException {
+		ParseResults result;
+		boolean cacheElts = Boolean.parseBoolean(props.getProperty(pn_document_cache_elements, "true"));
+		if (!cacheElts) {
+			cacheElts = indexManager.hasIndices();
+		}
+		if (cacheElts) {
+			String dataFormat = props.getProperty(pn_document_data_format);
+			ContentParser<Object> parser = repo.getParser(dataFormat);
+			result = parser.parse(content);
+			// TODO: check for parse results?
+		} else {
+			result = new ParseResults(0, null);
+		}
+		return result;
 	}
 
 	@Override

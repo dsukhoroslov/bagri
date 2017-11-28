@@ -538,5 +538,9 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public boolean hasIndices() {
+		return idxDict.size() > 0;
+	}
 
 }
