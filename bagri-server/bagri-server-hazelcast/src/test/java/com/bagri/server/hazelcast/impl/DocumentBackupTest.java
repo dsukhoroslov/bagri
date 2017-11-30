@@ -102,6 +102,8 @@ public class DocumentBackupTest {
 		DocumentAccessor oDoc = repo.getDocumentManagement().getDocument(uri, props);
 		assertEquals(mDoc.getUri(), oDoc.getUri());
 		HazelcastInstance hz = repo.getHzInstance();
+		IMap cCnts = hz.getMap(CacheConstants.CN_XDM_CONTENT);
+		assertEquals(0, cCnts.getLocalMapStats().getBackupEntryCount());
 		IMap cDocs = hz.getMap(CacheConstants.CN_XDM_DOCUMENT);
 		assertEquals(0, cDocs.getLocalMapStats().getBackupEntryCount());
 		IMap cElts = hz.getMap(CacheConstants.CN_XDM_ELEMENT);
@@ -111,11 +113,14 @@ public class DocumentBackupTest {
 		repo = repos[bdx];
 		DocumentAccessor bDoc = repo.getDocumentManagement().getDocument(uri, props);
 		assertNull(bDoc);
+		Thread.sleep(10); // wait for stats a bit
 		hz = repo.getHzInstance();
+		cCnts = hz.getMap(CacheConstants.CN_XDM_CONTENT);
+		assertEquals(1, cCnts.getLocalMapStats().getBackupEntryCount());
 		cDocs = hz.getMap(CacheConstants.CN_XDM_DOCUMENT);
 		assertEquals(1, cDocs.getLocalMapStats().getBackupEntryCount());
-		//cElts = hz.getMap(CacheConstants.CN_XDM_ELEMENT);
-		//assertEquals(3, cElts.getLocalMapStats().getBackupEntryCount());
+		cElts = hz.getMap(CacheConstants.CN_XDM_ELEMENT);
+		assertEquals(3, cElts.getLocalMapStats().getBackupEntryCount());
 
 		contexts[idx].close();
 		contexts[idx] = null;

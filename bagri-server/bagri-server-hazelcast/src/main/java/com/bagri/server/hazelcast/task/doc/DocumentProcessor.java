@@ -96,7 +96,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
 		DocumentBackupProcessor proc = null;
 		if (result != null) {
-			proc = new DocumentBackupProcessor(result, content, props);
+			proc = new DocumentBackupProcessor(result);
 		}
 		logger.trace("getBackupProcessor.enter; returning {}", proc);
 		return proc;
