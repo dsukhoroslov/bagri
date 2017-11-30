@@ -524,6 +524,7 @@
                 <entry name="bdb.schema.store.data.path">../data/json</entry>
                 <entry name="bdb.schema.buffer.size">128</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
+		<entry name="bdb.schema.transaction.level"></entry>
 		<entry name="bdb.schema.transaction.timeout">60000</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>

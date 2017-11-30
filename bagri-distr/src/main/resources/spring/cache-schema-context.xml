@@ -422,6 +422,7 @@
 
 	<bean id="txManager" class="com.bagri.server.hazelcast.impl.TransactionManagementImpl">
 		<!--property name="hzInstance" ref="hzInstance"/-->
+		<property name="transactionLevel" value="${bdb.schema.transaction.level}"/>
 		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/>
 	</bean>
 	

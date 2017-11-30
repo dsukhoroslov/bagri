@@ -28,7 +28,7 @@ import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>, EntryBackupProcessor<DocumentKey, Document>, Offloadable {
+public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>, Offloadable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,6 +42,8 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private Object content;
 	private ParseResults data;
 	private Properties props;
+	
+	private Document result;
 
 	public DocumentProcessor() {
 		//
@@ -67,11 +69,6 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
     }
 
 	@Override
-	public void processBackup(Entry<DocumentKey, Document> entry) {
-		//this.process(entry);
-	}
-
-	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
 		DocumentKey lastKey = null;
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
@@ -88,7 +85,8 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 			entry = new MapEntrySimple<>(lastKey, lastDoc);
 		}
     	try {
-    		return docMgr.processDocument(entry, txStart, uri, content, data, props);
+    		result = docMgr.processDocument(entry, txStart, uri, content, data, props);
+    		return result;
     	} catch (BagriException ex) {
     		return ex;
     	}
@@ -96,7 +94,12 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 
 	@Override
 	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
-		return null; //this;
+		DocumentBackupProcessor proc = null;
+		if (result != null) {
+			proc = new DocumentBackupProcessor(result, content, props);
+		}
+		logger.trace("getBackupProcessor.enter; returning {}", proc);
+		return proc;
 	}
 
 	@Override
@@ -120,7 +123,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	//	super.writeData(out);
 	//	out.writeUTF(content);
 	//}
-
+	
 }
 
 
