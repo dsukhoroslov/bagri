@@ -18,6 +18,7 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class DocumentCollectionUpdater extends com.bagri.client.hazelcast.task.doc.DocumentCollectionUpdater {
 
+	private Document doc;
 	private transient DocumentManagement docMgr;
     
     @Autowired
@@ -28,23 +29,18 @@ public class DocumentCollectionUpdater extends com.bagri.client.hazelcast.task.d
 
 	@Override
 	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
-		return this;
+		return new DocumentBackupProcessor(doc);
 	}
 
 	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
     	try {
 			((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
+			doc = entry.getValue();
     		return ((DocumentManagementImpl) docMgr).updateDocumentCollections(add, entry, collections);
 		} catch (BagriException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
-
-	@Override
-	public void processBackup(Entry<DocumentKey, Document> entry) {
-		process(entry);
-	}
-
-    
+   
 }

@@ -8,8 +8,8 @@ import static com.bagri.core.api.TransactionManagement.TX_NO;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.DocumentKey;
@@ -32,7 +32,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 
 	private static final long serialVersionUID = 1L;
 
-	private static final transient Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
+	//private static final transient Logger logger = LoggerFactory.getLogger(DocumentProcessor.class);
 
 	private transient DocumentManagementImpl docMgr;
 	private transient DataDistributionService ddSvc;
@@ -69,6 +69,21 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
     }
 
 	@Override
+	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
+		DocumentBackupProcessor proc = null;
+		if (tx == null && result != null) {
+			proc = new DocumentBackupProcessor(result);
+		}
+		//logger.trace("getBackupProcessor.enter; returning {}", proc);
+		return proc;
+	}
+
+	@Override
+	public String getExecutorName() {
+		return Offloadable.NO_OFFLOADING; // PN_XDM_SCHEMA_POOL;
+	}
+
+	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
 		DocumentKey lastKey = null;
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
@@ -92,38 +107,6 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
     	}
 	}
 
-	@Override
-	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
-		DocumentBackupProcessor proc = null;
-		if (result != null) {
-			proc = new DocumentBackupProcessor(result);
-		}
-		logger.trace("getBackupProcessor.enter; returning {}", proc);
-		return proc;
-	}
-
-	@Override
-	public String getExecutorName() {
-		return Offloadable.NO_OFFLOADING; // PN_XDM_SCHEMA_POOL;
-	}
-
-	//@Override
-	//public int getId() {
-	//	return cli_ProcessDocumentTask;
-	//}
-
-	//@Override
-	//public void readData(ObjectDataInput in) throws IOException {
-	//	super.readData(in);
-	//	content = in.readUTF();
-	//}
-
-	//@Override
-	//public void writeData(ObjectDataOutput out) throws IOException {
-	//	super.writeData(out);
-	//	out.writeUTF(content);
-	//}
-	
 }
 
 

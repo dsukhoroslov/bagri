@@ -20,13 +20,14 @@ import java.util.Properties;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 @SpringAware
-public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Document>, EntryBackupProcessor<DocumentKey, Document>, Offloadable {
+public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Document>, Offloadable {
 
     private static final long serialVersionUID = 1L;
 
     private transient DocumentManagementImpl docMgr;
 	private transient DataDistributionService ddSvc;
 
+    private Document doc;
     private Transaction tx;
     private Properties properties;
 
@@ -47,13 +48,21 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
     }
 
     @Override
-    public void processBackup(Map.Entry<DocumentKey, Document> entry) {
+    public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
+		if (tx == null) {
+			doc = null;
+		}
+		return new DocumentBackupProcessor(doc);
+    }
 
+    @Override
+    public String getExecutorName() {
+        return Offloadable.NO_OFFLOADING;
     }
 
     @Override
     public Object process(Map.Entry<DocumentKey, Document> entry) {
-        Document doc = entry.getValue();
+        doc = entry.getValue();
         long txStart = tx == null ? TX_NO : tx.getTxId();
 		DocumentKey lastKey = ddSvc.getLastKeyForUri(doc.getUri());
         if (lastKey == null) {
@@ -69,13 +78,4 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
         return docMgr.processDocumentRemoval(entry, properties, txStart, doc);
     }
 
-    @Override
-    public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
-        return null;
-    }
-
-    @Override
-    public String getExecutorName() {
-        return Offloadable.NO_OFFLOADING;
-    }
 }

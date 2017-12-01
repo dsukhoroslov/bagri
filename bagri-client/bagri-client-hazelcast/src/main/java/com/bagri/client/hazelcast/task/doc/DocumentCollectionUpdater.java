@@ -14,8 +14,7 @@ import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentCollectionUpdater extends DocumentAwareTask implements EntryProcessor<DocumentKey, Document>,
-	EntryBackupProcessor<DocumentKey, Document>{
+public class DocumentCollectionUpdater extends DocumentAwareTask implements EntryProcessor<DocumentKey, Document> {
 	
 	/**
 	 * 
@@ -36,22 +35,18 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Entr
 	}
 
 	@Override
+	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
+		return null;
+	}
+
+	@Override
 	public int getId() {
 		return cli_UpdateDocumentCollectionTask;
 	}
 
 	@Override
-	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
-		return this;
-	}
-
-	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
 		return null;
-	}
-
-	@Override
-	public void processBackup(Entry<DocumentKey, Document> entry) {
 	}
 
 	@Override
