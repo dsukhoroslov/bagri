@@ -4,11 +4,6 @@ import com.sun.tools.visualvm.application.Application;
 import com.sun.tools.visualvm.core.ui.DataSourceView;
 import com.sun.tools.visualvm.core.ui.DataSourceViewProvider;
 import com.sun.tools.visualvm.core.ui.DataSourceViewsManager;
-import com.sun.tools.visualvm.tools.jmx.JmxModel;
-import com.sun.tools.visualvm.tools.jmx.JmxModelFactory;
-
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
 
 public class BagriManagerViewProvider extends DataSourceViewProvider<Application> {
 

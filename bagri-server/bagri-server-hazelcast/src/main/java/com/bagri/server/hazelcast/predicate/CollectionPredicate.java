@@ -6,23 +6,19 @@ import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.model.Document;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.query.Predicate;
-import com.hazelcast.spring.context.SpringAware;
 
-//@SpringAware
 public class CollectionPredicate implements Predicate<DocumentKey, Document>, IdentifiedDataSerializable {
 
-	private static final transient Logger logger = LoggerFactory.getLogger(CollectionPredicate.class);
+	//private static final transient Logger logger = LoggerFactory.getLogger(CollectionPredicate.class);
 	
 	/**
 	 * 
@@ -33,12 +29,12 @@ public class CollectionPredicate implements Predicate<DocumentKey, Document>, Id
 	
 	public CollectionPredicate() {
 		// for de-serialization
-		logger.info("<init>");
+		//logger.trace("<init>");
 	}
 	
 	public CollectionPredicate(int clnId) {
 		this.clnId = clnId;
-		logger.trace("<init>; clnId: {}", clnId);
+		//logger.trace("<init>; clnId: {}", clnId);
 	}
 
 	@Override
@@ -55,20 +51,20 @@ public class CollectionPredicate implements Predicate<DocumentKey, Document>, Id
 	public boolean apply(Entry<DocumentKey, Document> docEntry) {
 		Document doc = docEntry.getValue();
 		// will perform this check later anyway..
-		logger.info("apply; doc: {}", doc); 
+		//logger.info("apply; doc: {}", doc); 
 		return doc.hasCollection(clnId); // && doc.getTxFinish() == 0;
 	}
 	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		clnId = in.readInt();
-		logger.info("read; clnId: {}", clnId);
+		//logger.info("read; clnId: {}", clnId);
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeInt(clnId);
-		logger.info("write; clnId: {}", clnId);
+		//logger.info("write; clnId: {}", clnId);
 	}
 
 }

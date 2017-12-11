@@ -146,7 +146,7 @@ public class BagriOverview extends DataSourceViewPlugin implements DataRemovedLi
 	                    		}
 	                        } catch (ServiceException e) {
 	                            //ErrorUtil.showError(SchemaManagementPanel.this, e);
-	                            LOGGER.severe("loadData; ot exception loading hosts: " + e.getMessage()); 
+	                            LOGGER.severe("loadData; got exception loading hosts: " + e.getMessage()); 
 	                            // skip..
 	                        }
 	                    }
@@ -179,7 +179,8 @@ public class BagriOverview extends DataSourceViewPlugin implements DataRemovedLi
     }
 
 	@Override
-	public void dataRemoved(Application arg0) {
+	public void dataRemoved(Application app) {
+		LOGGER.info("dataRemoved; closing: " + app); 
 		bsp.close();
 		bsp = null;
 	}

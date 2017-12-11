@@ -84,8 +84,8 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
     }    
 
 	@Override
-	public void dataRemoved(Application source) {
-		LOGGER.info("dataRemoved; got removed notification from source: " + source);
+	public void dataRemoved(Application app) {
+		LOGGER.info("dataRemoved; got removed notification from app: " + app);
 		application = null;
 		SwingUtilities.invokeLater(new Runnable() {
             @Override
