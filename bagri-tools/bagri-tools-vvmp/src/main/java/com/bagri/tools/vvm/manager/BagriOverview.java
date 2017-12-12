@@ -137,7 +137,7 @@ public class BagriOverview extends DataSourceViewPlugin implements DataRemovedLi
 	                    		for (String host: hosts) {
 	        	                    rows.add(new DefaultGridRow(schema.getObjectName(), new Object[] {
 	        	                    		""
-	        	                            , host
+	        	                            , "   " + host
 	        	                            , ""
 	        	                            , ""
 	        	                            , ""

@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Comparator;
@@ -146,6 +145,14 @@ public class SchemaCapacityPanel extends JPanel {
     }    
 
     private void onRefresh() {
+    	if (partSize == 0) {
+        	try {
+        		TabularData data = schemaService.getSchemaPartitionStatistics(schemaName);
+        		partSize = data.size();
+        	} catch (ServiceException ex) {
+        		//LOGGER.severe("onRefresh.error: " + ex.getMessage());
+        	}
+    	}
     	if (partSize > 0) {
     		new CapacityStatsProvider(schemaService, schemaName, header, chart).start();
     	}

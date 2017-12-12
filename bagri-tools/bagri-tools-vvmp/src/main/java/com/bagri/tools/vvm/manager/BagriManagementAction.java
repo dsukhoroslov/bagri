@@ -22,7 +22,8 @@ public class BagriManagementAction extends SingleDataSourceAction<Application> {
 
     @Override
     protected void actionPerformed(Application application, ActionEvent arg1) {
-        JOptionPane.showMessageDialog(null, application.getPid());
+    	// TODO: implement me!
+        JOptionPane.showMessageDialog(null, "No Bagri clusters discovered", "", JOptionPane.INFORMATION_MESSAGE);
     }
 
     //Here you can determine whether the menu item is enabled,

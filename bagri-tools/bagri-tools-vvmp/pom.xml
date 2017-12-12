@@ -14,10 +14,9 @@
     <name>bagri-tools-vvmp</name>
     <description>BagRi: VisualVM plugin</description>
     <packaging>nbm</packaging>
-    <organization>
+    <!--organization>
       <name>Roman Orekhov, Denis Sukhoroslov</name>
-      <url>www.bagridb.com</url>
-    </organization>
+    </organization-->
 
     <properties>
 	<nbm.plugin.version>3.11</nbm.plugin.version>
@@ -137,11 +136,14 @@
                 <version>${nbm.plugin.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <licenseName>GNU General Public License, version 2</licenseName>
-                    <licenseFile>license.txt</licenseFile>
-                    <sourceManifestFile>${basedir}/src/main/resources/META-INF/MANIFEST.MF</sourceManifestFile>
+                    <author>Roman Orekhov, Denis Sukhoroslov</author>
+                    <distributionUrl>http://bagridb.com/features/ui-in-visualvm-plugin</distributionUrl>
                     <finalName>${project.name}-${project.version}</finalName>
+                    <homePageUrl>http://bagridb.com</homePageUrl>
+                    <licenseFile>license.txt</licenseFile>
+                    <licenseName>GNU General Public License, version 2</licenseName>
                     <requiresRestart>true</requiresRestart>
+                    <sourceManifestFile>${basedir}/src/main/resources/META-INF/MANIFEST.MF</sourceManifestFile>
                 </configuration>
             </plugin>
             <plugin>
@@ -157,7 +159,7 @@
                     </archive>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>${helper.plugin.version}</version>
@@ -169,7 +171,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 

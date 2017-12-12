@@ -87,7 +87,7 @@ public class BagriCacheServer {
 		try {
 			url = new JMXServiceURL("service:jmx:rmi://localhost/jndi/rmi://localhost:" + xport + "/jmxrmi");
 		} catch (MalformedURLException ex) {
-			logger.warn("error creating JMX URL: {}", ex.getMessage());
+			logger.warn("error creating JMX URL: {} on port: {}", ex.getMessage(), port);
 			throw new IllegalArgumentException("wrong JMX connection", ex);
 		}
 		
@@ -101,7 +101,6 @@ public class BagriCacheServer {
 			LocateRegistry.createRegistry(port);
 		} catch (RemoteException ex) {
 			logger.warn("error creating JMX Registry: {}", ex.getMessage());
-			//throw new IllegalArgumentException("wrong JMX registry", ex);
 		}
 		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -114,16 +113,15 @@ public class BagriCacheServer {
 			UserManagement uMgr = context.getBean(UserManagement.class);
 	        MBeanServerForwarder mbsf = BagriJAASInvocationHandler.newProxyInstance(uMgr);
 	        cs.setMBeanServerForwarder(mbsf);
-	        cs.start();
+	        if (!cs.isActive()) {
+	        	cs.start();
+	        }
+			logger.info("JMX connector server started and listening on port: {}", port);
 		} catch (IOException ex) {
-			logger.error("error starting JMX connector server: " + ex.getMessage(), ex);
-			throw new RuntimeException(ex);
+			logger.warn("error starting JMX connector server: {}", ex.getMessage());
+			// it is already started, most probably..
 		}
-		logger.info("JMX connector server started and listening on port: {}", port);
 		
-		//RepositoryProvider rePro = context.getBean(RepositoryProvider.class);
-		//XQCompiler xqComp = context.getBean(XQCompiler.class);
-		//BagriRestServer rest = new BagriRestServer(rePro, xqComp, 3030);
 		BagriRestServer rest = context.getBean(BagriRestServer.class);
 		rest.start();
 		logger.info("REST server started on port: {}; provider: {}", rest.getPort(), rest.getRepositoryProvider());

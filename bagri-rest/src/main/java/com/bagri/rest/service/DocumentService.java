@@ -6,7 +6,6 @@ import static com.bagri.core.system.DataFormat.df_json;
 import static com.bagri.core.system.DataFormat.df_xml;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -32,10 +31,12 @@ import javax.ws.rs.core.UriBuilder;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
-import com.bagri.core.model.Document;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * JAX-RS documents resource, contains methods for documents management. Accessible on /docs path. 
@@ -59,8 +60,18 @@ public class DocumentService  extends RestService {
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "getDocuments: return Document uris corresponding to the specified query")
-    public Response getDocuments(@QueryParam("query") String query, 
-    		@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("100") @QueryParam("size") int size) {
+	@ApiResponses(value = { 
+			@ApiResponse(code = 200, message = "success"), 
+			@ApiResponse(code = 401, message = "unauthorized"), 
+			@ApiResponse(code = 503, message = "internal server error") 
+	})
+    public Response getDocuments(
+    		@ApiParam(value = "query", example = "createdBy = admin, bytes > 3000, uri like security%, collections.contains(securities)")
+    		@QueryParam("query") String query, 
+    		@ApiParam(value = "page number", example = "1")
+    		@DefaultValue("1") @QueryParam("page") int page, 
+    		@ApiParam(value = "page size", example = "50")
+    		@DefaultValue("100") @QueryParam("size") int size) {
 		// add paginaton, pattern
 		logger.trace("getDocuments.enter; query: {}, page: {}, size: {}", query, page, size);
 		DocumentManagement docMgr = getDocManager();
