@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-
 import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -74,6 +71,7 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void readData(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
 		results = new ArrayList<>(size);
@@ -89,6 +87,5 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 			out.writeObject(result);
 		}
 	}
-
 	
 }

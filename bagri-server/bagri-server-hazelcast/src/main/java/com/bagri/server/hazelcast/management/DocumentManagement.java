@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.management;
 
+import static com.bagri.support.util.CollectionUtils.copyIterator;
 import static com.bagri.support.util.PropUtils.propsFromString;
 
 import java.io.IOException;
@@ -7,7 +8,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -371,7 +374,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "clName", description = "Collection name"),
 		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
-	public Iterable<String> getCollectionDocuments(String clName, String props) {
+	public java.util.Collection<String> getCollectionDocuments(String clName, String props) {
 		if (clName != null && !"All Documents".equals(clName)) {
 			Collection cln = schemaManager.getEntity().getCollection(clName);
 			if (cln == null) {
@@ -381,7 +384,9 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			Iterable<String> result = docManager.getDocumentUris("collections.contains(" + clName + ")", propsFromString(props));
+			Iterable<String> itr = docManager.getDocumentUris("collections.contains(" + clName + ")", propsFromString(props));
+			List<String> result = new ArrayList<>();
+			copyIterator(itr.iterator(), result);
 			logger.debug("getCollectionDocuments; returning {} uris", result);
 			return result;
 		} catch (BagriException | IOException ex) {
@@ -392,13 +397,16 @@ public class DocumentManagement extends SchemaFeatureManagement {
 
 	@ManagedOperation(description="Return Documents matching the pattern provided")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100")})
-	public Iterable<String> getDocumentUris(String pattern) {
+		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100"),
+		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
+	public java.util.Collection<String> getDocumentUris(String pattern, String props) {
 		try {
-			Iterable<String> result = docManager.getDocumentUris(pattern, null);
-			logger.debug("getDocumentUris; returning {}", result);
+			Iterable<String> itr = docManager.getDocumentUris(pattern, propsFromString(props));
+			List<String> result = new ArrayList<>();
+			copyIterator(itr.iterator(), result);
+			logger.debug("getDocumentUris; returning uris {}", result);
 			return result;
-		} catch (BagriException ex) {
+		} catch (BagriException | IOException ex) {
 			logger.error("getDocumentUris.error", ex);
 			return null;
 		}

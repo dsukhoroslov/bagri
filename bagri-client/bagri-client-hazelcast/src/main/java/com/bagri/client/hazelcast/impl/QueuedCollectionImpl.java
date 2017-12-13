@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.bagri.core.api.ResultCollection;
-import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Null;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
@@ -72,7 +71,6 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	@Override
 	public Iterator<T> iterator() {
 		return this;
-		//return queue.iterator();
 	}
 
 	@Override
@@ -94,6 +92,7 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public T next() {
 		return (T) current;
 	}

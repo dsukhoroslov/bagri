@@ -137,8 +137,10 @@ public class DocumentServiceProvider implements DocumentManagementService {
         	if ("All Documents".equals(collection)) {
         		collection = null;
         	}
+            LOGGER.info("getDocuments; collection: " + collection);
             Object res = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
             		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
+            LOGGER.info("getDocuments; result: " + res);
             if (res != null) {
             	java.util.Collection<String> ids = (java.util.Collection<String>) res;
             	for (String uri: ids) {
@@ -146,7 +148,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
             	}
         	}
             return result;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             LOGGER.throwing(this.getClass().getName(), "getDocuments", ex);
             throw new ServiceException(ex);
         }

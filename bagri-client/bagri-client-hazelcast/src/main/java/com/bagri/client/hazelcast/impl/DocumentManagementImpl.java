@@ -218,6 +218,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 	}
 	
+	@SuppressWarnings("resource")
 	private Iterable<DocumentAccessor> runIterableDocumentTask(Callable<ResultCollection<DocumentAccessor>> task, Properties props) throws BagriException {
 		Iterable<DocumentAccessor> result;
 		checkDocumentProperties(props);
