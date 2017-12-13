@@ -1,6 +1,7 @@
 package com.bagri.tools.vvm.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,15 +135,17 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	public List<Document> getDocuments(String collection) throws ServiceException {
         List<Document> result = new ArrayList<>();
         try {
+        	Object cln;
         	if ("All Documents".equals(collection)) {
-        		collection = null;
-        	}
-            LOGGER.info("getDocuments; collection: " + collection);
-            Object res = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
+                cln = connection.invoke(getDocMgrObjectName(), "getDocumentUris", 
+                		new Object[] {"txFinish = 0", null}, new String[] {String.class.getName(), String.class.getName()});
+        	} else {
+            	cln = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
             		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
-            LOGGER.info("getDocuments; result: " + res);
-            if (res != null) {
-            	java.util.Collection<String> ids = (java.util.Collection<String>) res;
+        	}
+            LOGGER.info("getDocuments; result: " + cln);
+            if (cln != null) {
+            	java.util.Collection<String> ids = (java.util.Collection<String>) cln;
             	for (String uri: ids) {
             		result.add(new Document(uri));
             	}
@@ -192,7 +195,11 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	        if (info != null) {
 		        CompositeType type = info.getCompositeType();
 		        for (String name : type.keySet()) {
-		            result.put(name, info.get(name));
+		        	if ("collections".equals(name)) {
+		        		result.put(name, Arrays.toString((int[]) info.get(name)));
+		        	} else {
+		        		result.put(name, info.get(name));
+		        	}
 		        }
 	        }
 			info = (CompositeData) connection.invoke(getDocMgrObjectName(), "getDocumentLocation", 
@@ -213,7 +220,8 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	@Override
 	public String getDocumentContent(String uri) throws ServiceException {
         try {
-			return (String) connection.invoke(getDocMgrObjectName(), "getDocumentContent", new Object[] {uri, null}, 
+			return (String) connection.invoke(getDocMgrObjectName(), "getDocumentContent", 
+					new Object[] {uri, "bdb.document.headers=2;bdb.document.data.format=JSON"}, 
 					new String[] {String.class.getName(), String.class.getName()});
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "getDocumentContent", ex);

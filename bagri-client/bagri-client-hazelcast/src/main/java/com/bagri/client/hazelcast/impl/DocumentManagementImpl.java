@@ -77,7 +77,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Iterable<String> getDocumentUris(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
 		CombinedCollectionImpl<String> result = new CombinedCollectionImpl<>();
-		checkDocumentProperties(props);
+		props = checkDocumentProperties(props);
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Map<Member, Future<ResultCollection<String>>> results = execService.submitToAllMembers(task);
@@ -100,7 +100,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		logger.trace("getDocument.enter; got uri: {}; props: {}", uri, props);
-		checkDocumentProperties(props);
+		props = checkDocumentProperties(props);
 		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri);
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
@@ -112,7 +112,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("resource")
 	public Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
-		//checkDocumentProperties(props);
+		props = checkDocumentProperties(props);
 		DocumentsProvider task = new DocumentsProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Iterable<DocumentAccessor> result = runIterableDocumentTask(task, props);
 		logger.trace("getDocuments.exit; got results: {}", result);
@@ -126,7 +126,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Document content can not be null", ecDocument);
 		}
 		repo.getHealthManagement().checkClusterState();
-		//checkDocumentProperties(props);
+		props = checkDocumentProperties(props);
 		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, content);
 		task.setRepository(repo);
 		DocumentAccessor result = runSimpleDocumentTask(task, props);
@@ -141,7 +141,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Empty Document collection provided", ecDocument);
 		}
 		repo.getHealthManagement().checkClusterState();
-		//checkDocumentProperties(props);
+		props = checkDocumentProperties(props);
 		DocumentsCreator task = new DocumentsCreator(repo.getClientId(), repo.getTransactionId(), props, (Map<String, Object>) documents);
 		// TODO: split documents between members properly..
 		Iterable<DocumentAccessor> result = runIterableDocumentTask(task, props);
@@ -153,7 +153,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public DocumentAccessor removeDocument(String uri, Properties props) throws BagriException {
 		logger.trace("removeDocument.enter; uri: {}", uri);
 		repo.getHealthManagement().checkClusterState();
-		//checkDocumentProperties(props);
+		props = checkDocumentProperties(props);
 		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), props, uri);
 		DocumentAccessor result = runSimpleDocumentTask(task, props);
 		logger.trace("removeDocument.exit; returning: {}", result);
@@ -164,6 +164,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Iterable<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
 		repo.getHealthManagement().checkClusterState();
+		props = checkDocumentProperties(props);
 		DocumentsRemover task = new DocumentsRemover(repo.getClientId(), repo.getTransactionId(), props, pattern);
 		Iterable<DocumentAccessor> result = runIterableDocumentTask(task, props);
 		logger.trace("removeDocuments.exit; results: {}", result);
@@ -205,7 +206,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	private DocumentAccessor runSimpleDocumentTask(Callable<DocumentAccessor> task, Properties props) throws BagriException {
-		checkDocumentProperties(props);
+		//checkDocumentProperties(props);
 		Future<DocumentAccessor> future = execService.submit(task);
 		try {
 			DocumentAccessor result = future.get();
@@ -221,7 +222,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@SuppressWarnings("resource")
 	private Iterable<DocumentAccessor> runIterableDocumentTask(Callable<ResultCollection<DocumentAccessor>> task, Properties props) throws BagriException {
 		Iterable<DocumentAccessor> result;
-		checkDocumentProperties(props);
+		//checkDocumentProperties(props);
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
 		try {

@@ -16,6 +16,7 @@ import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.openmbean.ArrayType;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.CompositeType;
@@ -309,7 +310,7 @@ public class JMXUtils {
                 CompositeType type = new CompositeType(name, desc, names, names, types);
                 return new CompositeDataSupport(type, def);
             } catch (Exception ex) {
-                logger.warn("statsToComposite. error: {}", ex.getMessage());
+                logger.warn("mapToComposite. error: {} for map: {}", ex.getMessage(), def);
             }
         }
         return null;
@@ -535,53 +536,57 @@ public class JMXUtils {
         return result;
     }
 
-    private static OpenType getOpenType(Object value) {
+    private static OpenType getOpenType(Object value) throws OpenDataException {
         if (value == null) {
             return SimpleType.VOID;
         }
-        String name = value.getClass().getName();
-        //if (OpenType.ALLOWED_CLASSNAMES_LIST.contains(name)) {
 
-        if ("java.lang.Long".equals(name)) {
-            return SimpleType.LONG;
+        //if (OpenType.ALLOWED_CLASSNAMES_LIST.contains(name)) {
+        int dim = 0;
+        Class<?> cls = value.getClass();
+        while (cls.isArray()) {
+        	cls = value.getClass().getComponentType();
+        	dim++;
         }
-        if ("java.lang.Integer".equals(name)) {
-            return SimpleType.INTEGER;
-        }
-        if ("java.lang.String".equals(name)) {
-            return SimpleType.STRING;
-        }
-        if ("java.lang.Double".equals(name)) {
-            return SimpleType.DOUBLE;
-        }
-        if ("java.lang.Float".equals(name)) {
-            return SimpleType.FLOAT;
-        }
-        if ("java.math.BigDecimal".equals(name)) {
-            return SimpleType.BIGDECIMAL;
-        }
-        if ("java.math.BigInteger".equals(name)) {
-            return SimpleType.BIGINTEGER;
-        }
-        if ("java.lang.Boolean".equals(name)) {
-            return SimpleType.BOOLEAN;
-        }
-        if ("java.lang.Byte".equals(name)) {
-            return SimpleType.BYTE;
-        }
-        if ("java.lang.Character".equals(name)) {
-            return SimpleType.CHARACTER;
-        }
-        if ("java.util.Date".equals(name)) {
-            return SimpleType.DATE;
-        }
-        if ("java.lang.Short".equals(name)) {
-            return SimpleType.SHORT;
-        }
-        //"javax.management.ObjectName",
-        //CompositeData.class.getName(),
-        //TabularData.class.getName()
-        //}
-        return null; // is it allowed ??
+    	SimpleType<?> type = getTypeForName(cls.getName());
+    	if (type != null && dim > 0) {
+    		if (cls.isPrimitive() && dim == 1) {
+        		return new ArrayType<>(type, true);
+    		}
+    		return new ArrayType<>(dim, type);
+    	}
+       	return type;
     }
+    
+    private static SimpleType<?> getTypeForName(String name) {
+        switch (name) {
+    		case "boolean":
+    		case "java.lang.Boolean": return SimpleType.BOOLEAN;
+    		case "byte":
+    		case "java.lang.Byte": return SimpleType.BYTE;
+      		case "char":
+      		case "java.lang.Character": return SimpleType.CHARACTER;
+      		case "double":
+        	case "java.lang.Double": return SimpleType.DOUBLE;
+        	case "float":
+        	case "java.lang.Float": return SimpleType.FLOAT;
+        	case "int":
+        	case "java.lang.Integer": return SimpleType.INTEGER;
+      		case "long":
+        	case "java.lang.Long": return SimpleType.LONG;
+        	case "short":
+        	case "java.lang.Short": return SimpleType.SHORT;
+        	case "java.math.BigDecimal": return SimpleType.BIGDECIMAL;
+        	case "java.math.BigInteger": return SimpleType.BIGINTEGER;
+        	case "java.util.Date": return SimpleType.DATE;
+        	case "javax.management.ObjectName": return SimpleType.OBJECTNAME; 
+        	case "java.lang.String": return SimpleType.STRING;
+            //CompositeData.class.getName(),
+            //TabularData.class.getName()
+            //}
+        }
+    	return null;
+    }
+    
+    
 }

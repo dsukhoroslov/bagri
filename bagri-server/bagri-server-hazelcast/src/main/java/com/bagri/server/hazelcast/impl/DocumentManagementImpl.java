@@ -367,10 +367,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI_WITH_CONTENT)); //CLIENT_DOCUMENT
 		long headMask = Long.parseLong(headers);
+		logger.trace("getDocumentInternal; returning document: {} for props: {}", doc, props);
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
-			logger.trace("getDocument; got content: {}", content);
+			logger.trace("getDocumentInternal; got content: {}", content);
 			if (content == null) {
 				String dataFormat = props.getProperty(pn_document_data_format);
 				// build it and store in cache
@@ -421,9 +422,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			cc = repo.getConverter(srcFormat, cType); 
 			if (cc == null) {
+				logger.warn("getConverter; no converter found from {} to {}, content type: {}", srcFormat, dataFormat, contentType);
 				throw new BagriException("No converter found from " + srcFormat + " to " + dataFormat, BagriException.ecDocument);
 			}
 		}
+		logger.trace("getConverter; returning {} for data format: {}, source format: {}, content type: {}", dataFormat, srcFormat, contentType);
 		return cc;
 	}
 	

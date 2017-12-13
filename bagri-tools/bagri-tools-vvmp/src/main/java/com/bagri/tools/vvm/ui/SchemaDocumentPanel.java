@@ -381,10 +381,9 @@ public class SchemaDocumentPanel extends JPanel {
 			((TitledBorder) docInfoPanel.getBorder()).setTitle("document: " + doc.get("uri"));
 			Component[] labels = docInfoPanel.getComponents();
 			((JLabel) labels[0]).setText("key: " + doc.get("key"));
-			//((JLabel) labels[1]).setText("id: " + doc.get("id"));
 			((JLabel) labels[1]).setText("version: " + doc.get("version"));
 			((JLabel) labels[2]).setText("uri: " + doc.get("uri"));
-			((JLabel) labels[3]).setText("size: " + doc.get("bytes"));
+			((JLabel) labels[3]).setText("size: " + doc.get("size"));
 			((JLabel) labels[4]).setText("encoding: " + doc.get("encoding"));
 			((JLabel) labels[5]).setText("created at: " + doc.get("created at"));
 			((JLabel) labels[6]).setText("created by: " + doc.get("created by"));

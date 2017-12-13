@@ -1,6 +1,9 @@
 package com.bagri.core.api;
 
+import java.awt.Component;
 import java.util.Properties;
+
+import javax.swing.JLabel;
 
 public interface DocumentAccessor {
 
@@ -39,6 +42,8 @@ public interface DocumentAccessor {
 	static long HDR_URI_WITH_CONTENT  = HDR_CONTENT | HDR_URI; 
 	static long HDR_CLIENT_DOCUMENT   = HDR_CONTENT_TYPE | HDR_CREATED_AT | HDR_CREATED_BY | HDR_TX_START | HDR_TX_FINISH | HDR_URI | HDR_VERSION;
 	static long HDR_SERVER_DOCUMENT   = HDR_CLIENT_DOCUMENT | HDR_KEY;
+	static long HDR_DOCUMENT_INFO     = HDR_COLLECTIONS | HDR_ENCODING | HDR_CREATED_AT | HDR_CREATED_BY | HDR_KEY | HDR_SIZE_IN_BYTES | HDR_SIZE_IN_ELEMENTS | 
+										HDR_SIZE_IN_FRAGMENTS |	HDR_TX_START | HDR_TX_FINISH | HDR_URI | HDR_VERSION;
 	static long HDR_FULL_DOCUMENT     = HDR_COLLECTIONS | HDR_CONTENT | HDR_CONTENT_TYPE | HDR_CREATED_AT | HDR_CREATED_BY | HDR_ENCODING | HDR_KEY | 
 										HDR_SIZE_IN_BYTES | HDR_SIZE_IN_ELEMENTS | HDR_SIZE_IN_FRAGMENTS | HDR_TYPE_ROOT | HDR_TX_START | HDR_TX_FINISH | 
 										HDR_URI | HDR_VERSION;    

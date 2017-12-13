@@ -3,20 +3,24 @@ package com.bagri.server.hazelcast.management;
 import static com.bagri.support.util.CollectionUtils.copyIterator;
 import static com.bagri.support.util.PropUtils.propsFromString;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import javax.swing.JLabel;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -159,14 +163,29 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentInfo(String uri) {
 		try {
-			DocumentAccessor doc = docManager.getDocument(uri, null);
+			Properties props = new Properties(); 
+			props.setProperty("bdb.document.headers", String.valueOf(DocumentAccessor.HDR_DOCUMENT_INFO));
+			DocumentAccessor doc = docManager.getDocument(uri, props);
+			CompositeData result = null;
 			if (doc != null) {
-				Map<String, Object> docInfo = new HashMap<>(); //doc.getHeaders();
-				return JMXUtils.mapToComposite("document", "Document Info", docInfo);
+				Map<String, Object> docInfo = new HashMap<>(11); 
+				docInfo.put("key", doc.getDocumentKey());
+				docInfo.put("version", doc.getVersion());
+				docInfo.put("uri", doc.getUri());
+				docInfo.put("size", doc.getSizeInBytes());
+				docInfo.put("encoding", doc.getEncoding());
+				docInfo.put("created at", new Date(doc.getCreateadAt()));
+				docInfo.put("created by", doc.getCreatedBy());
+				docInfo.put("start tx", doc.getTxStart());
+				docInfo.put("elements", doc.getSizeInElements());
+				docInfo.put("fragments", doc.getSizeInFragments());
+				docInfo.put("collections", doc.getCollections());
+				result = JMXUtils.mapToComposite("document", "Document Info", docInfo);
 			} 
-			return null;
+			logger.debug("getDocumentInfo; returning: {}", result);
+			return result;
 		} catch (BagriException ex) {
-			logger.error("getDocumentInfo.error: " + ex.getMessage(), ex);
+			logger.error("getDocumentInfo.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -176,17 +195,21 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "uri", description = "Document identifier")})
 	public CompositeData getDocumentLocation(String uri) {
 		try {
-			DocumentAccessor doc = docManager.getDocument(uri, null);
+			Properties props = new Properties(); 
+			props.setProperty("bdb.document.headers", String.valueOf(DocumentAccessor.HDR_URI));
+			DocumentAccessor doc = docManager.getDocument(uri, props);
+			CompositeData result = null;
 			if (doc != null) {
 				Partition part = hzClient.getPartitionService().getPartition(doc.getUri().hashCode());
 				Map<String, Object> location = new HashMap<>(2);
 				location.put("partition", part.getPartitionId());
 				location.put("owner", part.getOwner().toString());
-				return JMXUtils.mapToComposite("document", "Document Location", location);
+				result = JMXUtils.mapToComposite("document", "Document Location", location);
 			}
-			return null;
+			logger.debug("getDocumentLocation; returning: {}", result);
+			return result;
 		} catch (BagriException ex) {
-			logger.error("getDocumentLocation.error: " + ex.getMessage(), ex);
+			logger.error("getDocumentLocation.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -198,9 +221,13 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public String getDocumentContent(String uri, String properties) {
 		try {
 			DocumentAccessor doc = docManager.getDocument(uri, propsFromString(properties));
-			return doc.getContent();
+			logger.debug("getDocumentContent; got accessor {} for uri: {}, props: {}", doc, uri, properties);
+			if (doc != null) {
+				return doc.getContent();
+			}
+			return null;
 		} catch (IOException | BagriException ex) {
-			logger.error("getDocumentXML.error: " + ex.getMessage(), ex);
+			logger.error("getDocumentXML.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -216,7 +243,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			DocumentAccessor doc = docManager.storeDocument(uri, xml, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | BagriException ex) {
-			logger.error("registerDocument.error: " + ex.getMessage(), ex);
+			logger.error("registerDocument.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -232,7 +259,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			DocumentAccessor doc = docManager.storeDocument(uri, content, propsFromString(properties));
 			return doc.getUri();
 		} catch (IOException | BagriException ex) {
-			logger.error("updateDocument.error: " + ex.getMessage(), ex);
+			logger.error("updateDocument.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -246,7 +273,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			docManager.removeDocument(uri, propsFromString(properties));
 			return true;
 		} catch (Exception ex) {
-			logger.error("removeDocument.error: " + ex.getMessage(), ex);
+			logger.error("removeDocument.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -266,7 +293,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		    }
 		    return result;
 		} catch (IOException ex) {
-			logger.error("processFilesInCatalog.error: " + ex.getMessage(), ex);
+			logger.error("processFilesInCatalog.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}
@@ -373,8 +400,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Return Documents which belongs to Collection")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "clName", description = "Collection name"),
-		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
-	public java.util.Collection<String> getCollectionDocuments(String clName, String props) {
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public java.util.Collection<String> getCollectionDocuments(String clName, String properties) {
 		if (clName != null && !"All Documents".equals(clName)) {
 			Collection cln = schemaManager.getEntity().getCollection(clName);
 			if (cln == null) {
@@ -384,7 +411,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			Iterable<String> itr = docManager.getDocumentUris("collections.contains(" + clName + ")", propsFromString(props));
+			Iterable<String> itr = docManager.getDocumentUris("collections.contains(" + clName + "), txFinish = 0", propsFromString(properties));
 			List<String> result = new ArrayList<>();
 			copyIterator(itr.iterator(), result);
 			logger.debug("getCollectionDocuments; returning {} uris", result);
@@ -398,10 +425,10 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperation(description="Return Documents matching the pattern provided")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "pattern", description = "A pattern to match documents, like: createdBy = admin, bytes > 100"),
-		@ManagedOperationParameter(name = "props", description = "A list of properties in key=value form separated by semicolon")})
-	public java.util.Collection<String> getDocumentUris(String pattern, String props) {
+		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
+	public java.util.Collection<String> getDocumentUris(String pattern, String properties) {
 		try {
-			Iterable<String> itr = docManager.getDocumentUris(pattern, propsFromString(props));
+			Iterable<String> itr = docManager.getDocumentUris(pattern, propsFromString(properties));
 			List<String> result = new ArrayList<>();
 			copyIterator(itr.iterator(), result);
 			logger.debug("getDocumentUris; returning uris {}", result);
