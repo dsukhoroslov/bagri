@@ -26,11 +26,6 @@ public class JsonpHandler extends ContentHandlerBase implements ContentHandler {
 		this.modelMgr = modelMgr;
 	}
 
-	//@Override
-	//public String getDataFormat() {
-	//	return "JSON";
-	//}
-	
 	@Override
 	public boolean isStringFormat() {
 		return true;

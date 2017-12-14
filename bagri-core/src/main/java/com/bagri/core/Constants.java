@@ -67,6 +67,8 @@ public class Constants {
     
     public static final String pv_document_data_source_file = "FILE"; 
     public static final String pv_document_data_source_map = "MAP"; 
+    public static final String pv_document_data_source_json = "JSON"; 
+    public static final String pv_document_data_source_xml = "XML"; 
 
 	public static final String pn_query_command = "bdb.query.command";
 	

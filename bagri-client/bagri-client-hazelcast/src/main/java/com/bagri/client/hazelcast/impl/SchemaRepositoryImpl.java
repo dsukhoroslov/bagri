@@ -29,6 +29,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	
     private static final Logger logger = LoggerFactory.getLogger(SchemaRepositoryImpl.class);
     private static final ThreadLocal<SchemaRepository> repo = new ThreadLocal<>();
+    private static SchemaRepository stRepo = null;
     
 	private String clientId;
 	private String schemaName;
@@ -37,7 +38,11 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	private Map<String, ContentSerializer<?>> css = new HashMap<>(); //ConcurrentHashMap<>();
 	
 	public static SchemaRepository getRepository() {
-		return repo.get();
+		SchemaRepository r = repo.get();
+		if (r == null) {
+			r = stRepo;
+		}
+		return r;
 	}
 	
 	public SchemaRepositoryImpl() {
@@ -63,6 +68,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		initializeServices(null);
 		// TODO: serializers!?
 		repo.set(this);
+	}
+	
+	public void setStaticRepository() {
+		stRepo = this;
 	}
 	
 	private static Properties getSystemProps() {

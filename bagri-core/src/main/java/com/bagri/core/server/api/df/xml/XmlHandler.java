@@ -24,11 +24,6 @@ public class XmlHandler extends ContentHandlerBase implements ContentHandler {
 		this.modelMgr = modelMgr;
 	}
 
-	//@Override
-	//public String getDataFormat() {
-	//	return "XML";
-	//}
-
 	@Override
 	public boolean isStringFormat() {
 		return true;
@@ -45,7 +40,7 @@ public class XmlHandler extends ContentHandlerBase implements ContentHandler {
 
 	@Override
 	public ContentConverter<?, ?> getConverter(Class<?> source) {
-		if (source != null && source.isAssignableFrom(Map.class)) {
+		if (source != null && source.equals(Map.class)) { //ContentConverter.MapConverter.class)) {
 			if (mc == null) {
 				mc = new MapXmlConverter();
 			}

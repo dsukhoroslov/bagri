@@ -167,6 +167,25 @@ public class Data implements Comparable<Data> {
     
     /**
      * 
+     * @return the element's length
+     */
+    public int getLength() {
+    	int length = 0;
+    	if (getName() != null) {
+    		length += getName().length();
+    	}
+    	if (getValue() != null) {
+    		// calc length for arrays..
+    		if (getValue().getClass().isArray()) {
+    			//get length via reflection?
+    		}
+    		length += getValue().toString().length();
+    	}
+    	return length;
+    }
+    
+    /**
+     * 
      * @return true if element's value is Null, false otherwise
      */
     public boolean isNull() {

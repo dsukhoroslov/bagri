@@ -30,6 +30,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.client.hazelcast.PartitionStatistics;
+import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.core.api.HealthChangeListener;
 import com.bagri.core.api.HealthState;
 import com.bagri.core.api.SchemaRepository;
@@ -112,6 +113,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		this.xdmRepo = xdmRepo;
 		this.hState = xdmRepo.getHealthManagement().getHealthState();
 		xdmRepo.getHealthManagement().addHealthChangeListener(this);
+		((SchemaRepositoryImpl) xdmRepo).setStaticRepository();
 	}
 	
 	@ManagedAttribute(description="Returns active schema nodes")

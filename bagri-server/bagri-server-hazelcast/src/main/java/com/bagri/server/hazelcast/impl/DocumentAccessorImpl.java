@@ -79,5 +79,9 @@ public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.Docume
 		}
 	}
 
+	public DocumentAccessorImpl(SchemaRepository repo, Document doc, long headers, String contentType, Object content) {
+		this(repo, doc, headers, content);
+		this.contentType = contentType;
+	}
 }
 

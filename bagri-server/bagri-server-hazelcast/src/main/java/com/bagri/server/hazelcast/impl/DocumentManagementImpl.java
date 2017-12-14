@@ -393,6 +393,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			if (cc != null) {
 				content = cc.convertTo(content);
+				String dataFormat = props.getProperty(pn_document_data_format);
+				return new DocumentAccessorImpl(repo, doc, headMask, dataFormat, content);
 			}
 			return new DocumentAccessorImpl(repo, doc, headMask, content);
 		}
@@ -414,7 +416,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			Class<?> cType = null;
 			if (contentType == null) {
 				if (pv_document_data_source_map.equals(dataFormat)) {
-					cType = Map.class;
+					cType = Map.class; //ContentConverter.MapConverter.class;
+				} else if (pv_document_data_source_json.equals(dataFormat)) {
+					cType = ContentConverter.JsonConverter.class;
+				} else if (pv_document_data_source_xml.equals(dataFormat)) {
+					cType = ContentConverter.XmlConverter.class;
 				} 
 				// else repo will return common Bean converter
 			} else {

@@ -220,14 +220,18 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public String getDocumentContent(String uri, String properties) {
 		try {
+			String result = null;
 			DocumentAccessor doc = docManager.getDocument(uri, propsFromString(properties));
-			logger.debug("getDocumentContent; got accessor {} for uri: {}, props: {}", doc, uri, properties);
 			if (doc != null) {
-				return doc.getContent();
+				result = doc.getContent();
 			}
-			return null;
+			logger.debug("getDocumentContent; got accessor {} for uri: {}, props: {}; returning: {}", doc, uri, properties, result);
+			return result;
 		} catch (IOException | BagriException ex) {
-			logger.error("getDocumentXML.error: {}", ex.getMessage(), ex);
+			logger.error("getDocumentContent.error: {}", ex.getMessage(), ex);
+			throw new RuntimeException(ex.getMessage());
+		} catch (Throwable ex) {
+			logger.error("getDocumentContent.error: {}", ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage());
 		}
 	}

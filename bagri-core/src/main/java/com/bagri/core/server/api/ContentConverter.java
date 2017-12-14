@@ -17,5 +17,11 @@ public interface ContentConverter<C, S> {
 	 * @return content in external format
 	 */
 	S convertTo(C content);
-
+	
+	class MapConverter {}
+	
+	class JsonConverter {};
+	
+	class XmlConverter {}
+	
 }

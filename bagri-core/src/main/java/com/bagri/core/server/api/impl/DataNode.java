@@ -24,14 +24,8 @@ public class DataNode {
     }
     
     public int fillData(List<Data> list) {
-    	int result = 0;
     	list.add(data);
-    	if (data.getName() != null) {
-    		result += data.getName().length();
-    	}
-    	if (data.getValue() != null) {
-    		result += data.getValue().toString().length();
-    	}
+    	int result = data.getLength();
     	for (DataNode node: children) {
     		result += node.fillData(list);
     	}
