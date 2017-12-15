@@ -174,11 +174,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	
 	@Override
 	public String getUserName() {
-		String user = ((ClientManagementImpl) clientMgr).getClientUser(getClientId());
-		//if (user == null) {
-		//	user = "unknown";
-		//}
-		return user;
+		return ((ClientManagementImpl) clientMgr).getClientUser(getClientId());
 	}
 	
 	@Override
