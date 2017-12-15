@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.QueryResult;
-import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.server.hazelcast.impl.QueryManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -32,7 +32,7 @@ public class QueryProcessor extends com.bagri.client.hazelcast.task.query.QueryP
 	
     @Autowired
 	public void setRepository(SchemaRepository repo) {
-		//this.repo = repo;
+		//super.setRepository(repo);
 		this.queryMgr = (QueryManagementImpl) repo.getQueryManagement();
 	}
 	

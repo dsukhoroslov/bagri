@@ -50,6 +50,9 @@ public class QueryProcessor implements EntryProcessor<Long, QueryResult>, EntryB
 
 	@Override
 	public EntryBackupProcessor<Long, QueryResult> getBackupProcessor() {
+		if (readOnly) {
+			return null;
+		}
 		return this;
 	}
 

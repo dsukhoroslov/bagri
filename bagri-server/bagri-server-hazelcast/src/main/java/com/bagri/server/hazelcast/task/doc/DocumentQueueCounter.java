@@ -25,7 +25,7 @@ public class DocumentQueueCounter implements Callable<Integer>, IdentifiedDataSe
 	private transient SchemaRepositoryImpl xdmRepo;
     
     @Autowired
-	public void setXDMRepository(SchemaRepositoryImpl xdmRepo) {
+	public void setRepository(SchemaRepositoryImpl xdmRepo) {
 		this.xdmRepo = xdmRepo;
 	}
 

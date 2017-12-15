@@ -73,6 +73,8 @@ public class DocumentBackupTest {
 				repos[i].setDataFormats(getBasicDataFormats());
 				repos[i].setLibraries(new ArrayList<Library>());
 				repos[i].setModules(new ArrayList<Module>());
+				((ClientManagementImpl) repos[i].getClientManagement()).addClient("client", "guest");
+				repos[i].setClientId("client");
 			}
 		}
 	}
@@ -86,6 +88,7 @@ public class DocumentBackupTest {
 	@Test
 	public void testDocumentBackup() throws Exception {
 	    Properties props = new Properties();
+	    props.setProperty(pn_client_id, "client");
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);

@@ -59,7 +59,8 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
-			
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 			long txId = xRepo.getTxManagement().beginTransaction();
 			createDocumentTest(sampleRoot + "security1500.json");
 			createDocumentTest(sampleRoot + "security5621.json");
@@ -78,7 +79,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	//}
 	
 	protected Properties getDocumentProperties() {
-		Properties props = new Properties();
+		Properties props = super.getDocumentProperties();
 		props.setProperty(pn_document_collections, "securities");
 		props.setProperty(pn_document_data_format, "JSON");
 		return props;

@@ -12,6 +12,7 @@ import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
+import com.bagri.server.hazelcast.impl.ClientManagementImpl;
 import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.server.hazelcast.impl.TransactionManagementImpl;
@@ -73,6 +74,8 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
 			((TransactionManagementImpl) xdmRepo.getTxManagement()).adjustTxCounter(0);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 			
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());

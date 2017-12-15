@@ -70,7 +70,8 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
-			
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 			storeCustomerTest();
 			storeOrderTest();
 			storeSecurityTest();

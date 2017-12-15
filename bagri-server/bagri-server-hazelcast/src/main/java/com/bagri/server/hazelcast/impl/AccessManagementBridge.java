@@ -125,12 +125,12 @@ public class AccessManagementBridge implements MembershipListener {
 			Role xdmr = roles.get(role);
 			if (xdmr != null) {
 				Boolean result = checkSchemaPermission(xdmr, schemaName, check);
-				if (result != null) {
-					return result;
+				if (result != null && result) {
+					return true;
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	@Override

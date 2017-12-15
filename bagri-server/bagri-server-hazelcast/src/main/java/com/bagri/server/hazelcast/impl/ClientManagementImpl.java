@@ -28,7 +28,6 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	
 	private SchemaRepositoryImpl repo;
     private HazelcastInstance hzInstance;
-	//private IMap<String, Properties> clientsCache;
 	private ReplicatedMap<String, Properties> clientsCache;
 	
     private boolean enableStats = true;
@@ -42,7 +41,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	
 	public void setClientsCache(ReplicatedMap<String, Properties> clientsCache) {
 		this.clientsCache = clientsCache;
-		clientsCache.addEntryListener(this); //, false);
+		clientsCache.addEntryListener(this); 
 	}
 	
     public void setRepository(SchemaRepositoryImpl repo) {
@@ -64,6 +63,12 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 			}
 		}
 	}
+	
+	public void addClient(String clientId, String userName) {
+		Properties props = new Properties();
+		props.setProperty(pn_schema_user, userName);
+		clientsCache.put(clientId, props);
+	}
     
 	@Override
 	public String[] getClients() {
@@ -72,22 +77,21 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 	}
 
 	public String getClientUser(String clientId) {
-		Properties props = clientsCache.get(clientId);
-		if (props != null) {
-			return props.getProperty(pn_schema_user);
+		if (clientId != null) {
+			Properties props = clientsCache.get(clientId);
+			if (props != null) {
+				return props.getProperty(pn_schema_user);
+			}
 		}
 		return null;
 	}
 	
-	@Override
-	public String getCurrentUser() {
-		String clientId = repo.getClientId();
-		logger.trace("getCurrentUser.enter; client: {}", clientId); 
-		if (clientId != null) {
-			return getClientUser(clientId);
-		}
-		return null;
-	}
+	//@Override
+	//public String getCurrentUser() {
+	//	String clientId = repo.getClientId();
+	//	logger.trace("getCurrentUser.enter; client: {}", clientId); 
+	//	return getClientUser(clientId);
+	//}
 	
 	@Override
 	public Properties getClientProperties(String clientId) {
@@ -141,7 +145,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 
 	@Override
 	public void entryUpdated(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
 	@Override
@@ -152,17 +156,17 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 
 	@Override
 	public void entryEvicted(EntryEvent<String, Properties> event) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
 	@Override
 	public void mapCleared(MapEvent event) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
 	@Override
 	public void mapEvicted(MapEvent event) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
 }

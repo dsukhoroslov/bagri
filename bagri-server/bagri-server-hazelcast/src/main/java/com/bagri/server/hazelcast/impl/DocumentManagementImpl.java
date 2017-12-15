@@ -780,7 +780,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return null;
 	}
 
-	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, Object content, ParseResults pRes, Properties props) throws BagriException {
+	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, String user, Object content, ParseResults pRes, Properties props) throws BagriException {
 
 		logger.trace("processDocument.enter; uri: {}; results: {}; props: {}", uri, pRes, props);
 
@@ -826,7 +826,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			processElements(docId, data);
 		}
 		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
-		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), repo.getUserName(), dataFormat + "/" + def_encoding, length, rSize);
+		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), user, dataFormat + "/" + def_encoding, length, rSize);
 
 		String collections = props.getProperty(pn_document_collections);
 		if (collections != null) {
@@ -962,7 +962,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     		tx = txManager.getCurrentTransaction();
     	}
 
-		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, content, pRes, props));
+    	String user = repo.getUserName();
+		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, user, content, pRes, props));
 		if (result instanceof Exception) {
 			logger.error("storeDocumentInternal.error; uri: {}", uri, result);
 			if (result instanceof BagriException) {

@@ -20,7 +20,7 @@ public interface ClientManagement {
 	 * 
 	 * @return userName associated with the current thread's client
 	 */
-	String getCurrentUser();
+	//String getCurrentUser();
 	
 	/**
 	 * return {@link Properties} specified for the client UUID

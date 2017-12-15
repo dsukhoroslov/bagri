@@ -39,6 +39,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 
 	private Transaction tx;
 	private String uri;
+	private String user;
 	private Object content;
 	private ParseResults data;
 	private Properties props;
@@ -49,9 +50,10 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		//
 	}
 
-	public DocumentProcessor(Transaction tx, String uri, Object content, ParseResults data, Properties props) {
+	public DocumentProcessor(Transaction tx, String uri, String user, Object content, ParseResults data, Properties props) {
 		this.tx = tx;
 		this.uri = uri;
+		this.user = user;
 		this.content = content;
 		this.data = data;
 		this.props = props;
@@ -100,7 +102,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 			entry = new MapEntrySimple<>(lastKey, lastDoc);
 		}
     	try {
-    		result = docMgr.processDocument(entry, txStart, uri, content, data, props);
+    		result = docMgr.processDocument(entry, txStart, uri, user, content, data, props);
     		return result;
     	} catch (BagriException ex) {
     		return ex;

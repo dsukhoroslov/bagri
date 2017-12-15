@@ -60,6 +60,8 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
 			setContext(schema.getName(), context);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 	}
 
@@ -73,7 +75,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 	public void createBeanDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		SampleBean sb1 = new SampleBean(1, false, "XYZ");
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(pn_document_data_source, "BEAN");
 		DocumentAccessor bDoc = xRepo.getDocumentManagement().storeDocument("bean_test.xml", sb1, props);
@@ -99,7 +101,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "MAP");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test1.xml", m1, props);
 		assertNotNull(mDoc);
@@ -163,7 +165,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
         		"</map>";
 		
 		long txId = xRepo.getTxManagement().beginTransaction();
-		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map.xml", xml, null);
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map.xml", xml, getDocumentProperties());
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
 		uris.add(mDoc.getUri());

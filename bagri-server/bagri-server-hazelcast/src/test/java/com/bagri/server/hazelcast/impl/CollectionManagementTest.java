@@ -64,9 +64,12 @@ public class CollectionManagementTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient("client", "guest");
+			xdmRepo.setClientId(client_id);
 		}
 
 		props = new Properties();
+		props.setProperty(pn_client_id, client_id);
 	}
 
 	@After

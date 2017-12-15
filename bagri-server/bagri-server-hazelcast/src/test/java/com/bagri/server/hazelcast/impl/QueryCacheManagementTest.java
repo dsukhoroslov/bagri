@@ -60,6 +60,8 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 	}
 
@@ -80,8 +82,7 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 			"return $sec\n";
 		Map<String, Object> params = new HashMap<>();
 		params.put("sym", "VFINX");
-		Properties props = new Properties();
-		props.setProperty(pn_client_id, "1");
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
 		ResultCursor rc = query(query, params, props);
 		assertNotNull(rc);
@@ -130,8 +131,7 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 		params.put("pemax", new java.math.BigDecimal("28.0"));
 		params.put("yield", new java.math.BigDecimal("0.1"));
 		
-		Properties props = new Properties();
-		props.setProperty(pn_client_id, "2");
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
 		ResultCursor rc = query(query, params, props);
 		assertNotNull(rc);

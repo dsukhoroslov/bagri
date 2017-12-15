@@ -59,6 +59,8 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 	}
 
@@ -80,7 +82,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		String doc1 = "<product id=\"product-1\"><type>product</type><name>Pokemon Red</name><price>29.99</price></product>";
 		String doc2 = "<order id=\"order-1\"><type>order</type><products><product product_id=\"product-1\"><quantity>2</quantity></product></products></order>";
 		long txId = getTxManagement().beginTransaction();
-		Properties props = new Properties(); //getDocumentProperties();
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(pn_document_collections, "products");
 		uris.add(getDocManagement().storeDocument("product.xml", doc1, props).getUri());
@@ -108,11 +110,12 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeSecurityTest();
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
-		ResultCollection<String> uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like security%, txFinish = 0", null);
+		Properties props = getDocumentProperties();
+		ResultCollection<String> uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like security%, txFinish = 0", props);
 		assertEquals(4, uris.size());
-		uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like order%, txFinish = 0", null);
+		uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like order%, txFinish = 0", props);
 		assertEquals(2, uris.size());
-		uris = (ResultCollection<String>) dMgr.getDocumentUris("createdBy = unknown, txFinish = 0", null);
+		uris = (ResultCollection<String>) dMgr.getDocumentUris("createdBy = guest, txFinish = 0", props);
 		assertEquals(6, uris.size());
 	}
 	

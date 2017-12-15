@@ -21,6 +21,9 @@ import com.bagri.core.system.Schema;
 
 public abstract class BagriManagementTest {
 
+	public static final String client_id = "client";
+	public static final String user_name = "guest";
+	
 	protected static String sampleRoot;
 	protected SchemaRepository xRepo;
 	protected Set<String> uris = new HashSet<>();
@@ -34,7 +37,9 @@ public abstract class BagriManagementTest {
 	//}
 	
 	protected Properties getDocumentProperties() {
-		return new Properties();
+		Properties props = new Properties();
+		props.setProperty(pn_client_id, client_id);
+		return props;
 	}
 	
 	protected DocumentManagement getDocManagement() {
@@ -62,7 +67,7 @@ public abstract class BagriManagementTest {
 	
 	protected ResultCursor query(String query, Map<String, Object> params, Properties props) throws Exception {
 		if (props == null) {
-			props = new Properties();
+			props = getDocumentProperties();
 			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		}
 		ResultCursor result = getQueryManagement().executeQuery(query, params, props);

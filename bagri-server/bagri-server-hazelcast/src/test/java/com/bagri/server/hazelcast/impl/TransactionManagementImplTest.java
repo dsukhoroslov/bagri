@@ -69,6 +69,8 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 	}
 
@@ -76,10 +78,6 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 	public void tearDown() throws Exception {
 		removeDocumentsTest();
 		//Thread.sleep(1000);
-	}
-
-	private ModelManagement getModelManagement() {
-		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
 	public Collection<String> getSecurity(String symbol) throws Exception {
@@ -112,6 +110,8 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		sec = getSecurity("PTTAX");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
+		
+		assertEquals(user_name, ((TransactionManagementImpl) xRepo.getTxManagement()).getCurrentTransaction().getStartedBy());
 
 		xRepo.getTxManagement().rollbackTransaction(txId);
 		
@@ -253,7 +253,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 	@Test
 	public void noTransactionTest() throws Exception {
 		String doc1 = "<product id=\"product-1\"><type>product</type><name>Pokemon Red</name><price>29.99</price></product>";
-		Properties props = new Properties(); //getDocumentProperties();
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_FULL_DOCUMENT));
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
@@ -293,6 +293,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		public void run() {
 			
 			try {
+				((SchemaRepositoryImpl) xRepo).setClientId(client_id);
 				long txId = getTxManagement().beginTransaction(tiLevel);
 				DocumentAccessor doc = updateDocumentTest(uri, sampleRoot + getFileName(uri2));
 				getTxManagement().commitTransaction(txId);

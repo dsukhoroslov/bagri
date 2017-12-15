@@ -168,12 +168,16 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	}
 	
 	@Override
+	public void setClientId(String clientId) {
+		thClient.set(clientId);
+	}
+	
+	@Override
 	public String getUserName() {
-		String user = clientMgr.getCurrentUser();
-		//logger.info("getUserName; user: {}", user); 
-		if (user == null) {
-			user = "unknown";
-		}
+		String user = ((ClientManagementImpl) clientMgr).getClientUser(getClientId());
+		//if (user == null) {
+		//	user = "unknown";
+		//}
 		return user;
 	}
 	

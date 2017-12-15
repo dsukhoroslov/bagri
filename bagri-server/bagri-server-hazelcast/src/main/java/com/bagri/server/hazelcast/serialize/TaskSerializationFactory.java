@@ -34,7 +34,6 @@ import com.bagri.server.hazelcast.task.query.QueryExecutor;
 import com.bagri.server.hazelcast.task.query.QueryProcessor;
 import com.bagri.server.hazelcast.task.query.QueryUrisProvider;
 import com.bagri.server.hazelcast.task.query.ResultFetcher;
-import com.bagri.server.hazelcast.task.query.XMLBuilder;
 import com.bagri.server.hazelcast.task.role.PermissionUpdater;
 import com.bagri.server.hazelcast.task.role.RoleCreator;
 import com.bagri.server.hazelcast.task.role.RoleRemover;
@@ -158,7 +157,6 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();
 			case cli_ProcessQueryTask: return new QueryProcessor();
-			case cli_BuildQueryXMLTask: return new XMLBuilder();
 			case cli_ExecQueryTask: return new QueryExecutor();
 			case cli_ProvideQueryUrisTask: return new QueryUrisProvider(); 
 			case cli_CollectStatisticSeriesTask: return new StatisticSeriesCollector();

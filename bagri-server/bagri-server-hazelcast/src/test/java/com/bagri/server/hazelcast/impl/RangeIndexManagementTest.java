@@ -58,6 +58,8 @@ public class RangeIndexManagementTest extends BagriManagementTest {
 				typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}PE/text()", new QName(xs_ns, "decimal", xs_prefix), 
 				true, true, false, "Security PE", true);
 			xdmRepo.addSchemaIndex(index);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 	}
 

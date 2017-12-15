@@ -254,7 +254,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 				}
 			}
 		} else {
-			cleaner.setXDMRepository(repo);
+			cleaner.setRepository(repo);
 			try {
 				txClean = cleaner.call();
 			} catch (Exception ex) {

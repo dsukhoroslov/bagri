@@ -54,7 +54,9 @@ public class PopulationManagementImplTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
-			
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
+
 			//XDMDataStore ds = new XDMDataStore(1, new java.util.Date(), "", "JSON", null, null, null,
 			//		"com.bagri.core.df.json.JsonApiParser", "com.bagri.core.df.json.JsonBuilder", true, null);
 			//ArrayList<XDMDataStore> cStores = new ArrayList<>(1);

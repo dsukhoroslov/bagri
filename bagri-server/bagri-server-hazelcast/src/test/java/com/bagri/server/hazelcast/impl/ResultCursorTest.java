@@ -62,6 +62,8 @@ public class ResultCursorTest extends BagriManagementTest {
 			repo.setDataFormats(getBasicDataFormats());
 			repo.setLibraries(new ArrayList<Library>());
 			repo.setModules(new ArrayList<Module>());
+			((ClientManagementImpl) repo.getClientManagement()).addClient(client_id, user_name);
+			repo.setClientId(client_id);
 		}
 	}
 
@@ -95,9 +97,9 @@ public class ResultCursorTest extends BagriManagementTest {
 	    params.put("pemin", 25.0f);
 	    params.put("pemax", 28.0f);
 	    params.put("yield", 0.1f);
-		Properties props = new Properties();
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
-		props.setProperty(pn_client_id, "dummy");
+		//props.setProperty(pn_client_id, "dummy");
 		try (ResultCursor rc = query(query, params, props)) {
 			assertTrue(rc.next());
 			assertNotNull(rc.getObject());
@@ -116,9 +118,9 @@ public class ResultCursorTest extends BagriManagementTest {
 				"return $sec\n";
 		Map<String, Object> params = new HashMap<>();
 		params.put("sym", "IBM");
-		Properties props = new Properties();
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
-		props.setProperty(pn_client_id, "dummy");
+		//props.setProperty(pn_client_id, "dummy");
 		try (ResultCursor rc = query(query, params, props)) {
 			assertTrue(rc.next());
 			assertNotNull(rc.getObject());
@@ -142,9 +144,9 @@ public class ResultCursorTest extends BagriManagementTest {
 			public void run() {
 				Map<String, Object> params = new HashMap<>();
 				params.put("sym", "IBM");
-				Properties props = new Properties();
+				Properties props = getDocumentProperties();
 				props.setProperty(pn_client_fetchSize, "1");
-				props.setProperty(pn_client_id, "thread1");
+				//props.setProperty(pn_client_id, "thread1");
 				try (ResultCursor rc = query(query, params, props)) {
 					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
@@ -161,9 +163,9 @@ public class ResultCursorTest extends BagriManagementTest {
 			public void run() {
 				Map<String, Object> params = new HashMap<>();
 				params.put("sym", "VFINX");
-				Properties props = new Properties();
+				Properties props = getDocumentProperties();
 				props.setProperty(pn_client_fetchSize, "1");
-				props.setProperty(pn_client_id, "thread2");
+				//props.setProperty(pn_client_id, "thread2");
 				try (ResultCursor rc = query(query, params, props)) {
 					assertTrue(rc.next());
 					assertNotNull(rc.getObject());
@@ -180,7 +182,7 @@ public class ResultCursorTest extends BagriManagementTest {
 	
 	@Test
 	public void fetchMapTest() throws Exception {
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "MAP");
 		long txId = xRepo.getTxManagement().beginTransaction();
 		Map<String, Object> map = new HashMap<>();
@@ -214,7 +216,7 @@ public class ResultCursorTest extends BagriManagementTest {
 	
 	@Test
 	public void fetchMapsTest() throws Exception {
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "MAP");
 		long txId = xRepo.getTxManagement().beginTransaction();
 		for (int i=0; i < 100; i++) {

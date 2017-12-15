@@ -63,6 +63,8 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 		// set bdb.document.format to JSON !
 		//XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
@@ -81,7 +83,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	
 	@Override
 	protected Properties getDocumentProperties() {
-		Properties props = new Properties();
+		Properties props = super.getDocumentProperties();
 		props.setProperty(pn_document_data_format, "MAP");
 		return props;
 	}
@@ -93,9 +95,8 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "maps");
-		props.setProperty(pn_document_data_format, "MAP");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test1", m1, props);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
@@ -122,9 +123,8 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.TRUE);
 		m1.put("strProp", "ABC");
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "maps");
-		props.setProperty(pn_document_data_format, "MAP");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test2", m1, props);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
@@ -161,7 +161,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	public void queryJsonDocumentTest() throws Exception {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		String s1 = "{\"boolProp\":true,\"intProp\":1,\"strProp\":\"ABC\"}";
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "JSON");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test2", s1, props);
@@ -205,9 +205,8 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		m1.put("intProp", 2); 
 		m1.put("boolProp", Boolean.TRUE);
 		m1.put("strProp", "CDE10");
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "maps");
-		props.setProperty(pn_document_data_format, "MAP");
 		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test3", m1, props);
 		assertNotNull(mDoc);
 		assertEquals(txId, mDoc.getTxStart());
@@ -245,9 +244,8 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		m1.put("intProp", 1); 
 		m1.put("boolProp", Boolean.FALSE);
 		m1.put("strProp", "XYZ");
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "maps");
-		props.setProperty(pn_document_data_format, "MAP");
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("uri", URI.create(uri));
@@ -274,9 +272,8 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 	
 	@Test
 	public void queryMapDocumentsTest() throws Exception {
-	    Properties props = new Properties();
+	    Properties props = getDocumentProperties();
 		props.setProperty(pn_document_collections, "maps");
-		props.setProperty(pn_document_data_format, "MAP");
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
 		//long txId = xRepo.getTxManagement().beginTransaction();
 		for (int i=0; i < 100; i++) {

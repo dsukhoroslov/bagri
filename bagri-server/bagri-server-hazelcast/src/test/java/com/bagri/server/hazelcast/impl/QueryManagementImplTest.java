@@ -77,12 +77,15 @@ public class QueryManagementImplTest extends BagriManagementTest {
 			com.bagri.core.system.Collection collection = new com.bagri.core.system.Collection(1, new Date(), 
 					JMXUtils.getCurrentUser(), 1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			schema.addCollection(collection);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		// remove documents here!
+		((SchemaRepositoryImpl) xRepo).setClientId(client_id);
 		removeDocumentsTest();
 		Thread.sleep(1000);
 	}
@@ -357,8 +360,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
 		Map<String, Object> params = new HashMap<>();
 		params.put("sym", "VFINX");
-		Properties props = new Properties();
-		props.setProperty(pn_client_id, "1");
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "5");
 		props.setProperty(pn_xqj_defaultElementTypeNamespace, "");
 		ResultCursor rc = query(query, params, props);
@@ -392,8 +394,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 			"\t<print>The open price of the security \"{$sec/s:Name/text()}\" is {$sec/s:Price/s:PriceToday/s:Open/text()} dollars</print>";
 		Map<String, Object> params = new HashMap<>();
 		params.put("sym", "VFINX");
-		Properties props = new Properties();
-		//props.setProperty(pn_client_id, "1");
+		Properties props = getDocumentProperties();
 		//props.setProperty(pn_client_fetchSize, "5");
 		//props.setProperty(pn_xqj_defaultElementTypeNamespace, "");
 		KeyFactory f = context.getBean(KeyFactory.class);

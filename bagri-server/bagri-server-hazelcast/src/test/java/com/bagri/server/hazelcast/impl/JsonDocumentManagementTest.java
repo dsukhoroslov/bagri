@@ -83,6 +83,8 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 			xdmRepo.setDataFormats(getBasicDataFormats());
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 		}
 		// set bdb.document.format to JSON !
 		//XQProcessor xqp = xdmRepo.getXQProcessor("test_client");
@@ -100,7 +102,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 	}
 	
 	protected Properties getDocumentProperties() {
-		Properties props = new Properties();
+		Properties props = super.getDocumentProperties();
 		props.setProperty(pn_document_data_format, "JSON");
 		return props;
 	}

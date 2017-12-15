@@ -43,7 +43,7 @@ public class DocumentCleaner implements Callable<Transaction>, IdentifiedDataSer
 	}
 
     @Autowired
-	public void setXDMRepository(SchemaRepositoryImpl xdmRepo) {
+	public void setRepository(SchemaRepositoryImpl xdmRepo) {
 		this.xdmRepo = xdmRepo;
 	}
 	

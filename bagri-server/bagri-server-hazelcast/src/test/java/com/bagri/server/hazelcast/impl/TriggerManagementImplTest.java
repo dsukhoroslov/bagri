@@ -62,6 +62,8 @@ public class TriggerManagementImplTest extends BagriManagementTest {
 			Properties props = loadProperties("src/test/resources/test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 			trigger = new GenericTriggerImpl(); 
 			TriggerDefinition docTriggerDef = new JavaTrigger(1, new Date(), xRepo.getUserName(), null, GenericTriggerImpl.class.getName(), true, true, null);
 			//docTriggerDef.getActions().add(new TriggerAction(0, Order.before, Scope.insert));

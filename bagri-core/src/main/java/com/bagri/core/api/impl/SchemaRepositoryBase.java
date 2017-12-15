@@ -109,6 +109,9 @@ public abstract class SchemaRepositoryBase {
 	//public ContentSerializer<?> getSerializer(String dataFormat) {
 	//	return null;
 	//}
-	
+
+	public void setClientId(String clientId) {
+		// do nothing;
+	}
 
 }

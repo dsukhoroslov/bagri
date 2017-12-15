@@ -13,6 +13,7 @@ import javax.management.openmbean.CompositeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.client.hazelcast.task.doc.DocumentAwareTask;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.Path;
@@ -35,9 +36,11 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	}
 
     @Autowired
-	public void setDocManager(DocumentManagementImpl docMgr) {
-		this.docMgr = docMgr;
-	}
+    @Override
+	public void setRepository(SchemaRepository repo) {
+		super.setRepository(repo);
+		this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
+    }
 	
 	@Override
 	public CompositeData call() throws Exception {

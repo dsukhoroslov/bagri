@@ -62,6 +62,8 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 			Properties props = loadProperties("src/test/resources/test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			xdmRepo.setSchema(schema);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 			String typePath = "/{http://tpox-benchmark.com/security}Security";
 			Index index = new Index(1, new Date(), xRepo.getUserName(), "IDX_Security_Symbol", "/{http://tpox-benchmark.com/security}Security", 
 					typePath, "/{http://tpox-benchmark.com/security}Security/{http://tpox-benchmark.com/security}Symbol/text()", new QName(xs_ns, "string", xs_prefix),

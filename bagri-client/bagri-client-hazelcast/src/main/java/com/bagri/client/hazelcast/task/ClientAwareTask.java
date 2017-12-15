@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.SchemaRepository;
+import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Permission;
 import com.hazelcast.nio.ObjectDataInput;
@@ -40,6 +41,7 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 
 	public void setRepository(SchemaRepository repo) {
 		this.repo = repo;
+		((SchemaRepositoryBase) repo).setClientId(clientId);
 	}
 	
 	@Override

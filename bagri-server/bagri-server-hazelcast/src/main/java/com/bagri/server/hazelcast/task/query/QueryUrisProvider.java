@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.spring.context.SpringAware;
@@ -15,14 +16,10 @@ public class QueryUrisProvider extends com.bagri.client.hazelcast.task.query.Que
 	private transient QueryManagement queryMgr;
     
     @Autowired
-	public void setQueryManager(QueryManagement queryMgr) {
-		this.queryMgr = queryMgr;
-		//logger.debug("setQueryManager; got QueryManager: {}", queryMgr); 
-	}
-    
-    @Autowired
-	public void setRepository(SchemaRepositoryImpl repo) {
-		this.repo = repo;
+    @Override
+	public void setRepository(SchemaRepository repo) {
+    	super.setRepository(repo);
+		this.queryMgr = repo.getQueryManagement();
 	}
 
     @Override

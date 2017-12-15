@@ -12,7 +12,7 @@ import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.TransactionIsolation;
-import com.bagri.core.server.api.SchemaRepository;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
@@ -26,8 +26,9 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
 	private transient TransactionManagement txMgr;
     
 	@Autowired
+	@Override
 	public void setRepository(SchemaRepository repo) {
-		this.repo = repo;
+		super.setRepository(repo);
 		this.docMgr = repo.getDocumentManagement();
 		this.txMgr = (TransactionManagement) repo.getTxManagement();
 	}

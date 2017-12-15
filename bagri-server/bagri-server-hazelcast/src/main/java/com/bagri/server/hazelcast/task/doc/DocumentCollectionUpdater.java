@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Document;
-import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
@@ -22,8 +22,9 @@ public class DocumentCollectionUpdater extends com.bagri.client.hazelcast.task.d
 	private transient DocumentManagement docMgr;
     
     @Autowired
+    @Override
 	public void setRepository(SchemaRepository repo) {
-		this.repo = repo;
+		super.setRepository(repo);
 		this.docMgr = repo.getDocumentManagement();
 	}
 

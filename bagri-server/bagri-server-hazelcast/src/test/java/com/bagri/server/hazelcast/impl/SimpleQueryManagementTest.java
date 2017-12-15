@@ -55,6 +55,8 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_xqj_baseURI, sampleRoot);
 			xdmRepo.setSchema(schema);
+			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
+			xdmRepo.setClientId(client_id);
 			//XDMCollection collection = new XDMCollection(1, new Date(), JMXUtils.getCurrentUser(), 
 			//		1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
 			//schema.addCollection(collection);
@@ -77,7 +79,7 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		String xml = "<content>XML Content</content>";
 
 		long txId = xRepo.getTxManagement().beginTransaction();
-		Properties props = new Properties();
+		Properties props = getDocumentProperties();
 		props.setProperty(pn_document_data_format, "XML");
 		DocumentAccessor xDoc = xRepo.getDocumentManagement().storeDocument(uri, xml, props);
 		xRepo.getTxManagement().commitTransaction(txId);

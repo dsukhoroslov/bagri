@@ -29,8 +29,7 @@ public class DocumentCreator extends com.bagri.client.hazelcast.task.doc.Documen
 	@Autowired
 	@Override
 	public void setRepository(SchemaRepository repo) {
-		this.repo = repo;
-		//System.out.println("got repo: " + repo);
+		super.setRepository(repo);
 		this.docMgr = repo.getDocumentManagement();
 		this.txMgr = (TransactionManagement) repo.getTxManagement();
 	}

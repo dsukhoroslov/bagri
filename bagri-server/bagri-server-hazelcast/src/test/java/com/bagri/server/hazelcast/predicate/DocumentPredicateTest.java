@@ -7,6 +7,7 @@ import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
+import com.bagri.server.hazelcast.impl.ClientManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
@@ -74,6 +75,8 @@ public class DocumentPredicateTest {
 				repos[i].setDataFormats(getBasicDataFormats());
 				repos[i].setLibraries(new ArrayList<Library>());
 				repos[i].setModules(new ArrayList<Module>());
+				((ClientManagementImpl) repos[i].getClientManagement()).addClient("client", "guest");
+				repos[i].setClientId("client");
 			}
 		}
 	}
@@ -136,6 +139,7 @@ public class DocumentPredicateTest {
 	
 	private int populateDocuments() throws Exception {
 	    Properties props = new Properties();
+	    props.setProperty(pn_client_id, "client");
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);

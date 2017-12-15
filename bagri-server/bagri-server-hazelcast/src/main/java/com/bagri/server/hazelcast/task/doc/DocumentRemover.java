@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
@@ -20,8 +21,9 @@ public class DocumentRemover extends com.bagri.client.hazelcast.task.doc.Documen
 	private transient TransactionManagement txMgr;
     
     @Autowired
-	public void setRepository(SchemaRepositoryImpl repo) {
-		this.repo = repo;
+    @Override
+	public void setRepository(SchemaRepository repo) {
+		super.setRepository(repo);
 		this.docMgr = repo.getDocumentManagement();
 		this.txMgr = (TransactionManagement) repo.getTxManagement();
 	}

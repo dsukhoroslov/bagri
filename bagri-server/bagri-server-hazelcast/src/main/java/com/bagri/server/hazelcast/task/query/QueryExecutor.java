@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.server.api.QueryManagement;
@@ -25,13 +26,10 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
 	private transient QueryManagement queryMgr;
     
     @Autowired
-	public void setQueryManager(QueryManagement queryMgr) {
-		this.queryMgr = queryMgr;
-	}
-    
-    @Autowired
-	public void setRepository(SchemaRepositoryImpl repo) {
+    @Override
+	public void setRepository(SchemaRepository repo) {
 		this.repo = repo;
+		this.queryMgr = (QueryManagement) repo.getQueryManagement();
 	}
 
     @Override
