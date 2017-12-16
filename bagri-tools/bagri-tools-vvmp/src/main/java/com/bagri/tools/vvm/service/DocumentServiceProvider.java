@@ -218,10 +218,10 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	}
 
 	@Override
-	public String getDocumentContent(String uri) throws ServiceException {
+	public String getDocumentContent(String uri, String format) throws ServiceException {
         try {
 			return (String) connection.invoke(getDocMgrObjectName(), "getDocumentContent", 
-					new Object[] {uri, "bdb.document.headers=2;bdb.document.data.format=JSON"}, 
+					new Object[] {uri, "bdb.document.headers=2;bdb.document.data.format=" + format}, 
 					new String[] {String.class.getName(), String.class.getName()});
 		} catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "getDocumentContent", ex);

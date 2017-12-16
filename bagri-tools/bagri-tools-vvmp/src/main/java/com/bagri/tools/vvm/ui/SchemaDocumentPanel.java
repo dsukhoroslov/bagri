@@ -324,7 +324,6 @@ public class SchemaDocumentPanel extends JPanel {
 	        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	        docInfoPanel = new JPanel(new GridLayout(5, 3));
 			docInfoPanel.add(new JLabel("key:"));
-			//docInfoPanel.add(new JLabel("id:"));
 			docInfoPanel.add(new JLabel("version:"));
 			docInfoPanel.add(new JLabel("uri:"));
 			docInfoPanel.add(new JLabel("size:"));
@@ -337,6 +336,7 @@ public class SchemaDocumentPanel extends JPanel {
 			docInfoPanel.add(new JLabel("collections:"));
 			docInfoPanel.add(new JLabel("partition:"));
 			docInfoPanel.add(new JLabel("owner:"));
+			docInfoPanel.add(new JLabel("format:"));
 			docInfoPanel.setPreferredSize(new Dimension(1000, 120));
 			docInfoPanel.setMinimumSize(new Dimension(1000, 120));
 			docInfoPanel.setBorder(BorderFactory.createTitledBorder("document: "));
@@ -393,9 +393,14 @@ public class SchemaDocumentPanel extends JPanel {
 			((JLabel) labels[10]).setText("collections: " + doc.get("collections"));
 			((JLabel) labels[11]).setText("partition: " + doc.get("partition"));
 			((JLabel) labels[12]).setText("owner: " + doc.get("owner"));
+			((JLabel) labels[13]).setText("format: " + doc.get("content type"));
 			docInfoPanel.repaint();
 
-			String content = docMgr.getDocumentContent(uri);
+			String cType = (String) doc.get("content type");
+			if (cType.endsWith("MAP")) {
+				cType = "JSON";
+			}
+			String content = docMgr.getDocumentContent(uri, cType);
 	    	contentArea.setText(content);
 	    	contentArea.setCaretPosition(0);
     	} catch (ServiceException ex) {

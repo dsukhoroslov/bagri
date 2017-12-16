@@ -180,6 +180,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 				docInfo.put("elements", doc.getSizeInElements());
 				docInfo.put("fragments", doc.getSizeInFragments());
 				docInfo.put("collections", doc.getCollections());
+				docInfo.put("content type", doc.getContentType());
 				result = JMXUtils.mapToComposite("document", "Document Info", docInfo);
 			} 
 			logger.debug("getDocumentInfo; returning: {}", result);
