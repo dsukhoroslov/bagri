@@ -68,6 +68,25 @@ public class MapParserTest {
 	}
 	
 	@Test
+	public void testByteArray() throws Exception {
+		ModelManagement model = new ModelManagementImpl();
+		MapParser parser = new MapParser(model);
+		Map<String, Object> content = new HashMap<>();
+		content.put("firstName", "John".getBytes());
+		content.put("lastName", "Smith".getBytes());
+		content.put("age", new byte[] {25});
+		ParseResults results = parser.parse(content); 
+		assertEquals(4, results.getResultSize());
+		List<Data> data = results.getResults();
+		assertEquals(4, data.size());
+		int length = 8 + // null at root Document
+				"@firstName".length() + "John".getBytes().length + 
+				"@lastName".length() + "Smith".getBytes().length + 
+				"@age".length() + 1; 
+		assertEquals(length, results.getContentLength());
+	}
+	
+	@Test
 	public void testParsePerson() throws Exception {
 		ModelManagement model = new ModelManagementImpl();
 		MapParser parser = new MapParser(model);

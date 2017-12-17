@@ -174,14 +174,47 @@ public class Data implements Comparable<Data> {
     	if (getName() != null) {
     		length += getName().length();
     	}
-    	if (getValue() != null) {
-    		// calc length for arrays..
-    		if (getValue().getClass().isArray()) {
-    			//get length via reflection?
-    		}
-    		length += getValue().toString().length();
-    	}
+   		length += calcLength(getValue());
     	return length;
+    }
+    
+    private int calcLength(Object value) {
+    	if (value == null) {
+    		return 8;
+    	}
+    	
+		// calc length for arrays..
+		if (value.getClass().isArray()) {
+			//get length via reflection?
+			if (value.getClass().getComponentType().isPrimitive()) {
+				if (value.getClass().getComponentType().equals(byte.class)) {
+					return ((byte[]) value).length;
+				}
+				if (value.getClass().getComponentType().equals(boolean.class)) {
+					return ((boolean[]) value).length;
+				}
+				if (value.getClass().getComponentType().equals(char.class)) {
+					return ((char[]) value).length * 2;
+				}
+				if (value.getClass().getComponentType().equals(int.class)) {
+					return ((int[]) value).length * 4;
+				}
+				if (value.getClass().getComponentType().equals(short.class)) {
+					return ((short[]) value).length * 2;
+				}
+				if (value.getClass().getComponentType().equals(long.class)) {
+					return ((long[]) value).length * 8;
+				}
+				if (value.getClass().getComponentType().equals(float.class)) {
+					return ((float[]) value).length * 4;
+				}
+				if (value.getClass().getComponentType().equals(double.class)) {
+					return ((double[]) value).length * 8;
+				}
+			}
+			return ((Object[]) value).length * 8;
+		}
+		return value.toString().length() * 2;
     }
     
     /**
