@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.system.Permission;
-import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -24,7 +23,7 @@ public class CollectionsProvider extends com.bagri.client.hazelcast.task.doc.Col
 
     @Override
 	public Collection<String> call() throws Exception {
-    	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
+		checkPermission(Permission.Value.read);
    		return docMgr.getCollections();
 	}
 

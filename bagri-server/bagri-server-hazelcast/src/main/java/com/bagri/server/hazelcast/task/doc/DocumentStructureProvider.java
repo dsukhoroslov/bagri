@@ -18,6 +18,7 @@ import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ModelManagement;
+import com.bagri.core.system.Permission;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
 import com.bagri.support.util.JMXUtils;
 import com.hazelcast.spring.context.SpringAware;
@@ -45,7 +46,9 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 	@Override
 	public CompositeData call() throws Exception {
 		
-    	Collection<Elements> elements = docMgr.getDocumentElements(uri); 
+		checkPermission(Permission.Value.read);
+
+		Collection<Elements> elements = docMgr.getDocumentElements(uri); 
     	if (elements == null) {
     		return null;
     	}

@@ -99,10 +99,6 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 		//txFileName = FileUtils.buildStoreFileName(dataPath, nodeNum, "txlog");
 	}
 
-	private ModelManagement getModelManagement() {
-		return ((SchemaRepository) xRepo).getModelManagement();
-	}
-
 	public Collection<String> getSecurity(String symbol) throws Exception {
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
@@ -157,8 +153,8 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 
 			long txId = 0;
 			try {
-				//for (int i=0; i < loops; i++) {
 				int i = 0;
+				((SchemaRepositoryImpl) xRepo).setClientId(client_id);
 				while (i < loops) {
 					txId = xRepo.getTxManagement().beginTransaction(); //TransactionIsolation.repeatableRead);
 					try {

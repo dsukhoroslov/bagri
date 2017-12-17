@@ -6,7 +6,6 @@ import static com.bagri.core.server.api.CacheConstants.CN_SYS_USERS;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,7 +21,6 @@ import com.bagri.support.security.Encryptor;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
@@ -71,7 +69,7 @@ public class AccessManagementBridge implements MembershipListener {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void copyCache(IMap source, Map target) {
-		target.clear();
+		//target.clear();
 		if (source != null) {
 			target.putAll(source);
 			source.addEntryListener(new EntityListener(target), true);
@@ -153,7 +151,7 @@ public class AccessManagementBridge implements MembershipListener {
 
 		private final Map<String, PermissionAware> cache;
 		
-		private EntityListener(Map cache) {
+		private EntityListener(Map<String, PermissionAware> cache) {
 			this.cache = cache;
 		}
 	

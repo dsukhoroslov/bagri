@@ -37,7 +37,7 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
     	
     	//logger.info("call.enter; context: {}; params: {}", context, params);
 
-    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
+    	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	boolean readOnly = queryMgr.isQueryReadOnly(query, context);
     	if (readOnly) {
     		checkPermission(Permission.Value.read);

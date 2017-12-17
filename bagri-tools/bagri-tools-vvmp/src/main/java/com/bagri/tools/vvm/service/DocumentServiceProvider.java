@@ -143,7 +143,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
             	cln = connection.invoke(getDocMgrObjectName(), "getCollectionDocuments", 
             		new Object[] {collection, null}, new String[] {String.class.getName(), String.class.getName()});
         	}
-            LOGGER.info("getDocuments; result: " + cln);
+            //LOGGER.info("getDocuments; result: " + cln);
             if (cln != null) {
             	java.util.Collection<String> ids = (java.util.Collection<String>) cln;
             	for (String uri: ids) {

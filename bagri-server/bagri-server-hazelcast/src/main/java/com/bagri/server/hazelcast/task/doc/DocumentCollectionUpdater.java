@@ -10,7 +10,6 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Permission;
-import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.spring.context.SpringAware;
@@ -36,7 +35,7 @@ public class DocumentCollectionUpdater extends com.bagri.client.hazelcast.task.d
 	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
     	try {
-			((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
+    		checkPermission(Permission.Value.modify);
 			doc = entry.getValue();
     		return ((DocumentManagementImpl) docMgr).updateDocumentCollections(add, entry, collections);
 		} catch (BagriException ex) {

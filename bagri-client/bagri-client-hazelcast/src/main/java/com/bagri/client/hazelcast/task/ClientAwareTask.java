@@ -33,15 +33,12 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 	
 	protected void checkPermission(Permission.Value perm) throws BagriException {
     	//repo.getXQProcessor(clientId);
-    	String user = repo.getUserName();
-    	if (!((AccessManagement) repo.getAccessManagement()).hasPermission(user, perm)) {
-    		throw new BagriException("User " + user + " has no permission to " + perm + " documents", BagriException.ecAccess);
-    	}
+		((SchemaRepositoryBase) repo).setClientId(clientId);
+    	repo.getAccessManagement().checkPermission(clientId, perm);
 	}
 
 	public void setRepository(SchemaRepository repo) {
 		this.repo = repo;
-		((SchemaRepositoryBase) repo).setClientId(clientId);
 	}
 	
 	@Override

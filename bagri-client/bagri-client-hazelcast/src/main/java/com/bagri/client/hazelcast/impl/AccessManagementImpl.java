@@ -49,6 +49,10 @@ public class AccessManagementImpl implements AccessManagement {
 		return false;
 	}
 	
+	@Override
+	public void checkPermission(String clientId, Permission.Value permission) {
+		// not implemented on client side. yet?
+	}
 }
 
 

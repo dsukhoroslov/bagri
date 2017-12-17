@@ -24,7 +24,7 @@ public class QueryUrisProvider extends com.bagri.client.hazelcast.task.query.Que
 
     @Override
 	public Collection<String> call() throws Exception {
-    	((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
+    	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	checkPermission(Permission.Value.read);
        	return queryMgr.getDocumentUris(query, params, context);
 	}

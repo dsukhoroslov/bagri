@@ -11,7 +11,6 @@ import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.server.api.TransactionManagement;
 import com.bagri.core.system.Permission;
-import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.spring.context.SpringAware;
 
@@ -32,11 +31,10 @@ public class DocumentsRemover extends com.bagri.client.hazelcast.task.doc.Docume
     @Override
 	public ResultCollection<DocumentAccessor> call() throws Exception {
 
-    	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.modify);
+		checkPermission(Permission.Value.modify);
     	
     	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
     	if (tiLevel == null) {
-    		// bypass tx stack completely..?
     		return (ResultCollection<DocumentAccessor>) docMgr.removeDocuments(pattern, context);
     	}
     	

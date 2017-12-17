@@ -25,4 +25,11 @@ public interface AccessManagement {
 	 */
 	boolean hasPermission(String username, Permission.Value permission);
 	
+	/**
+	 * 
+	 * @param clientId the client id
+	 * @param permission the {@link Permission.Value} to check
+	 * @throws BagriException in case when client not found or permission not granted 
+	 */
+	void checkPermission(String clientId, Permission.Value permission) throws BagriException;
 }

@@ -7,7 +7,6 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.system.Permission;
-import com.bagri.server.hazelcast.impl.AccessManagementImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -26,7 +25,7 @@ public class DocumentsProvider extends com.bagri.client.hazelcast.task.doc.Docum
 	public ResultCollection<DocumentAccessor> call() throws Exception {
     	
     	// not sure we have to check it at all..
-    	((AccessManagementImpl) repo.getAccessManagement()).checkPermission(clientId, Permission.Value.read);
+		checkPermission(Permission.Value.read);
     	return (ResultCollection<DocumentAccessor>) docMgr.getDocuments(pattern, context);
 	}
 
