@@ -356,22 +356,8 @@ public class SchemaDocumentPanel extends JPanel {
     	return docPanel;
     }
 
-    private int fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
-        try {
-            List<Document> documents = docMgr.getDocuments(clName);
-        	Collections.sort(documents);
-        	int cnt = clNode.getChildCount(); 
-            for (Document document: documents) {
-                DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
-                clNode.add(doc);
-            }
-            cnt = clNode.getChildCount() - cnt;
-            LOGGER.info("fillCollectionDocuments; added: " + cnt + "; returning: " + documents.size()); 
-            return documents.size();
-		} catch (Exception ex) {
-            LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
-		}
-        return 0;
+    private void fillCollectionDocuments(DefaultMutableTreeNode clNode, String clName) {
+    	new CollectionPopulator(clName, clNode).start();
     }
     
     private void selectDocument(String uri) {
@@ -621,6 +607,31 @@ public class SchemaDocumentPanel extends JPanel {
     	//
     }
     
+    private class CollectionPopulator extends Thread {
+    	
+    	private String clName;
+    	private DefaultMutableTreeNode clNode;
+    	
+    	CollectionPopulator(String clName, DefaultMutableTreeNode clNode) {
+    		this.clName = clName;
+    		this.clNode = clNode;
+    	}
+    	
+    	public void run() {
+            try {
+                List<Document> documents = docMgr.getDocuments(clName);
+            	Collections.sort(documents);
+                for (Document document: documents) {
+                    DefaultMutableTreeNode doc = new DefaultMutableTreeNode(document);
+                    clNode.add(doc);
+                }
+                LOGGER.info("fillCollectionDocuments; processed: " + documents.size()); 
+    		} catch (Exception ex) {
+                LOGGER.throwing(this.getClass().getName(), "fillCollectionDocuments", ex);
+    		}
+    	}
+    	
+    }
     
     private class DocTreeCellRenderer extends DefaultTreeCellRenderer {
 
