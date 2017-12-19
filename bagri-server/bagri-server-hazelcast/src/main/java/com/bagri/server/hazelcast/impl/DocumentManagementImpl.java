@@ -39,9 +39,11 @@ import com.bagri.server.hazelcast.task.doc.DocumentRemoveProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
 import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.impl.MapEntrySimple;
+import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -60,7 +62,7 @@ import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.core.system.DataFormat.*;
 import static com.bagri.support.util.FileUtils.*;
 
-public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
+public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement, EntryEvictedListener<DocumentKey, Document> {
 
 	private static final String fnUri = "uri";
 	//private static final String fnTxStart = "txStart";
@@ -77,8 +79,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     private IdGenerator<Long> docGen;
     private IMap<DocumentKey, Object> cntCache;
-	private IMap<DocumentKey, Document> xddCache;
-    private IMap<DataKey, Elements> xdmCache;
+	private IMap<DocumentKey, Document> docCache;
+    private IMap<DataKey, Elements> eltCache;
     private IMap<UrlHashKey, List<DocumentKey>> keyCache;
 
 	private boolean binaryDocs;
@@ -111,11 +113,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     }
 
     IMap<DocumentKey, Document> getDocumentCache() {
-    	return xddCache;
+    	return docCache;
     }
 
     IMap<DataKey, Elements> getElementCache() {
-    	return xdmCache;
+    	return eltCache;
     }
 
     public void setDocumentIdGenerator(IdGenerator<Long> docGen) {
@@ -126,12 +128,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.cntCache = cache;
     }
 
-    public void setXddCache(IMap<DocumentKey, Document> cache) {
-    	this.xddCache = cache;
+    public void setDocumentCache(IMap<DocumentKey, Document> cache) {
+    	this.docCache = cache;
+		docCache.addLocalEntryListener(this);
     }
 
-    public void setXdmCache(IMap<DataKey, Elements> cache) {
-    	this.xdmCache = cache;
+    public void setElementCache(IMap<DataKey, Elements> cache) {
+    	this.eltCache = cache;
     }
 
     //@Autowired
@@ -175,7 +178,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		Set<DataKey> keys = getDocumentElementKeys(doc.getTypeRoot(), doc.getFragments());
-		Map<DataKey, Elements> elements = xdmCache.getAll(keys);
+		Map<DataKey, Elements> elements = eltCache.getAll(keys);
 		return elements.values();
     }
 
@@ -202,7 +205,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		int cnt = 0;
 		for (DocumentKey docKey: docKeys) {
 			DataKey xdk = factory.newDataKey(docKey.getKey(), pathId);
-			Elements elts = xdmCache.get(xdk);
+			Elements elts = eltCache.get(xdk);
 			if (elts != null) {
 				for (Element elt: elts.getElements()) {
 					indexManager.addIndex(docKey.getKey(), pathId, path.getPath(), elt.getValue());
@@ -219,7 +222,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		int cnt = 0;
 		for (DocumentKey docKey: docKeys) {
 			DataKey xdk = factory.newDataKey(docKey.getKey(), pathId);
-			Elements elts = xdmCache.get(xdk);
+			Elements elts = eltCache.get(xdk);
 			if (elts != null) {
 				for (Element elt: elts.getElements()) {
 					indexManager.removeIndex(docKey.getKey(), pathId, elt.getValue());
@@ -234,7 +237,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private Set<DocumentKey> getDocumentsOfType(String root) {
    		Predicate<DocumentKey, Document> f = Predicates.and(Predicates.equal(fnRoot, root),
    				Predicates.equal(fnTxFinish, TX_NO));
-		return xddCache.keySet(f);
+		return docCache.keySet(f);
 	}
 
 	public Document getDocument(long docKey) {
@@ -388,7 +391,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				} else {
 					// can cause distributed deadlock! call to EP from the same EP!
 					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
-					content = xddCache.executeOnKey(docKey, xp);
+					content = docCache.executeOnKey(docKey, xp);
 				}
 			}
 			if (cc != null) {
@@ -553,7 +556,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
 			DocumentKey docKey = factory.newDocumentKey(itr.next());
 			if (ddSvc.isLocalKey(docKey)) {
-				Document doc = xddCache.get(docKey);
+				Document doc = docCache.get(docKey);
 				if (doc == null) {
 					logger.info("buildContent; lost document for key {}", docKey);
 					continue;
@@ -599,7 +602,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private Object buildElement(String path, long[] fragments, ContentBuilder<?> builder) throws BagriException {
     	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
-    	return builder.buildContent(xdmCache.getAll(xdKeys));
+    	return builder.buildContent(eltCache.getAll(xdKeys));
     }
 
 	//public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
@@ -767,7 +770,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 				}
 			}
-			xdmCache.putAll(elements);
+			eltCache.putAll(elements);
 
 			stamp = System.currentTimeMillis() - stamp;
 			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}",
@@ -851,7 +854,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (old.getValue() == null || txId == TX_NO) {
 	    	old.setValue(newDoc);
 		} else {
-			xddCache.set(docKey, newDoc);
+			docCache.set(docKey, newDoc);
 			//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 		}
 		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
@@ -878,9 +881,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 		// TODO: do it directly via RecordStore
-		//xdmCache.putAll(elements);
+		//eltCache.putAll(elements);
 		for (Map.Entry<DataKey, Elements> e: elements.entrySet()) {
-			xdmCache.set(e.getKey(), e.getValue());
+			eltCache.set(e.getKey(), e.getValue());
 			//ddSvc.storeData(e.getKey(), e.getValue(), CN_XDM_ELEMENT);
 		}
 		return pathIds;
@@ -939,7 +942,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			//if (indexManager.isPathIndexed(pathId)) {
         	//	Elements elts;
         	//	if (mergeElts || oldPathId) {
-        			//elts = xdmCache.get(dKey);
+        			//elts = eltCache.get(dKey);
         	//		elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
         	//	} else {
 	       	//		elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
@@ -963,7 +966,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	}
 
     	String user = repo.getUserName();
-		Object result = xddCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, user, content, pRes, props));
+		Object result = docCache.executeOnKey(docKey, new DocumentProcessor(tx, uri, user, content, pRes, props));
 		if (result instanceof Exception) {
 			logger.error("storeDocumentInternal.error; uri: {}", uri, result);
 			if (result instanceof BagriException) {
@@ -1080,7 +1083,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
-		Object result = xddCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
+		Object result = docCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
 		if (result instanceof Exception) {
 			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
@@ -1092,7 +1095,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		DocumentAccessorImpl docAccessor = (DocumentAccessorImpl) result;
 
 		txManager.updateCounters(0, 0, 1);
-		Document newDoc = xddCache.get(docKey);
+		Document newDoc = docCache.get(docKey);
         if (newDoc != null) {
 			triggerManager.applyTrigger(newDoc, Order.after, Scope.delete);
         }
@@ -1110,7 +1113,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			cntCache.delete(docKey);
 	    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeRoot());
 	    	if (complete) {
-	    		xddCache.delete(docKey);
+	    		docCache.delete(docKey);
 	    	}
 	    	cleaned = true;
 
@@ -1128,11 +1131,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("cleanDocument.exit; cleaned: {}", cleaned);
 	}
 
-	public void evictDocument(DocumentKey xdmKey, Document xdmDoc) {
-		logger.trace("evictDocument.enter; xdmKey: {}, xdmDoc: {}", xdmKey, xdmDoc);
-		cntCache.delete(xdmKey);
-    	int size = deleteDocumentElements(xdmDoc.getFragments(), xdmDoc.getTypeRoot());
+	public void evictDocument(DocumentKey docKey, Document doc) {
+		logger.trace("evictDocument.enter; docKey: {}, doc: {}", docKey, doc);
+		cntCache.delete(docKey);
+		// deletes elements together with indices. what if we store indices only!?
+    	int size = deleteDocumentElements(doc.getFragments(), doc.getTypeRoot());
 
+    	//what about older document versions? // use document container for versions..
+    	
     	//Collection<Integer> pathIds = indexManager.getTypeIndexes(xdmDoc.getTypeId(), true);
     	//for (int pathId: pathIds) {
     	//	deindexElements(docKey.getKey(), pathId);
@@ -1152,29 +1158,29 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     	int cnt = 0;
     	java.util.Collection<Path> allPaths = model.getTypePaths(root);
-		logger.trace("deleteDocumentElements; got {} possible paths to remove; xdmCache size: {}",
-				allPaths.size(), xdmCache.size());
+		logger.trace("deleteDocumentElements; got {} possible paths to remove; eltCache size: {}",
+				allPaths.size(), eltCache.size());
 		int iCnt = 0;
 		for (long docId: fragments) {
 	        for (Path path: allPaths) {
 	        	int pathId = path.getPathId();
 	        	DataKey dKey = factory.newDataKey(docId, pathId);
-	        	if (indexManager.isPathIndexed(pathId)) {
-		       		Elements elts = xdmCache.remove(dKey);
-		       		if (elts != null) {
+	       		Elements elts = eltCache.remove(dKey);
+	       		if (elts != null) {
+		   			cnt++;
+	       			if (indexManager.isPathIndexed(pathId)) {
 		       			for (Element elt: elts.getElements()) {
 		       				indexManager.removeIndex(docId, pathId, elt.getValue());
 		       				iCnt++;
 		       			}
 		       		}
-	        	} else {
-	        		xdmCache.delete(dKey);
+	        	//} else {
+	        	//	eltCache.delete(dKey);
 	        	}
-	   			cnt++;
 	        }
 		}
-		logger.trace("deleteDocumentElements; deleted keys: {}; indexes: {}; xdmCache size after delete: {}",
-				cnt, iCnt, xdmCache.size());
+		logger.trace("deleteDocumentElements; deleted keys: {}; indexes: {}; eltCache size after delete: {}",
+				cnt, iCnt, eltCache.size());
 		return cnt;
 	}
 
@@ -1184,7 +1190,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    Document doc = getDocument(docKey);
 	    if (doc != null) {
 	    	doc.finishDocument(TX_NO);
-	    	xddCache.set(docKey, doc);
+	    	docCache.set(docKey, doc);
 	    	rolled = true;
 	    }
 		logger.trace("rollbackDocument.exit; rolled back: {}", rolled);
@@ -1204,11 +1210,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Set<DocumentKey> docKeys;
 		if (collectId == clnDefault) {
 			// TODO: local or global keySet ?!
-			docKeys = xddCache.keySet();
+			docKeys = docCache.keySet();
 		} else {
 			Predicate<DocumentKey, Document> clp = new CollectionPredicate(collectId);
 			// TODO: local or global keySet ?!
-			docKeys = xddCache.keySet(clp);
+			docKeys = docCache.keySet(clp);
 		}
 		Set<Long> result = new HashSet<>(docKeys.size());
 		for (DocumentKey key: docKeys) {
@@ -1267,7 +1273,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 			cnt = updateDocumentCollections(true, new MapEntrySimple<>(key, doc), collections);
 			if (cnt > 0) {
-				xddCache.set(key, doc);
+				docCache.set(key, doc);
 			}
 		}
 		logger.trace("addDocumentsToCollections.exit; added: {}", cnt);
@@ -1283,7 +1289,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			DocumentKey key = factory.newDocumentKey(doc.getDocumentKey());
 			cnt = updateDocumentCollections(false, new MapEntrySimple<>(key, doc), collections);
 			if (cnt > 0) {
-				xddCache.set(key, doc);
+				docCache.set(key, doc);
 			}
 		}
 		logger.trace("removeDocumentsFromCollections.exit; removed: {}", cnt);
@@ -1351,20 +1357,27 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
         boolean locked = false;
         if (timeout > 0) {
             try {
-                locked = xddCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
+                locked = docCache.tryLock(docKey, timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException ex) {
                 logger.error("lockDocument.error", ex);
                 //throw new XDMException(ex);
             }
         } else {
-            locked = xddCache.tryLock(docKey);
+            locked = docCache.tryLock(docKey);
         }
         return locked;
     }
 
     private void unlockDocument(DocumentKey docKey) {
 
-        xddCache.unlock(docKey);
+        docCache.unlock(docKey);
     }
 
+
+    @Override
+    public void entryEvicted(EntryEvent<DocumentKey, Document> event) {
+		evictDocument(event.getKey(), event.getOldValue());
+    }
+    
 }
+

@@ -337,17 +337,6 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	@Override
 	public void entryEvicted(EntryEvent<DocumentKey, Document> event) {
 		logger.trace("entryEvicted.enter; event: {}", event);
-		// evict all document relatives: content, elements. do this on document owning node only. 
-		// what about indices and results? what about older document versions? 
-		// use document container for versions..
-		boolean evicted = false;
-		int partId = nodeEngine.getPartitionService().getPartitionId(event.getKey());
-		if (nodeEngine.getPartitionService().isPartitionOwner(partId)) {
-			// what if we're in migration right now? nodeEngine.getPartitionService().getActiveMigrations()
-			docMgr.evictDocument(event.getKey(), event.getValue());
-			evicted = true;
-		}
-		logger.trace("entryEvicted.exit; partition: {}; evicted: {}", partId, evicted);
 	}
 
 	@Override

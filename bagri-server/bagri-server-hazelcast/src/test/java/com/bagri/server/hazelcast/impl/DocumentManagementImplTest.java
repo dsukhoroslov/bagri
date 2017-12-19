@@ -148,15 +148,20 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		assertEquals(4,  chDocs.size());
 		IMap<DocumentKey, Document> chCont = hz.getMap(CN_XDM_CONTENT);
 		assertEquals(4,  chCont.size());
-		Set<DocumentKey> keys = chDocs.keySet();
+		IMap<DocumentKey, Document> chElts = hz.getMap(CN_XDM_ELEMENT);
+		int eSize = chElts.size();
 		int cnt = chCont.size();
-		for (Iterator<DocumentKey> itr = keys.iterator(); itr.hasNext();) {
-			DocumentKey key = itr.next();
-			chDocs.evict(key);
-			Thread.sleep(100);
-			//assertEquals(--cnt, chCont.size());
+		for (Iterator<Map.Entry<DocumentKey, Document>> itr = chDocs.entrySet().iterator(); itr.hasNext();) {
+			System.out.println("" + cnt + "; eSize: " + eSize + "; cSize: " + chElts.size());
+			Map.Entry<DocumentKey, Document> entry = itr.next();
+			chDocs.evict(entry.getKey());
+			Thread.sleep(50);
+			assertEquals(--cnt, chCont.size());
+			eSize = eSize - entry.getValue().getElements();
+			//assertEquals(eSize, chElts.size());
+			System.out.println("" + cnt + "; eSize: " + eSize + "; cSize: " + chElts.size());
 		}
-		//uris.
+		uris.clear();
 	}
 
 }
