@@ -1,14 +1,19 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.DocumentKey;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.DocumentManagementTest;
 import com.bagri.support.util.JMXUtils;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,10 +24,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static com.bagri.core.Constants.*;
+import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.core.test.TestUtils.*;
 import static com.bagri.support.util.FileUtils.*;
 import static org.junit.Assert.*;
@@ -34,7 +42,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "../../etc/samples/tpox/";
-		//System.setProperty(pn_log_level, "trace");
+		System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
@@ -130,6 +138,25 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
 		ResultCollection<DocumentAccessor> results = (ResultCollection<DocumentAccessor>) getDocManagement().storeDocuments(docs, props);
 		assertEquals(4, results.size());
+	}
+	
+	@Test
+	public void evictDocumentTest() throws Exception {
+		storeSecurityTest();
+		HazelcastInstance hz = ((SchemaRepositoryImpl) xRepo).getHzInstance();
+		IMap<DocumentKey, Document> chDocs = hz.getMap(CN_XDM_DOCUMENT);
+		assertEquals(4,  chDocs.size());
+		IMap<DocumentKey, Document> chCont = hz.getMap(CN_XDM_CONTENT);
+		assertEquals(4,  chCont.size());
+		Set<DocumentKey> keys = chDocs.keySet();
+		int cnt = chCont.size();
+		for (Iterator<DocumentKey> itr = keys.iterator(); itr.hasNext();) {
+			DocumentKey key = itr.next();
+			chDocs.evict(key);
+			Thread.sleep(100);
+			//assertEquals(--cnt, chCont.size());
+		}
+		//uris.
 	}
 
 }
