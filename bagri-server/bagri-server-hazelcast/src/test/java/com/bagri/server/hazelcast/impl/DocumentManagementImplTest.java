@@ -42,7 +42,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "../../etc/samples/tpox/";
-		System.setProperty(pn_log_level, "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
@@ -152,15 +152,16 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		int eSize = chElts.size();
 		int cnt = chCont.size();
 		for (Iterator<Map.Entry<DocumentKey, Document>> itr = chDocs.entrySet().iterator(); itr.hasNext();) {
-			System.out.println("" + cnt + "; eSize: " + eSize + "; cSize: " + chElts.size());
 			Map.Entry<DocumentKey, Document> entry = itr.next();
 			chDocs.evict(entry.getKey());
 			Thread.sleep(50);
 			assertEquals(--cnt, chCont.size());
-			eSize = eSize - entry.getValue().getElements();
-			//assertEquals(eSize, chElts.size());
-			System.out.println("" + cnt + "; eSize: " + eSize + "; cSize: " + chElts.size());
+			assertTrue(chElts.size() < eSize);
+			eSize = chElts.size();
 		}
+		assertEquals(0, chElts.size());
+		assertEquals(0, chCont.size());
+		assertEquals(0, chDocs.size());
 		uris.clear();
 	}
 
