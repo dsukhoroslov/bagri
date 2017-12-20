@@ -36,6 +36,7 @@
                 <entry name="bdb.schema.store.enabled">false</entry>
                 <entry name="bdb.schema.query.cache">true</entry>
                 <entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.thread.pool">32</entry>
                 <entry name="bdb.schema.ports.first">10500</entry>
                 <entry name="bdb.schema.data.cache">NEVER</entry>
@@ -266,6 +267,7 @@
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
@@ -415,6 +417,7 @@
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
 		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
@@ -526,6 +529,7 @@
                 <entry name="bdb.schema.partition.count">271</entry>
 		<entry name="bdb.schema.transaction.level"></entry>
 		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.store.tx.buffer.size">2048</entry>

@@ -79,7 +79,7 @@ public abstract class SchemaRepositoryBase {
 
 	/**
 	 * 
-	 * @param queryMgr  the XDM Query Management implementation
+	 * @param queryMgr the XDM Query Management implementation
 	 */
 	public void setQueryManagement(QueryManagement queryMgr) {
 		this.queryMgr = queryMgr;
@@ -101,15 +101,14 @@ public abstract class SchemaRepositoryBase {
 		this.txMgr = txMgr;
 	}
 
-	/**
-	 * 
-	 * @param dataFormat the name of dataFormat to search for
-	 * @return serializer for the dataFormat provided or null
-	 */
 	//public ContentSerializer<?> getSerializer(String dataFormat) {
 	//	return null;
 	//}
 
+	/**
+	 * 
+	 * @param clientId the client ID to set
+	 */
 	public void setClientId(String clientId) {
 		// do nothing;
 	}

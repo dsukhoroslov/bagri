@@ -18,6 +18,7 @@ public interface TransactionManagement extends com.bagri.core.api.TransactionMan
 	 * 
 	 * @param txId the transaction identifier. Can be 0, then new transaction will be started if the task is not read-only  
 	 * @param readOnly indicates call task nature: is it read-only or read-write
+	 * @param txLevel the transaction isolation level to start
 	 * @param call the task to be performed within transaction
 	 * @param <V> the task result type
 	 * @return the task execution result
