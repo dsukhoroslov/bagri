@@ -17,6 +17,16 @@
 New Features and fixes in Bagri 1.2.0
 ========================================
 
+- Non-transactional document processig mode has been introduced
+- Overall system performance has been improved significantly
+- Transaction-level triggers were implemented
+- Refactored Document Managemet API to allow batch Document processing
+- Enhanced Content (Model) Management interfaces to allow custom Document serialization and schema processing
+- Added asynchronous Document processing
+- .....
+
+The full list of resolved issues see at
+https://github.com/dsukhoroslov/bagri/issues?q=is%3Aclosed+milestone%3A%22Maintenance+release+1.2%22
 
 
 New Features and fixes in Bagri 1.1.2
@@ -31,7 +41,6 @@ New Features and fixes in Bagri 1.1.1
 ========================================
 
 [#99] Only one fix was implemented to publish some missed artifats to Maven Central
-
 
 
 New Features in Bagri 1.1.0
