@@ -75,7 +75,11 @@ public class DocumentRemoveProcessor implements EntryProcessor<DocumentKey, Docu
             }
             doc = docMgr.getDocument(lastKey);
         }
-        return docMgr.processDocumentRemoval(entry, properties, txStart, doc);
+        try {
+        	return docMgr.processDocumentRemoval(entry, properties, txStart, doc);
+        } catch (BagriException ex) {
+        	return ex;
+        }
     }
 
 }

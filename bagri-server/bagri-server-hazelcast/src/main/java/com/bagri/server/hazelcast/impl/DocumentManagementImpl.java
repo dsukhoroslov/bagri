@@ -795,12 +795,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (old.getValue() != null) {
 	    	logger.trace("processDocument; going to update document: {}", old);
 	    	Document updated = old.getValue();
+			triggerManager.applyTrigger(updated, Order.before, Scope.update);
 	    	if (txId > TX_NO) {
 		    	// we must finish old Document and create a new one!
-				triggerManager.applyTrigger(updated, Order.before, Scope.update);
 		    	updated.finishDocument(txId);
 			    old.setValue(updated);
-			    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); // docKey.getKey() + 1);
+			    docKey = factory.newDocumentKey(docKey.getKey(), docKey.getVersion() + 1); 
 				docId = docKey.getKey();
 	    	} else {
 		    	// we do changes inplace, no new version created
@@ -819,9 +819,11 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		        			ddSvc.deleteCachedObject(CN_XDM_ELEMENT, dKey);
 		    			}
 		    		}
+					// we handle indices later..
 	    		}
 	    	}
 		}
+		// why before insert trigger not invoked?
 
 		int length = pRes.getContentLength();
 		String root = pRes.getContentRoot();
@@ -851,14 +853,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		updateStats(null, true, rSize, 0);
 
-		if (old.getValue() == null || txId == TX_NO) {
+		Scope scope;
+		if (old.getValue() == null) {
+			scope = Scope.insert;
 	    	old.setValue(newDoc);
 		} else {
-			docCache.set(docKey, newDoc);
-			//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
+			scope = Scope.update;
+			if (txId == TX_NO) {
+				old.setValue(newDoc);
+			} else {
+				docCache.set(docKey, newDoc);
+				//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
+			}
 		}
 		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 		cntCache.set(docKey, content);
+		
+		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
 		logger.trace("processDocument.exit; returning: {}", newDoc);
 		return newDoc;
@@ -933,27 +944,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (pv_client_storeMode_insert.equals(storeMode)) {
 				throw new BagriException("Document with URI '" + uri + "' already exists; docKey: " + docKey, ecDocument);
 			}
-		    //Document doc = getDocument(docKey);
-			//update = (doc != null && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
-			//triggerManager.applyTrigger(doc, Order.before, Scope.update);
-	    	// do this asynch after tx?
-	    	//((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
-
-			//if (indexManager.isPathIndexed(pathId)) {
-        	//	Elements elts;
-        	//	if (mergeElts || oldPathId) {
-        			//elts = eltCache.get(dKey);
-        	//		elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
-        	//	} else {
-	       	//		elts = ddSvc.removeCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
-        	//	}
-        		// can't do this from partition thread!
-	       		//if (elts != null) {
-	       		//	for (Element elt: elts.getElements()) {
-	       		//		indexManager.removeIndex(docId, pathId, elt.getValue());
-	       		//	}
-	       		//}
-			//}
 		}
 
 		ParseResults pRes = parseContent(content, props);
@@ -975,16 +965,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException((Exception) result, ecDocument);
 		}
 
-		Scope scope;
 		Document newDoc = (Document) result;
 		if (newDoc.getVersion() > dvFirst) {
-			scope = Scope.update;
 			txManager.updateCounters(0, 1, 0);
 		} else {
-			scope = Scope.insert;
 			txManager.updateCounters(1, 0, 0);
 		}
-		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
     	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
     	Set<Integer> pathIds = new HashSet<>(paths.size());
@@ -1082,7 +1068,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
-		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
 		Object result = docCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
 		if (result instanceof Exception) {
 			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);
@@ -1095,13 +1080,28 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		DocumentAccessorImpl docAccessor = (DocumentAccessorImpl) result;
 
 		txManager.updateCounters(0, 0, 1);
-		Document newDoc = docCache.get(docKey);
-        if (newDoc != null) {
-			triggerManager.applyTrigger(newDoc, Order.after, Scope.delete);
-        }
 		((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 
 		return docAccessor;
+	}
+
+	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties, long txStart, Document doc) throws BagriException {
+		triggerManager.applyTrigger(doc, Order.before, Scope.delete);
+		if (txStart == TX_NO) {
+			entry.setValue(null);
+			cntCache.delete(entry.getKey());
+		} else {
+			doc.finishDocument(txStart);
+			entry.setValue(doc);
+		}
+		triggerManager.applyTrigger(doc, Order.after, Scope.delete);
+		
+		String headers = properties.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
+		long headMask = Long.parseLong(headers);
+		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			return new DocumentAccessorImpl(repo, doc, headMask, getDocumentContent(entry.getKey()));
+		}
+		return new DocumentAccessorImpl(repo, doc, headMask);
 	}
 
 	public void cleanDocument(DocumentKey docKey, boolean complete) {
@@ -1326,22 +1326,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 		return updCount;
-	}
-
-	public Object processDocumentRemoval(Map.Entry<DocumentKey, Document> entry, Properties properties, long txStart, Document doc) {
-		if (txStart == TX_NO) {
-			entry.setValue(null);
-			cntCache.delete(entry.getKey());
-		} else {
-			doc.finishDocument(txStart);
-			entry.setValue(doc);
-		}
-		String headers = properties.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CLIENT_DOCUMENT));
-		long headMask = Long.parseLong(headers);
-		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			return new DocumentAccessorImpl(repo, doc, headMask, getDocumentContent(entry.getKey()));
-		}
-		return new DocumentAccessorImpl(repo, doc, headMask);
 	}
 
 	private void updateStats(String name, boolean add, int elements, int fragments) {

@@ -180,7 +180,7 @@ public class SchemaDocumentPanel extends JPanel {
         docToolbar.setFloatable(false);
         add(docToolbar, BorderLayout.PAGE_START);
         mgrSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        mgrSplitter.setDividerLocation(0.9);
+        mgrSplitter.setDividerLocation(0.7);
         mgrSplitter.setLeftComponent(getCollectionManagementPanel());
         mgrSplitter.setRightComponent(createDocumentTreePanel());
         add(mgrSplitter, BorderLayout.CENTER);
@@ -231,10 +231,8 @@ public class SchemaDocumentPanel extends JPanel {
                 if (nodeInfo instanceof Document) {
                 	String uri = ((Document) nodeInfo).getUri(); 
                 	selectDocument(uri);
-                //    splitPane.setRightComponent(getUserManagementView());
                 } else if (nodeInfo instanceof Collection) {
                 	selectCollection((Collection) nodeInfo);
-                //    splitPane.setRightComponent(getClusterManagementPanel());
                 }
                 mgrSplitter.setDividerLocation(dividerLocation);
             }
@@ -345,7 +343,7 @@ public class SchemaDocumentPanel extends JPanel {
 	        contentArea = new JTextArea();
 	        contentArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 	        JScrollPane areaScrollPane = new JScrollPane(contentArea);
-	        areaScrollPane.setPreferredSize(new Dimension(1000, 500));
+	        //areaScrollPane.setPreferredSize(new Dimension(1000, 500));
 	        areaScrollPane.setMinimumSize(new Dimension(1000, 500));
 	        contentArea.setEditable(false);
 	        contentArea.setCaretPosition(0);

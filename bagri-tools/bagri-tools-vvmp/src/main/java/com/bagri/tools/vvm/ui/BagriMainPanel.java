@@ -64,8 +64,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         JScrollPane rightScrollPane = new JScrollPane(emptyPanel);
 
         //Create a split pane with the two scroll panes in it.
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                treeScrollPane, rightScrollPane);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, rightScrollPane);
         splitPane.setDividerLocation(200);//TODO: Move to constants
         add(splitPane);
         setOpaque(true);
