@@ -25,6 +25,7 @@ import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQSequence;
+import javax.xml.xquery.XQSequenceType;
 
 import com.bagri.samples.client.BagriClientApp;
 import com.bagri.xqj.BagriXQDataSource;
@@ -162,18 +163,25 @@ public class XQJClientApp implements BagriClientApp {
 		String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
 				"declare variable $uri external;\n" + 
 				"declare variable $xml external;\n" + 
-				//"declare variable $props external;\n" + 
-				//"let $uri := bgdb:store-document($uri, $xml, $props)\n" +
-				"let $uri := bgdb:store-document($uri, $xml)\n" +
+				"let $props := map {'" + pn_document_data_format + "': 'XML'}\n" +
+				"let $uri := bgdb:store-document($uri, $xml, $props)\n" +
 				"return $uri\n";
 
 	    XQPreparedExpression xqpe = xqConn.prepareExpression(query);
 	    xqpe.bindString(new QName("uri"), uri, xqConn.createAtomicType(XQItemType.XQBASETYPE_ANYURI));
 	    xqpe.bindString(new QName("xml"), content, xqConn.createAtomicType(XQItemType.XQBASETYPE_STRING));
-	    //List<String> props = new ArrayList<>(2);
-	    //props.add(pn_document_data_format + "=xml");
-	    // 
+	    //List<String> prop = new ArrayList<>();
+	    //prop.add(pn_document_data_format);
+	    //prop.add("XML");
+	    //XQSequence sq = xqConn.createSequence(prop.iterator());
+	    //List props = new ArrayList();
+	    //props.add(sq);
+	    
 	    //xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
+	    //xqpe.bindObject(new QName("props"), props, 
+	    //		xqConn.createSequenceType(
+	    //		xqConn.createSequenceType(xqConn.createAtomicType(XQItemType.XQBASETYPE_STRING), XQSequenceType.OCC_ONE_OR_MORE), 
+	    //		XQSequenceType.OCC_ZERO_OR_MORE));
 	    XQSequence xqs = xqpe.executeQuery();
 	    String result = null;
 	    try {

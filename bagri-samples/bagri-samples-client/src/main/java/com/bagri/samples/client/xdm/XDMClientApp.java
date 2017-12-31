@@ -65,6 +65,9 @@ public class XDMClientApp implements BagriClientApp {
 	public String readDocument(String uri) throws BagriException {
 		
 		DocumentAccessor doc = xRepo.getDocumentManagement().getDocument(uri, null);
+		if (doc ==  null) {
+			return null;
+		}
 		return doc.getContent();
 	}
 	

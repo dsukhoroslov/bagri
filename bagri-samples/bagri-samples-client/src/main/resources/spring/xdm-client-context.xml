@@ -16,25 +16,25 @@
     <bean id="xqProcessor" class="com.bagri.xquery.saxon.XQProcessorClient">
         <property name="properties">
             <props>
-                <prop key="bdb.client.fetchSize">${xdm.client.fetchSize}</prop>
-                <prop key="bdb.client.submitTo">${xdm.client.submitTo}</prop>
+                <prop key="bdb.client.fetchSize">${bdb.client.fetchSize}</prop>
+                <prop key="bdb.client.submitTo">${bdb.client.submitTo}</prop>
             </props>
         </property>
     	<property name="XQDataFactory" ref="xqFactory" />
     </bean>
 
-    <util:map id="xdmProps" map-class="java.util.Properties">
+    <util:map id="bdbProps" map-class="java.util.Properties">
         <entry key="bdb.schema.name">
-            <value type="java.lang.String">${xdm.schema.name}</value>
+            <value type="java.lang.String">${bdb.schema.name}</value>
         </entry>
         <entry key="bdb.schema.address">
-            <value type="java.lang.String">${xdm.schema.members}</value>
+            <value type="java.lang.String">${bdb.schema.members}</value>
         </entry>
         <entry key="bdb.schema.user">
-            <value type="java.lang.String">${xdm.schema.user}</value>
+            <value type="java.lang.String">${bdb.schema.user}</value>
         </entry>
         <entry key="bdb.schema.password">
-            <value type="java.lang.String">${xdm.schema.password}</value>
+            <value type="java.lang.String">${bdb.schema.password}</value>
         </entry>
         <entry key="bdb.client.loginTimeout">
             <value type="java.lang.String">0</value>
@@ -44,8 +44,8 @@
         </entry>
     </util:map>
 
-    <bean id="xdmRepository" class="com.bagri.xdm.client.hazelcast.impl.SchemaRepositoryImpl">
-        <constructor-arg ref="xdmProps"/>
+    <bean id="bdbRepository" class="com.bagri.client.hazelcast.impl.SchemaRepositoryImpl">
+        <constructor-arg ref="bdbProps"/>
     </bean>
 
 </beans>

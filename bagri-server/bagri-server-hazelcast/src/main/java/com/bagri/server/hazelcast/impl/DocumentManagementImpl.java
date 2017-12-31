@@ -1068,6 +1068,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	private DocumentAccessor removeDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
+		if (props == null) {
+			props = new Properties();
+		}
 		Object result = docCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
 		if (result instanceof Exception) {
 			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);

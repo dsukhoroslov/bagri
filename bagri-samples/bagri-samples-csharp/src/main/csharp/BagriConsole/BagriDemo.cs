@@ -64,6 +64,7 @@ public class BagriDemo
 
         String uri = UUID.randomUUID().toString();
         try {
+            
             String xml = "<content>XML Content</content>";
             if (!demo.createDocument(uri, xml)) {
                 Console.WriteLine("ERROR: document was not created");
@@ -129,7 +130,7 @@ public class BagriDemo
     public Boolean createDocument(String uri, String content) //throws XQException
     {
         String result = storeDocument(uri, content);
-  	    return result != null;
+  	return result != null;
     }
 
     public String readDocument(String uri) //throws XQException
@@ -144,7 +145,7 @@ public class BagriDemo
         XQResultSequence xqs = xqpe.executeQuery();
         String result = null;
         if (xqs.next()) {
-		    result = xqs.getItemAsString(null);
+	    result = xqs.getItemAsString(null);
         }
         return result;
     }
@@ -158,7 +159,7 @@ public class BagriDemo
         XQResultSequence xqs = xqe.executeQuery(query);
         String result = null;
         if (xqs.next()) {
-		    result = xqs.getItemAsString(null);
+	    result = xqs.getItemAsString(null);
         }
         return result;
     }
@@ -172,7 +173,7 @@ public class BagriDemo
         XQResultSequence xqs = xqe.executeQuery(query);
         String result = null;
         if (xqs.next()) {
-		    result = xqs.getItemAsString(null);
+	    result = xqs.getItemAsString(null);
         }
         return result;
     }
@@ -180,7 +181,7 @@ public class BagriDemo
     public Boolean updateDocument(String uri, String content) //throws XQException
     {
         String result = storeDocument(uri, content);
-  	    return uri.Equals(result);
+  	return uri.Equals(result);
     }
 
     private void deleteDocument(String uri) //throws XQException
@@ -195,34 +196,35 @@ public class BagriDemo
         XQSequence xqs = xqpe.executeQuery();
         String result = null;
         try {
-	        if (xqs.next()) {
-	    	    result = xqs.getAtomicValue();
-	        }
-	        if (!uri.Equals(result)) {
-	    	    throw new XQException("got no result from bgdb:remove-document function");
-	        }
+	    if (xqs.next()) {
+	        result = xqs.getAtomicValue();
+	    }
+	    if (!uri.Equals(result)) {
+	        throw new XQException("got no result from bgdb:remove-document function");
+	    }
         } finally {
             xqpe.close();
-	        xqs.close();
-	    }
+	    xqs.close();
 	}
+    }
 
     private String storeDocument(String uri, String content) //throws XQException
     {
         String query = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
             "declare variable $uri external;\n" +
             "declare variable $xml external;\n" +
-            "declare variable $props external;\n" +
+	    "let $props := map {'" + Constants.pn_document_data_format + "': 'XML'}\n" +
+            //"declare variable $props external;\n" +
             "let $uri := bgdb:store-document($uri, $xml, $props)\n" +
             "return $uri\n";
     
         XQPreparedExpression xqpe = xqConn.prepareExpression(query);
         xqpe.bindString(new QName("uri"), uri, xqConn.createAtomicType(8)); //XQItemType.XQBASETYPE_ANYURI));
         xqpe.bindString(new QName("xml"), content, xqConn.createAtomicType(29)); //XQItemType.XQBASETYPE_STRING));
-        List props = new ArrayList(2);
-        props.add(Constants.pn_document_data_format + "=xml");
+        //List props = new ArrayList(2);
+        //props.add(Constants.pn_document_data_format + "=xml");
         // 
-        xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
+        //xqpe.bindSequence(new QName("props"), xqConn.createSequence(props.iterator()));
         XQSequence xqs = xqpe.executeQuery();
         String result = null;
         try {
