@@ -99,4 +99,12 @@ public interface SchemaRepository extends com.bagri.core.api.SchemaRepository {
 	 * @return the converter to convert source to data format
 	 */
 	ContentConverter getConverter(String dataFormat, Class source);
+
+	/**
+	 * 
+	 * @param dataFormat the name of dataFormat to search for
+	 * @return ContentMerger instance associated with the dataFormat name
+	 */
+	ContentMerger getMerger(String dataFormat);
+	
 }

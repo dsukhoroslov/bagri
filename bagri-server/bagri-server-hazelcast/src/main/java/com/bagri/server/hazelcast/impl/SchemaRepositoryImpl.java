@@ -39,6 +39,7 @@ import com.bagri.core.server.api.ClientManagement;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
 import com.bagri.core.server.api.ContentHandler;
+import com.bagri.core.server.api.ContentMerger;
 import com.bagri.core.server.api.ContentModeler;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.IndexManagement;
@@ -271,6 +272,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		ContentHandler ch = getHandler(dataFormat);
 		if (ch != null) {
 			return ch.getConverter(source);
+		}
+		return null;
+	}
+	
+	@Override
+	public ContentMerger<?> getMerger(String dataFormat) {
+		ContentHandler ch = getHandler(dataFormat);
+		if (ch != null) {
+			return ch.getMerger();
 		}
 		return null;
 	}

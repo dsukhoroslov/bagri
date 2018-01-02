@@ -20,6 +20,7 @@ import com.bagri.core.model.Path;
 import com.bagri.core.model.Transaction;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
+import com.bagri.core.server.api.ContentMerger;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.ParseResults;
@@ -788,6 +789,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		logger.trace("processDocument.enter; uri: {}; results: {}; props: {}", uri, pRes, props);
 
 		//boolean update = (old.getValue() != null); // && (doc.getTxFinish() == TX_NO || !txManager.isTxVisible(doc.getTxFinish())));
+		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
 		DocumentKey docKey = old.getKey();
 		long docId = docKey.getKey();
 		int rSize = pRes.getResultSize(); 
@@ -804,15 +806,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				docId = docKey.getKey();
 	    	} else {
 		    	// we do changes inplace, no new version created
-	    		boolean mergeElts = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
-	    		if (!mergeElts && rSize > 0) {
+	    		boolean mergeContent = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
+	    		if (!mergeContent && rSize > 0) {
 			    	Set<Integer> pIds = new HashSet<>(rSize);
 			    	for (Data dt: data) {
 			    		pIds.add(dt.getPathId());
 			    	}
 		    		// delete old elements
 			    	java.util.Collection<Path> paths = model.getTypePaths(updated.getTypeRoot());
-			    	Set<Integer> pathIds = new HashSet<>(paths.size());
+			    	//Set<Integer> pathIds = new HashSet<>(paths.size());
 					for (Path path: paths) {
 						DataKey dKey = factory.newDataKey(updated.getDocumentKey(), path.getPathId());
 		    			if (!pIds.contains(dKey.getPathId())) {
@@ -820,6 +822,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		    			}
 		    		}
 					// we handle indices later..
+	    		} else {
+	    			content = mergeContent(docKey, content, dataFormat);
 	    		}
 	    	}
 		}
@@ -830,7 +834,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (rSize > 0) {
 			processElements(docId, data);
 		}
-		String dataFormat = props.getProperty(pn_document_data_format, df_xml);
 		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), user, dataFormat + "/" + def_encoding, length, rSize);
 
 		String collections = props.getProperty(pn_document_collections);
@@ -933,6 +936,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			throw new BagriException("Empty URI passed", ecDocument);
 		}
 
+		boolean update = false;
 		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge);
 		if (docKey == null) {
@@ -944,9 +948,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (pv_client_storeMode_insert.equals(storeMode)) {
 				throw new BagriException("Document with URI '" + uri + "' already exists; docKey: " + docKey, ecDocument);
 			}
+			update = true;
 		}
 
-		ParseResults pRes = parseContent(content, props);
+		ParseResults pRes = parseContent(docKey, content, update, props);
 		// if fragmented document - process it in the old style!
 
 		Transaction tx = null;
@@ -972,31 +977,43 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			txManager.updateCounters(1, 0, 0);
 		}
 
-    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
-    	Set<Integer> pathIds = new HashSet<>(paths.size());
-    	//Map<DataKey, Elements> eMap = ddSvc.getElements(newDoc.getDocumentKey());
-		for (Path path: paths) {
-			DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
-			//Elements elts = eMap.get(dKey);
-			Elements elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
-			if (elts != null) {
-				if (indexManager.isPathIndexed(path.getPathId())) {
-					for (Element elt: elts.getElements()) {
-						indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());
+		if (pRes.getResultSize() > 0) {
+	    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
+	    	Set<Integer> pathIds = new HashSet<>(paths.size());
+	    	//Map<DataKey, Elements> eMap = ddSvc.getElements(newDoc.getDocumentKey());
+			for (Path path: paths) {
+				DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
+				//Elements elts = eMap.get(dKey);
+				Elements elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
+				if (elts != null) {
+					if (indexManager.isPathIndexed(path.getPathId())) {
+						for (Element elt: elts.getElements()) {
+							indexManager.addIndex(newDoc.getDocumentKey(), path.getPathId(), path.getPath(), elt.getValue());
+						}
 					}
+					pathIds.add(path.getPathId());
 				}
-				pathIds.add(path.getPathId());
 			}
-		}
 
-		// invalidate cached query results.
-		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
+			// invalidate cached query results.
+			((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
+		}
 
 		logger.trace("storeDocumentInternal.exit; returning: {}", newDoc);
 		return newDoc;
 	}
 	
-	private ParseResults parseContent(Object content, Properties props) throws BagriException {
+	@SuppressWarnings("unchecked")
+	private Object mergeContent(DocumentKey docKey, Object newContent, String dataFormat) throws BagriException {
+		ContentMerger cm = repo.getMerger(dataFormat);
+		if (cm != null) {
+   			Object oldContent = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
+   			return cm.mergeContent(oldContent, newContent);
+    	}
+    	return newContent;
+	}
+	
+	private ParseResults parseContent(DocumentKey docKey, Object content, boolean update, Properties props) throws BagriException {
 		ParseResults result;
 		boolean cacheElts = Boolean.parseBoolean(props.getProperty(pn_document_cache_elements, "true"));
 		if (!cacheElts) {
@@ -1004,6 +1021,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		if (cacheElts) {
 			String dataFormat = props.getProperty(pn_document_data_format);
+			boolean mergeContent = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
+	    	if (update && mergeContent) {
+	    		content = mergeContent(docKey, content, dataFormat);
+	    	}			
 			ContentParser<Object> parser = repo.getParser(dataFormat);
 			result = parser.parse(content);
 			// TODO: check for parse results?

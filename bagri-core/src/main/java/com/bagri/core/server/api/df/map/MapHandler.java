@@ -4,12 +4,15 @@ import static com.bagri.support.util.XMLUtils.mapFromXML;
 import static com.bagri.support.util.XMLUtils.mapToXML;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Properties;
 
+import com.bagri.core.api.BagriException;
 import com.bagri.core.server.api.ContentBuilder;
 import com.bagri.core.server.api.ContentConverter;
 import com.bagri.core.server.api.ContentHandler;
+import com.bagri.core.server.api.ContentMerger;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.impl.ContentHandlerBase;
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class MapHandler extends ContentHandlerBase implements ContentHandler {
 	
 	private ContentBuilder<Map<String, Object>> cb;
+	private ContentMerger<Map<String, Object>> cm;
 	private ContentParser<Map<String, Object>> cp;
 	private ContentConverter<Map<String, Object>, String> jc = null;
 	private ContentConverter<Map<String, Object>, String> xc = null;
@@ -58,6 +62,14 @@ public class MapHandler extends ContentHandlerBase implements ContentHandler {
 		return null;
 	}
 
+	public ContentMerger<Map<String, Object>> getMerger() {
+		if (cm == null) {
+			cm = new MapMerger();
+			cm.init(props);
+		}
+		return cm;
+	}
+
 	@Override
 	public ContentParser<Map<String, Object>> getParser() {
 		if (cp == null) {
@@ -65,6 +77,22 @@ public class MapHandler extends ContentHandlerBase implements ContentHandler {
 			cp.init(props);
 		}
 		return cp;
+	}
+	
+	private static class MapMerger implements ContentMerger<Map<String, Object>> {
+
+		@Override
+		public void init(Properties properties) {
+			// nothing to init
+		}
+
+		@Override
+		public Map<String, Object> mergeContent(Map<String, Object> oldContent, Map<String, Object> newContent) throws BagriException {
+			Map<String, Object> result = new HashMap<>(oldContent);
+			result.putAll(newContent);
+			return result;
+		}
+		
 	}
 
 	private static class JacksonConverter implements ContentConverter<Map<String, Object>, String> {

@@ -296,4 +296,48 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		assertEquals(25, results.size());
 	}
 	
+	@Test
+	public void mergeMapDocumentTest() throws Exception {
+		
+		Map<String, Object> m1 = new HashMap<>();
+		m1.put("intProp", 10); 
+		m1.put("boolProp", Boolean.TRUE);
+		m1.put("strProp", "xyz");
+
+	    Properties props = getDocumentProperties();
+		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
+		
+		DocumentAccessor mDoc = xRepo.getDocumentManagement().storeDocument("map_test", m1, props);
+		assertNotNull(mDoc);
+		uris.add(mDoc.getUri());
+		
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
+		mDoc = xRepo.getDocumentManagement().getDocument("map_test", props);
+		Map<String, Object> m = mDoc.getContent();
+		assertEquals(3, m.size());
+		assertEquals(10, m.get("intProp"));
+		
+		m1.clear();
+		m1.put("intProp", 11);
+		props.setProperty(pn_document_map_merge, "true");
+		mDoc = xRepo.getDocumentManagement().storeDocument("map_test", m1, props);
+		assertNotNull(mDoc);
+		
+		mDoc = xRepo.getDocumentManagement().getDocument("map_test", props);
+		m = mDoc.getContent();
+		assertEquals(3, m.size());
+		assertEquals(11, m.get("intProp"));
+
+		m1.clear();
+		m1.put("intProp", 12);
+		props.setProperty(pn_document_map_merge, "false");
+		mDoc = xRepo.getDocumentManagement().storeDocument("map_test", m1, props);
+		assertNotNull(mDoc);
+		
+		mDoc = xRepo.getDocumentManagement().getDocument("map_test", props);
+		m = mDoc.getContent();
+		assertEquals(1, m.size());
+		assertEquals(12, m.get("intProp"));
+	}
+	
 }

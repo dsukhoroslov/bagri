@@ -33,6 +33,12 @@ public interface ContentHandler {
 	
 	/**
 	 * 
+	 * @return Merger which merge documents
+	 */
+	ContentMerger<?> getMerger();
+	
+	/**
+	 * 
 	 * @return Modeler which process schemas for the data format
 	 */
 	ContentModeler getModeler();

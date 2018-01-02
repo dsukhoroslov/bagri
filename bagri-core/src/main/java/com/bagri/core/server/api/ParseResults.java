@@ -25,6 +25,9 @@ public class ParseResults {
 	 * @return the content root
 	 */
 	public String getContentRoot() {
+		if (results == null) {
+			return null;
+		}
 		return results.get(0).getRoot();
 	}
 
@@ -39,6 +42,9 @@ public class ParseResults {
 	 * @return the result size
 	 */
 	public int getResultSize() {
+		if (results == null) {
+			return 0;
+		}
 		return results.size();
 	}
 	
