@@ -3,7 +3,6 @@ package com.bagri.server.hazelcast.management;
 import static com.bagri.support.util.CollectionUtils.copyIterator;
 import static com.bagri.support.util.PropUtils.propsFromString;
 
-import java.awt.Component;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -20,7 +19,6 @@ import java.util.concurrent.Future;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import javax.swing.JLabel;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -30,7 +28,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
@@ -41,7 +38,6 @@ import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.support.stats.StatsAggregator;
 import com.bagri.support.util.FileUtils;
 import com.bagri.support.util.JMXUtils;
-import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.Partition;
 

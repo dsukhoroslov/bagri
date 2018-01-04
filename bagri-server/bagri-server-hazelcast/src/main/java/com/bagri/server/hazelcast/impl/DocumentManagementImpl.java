@@ -826,9 +826,20 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	    			content = mergeContent(docKey, content, dataFormat);
 	    		}
 	    	}
+	    	
+			// remove stats for old version
+	    	for (int clnId: updated.getCollections()) {
+	    		for (Collection cln: repo.getSchema().getCollections()) {
+	    			if (clnId == cln.getId()) {
+	    				updateStats(cln.getName(), false, updated.getElements(), updated.getFragments().length);
+	    				break;
+	    			}
+	    		}
+	    	}
+			updateStats(null, false, updated.getElements(), updated.getFragments().length);
 		}
 		// why before insert trigger not invoked?
-
+		
 		int length = pRes.getContentLength();
 		String root = pRes.getContentRoot();
 		if (rSize > 0) {
@@ -844,17 +855,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				Collection cln = repo.getSchema().getCollection(clName);
 				if (cln != null) {
 					newDoc.addCollection(cln.getId());
-					updateStats(clName, true, rSize, 0);
-					//updateStats(clName, true, paths.size(), doc.getFragments().length);
+					updateStats(clName, true, newDoc.getElements(), newDoc.getFragments().length);
 				}
 			}
 		} else {
 			String clName = checkDefaultDocumentCollection(newDoc);
 			if (clName != null) {
-				updateStats(clName, true, rSize, 0);
+				updateStats(clName, true, newDoc.getElements(), newDoc.getFragments().length);
 			}
 		}
-		updateStats(null, true, rSize, 0);
+		updateStats(null, true, newDoc.getElements(), newDoc.getFragments().length);
 
 		Scope scope;
 		if (old.getValue() == null) {
@@ -1084,7 +1094,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());
-
 		return removeDocumentInternal(docKey, doc, props);
 	}
 
@@ -1324,9 +1333,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		int updCount = 0;
 		Document doc = entry.getValue();
 		if (doc != null) {
-			// TODO: cache size in the doc itself? yes, done
-			// but must fix stats to account this size
-			int size = 0;
+			int size = doc.getElements();
 			for (Collection cln: repo.getSchema().getCollections()) {
 				for (String collection: collections) {
 					if (collection.equals(cln.getName())) {

@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.bagridb</groupId>
         <artifactId>bagri-samples</artifactId>
-        <version>1.1.2</version>
+        <version>1.2.0-RC1</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -42,7 +42,7 @@
                         <argument>/reference:IKVM.OpenJDK.XML.API.7.2.4630.5/lib/IKVM.OpenJDK.XML.API.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.XML.XPath.7.2.4630.5/lib/IKVM.OpenJDK.XML.XPath.dll</argument-->
                         <argument>/lib:${ikvm.home}\bin</argument>
-                        <argument>/reference:Bagri.XQJ.Client.1.1.2.dll</argument>
+                        <argument>/reference:Bagri.XQJ.Client.${project.version}.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.Core.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.XML.API.dll</argument>
                         <argument>/reference:IKVM.OpenJDK.XML.XPath.dll</argument>

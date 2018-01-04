@@ -17,7 +17,6 @@ import javax.management.openmbean.TabularData;
 
 import com.bagri.tools.vvm.model.Collection;
 import com.bagri.tools.vvm.model.Document;
-import com.bagri.tools.vvm.util.FileUtil;
 
 public class DocumentServiceProvider implements DocumentManagementService {
 	
@@ -50,18 +49,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
                 if (stats != null) {
             		stsData = stats.get(index);
                 }
-        		Collection cln;
-                if (stsData != null) {
-            		cln = new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
-            				(String) clnData.get("created by"), (Integer) clnData.get("id"), (Integer) clnData.get("version"), (String) clnData.get("document type"),
-            				(Boolean) clnData.get("enabled"), (Integer) stsData.get("Number of documents"), (Integer) stsData.get("Number of elements"), (Integer) 
-            				stsData.get("Number of fragments"), (Long) stsData.get("Consumed size"), ((Double) stsData.get("Avg size (bytes)")).intValue(), 
-            				((Double) stsData.get("Avg size (elmts)")).intValue());
-                } else {                	
-                	cln = new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
-                			(String) clnData.get("created by"), (Integer) clnData.get("id"), (Integer) clnData.get("version"), (String) clnData.get("document type"),
-                			(Boolean) clnData.get("enabled"), 0, 0, 0, 0, 0, 0);
-                }
+        		Collection cln = readCollection(clnData, stsData);
         		result.add(cln);
         	}
             return result;
@@ -74,7 +62,6 @@ public class DocumentServiceProvider implements DocumentManagementService {
 	@Override
 	public void addCollection(Collection collection) throws ServiceException {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -103,19 +90,7 @@ public class DocumentServiceProvider implements DocumentManagementService {
 		                if (stats != null) {
 		            		stsData = stats.get(index);
 		                }
-		        		Collection cln;
-		                if (stsData != null) {
-		            		cln = new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
-		            				(String) clnData.get("created by"), (Integer) clnData.get("id"), (Integer) clnData.get("version"), (String) clnData.get("document type"),
-		            				(Boolean) clnData.get("enabled"), (Integer) stsData.get("Number of documents"), (Integer) stsData.get("Number of elements"), (Integer) 
-		            				stsData.get("Number of fragments"), (Long) stsData.get("Consumed size"), ((Double) stsData.get("Avg size (bytes)")).intValue(), 
-		            				((Double) stsData.get("Avg size (elmts)")).intValue());
-		                } else {                	
-		                	cln = new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
-		                			(String) clnData.get("created by"), (Integer) clnData.get("id"), (Integer) clnData.get("version"), (String) clnData.get("document type"),
-		                			(Boolean) clnData.get("enabled"), 0, 0, 0, 0, 0, 0);
-		                }
-		                return cln;
+		        		return readCollection(clnData, stsData);
 	        		}
 	        	}
             }
@@ -123,6 +98,20 @@ public class DocumentServiceProvider implements DocumentManagementService {
         } catch (Exception ex) {
             LOGGER.throwing(this.getClass().getName(), "getCollections", ex);
             throw new ServiceException(ex);
+        }
+	}
+	
+	private Collection readCollection(CompositeData clnData, CompositeData stsData) {
+        if (stsData != null) {
+    		return new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
+    				(String) clnData.get("created by"), (Integer) clnData.get("id"), (Integer) clnData.get("version"), (String) clnData.get("document type"),
+    				(Boolean) clnData.get("enabled"), (Integer) stsData.get("Number of documents"), (Integer) stsData.get("Number of elements"), (Integer) 
+    				stsData.get("Number of fragments"), (Long) stsData.get("Consumed size"), ((Double) stsData.get("Avg size (bytes)")).intValue(), 
+    				((Double) stsData.get("Avg size (elmts)")).intValue());
+        } else {                	
+        	return new Collection((String) clnData.get("name"), (String) clnData.get("description"), (String) clnData.get("created at"), 
+        			(String) clnData.get("created by"), (Integer) clnData.get("id"), (Integer) clnData.get("version"), (String) clnData.get("document type"),
+        			(Boolean) clnData.get("enabled"), 0, 0, 0, 0, 0, 0);
         }
 	}
 
