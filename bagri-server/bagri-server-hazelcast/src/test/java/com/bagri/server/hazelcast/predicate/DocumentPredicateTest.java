@@ -51,6 +51,7 @@ public class DocumentPredicateTest {
 		for (int i=0; i < cluster_size; i++) {
 			System.setProperty(pn_node_instance, String.valueOf(i));
 			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
+			Thread.sleep(1000);
 		}
 	}
 
@@ -107,20 +108,23 @@ public class DocumentPredicateTest {
 	@Test
 	public void testLimitPredicate() throws Exception {
 		int uriCnt = populateDocuments();
+		int limit = 5;
 		HazelcastInstance hz = repos[0].getHzInstance();
 		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
-		java.util.Collection<Document> maps = xddCache.values(new LimitPredicate<>(5, Predicates.between("uri", "map_test10", "map_test30")));
-		assertEquals(15, maps.size());
+		int clSize = hz.getCluster().getMembers().size();
+		java.util.Collection<Document> maps = xddCache.values(new LimitPredicate<>(limit, Predicates.between("uri", "map_test10", "map_test30")));
+		assertEquals(limit*clSize, maps.size());
 	}
 
 	@Test
 	public void testLimitAggregator() throws Exception {
 		int uriCnt = populateDocuments();
+		int limit = 5;
 		HazelcastInstance hz = repos[0].getHzInstance();
 		IMap<DocumentKey, Document> xddCache = hz.getMap(CN_XDM_DOCUMENT);
-		LimitAggregator la = new LimitAggregator<>(5, Predicates.between("uri", "map_test10", "map_test30"));
-		java.util.Collection<Document> maps = (java.util.Collection<Document>) xddCache.aggregate(la,  la);
-		assertEquals(5, maps.size());
+		LimitAggregator la = new LimitAggregator<>(limit, Predicates.between("uri", "map_test10", "map_test30"));
+		java.util.Collection<Document> maps = (java.util.Collection<Document>) xddCache.aggregate(la, la);
+		assertEquals(limit, maps.size());
 	}
 
 	private SchemaRepositoryImpl getRepoForUri(String uri) {

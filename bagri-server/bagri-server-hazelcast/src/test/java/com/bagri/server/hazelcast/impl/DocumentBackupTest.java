@@ -47,6 +47,7 @@ public class DocumentBackupTest {
 		for (int i=0; i < cluster_size; i++) {
 			System.setProperty(pn_node_instance, String.valueOf(i));
 			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
+			Thread.sleep(1000);
 		}
 	}
 
@@ -111,6 +112,8 @@ public class DocumentBackupTest {
 		assertEquals(0, cDocs.getLocalMapStats().getBackupEntryCount());
 		IMap cElts = hz.getMap(CacheConstants.CN_XDM_ELEMENT);
 		assertEquals(0, cElts.getLocalMapStats().getBackupEntryCount());
+		
+		assertEquals(cluster_size, hz.getCluster().getMembers().size());
 		
 		int bdx = idx ^ 1;
 		repo = repos[bdx];

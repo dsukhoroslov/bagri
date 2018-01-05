@@ -31,6 +31,7 @@ public class ClusterTest {
 		for (int i=0; i < cluster_size; i++) {
 			System.setProperty(pn_node_instance, String.valueOf(i));
 			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
+			Thread.sleep(1000);
 		}
 	}
     
