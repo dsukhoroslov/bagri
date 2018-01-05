@@ -5,16 +5,6 @@ import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.schema_context;
 import static org.junit.Assert.*;
 
-import java.util.HashMap;
-
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,73 +14,24 @@ import com.hazelcast.core.HazelcastInstance;
 
 public class BagriCacheServerTest {
 	
-	private static String url = "service:jmx:rmi://localhost/jndi/rmi://localhost:3330/jmxrmi";
-	private static String user = "admin";
-	private static String password = "password";
-	private static String adminCtx = "spring/admin-system-context.xml";
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		System.setProperty("hz.log.level", "info");
-		//System.setProperty("bdb.log.level", "trace");
+	@Test
+	public void testCacheServer() throws Exception {
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_access_filename, "access.xml");
-		System.setProperty(pn_cluster_node_name, "admin");
-		System.setProperty(pn_cluster_node_schemas, "");
+		System.setProperty(pn_cluster_node_name, "first");
+		System.setProperty(pn_node_instance, "0");
 		System.setProperty(pn_config_path, "src/main/resources");
 		System.setProperty(pn_config_filename, "config.xml");
-		System.setProperty(pn_config_context_file, adminCtx);
-		System.setProperty(pn_config_properties_file, "admin.properties");
-		BagriCacheServer.main(null);
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-        HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName(hz_instance);
-        ClassPathXmlApplicationContext ctx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
-		ctx.close();
-	}
-	
-	@Test
-	public void testJMXConnection() throws Exception {
-		
-        HashMap env = new HashMap();
-        String[] creds = new String[] {user, password};
-        env.put(JMXConnector.CREDENTIALS, creds);
-
-        JMXServiceURL jmxUrl = new JMXServiceURL(url);
-        //JMXConnector jmxc = JMXConnectorFactory.connect(jmxUrl, env);
-        
-        JMXConnector jmxc = JMXConnectorFactory.newJMXConnector(jmxUrl, null);
-        jmxc.connect(env);
-        
-        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
-        String[] domains = mbsc.getDomains();
-        assertTrue(containsDomain(domains, "com.bagri.db"));
-        
-        ObjectName name = new ObjectName("com.bagri.db:type=Management,name=ClusterManagement");
-        Object nodes = mbsc.getAttribute(name, "NodeNames");
-        //System.out.println("got nodes: " + Arrays.toString((String[]) nodes));
-        String[] sNodes = (String[]) nodes;
-        assertTrue(sNodes.length > 0);
-	}
-
-	//@Test
-	public void testCacheServer() throws Exception {
-		//
-		System.setProperty(pn_node_instance, "0");
-        //<sysproperty key="node.name" value="admin"/>
-        //<sysproperty key="bdb.cluster.node.role" value="admin"/>
         System.setProperty(pn_config_context_file, "spring/cache-system-context.xml");
 		System.setProperty(pn_config_properties_file, "first.properties");
 		BagriCacheServer.main(null);
+		// check if schema is started..
+        HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("default-0");
+		assertNotNull(hz);
+        hz = Hazelcast.getHazelcastInstanceByName(hz_instance);
+		assertNotNull(hz);
+        ClassPathXmlApplicationContext ctx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
+        ctx.close();
 	}
 	
-	private boolean containsDomain(String[] domains, String domain) {
-		for (String d : domains) {
-			if (d.equals(domain)) return true;
-		}
-		return false;
-	}
-
 }

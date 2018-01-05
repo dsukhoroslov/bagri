@@ -171,7 +171,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     public void stop() {
         logger.debug("stop.enter; Stopping rest server");
         try {
-            jettyServer.destroy(); //stop();
+        	jettyServer.stop();
+            jettyServer.destroy(); 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

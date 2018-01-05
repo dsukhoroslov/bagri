@@ -30,14 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.system.DataFormat;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
-import com.bagri.core.xquery.api.XQCompiler;
 import com.bagri.rest.BagriRestServer;
-import com.bagri.rest.RepositoryProvider;
 import com.bagri.server.hazelcast.config.SystemConfig;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.server.hazelcast.management.SchemaManagement;
@@ -55,6 +52,7 @@ public class BagriCacheServer {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriCacheServer.class);
     private static ApplicationContext context;
+    private static JMXConnectorServer adminCS = null;
     
 	public static void main(String[] args) {
     	
@@ -78,6 +76,16 @@ public class BagriCacheServer {
         	initServerNode(hz, local);
         }
     }
+	
+	public static void closeAdmin() {
+		if (adminCS != null) {
+			try {
+				adminCS.stop();
+			} catch (IOException ex) {
+				logger.warn("error closing JMX connector server: {}", ex.getMessage());
+			}
+		}
+	}
     
     private static void initAdminNode(HazelcastInstance hzInstance) {
     	
@@ -107,14 +115,13 @@ public class BagriCacheServer {
 		logger.debug("Platform MBean server: {}", mbs);
 		logger.debug("Spring MBean server: {}", context.getBean("mbeanServer"));
 		
-        JMXConnectorServer cs;
 		try {
-			cs = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
+			adminCS = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
 			UserManagement uMgr = context.getBean(UserManagement.class);
 	        MBeanServerForwarder mbsf = BagriJAASInvocationHandler.newProxyInstance(uMgr);
-	        cs.setMBeanServerForwarder(mbsf);
-	        if (!cs.isActive()) {
-	        	cs.start();
+	        adminCS.setMBeanServerForwarder(mbsf);
+	        if (!adminCS.isActive()) {
+	        	adminCS.start();
 	        }
 			logger.info("JMX connector server started and listening on port: {}", port);
 		} catch (IOException ex) {

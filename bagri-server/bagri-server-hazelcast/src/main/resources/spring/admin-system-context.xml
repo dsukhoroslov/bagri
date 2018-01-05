@@ -251,7 +251,7 @@
 		<property name="schemaManagement" ref="schemaService"/>
 	</bean>
 
-	<bean id="restServer" class="com.bagri.rest.BagriRestServer">
+	<bean id="restServer" class="com.bagri.rest.BagriRestServer" destroy-method="stop">
 		<constructor-arg ref="repoProviderService" />
 		<constructor-arg ref="xqCompiler" />
 		<constructor-arg>
