@@ -123,9 +123,6 @@ public class ClientManagementImpl {
 					try {
 						ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
 						clientProps.remove(clientId);
-			    		if (found.isEmpty()) {
-			    			clients.remove(found.clientKey);
-			    		}
 					} catch (Exception ex) {
 						logger.info("disconnect; it seems the server has been stopped already");
 					}
@@ -136,9 +133,13 @@ public class ClientManagementImpl {
 
     	if (found != null) {
     		if (found.isEmpty()) {
-				if (found.hzInstance.getLifecycleService().isRunning()) {
+    			if (clients.remove(found.clientKey) != null) {
+					logger.debug("disconnect; client container is empty, disposed");
+    			} else {
+					logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
+    			}
+    			if (found.hzInstance.getLifecycleService().isRunning()) {
 					logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
-					//found.hzInstance.getLifecycleService().shutdown();
 					// probably, should do something like this:
 					//execService.awaitTermination(100, TimeUnit.SECONDS);
 					found.hzInstance.shutdown();
