@@ -128,7 +128,7 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "schemaName", description = "Schema name"),
 		@ManagedOperationParameter(name = "desription", description = "Schema description"),
-		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
+		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by semicolon")})
 	public boolean addSchema(String schemaName, String description, String properties) {
 		Properties props;
 		try {

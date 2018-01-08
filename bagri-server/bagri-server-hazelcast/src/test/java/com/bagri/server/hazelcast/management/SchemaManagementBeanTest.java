@@ -62,12 +62,7 @@ public class SchemaManagementBeanTest extends AdminServerTest {
 	@Test
 	public void testGetSchemaNames() throws Exception {
         ObjectName oName = getObjectName();
-        String[] names = (String[]) mbsc.getAttribute(oName, "SchemaNames");
-		assertEquals(6, names.length);
-		List<String> expected = Arrays.asList("XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default");
-		for (String sn: names) {
-			assertTrue(expected.contains(sn));
-		}
+		checkExpectedNames("SchemaNames", "XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default");
 	}
 
 	@Test

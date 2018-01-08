@@ -52,7 +52,7 @@ public class ClusterManagement extends EntityManagement<Node> {
 	@ManagedOperation(description="Add new Node")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Node name"),
-		@ManagedOperationParameter(name = "options", description = "Node options: key/value pairs separated by comma")})
+		@ManagedOperationParameter(name = "options", description = "Node options: key/value pairs separated by semicolon")})
 	public boolean addNode(String name, String options) {
 
 		Properties opts;

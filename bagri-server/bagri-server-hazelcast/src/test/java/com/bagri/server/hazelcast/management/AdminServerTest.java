@@ -87,6 +87,16 @@ public abstract class AdminServerTest {
 	protected String[] getExpectedOperations() {
 		return new String[0];
 	}
+	
+	protected void checkExpectedNames(String aName, String... expected) throws Exception {
+        ObjectName oName = getObjectName();
+        String[] names = (String[]) mbsc.getAttribute(oName, aName);
+        assertEquals(expected.length, names.length);
+		List<String> exList = Arrays.asList(expected);
+		for (String name: names) {
+			assertTrue(exList.contains(name));
+		}
+	}
 
 	@Test
 	public void testManagementAttributes() throws Exception {

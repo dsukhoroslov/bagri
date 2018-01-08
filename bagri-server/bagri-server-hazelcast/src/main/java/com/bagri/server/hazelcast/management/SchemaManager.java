@@ -285,7 +285,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	
 	@ManagedOperation(description="Update Schema properties")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by comma")})
+		@ManagedOperationParameter(name = "properties", description = "Schema properties: key/value pairs separated by semicolon")})
 	public boolean updateProperties(String properties) {
 		Schema schema = getEntity();
 		if (schema != null) {
