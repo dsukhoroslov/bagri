@@ -32,11 +32,11 @@ public class DomainSerializationFactory implements DataSerializableFactory {
 	//public static final int cli_DataDocumentKey = 52; 
 	//public static final int cli_XDMDocumentType = 53;
 	public static final int cli_XDMPath = 54;
-	//public static final int cli_XDMNamespace = 55;
+	public static final int cli_XDMData = 55;
 	public static final int cli_XDMElements = 56; 
 	public static final int cli_XDMQuery = 57;
 	public static final int cli_XDMResults = 58;
-	//public static final int cli_XDMSource = 59;
+	public static final int cli_XDMParseResults = 59;
 	public static final int cli_XDMIndexedDocument = 60;
 	public static final int cli_XDMUniqueDocument = 61;
 	public static final int cli_XDMUniqueValue = 62;

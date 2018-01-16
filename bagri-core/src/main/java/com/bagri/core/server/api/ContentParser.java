@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
+import com.bagri.core.model.ParseResults;
 
 /**
  * Convert Document's content to its internal XDM data representation. A counterpart to XDMBuilder interface.

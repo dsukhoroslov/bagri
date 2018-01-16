@@ -43,14 +43,17 @@ public class Constants {
 	public static final String pn_client_queryCache = "bdb.client.queryCache";
 	public static final String pn_client_storeMode = "bdb.client.storeMode";
 	public static final String pn_client_submitTo = "bdb.client.submitTo";
+	public static final String pn_client_ownerParam = "bdb.client.ownerParam";
 
 	public static final String pv_client_storeMode_insert = "insert";
 	public static final String pv_client_storeMode_update = "update";
 	public static final String pv_client_storeMode_merge = "merge";
 	
+	public static final String pv_client_submitTo_all = "all";
 	public static final String pv_client_submitTo_any = "any";
-	public static final String pv_client_submitTo_member = "member";
-	public static final String pv_client_submitTo_owner = "owner";
+	public static final String pv_client_submitTo_query_key_owner = "query-key-owner";
+	public static final String pv_client_submitTo_param_hash_owner = "param-hash-owner";
+	public static final String pv_client_submitTo_param_value_owner = "param-value-owner";
 
 	public static final String pn_client_contentSerializer = "bdb.client.contentSerializer";
 	public static final String pn_client_contentSerializers = "bdb.client.contentSerializers";
@@ -223,7 +226,8 @@ public class Constants {
 			case pn_client_queryCache: return 24;
 			case pn_client_storeMode: return 25;
 			case pn_client_submitTo: return 26;
-			case pn_client_sharedConnection: return 27;
+			case pn_client_ownerParam: return 27;
+			case pn_client_sharedConnection: return 28;
 			
 			case pn_query_command: return 40;
 
@@ -284,7 +288,8 @@ public class Constants {
 			case 24: return pn_client_queryCache;
 			case 25: return pn_client_storeMode;
 			case 26: return pn_client_submitTo;
-			case 27: return pn_client_sharedConnection;
+			case 27: return pn_client_ownerParam;
+			case 28: return pn_client_sharedConnection;
 
 			case 40: return pn_query_command;
 			

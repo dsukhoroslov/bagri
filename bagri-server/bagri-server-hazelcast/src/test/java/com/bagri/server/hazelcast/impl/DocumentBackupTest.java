@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.server.api.CacheConstants;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
@@ -39,31 +39,19 @@ public class DocumentBackupTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		System.setProperty(pn_log_level, "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "backup.properties");
 		System.setProperty(pn_config_path, "src/test/resources");
-
-		for (int i=0; i < cluster_size; i++) {
-			System.setProperty(pn_node_instance, String.valueOf(i));
-			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
-			Thread.sleep(1000);
-		}
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-		for (int i=0; i < cluster_size; i++) {
-			if (contexts[i] != null) {
-				contexts[i].close();
-			}
-		}
 	}
 
 	@Before
 	public void setUp() throws Exception {
 		Properties props = loadProperties("src/test/resources/test.properties");
 		for (int i=0; i < cluster_size; i++) {
+			System.setProperty(pn_node_instance, String.valueOf(i));
+			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
+			Thread.sleep(1000);
 			repos[i] = contexts[i].getBean(SchemaRepositoryImpl.class);
 			Schema schema = repos[i].getSchema();
 			if (schema == null) {
@@ -82,17 +70,29 @@ public class DocumentBackupTest {
 
 	@After
 	public void tearDown() throws Exception {
-		//removeDocumentsTest();
+		for (int i=0; i < cluster_size; i++) {
+			if (contexts[i] != null) {
+				contexts[i].close();
+			}
+		}
 	}
 
+	@Test
+	public void testDocumentBackupInTx() throws Exception {
+		testDocumentBackup(TransactionIsolation.readCommited.name());
+	}
 
 	@Test
-	public void testDocumentBackup() throws Exception {
+	public void testDocumentBackupNoTx() throws Exception {
+		testDocumentBackup(pv_client_txLevel_skip);
+	}
+
+	private void testDocumentBackup(String txLevel) throws Exception {
 	    Properties props = new Properties();
 	    props.setProperty(pn_client_id, "client");
 		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
+		props.setProperty(pn_client_txLevel, txLevel);
 		Map<String, Object> m1 = new HashMap<>();
 		m1.put("intProp", 7); 
 		m1.put("boolProp", 7 % 2 == 0);
@@ -134,7 +134,7 @@ public class DocumentBackupTest {
 		bDoc = repo.getDocumentManagement().getDocument(uri, props);
 		assertNotNull(bDoc);
 	}
-
+	
 	private int getIndexForUri(String uri) {
 		Integer key = uri.hashCode();
 		for (int i=0; i < cluster_size; i++) {

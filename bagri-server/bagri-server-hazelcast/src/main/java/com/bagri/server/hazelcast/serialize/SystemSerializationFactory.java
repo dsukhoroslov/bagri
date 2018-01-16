@@ -13,7 +13,7 @@ import com.bagri.server.hazelcast.predicate.QueryPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentBackupProcessor;
-
+import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class SystemSerializationFactory extends com.bagri.client.hazelcast.serialize.SystemSerializationFactory {
@@ -28,7 +28,8 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	public static final int cli_LimitPredicate = 207;
 	public static final int cli_LimitAggregator = 208;
 	
-	public static final int cli_DocumentBackupProcessor = 250;
+	public static final int cli_DocumentProcessor = 250;
+	public static final int cli_DocumentBackupProcessor = 251;
 
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -46,6 +47,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_DocVisiblePredicate: return new DocVisiblePredicate(); 
 			case cli_LimitPredicate: return new LimitPredicate<>(); 
 			case cli_LimitAggregator: return new LimitAggregator<>();
+			case cli_DocumentProcessor: return new DocumentProcessor();
 			case cli_DocumentBackupProcessor: return new DocumentBackupProcessor();
 		}
 		return super.create(typeId);

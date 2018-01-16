@@ -4,8 +4,11 @@ import static com.bagri.core.Constants.pn_client_storeMode;
 import static com.bagri.core.Constants.pv_client_storeMode_insert;
 import static com.bagri.core.Constants.pv_client_storeMode_merge;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
+import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_DocumentProcessor;
 
 import java.util.Properties;
+import java.io.IOException;
 import java.util.Map.Entry;
 
 //import org.slf4j.Logger;
@@ -16,8 +19,8 @@ import com.bagri.core.DocumentKey;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
+import com.bagri.core.model.ParseResults;
 import com.bagri.core.model.Transaction;
-import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.server.hazelcast.impl.DataDistributionService;
 import com.bagri.server.hazelcast.impl.DocumentManagementImpl;
@@ -25,10 +28,13 @@ import com.hazelcast.core.Offloadable;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.impl.MapEntrySimple;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>, Offloadable {
+public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>, Offloadable, IdentifiedDataSerializable  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -107,6 +113,36 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
     	} catch (BagriException ex) {
     		return ex;
     	}
+	}
+
+	@Override
+	public int getFactoryId() {
+		return cli_factory_id;
+	}
+
+	@Override
+	public int getId() {
+		return cli_DocumentProcessor;
+	}
+
+	@Override
+	public void readData(ObjectDataInput in) throws IOException {
+		tx = in.readObject();
+		uri = in.readUTF();
+		user = in.readUTF();
+		content = in.readObject();
+		data = in.readObject();
+		props = in.readObject();
+	}
+
+	@Override
+	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeObject(tx);
+		out.writeUTF(uri);
+		out.writeUTF(user);
+		out.writeObject(content);
+		out.writeObject(data);
+		out.writeObject(props);
 	}
 
 }

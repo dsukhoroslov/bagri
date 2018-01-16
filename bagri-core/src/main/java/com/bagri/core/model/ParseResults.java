@@ -1,8 +1,6 @@
-package com.bagri.core.server.api;
+package com.bagri.core.model;
 
 import java.util.List;
-
-import com.bagri.core.model.Data;
 
 public class ParseResults {
 	

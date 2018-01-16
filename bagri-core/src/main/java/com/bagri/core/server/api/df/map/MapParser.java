@@ -18,9 +18,9 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Occurrence;
+import com.bagri.core.model.ParseResults;
 import com.bagri.core.server.api.ContentParser;
 import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ContentParserBase;
 
 public class MapParser extends ContentParserBase implements ContentParser<Map<String, Object>> {

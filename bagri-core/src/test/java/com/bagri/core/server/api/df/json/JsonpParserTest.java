@@ -1,8 +1,8 @@
 package com.bagri.core.server.api.df.json;
 
 import com.bagri.core.model.Data;
+import com.bagri.core.model.ParseResults;
 import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.ParseResults;
 import com.bagri.core.server.api.impl.ModelManagementImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;

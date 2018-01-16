@@ -17,6 +17,11 @@ public class DocumentBackupProcessor implements EntryBackupProcessor<DocumentKey
 	
 	//private static final transient Logger logger = LoggerFactory.getLogger(DocumentBackupProcessor.class);
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private Document doc;
 	
 	public DocumentBackupProcessor() {

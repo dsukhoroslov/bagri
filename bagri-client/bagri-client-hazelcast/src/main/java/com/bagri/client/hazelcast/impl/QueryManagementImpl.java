@@ -132,22 +132,43 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		Future<ResultCursor> future;
+		Future<ResultCursor> future = null;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
-		if (pv_client_submitTo_owner.equalsIgnoreCase(runOn)) {
-			// not sure it'll use partition thread in this case!
+		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
+			// TODO: implement it
+			// future = execService.submitToAllMembers(task);
+		} else if (pv_client_submitTo_query_key_owner.equalsIgnoreCase(runOn)) {
 			future = execService.submitToKeyOwner(task, qKey);
-		} else if (pv_client_submitTo_member.equalsIgnoreCase(runOn)) {
-			Member member = repo.getHazelcastClient().getPartitionService().getPartition(qKey).getOwner();
-			future = execService.submitToMember(task, member);
-		} else if (pv_client_submitTo_any.equalsIgnoreCase(runOn)) {
-			future = execService.submit(task);
+		} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
+			String param = props.getProperty(pn_client_ownerParam);
+			if (param == null) {
+				logger.info("executeQuery; the routing parameter not provided: {}", props);
+			} else {
+				Object value = params.get(param);
+				if (value == null) {
+					logger.info("executeQuery; the routing parameter '{}' not found: {}", param, params);
+				} else {
+					if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
+						value = value.hashCode();
+					}
+					if (value != null) {
+						future = execService.submitToKeyOwner(task, value);
+					}
+				}
+			}
 		} else {
+			// not sure this is correct, just for future investigation..
 			Long partKey = new Long(runOn.hashCode());
 			//future = execService.submitToKeyOwner(task, partKey);
 			QueryProcessor qp = new QueryProcessor(true, query, params, props);
 			return (ResultCursor) resCache.executeOnKey(partKey, qp);
 		}
+
+		if (future == null) {
+			// this is for ANY and default/not implemented cases
+			future = execService.submit(task);
+		}
+		
 		execution = future;
 
 		long timeout = Long.parseLong(props.getProperty(pn_xqj_queryTimeout, "0"));

@@ -164,9 +164,11 @@
 					<hz:serializer type-class="com.bagri.core.model.Element" class-name="com.bagri.client.hazelcast.serialize.model.ElementSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Data" class-name="com.bagri.client.hazelcast.serialize.model.DataSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.ParseResults" class-name="com.bagri.client.hazelcast.serialize.model.ParseResultsSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.UniqueDocument" class-name="com.bagri.client.hazelcast.serialize.model.UniqueDocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.UniqueValue" class-name="com.bagri.client.hazelcast.serialize.model.UniqueValueSerializer"/>

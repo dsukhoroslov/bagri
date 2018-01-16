@@ -16,9 +16,9 @@ import com.bagri.core.model.Element;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.model.Null;
 import com.bagri.core.model.Occurrence;
+import com.bagri.core.model.ParseResults;
 import com.bagri.core.model.Path;
-import com.bagri.core.server.api.ModelManagement;
-import com.bagri.core.server.api.ParseResults; 
+import com.bagri.core.server.api.ModelManagement; 
 
 /**
  * A common implementation part for any future parser. 
