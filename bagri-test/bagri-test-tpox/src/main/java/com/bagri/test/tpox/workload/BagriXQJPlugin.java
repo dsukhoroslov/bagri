@@ -3,9 +3,12 @@ package com.bagri.test.tpox.workload;
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.setProperty;
 import static com.bagri.support.util.XQUtils.*;
+import static com.bagri.support.util.PropUtils.propsFromString;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
@@ -16,6 +19,8 @@ import javax.xml.xquery.XQExpression;
 import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
+import javax.xml.xquery.XQSequence;
+import javax.xml.xquery.XQSequenceType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +50,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	    		XQConnection xqc = xqds.getConnection();
 	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_fetchSize, null); 
 	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_submitTo, null); 
+	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_ownerParam, null); 
 	    		logger.info("initialValue.exit; XQC: {}", xqc);
 	    		return xqc;
     		} catch (XQException ex) {
@@ -81,11 +87,30 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	private void bindParams(Map<String, Parameter> params, XQDynamicContext xqe) throws XQException {
 	    for (Map.Entry<String, Parameter> e: params.entrySet()) {
 	    	Parameter param = e.getValue();
-	    	QName typeName = new QName(xs_ns, param.getType(), xs_prefix);
-			int baseType = getBaseTypeForTypeName(typeName);
-			XQItemType type = getConnection().createAtomicType(baseType, typeName, null);
-			//xqe.bindAtomicValue(new QName(e.getKey()), param.getName(), type);
-			xqe.bindObject(new QName(e.getKey()), getAtomicValue(baseType, param.getName()), type);
+	    	//if ("properties".equals(param.getType())) {
+	    		// create and bind sequence with properties
+	    	//	Properties props;
+			//	try {
+			//		props = propsFromString(param.getName());
+			//	} catch (IOException ex) {
+			//		logger.warn("bindParams.error; " + ex, ex);
+			//		continue;
+			//	}
+
+				//XQItemType type = getConnection().createAtomicType(baseType, typeName, null);
+				//XQSequence seq = getConnection().createSequence((java.util.Iterator) null);
+				//xqe.bindSequence(new QName(e.getKey()), seq);
+			//	XQSequenceType type = getConnection().createSequenceType(getConnection().createItemType(), XQSequenceType.OCC_ZERO_OR_MORE);
+						//getConnection().createSequenceType(
+						//		getConnection().createAtomicType(XQItemType.XQBASETYPE_STRING), XQSequenceType.OCC_ZERO_OR_MORE), XQSequenceType.OCC_ZERO_OR_MORE);
+				//xqe.bindObject(new QName(e.getKey()), props, type);
+	    	//} else {
+		    	QName typeName = new QName(xs_ns, param.getType(), xs_prefix);
+				int baseType = getBaseTypeForTypeName(typeName);
+				XQItemType type = getConnection().createAtomicType(baseType, typeName, null);
+				//xqe.bindAtomicValue(new QName(e.getKey()), param.getName(), type);
+				xqe.bindObject(new QName(e.getKey()), getAtomicValue(baseType, param.getName()), type);
+	    	//}
 	    }
 	}
 	

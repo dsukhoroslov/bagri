@@ -13,7 +13,7 @@ set memory=1024m
 
 rem specify schema and admin hosts:ports
 set admin_addr=localhost:3330
-set schema_addr=localhost:10500
+set schema_addr=localhost:10500,localhost:10501
 rem set schema_addr=192.168.99.100:10500,192.168.99.100:10501
 
 set login=admin
@@ -40,8 +40,9 @@ set java_opts=%java_opts% -Dbdb.schema.name=%schema%
 set java_opts=%java_opts% -Dbdb.schema.user=guest
 set java_opts=%java_opts% -Dbdb.schema.password=password
 
-rem possible values are: member, owner, any
-set java_opts=%java_opts% -Dbdb.client.submitTo=owner
+rem possible values are: all, any, query-key-owner, param-hash-owner, param-value-owner, partition key value
+set java_opts=%java_opts% -Dbdb.client.submitTo=param-hash-owner
+set java_opts=%java_opts% -Dbdb.client.ownerParam=uri
 set java_opts=%java_opts% -Dbdb.client.bufferSize=32
 set java_opts=%java_opts% -Dbdb.client.fetchSize=10
 set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
@@ -52,9 +53,9 @@ set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
 set java_opts=%java_opts% -Dbdb.client.customAuth=true
 set java_opts=%java_opts% -Dbdb.client.queryCache=true
 
-rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
+set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
-set java_opts=%java_opts% -Dbdb.client.txLevel=skip
+rem set java_opts=%java_opts% -Dbdb.client.txLevel=skip
 rem set java_opts=%java_opts% -Dbdb.document.data.format=XML
 rem set java_opts=%java_opts% -Dbdb.document.map.merge=false
 

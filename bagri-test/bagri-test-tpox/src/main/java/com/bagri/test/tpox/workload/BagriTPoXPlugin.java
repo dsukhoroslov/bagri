@@ -20,7 +20,6 @@ import static com.bagri.xqj.BagriXQDataSource.XQ_PROCESSOR;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
