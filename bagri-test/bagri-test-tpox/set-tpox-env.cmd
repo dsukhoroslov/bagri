@@ -41,8 +41,9 @@ set java_opts=%java_opts% -Dbdb.schema.user=guest
 set java_opts=%java_opts% -Dbdb.schema.password=password
 
 rem possible values are: all, any, query-key-owner, param-hash-owner, param-value-owner, partition key value
-set java_opts=%java_opts% -Dbdb.client.submitTo=param-hash-owner
-set java_opts=%java_opts% -Dbdb.client.ownerParam=uri
+set java_opts=%java_opts% -Dbdb.client.submitTo=query-key-owner
+rem set java_opts=%java_opts% -Dbdb.client.submitTo=param-hash-owner
+rem set java_opts=%java_opts% -Dbdb.client.ownerParam=uri
 set java_opts=%java_opts% -Dbdb.client.bufferSize=32
 set java_opts=%java_opts% -Dbdb.client.fetchSize=10
 set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
