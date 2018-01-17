@@ -4,6 +4,7 @@ import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_
 import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -70,7 +71,11 @@ public class QueryProcessor implements EntryProcessor<Long, QueryResult>, EntryB
 	public void readData(ObjectDataInput in) throws IOException {
 		readOnly = in.readBoolean();
 		query = in.readUTF();
-		params = in.readObject();
+		int size = in.readInt();
+		params = new HashMap<>();
+		for (int i=0; i < size; i++) {
+			params.put(in.readUTF(), in.readObject());
+		}
 		props = in.readObject();
 	}
 
@@ -78,7 +83,11 @@ public class QueryProcessor implements EntryProcessor<Long, QueryResult>, EntryB
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeBoolean(readOnly);
 		out.writeUTF(query);
-		out.writeObject(params);
+		out.writeInt(params.size());
+		for (Map.Entry<String, Object> entry: params.entrySet()) {
+			out.writeUTF(entry.getKey());
+			out.writeObject(entry.getValue());
+		}
 		out.writeObject(props);
 	}
 	

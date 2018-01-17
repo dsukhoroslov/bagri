@@ -130,6 +130,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				return new FixedCursorImpl(res.getResults());
 			}
 		}
+		
+		// TODO: implement asynch querying..
 
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future = null;
@@ -148,10 +150,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				if (value == null) {
 					logger.info("executeQuery; the routing parameter '{}' not found: {}", param, params);
 				} else {
+					//logger.info("executeQuery; the routing parameter '{}'; value: {}; owner: {}", param, value,
+					//		repo.getHazelcastClient().getPartitionService().getPartition(value).getOwner());
 					if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
-						value = value.hashCode();
+						value = value.toString().hashCode();
 					}
 					if (value != null) {
+						//logger.info("executeQuery; the routing parameter '{}'; value: {}; owner: {}", param, value,
+						//		repo.getHazelcastClient().getPartitionService().getPartition(value).getOwner());
 						future = execService.submitToKeyOwner(task, value);
 					}
 				}

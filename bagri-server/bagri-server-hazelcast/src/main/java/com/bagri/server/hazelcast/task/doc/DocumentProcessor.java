@@ -50,6 +50,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private ParseResults data;
 	private Properties props;
 	
+	private boolean insert;
 	private Document result;
 
 	public DocumentProcessor() {
@@ -79,7 +80,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	@Override
 	public EntryBackupProcessor<DocumentKey, Document> getBackupProcessor() {
 		DocumentBackupProcessor proc = null;
-		if (tx == null && result != null) {
+		if (result != null && (insert || tx == null)) {
 			proc = new DocumentBackupProcessor(result);
 		}
 		//logger.trace("getBackupProcessor.enter; returning {}", proc);
@@ -107,6 +108,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 			Document lastDoc = docMgr.getDocument(lastKey);
 			entry = new MapEntrySimple<>(lastKey, lastDoc);
 		}
+		insert = entry.getValue() == null;
     	try {
     		result = docMgr.processDocument(entry, txStart, uri, user, content, data, props);
     		return result;
