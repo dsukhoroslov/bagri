@@ -3,12 +3,15 @@ package com.bagri.server.hazelcast.impl;
 import com.bagri.core.model.Document;
 import com.bagri.core.api.SchemaRepository;
 
-import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.*;
-
 public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.DocumentAccessorImpl {
 	
 	public DocumentAccessorImpl() {
 		super();
+	}
+	
+	public DocumentAccessorImpl(SchemaRepository repo) {
+		super();
+		this.repo = repo;
 	}
 	
 	public DocumentAccessorImpl(SchemaRepository repo, int[] collections, Object content, String contentType, long createdAt, String createdBy, 
@@ -83,5 +86,12 @@ public class DocumentAccessorImpl extends com.bagri.client.hazelcast.impl.Docume
 		this(repo, doc, headers, content);
 		this.contentType = contentType;
 	}
+	
+	@Override
+	protected SchemaRepository getRepository() {
+		return repo; 
+	}
+	
+	
 }
 

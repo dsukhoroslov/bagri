@@ -23,7 +23,7 @@
 	</collections>
 
 	<transactions>
-		<transaction id="1" name="addAccount" weight="25">
+		<transaction id="1" name="addAccount" weight="15">
 			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<!--statements>
 				<statement>
@@ -69,7 +69,7 @@ return $id" />
 				</parameter>
 			</parameters>
 		</transaction>
-		<transaction id="2" name="addCustomer" weight="25">
+		<transaction id="2" name="addCustomer" weight="15">
 			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -104,7 +104,7 @@ return $id" />
 				</parameter>
 			</parameters>
 		</transaction>
-		<transaction id="3" name="addOrder" weight="50">
+		<transaction id="3" name="addOrder" weight="20">
 			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -174,7 +174,7 @@ return $id" />
 				</parameter>
 			</parameters>
 		</transaction-->
-		<!--transaction id="4" name="getCustomerProfile" weight="20">
+		<transaction id="4" name="getCustomerProfile" weight="15">
 			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
 			<parameters>
 				<parameter>
@@ -274,7 +274,7 @@ return $ord/o:Order" />
 					<ids collection="orderids" />
 				</parameter>
 			</parameters>
-		</transaction-->
+		</transaction>
 	</transactions>
 </workload>
 

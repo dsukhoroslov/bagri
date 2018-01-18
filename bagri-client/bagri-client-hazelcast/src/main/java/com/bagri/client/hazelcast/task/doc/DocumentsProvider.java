@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProvideDocumentsTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_GetDocumentsTask;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -32,7 +32,7 @@ public class DocumentsProvider extends ContextAwareTask implements Callable<Resu
 
 	@Override
 	public int getId() {
-		return cli_ProvideDocumentsTask;
+		return cli_GetDocumentsTask;
 	}
 
 	@Override

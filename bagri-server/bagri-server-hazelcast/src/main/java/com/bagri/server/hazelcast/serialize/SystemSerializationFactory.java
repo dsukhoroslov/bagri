@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.serialize;
 
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.server.hazelcast.impl.CompressingCollectionImpl;
 import com.bagri.server.hazelcast.impl.CompressingDocumentAccessorImpl;
 import com.bagri.server.hazelcast.impl.DocumentAccessorImpl;
@@ -30,13 +31,15 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	
 	public static final int cli_DocumentProcessor = 250;
 	public static final int cli_DocumentBackupProcessor = 251;
+	
+	private SchemaRepository repo;
 
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
 			case cli_CompressingCollection: return new CompressingCollectionImpl<>();
-			case cli_DocumentAccessor: return new DocumentAccessorImpl();
+			case cli_DocumentAccessor: return new DocumentAccessorImpl(repo);
 			case cli_CompressingDocumentAccessor: return new CompressingDocumentAccessorImpl(); 
 			case cli_GroupCountPredicate: return new GroupCountPredicate();
 			case cli_QueryPredicate: return new QueryPredicate();
@@ -51,6 +54,10 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_DocumentBackupProcessor: return new DocumentBackupProcessor();
 		}
 		return super.create(typeId);
+	}
+	
+	public void setSchemaRepository(SchemaRepository repo) {
+		this.repo = repo;
 	}
 	
 }

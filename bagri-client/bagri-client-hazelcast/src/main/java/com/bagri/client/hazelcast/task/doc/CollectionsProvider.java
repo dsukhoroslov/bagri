@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProvideCollectionsTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_GetCollectionsTask;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -25,7 +25,7 @@ public class CollectionsProvider extends ClientAwareTask implements Callable<Col
 	
 	@Override
 	public int getId() {
-		return cli_ProvideCollectionsTask;
+		return cli_GetCollectionsTask;
 	}
 
 }

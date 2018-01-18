@@ -144,20 +144,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
 			String param = props.getProperty(pn_client_ownerParam);
 			if (param == null) {
-				logger.info("executeQuery; the routing parameter not provided: {}", props);
+				logger.debug("executeQuery; the routing parameter not provided: {}", props);
 			} else {
 				Object value = params.get(param);
 				if (value == null) {
-					logger.info("executeQuery; the routing parameter '{}' not found: {}", param, params);
+					logger.debug("executeQuery; the routing parameter '{}' not found: {}", param, params);
 				} else {
-					//logger.info("executeQuery; the routing parameter '{}'; value: {}; owner: {}", param, value,
-					//		repo.getHazelcastClient().getPartitionService().getPartition(value).getOwner());
 					if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
 						value = value.toString().hashCode();
 					}
 					if (value != null) {
-						//logger.info("executeQuery; the routing parameter '{}'; value: {}; owner: {}", param, value,
-						//		repo.getHazelcastClient().getPartitionService().getPartition(value).getOwner());
 						future = execService.submitToKeyOwner(task, value);
 					}
 				}

@@ -1,7 +1,7 @@
 package com.bagri.client.hazelcast.task.doc;
 
 import static com.bagri.client.hazelcast.serialize.CompressingSerializer.*;
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_CreateDocumentTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_StoreDocumentTask;
 import static com.bagri.core.Constants.pn_document_compress;
 import static com.bagri.core.Constants.pn_document_data_format;
 
@@ -38,7 +38,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 
 	@Override
 	public int getId() {
-		return cli_CreateDocumentTask;
+		return cli_StoreDocumentTask;
 	}
 	
 	protected void checkRepo() {

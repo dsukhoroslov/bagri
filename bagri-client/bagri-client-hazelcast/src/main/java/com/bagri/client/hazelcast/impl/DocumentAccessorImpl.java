@@ -11,9 +11,7 @@ import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
-import com.hazelcast.spring.context.SpringAware;
 
-@SpringAware
 public class DocumentAccessorImpl extends DocumentAccessorBase implements IdentifiedDataSerializable {
 	
 	public DocumentAccessorImpl() {
@@ -37,11 +35,24 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		return cli_DocumentAccessor;
 	}
 	
+	@Override
+	protected SchemaRepository getRepository() {
+		return SchemaRepositoryImpl.getRepository();
+	}
+	
 	protected Object readContent(ObjectDataInput in) throws IOException {
-		ContentSerializer cs = repo.getSerializer(contentType);
-		if (cs != null) {
-			return cs.readContent(in);
-		} 
+		if (in.readBoolean()) {
+			if (repo == null) {
+				repo = getRepository();
+			}
+			if (repo != null) {
+				ContentSerializer cs = repo.getSerializer(contentType);
+				if (cs != null) {
+					return cs.readContent(in);
+				}
+			}
+			throw new IllegalStateException("Cannot read serialized content: absent SchemaRepository"); 
+		}
 		return in.readObject();
 	}
 
@@ -53,7 +64,6 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 		}
 		if ((headers & HDR_CONTENT) != 0) {
 			contentType = in.readUTF();
-			repo = SchemaRepositoryImpl.getRepository();
 			content = readContent(in);
 		} else if ((headers & HDR_CONTENT_TYPE) != 0) {
 			contentType = in.readUTF();
@@ -97,12 +107,19 @@ public class DocumentAccessorImpl extends DocumentAccessorBase implements Identi
 	}
 	
 	protected void writeContent(ObjectDataOutput out) throws IOException {
-		ContentSerializer cs = repo.getSerializer(contentType);
-		if (cs != null) {
-			cs.writeContent(out, content);
-		} else {
-			out.writeObject(content);
+		if (repo == null) {
+			repo = getRepository();
 		}
+		if (repo != null) {
+			ContentSerializer cs = repo.getSerializer(contentType);
+			if (cs != null) {
+				out.writeBoolean(true);
+				cs.writeContent(out, content);
+				return;
+			}
+		} 
+		out.writeBoolean(false);
+		out.writeObject(content);
 	}
 
 	@Override

@@ -220,6 +220,8 @@ public abstract class DocumentAccessorBase implements DocumentAccessor {
 		return (headers & h) == h;
 	}
 	
+	protected abstract SchemaRepository getRepository();
+	
 	//@Override
 	//public Properties getProperties() {
 		// for future use

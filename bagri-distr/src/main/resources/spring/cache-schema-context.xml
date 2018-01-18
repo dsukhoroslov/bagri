@@ -136,7 +136,7 @@
 					<hz:attribute name="docId" extractor="com.bagri.server.hazelcast.predicate.ResultsQueryExtractor" />
 				</hz:attributes-->
 			</hz:map>
-			
+
 			<hz:topic name="xdm-health">
 				<hz:multi-threading-enabled>false</hz:multi-threading-enabled>
 			</hz:topic>
@@ -148,12 +148,11 @@
 			<hz:replicatedmap name="xdm-client" in-memory-format="OBJECT" replication-delay-millis="0"/>
 			<hz:replicatedmap name="xdm-query" in-memory-format="BINARY" replication-delay-millis="0"/>
 			<hz:replicatedmap name="dict-index" in-memory-format="BINARY" replication-delay-millis="0"/>
-			<!--hz:replicatedmap name="dict-path" in-memory-format="BINARY" replication-delay-millis="0"/--> 
 			
 			<hz:serialization>
 				<hz:data-serializable-factories>
-					<hz:data-serializable-factory factory-id="2000" class-name="com.bagri.server.hazelcast.serialize.SystemSerializationFactory"/>
-					<hz:data-serializable-factory factory-id="3000" class-name="com.bagri.server.hazelcast.serialize.TaskSerializationFactory"/>
+					<hz:data-serializable-factory factory-id="2000" implementation="sysFactory"/>
+					<hz:data-serializable-factory factory-id="3000" implementation="taskFactory"/>
 				</hz:data-serializable-factories>
 				<hz:portable-factories>
 					<hz:portable-factory factory-id="2" class-name="com.bagri.server.hazelcast.serialize.PortableFactoryImpl"/>
@@ -164,9 +163,11 @@
 					<hz:serializer type-class="com.bagri.core.model.Element" class-name="com.bagri.client.hazelcast.serialize.model.ElementSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Elements" class-name="com.bagri.client.hazelcast.serialize.model.ElementsSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Path" class-name="com.bagri.client.hazelcast.serialize.model.PathSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.Data" class-name="com.bagri.client.hazelcast.serialize.model.DataSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Document" class-name="com.bagri.client.hazelcast.serialize.model.DocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.Query" class-name="com.bagri.client.hazelcast.serialize.model.QuerySerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.QueryResult" class-name="com.bagri.client.hazelcast.serialize.model.QueryResultSerializer"/>
+					<hz:serializer type-class="com.bagri.core.model.ParseResults" class-name="com.bagri.client.hazelcast.serialize.model.ParseResultsSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.IndexedDocument" class-name="com.bagri.client.hazelcast.serialize.model.IndexedDocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.UniqueDocument" class-name="com.bagri.client.hazelcast.serialize.model.UniqueDocumentSerializer"/>
 					<hz:serializer type-class="com.bagri.core.model.UniqueValue" class-name="com.bagri.client.hazelcast.serialize.model.UniqueValueSerializer"/>
@@ -443,5 +444,29 @@
 	<bean id="distrService" class="com.bagri.server.hazelcast.impl.DataDistributionService">
 		<!--property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/-->
 	</bean>
+
+	<bean id="sysFactory" class="com.bagri.server.hazelcast.serialize.SystemSerializationFactory"/>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="sysFactory" />
+        <property name="targetMethod" value="setSchemaRepository" />
+        <property name="arguments">
+            <list>
+                <ref bean="xdmRepo" />
+            </list>
+        </property>
+    </bean>
+	
+	<bean id="taskFactory" class="com.bagri.server.hazelcast.serialize.TaskSerializationFactory"/>
+	
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="taskFactory" />
+        <property name="targetMethod" value="setSchemaRepository" />
+        <property name="arguments">
+            <list>
+                <ref bean="xdmRepo" />
+            </list>
+        </property>
+    </bean>
 
 </beans>

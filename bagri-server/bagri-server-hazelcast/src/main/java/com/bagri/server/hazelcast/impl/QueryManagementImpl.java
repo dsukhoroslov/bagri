@@ -751,7 +751,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			}
         } catch (Throwable t) {
-        	//t.printStackTrace();
             failed = true;
             ex = t;
         }
@@ -760,9 +759,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
         	logger.warn("runQuery: the timeQueue is full!!");
         }
         if (failed) {
-        	if (logger.isDebugEnabled()) {
-        		logger.error("runQuery.error: ", ex);
-        	}
+       		logger.error("runQuery.error: ", ex);
             throw new XQException(ex.getMessage());
         }
 			

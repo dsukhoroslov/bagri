@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.serialize;
 
+import com.bagri.client.hazelcast.task.doc.DocumentsCreator;
+import com.bagri.core.api.SchemaRepository;
 import com.bagri.server.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.server.hazelcast.task.doc.DocumentsRemover;
 import com.bagri.server.hazelcast.task.doc.CollectionsProvider;
@@ -72,6 +74,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public static final int cli_CollectStatisticTotalsTask = 201;
 	public static final int cli_ResetStatisticsTask = 202;
 	public static final int cli_CountUpdatingDocumentsTask = 203;
+	public static final int cli_ProvideDocumentStructureTask = 204;
 	
 	public static final int cli_CreateIndexTask = 205;
 	public static final int cli_RemoveIndexTask = 206;
@@ -132,33 +135,38 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public static final int cli_RemoveDataStoreTask = 271;
 	public static final int cli_UpdateDataStoreTask = 272;
 	
+	private SchemaRepository repo;
+	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			case cli_RemoveDocumentsTask: return new DocumentsRemover();
-			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater();
-			case cli_ProvideCollectionsTask: return new CollectionsProvider();
-			case cli_CreateDocumentTask: return new DocumentCreator();
+			case cli_GetDocumentTask: return new DocumentProvider();
+			case cli_GetDocumentsTask: return new DocumentsProvider(); 
+			case cli_GetDocumentUrisTask: return new DocumentUrisProvider(); 
+			case cli_StoreDocumentTask: return new DocumentCreator();
+			case cli_StoreDocumentsTask: return new DocumentsCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();
+			case cli_RemoveDocumentsTask: return new DocumentsRemover();
+			case cli_GetCollectionsTask: return new CollectionsProvider();
+			case cli_UpdateDocumentCollectionTask: return new DocumentCollectionUpdater(); 
 			case cli_BeginTransactionTask: return new TransactionStarter(); 
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
+			case cli_ExecQueryTask: return new QueryExecutor();
+			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_FetchResultsTask: return new ResultFetcher();
+			case cli_ProvideQueryUrisTask: return new QueryUrisProvider();
+			case cli_AuthenticateTask: return new UserAuthenticator();
+
 			case cli_InitSchemaTask: return new SchemaInitiator();
 			case cli_DenitSchemaTask: return new SchemaDenitiator();
 			case cli_CleanSchemaTask: return new SchemaDocCleaner();
 			case cli_AdministrateSchemaTask: return new SchemaAdministrator();
 			case cli_ExtractSchemaMemberTask: return new SchemaMemberExtractor();
 			case cli_PopulateSchemaTask: return new SchemaPopulator();
-			case cli_GetDocumentTask: return new DocumentProvider();
-			case cli_ProvideDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_ProvideDocumentStructureTask: return new DocumentStructureProvider();
-			case cli_ProvideDocumentsTask: return new DocumentsProvider(); 
 			case cli_CleanTxDocumentsTask: return new DocumentCleaner();
-			case cli_ProcessQueryTask: return new QueryProcessor();
-			case cli_ExecQueryTask: return new QueryExecutor();
-			case cli_ProvideQueryUrisTask: return new QueryUrisProvider(); 
 			case cli_CollectStatisticSeriesTask: return new StatisticSeriesCollector();
 			case cli_CollectStatisticTotalsTask: return new StatisticTotalsCollector();
 			case cli_ResetStatisticsTask: return new StatisticsReseter();
@@ -177,7 +185,6 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_RunTriggerTask: return new TriggerRunner(); 
 			case cli_ExecuteTriggerTask: return new TriggerExecutor(); 
 			case cli_RegisterModelTask: return new ModelRegistrator();
-			case cli_AuthenticateTask: return new UserAuthenticator();
 			case cli_AggregateSchemaHealthTask: return new SchemaHealthAggregator();
 			case cli_CreateRoleTask: return new RoleCreator();
 			case cli_UpdateRoleTask: return new RoleUpdater();
@@ -206,4 +213,8 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 		return super.create(typeId);
 	}
 
+	public void setSchemaRepository(SchemaRepository repo) {
+		this.repo = repo;
+	}
+	
 }

@@ -390,9 +390,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						cntCache.set(docKey, content);
 					}
 				} else {
-					// can cause distributed deadlock! call to EP from the same EP!
+					// can cause distributed deadlock! call to EP from the same EP!?
 					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
-					content = docCache.executeOnKey(docKey, xp);
+					return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
 				}
 			}
 			if (cc != null) {

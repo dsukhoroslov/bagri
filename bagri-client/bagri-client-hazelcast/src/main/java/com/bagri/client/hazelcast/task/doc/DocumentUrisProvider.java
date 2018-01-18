@@ -1,6 +1,6 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_ProvideDocumentUrisTask;
+import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_GetDocumentUrisTask;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -31,7 +31,7 @@ public class DocumentUrisProvider extends ContextAwareTask implements Callable<R
 
 	@Override
 	public int getId() {
-		return cli_ProvideDocumentUrisTask;
+		return cli_GetDocumentUrisTask;
 	}
 
 	@Override

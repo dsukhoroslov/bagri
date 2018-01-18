@@ -55,7 +55,7 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 			case cli_DocumentPathKey: return new DocumentPathKey(); 
 			case cli_PathIndexKey: return new PathIndexKey(); 
 			case cli_QueryParamsKey: return new QueryParamsKey();
-			case cli_UrlHashKey: return new UrlHashKey();
+			//case cli_UrlHashKey: return new UrlHashKey();
 		}
 		return null;
 	}
