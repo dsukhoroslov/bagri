@@ -44,6 +44,7 @@ import com.bagri.server.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.server.hazelcast.store.system.ModuleCacheStore;
 import com.bagri.server.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.server.hazelcast.task.schema.SchemaInitiator;
+import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -157,7 +158,7 @@ public class BagriCacheServer {
     	for (Member member: members) {
     		if (!local.getUuid().equals(member.getUuid()) && !isAdminRole(member.getStringAttribute(pn_cluster_node_role))) {
     			if (instanceNum.equals(member.getStringAttribute(pn_node_instance))) {
-    				logger.error("The node with instance no '{}' already exists: {}; stopping application.", instanceNum, member.getUuid());
+    				logger.error("initServerNode; The node with instance no '{}' already exists: {}; stopping application.", instanceNum, member.getUuid());
     				System.exit(1);
     			}
     		}
@@ -210,10 +211,11 @@ public class BagriCacheServer {
             			xRepo.setModules(cModules);
             			xRepo.setDataFormats(cFormats);
             			xRepo.afterInit();
+            			//xRepo.getHzInstance().getCluster().changeClusterState(ClusterState.ACTIVE);
+            			logger.info("initServerNode; schema {} initialization complete", schemaName);
             		}
             	}            	
            	}
-       		logger.debug("initServerNode; schema {} initialized: {}", schemaName, initialized);
        		// notify admin node about new schema Member
        		if (admins.size() > 0) {
        			notifyAdmins(systemInstance, local, schemaName, initialized);
@@ -270,7 +272,7 @@ public class BagriCacheServer {
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("initSchema.error; ", ex);
         }
-		logger.info("initSchema.exit; schema {} {}initialized", schema, ok ? "" : "NOT ");
+		logger.info("initSchema.exit; schema {} {}initialized", schema.getName(), ok ? "" : "NOT ");
 		return ok;
 	}
     

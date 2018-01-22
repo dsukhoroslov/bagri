@@ -22,6 +22,7 @@ import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Schema;
 import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -63,6 +64,7 @@ public class SchemaInitiator implements Callable<Boolean>, IdentifiedDataSeriali
     		ctx.refresh();
 
     		hz = ctx.getBean(hz_instance, HazelcastInstance.class);
+    		//hz.getCluster().changeClusterState(ClusterState.FROZEN);
     		//hz.getConfig().getSecurityConfig().setEnabled(true);
 			setContext(schemaName, ctx);
 			

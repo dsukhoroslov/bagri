@@ -23,8 +23,10 @@
 				<hz:property name="hazelcast.logging.type">slf4j</hz:property>
 				<hz:property name="hazelcast.rest.enabled">false</hz:property>
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
+				<hz:property name="hazelcast.backpressure.enabled">false</hz:property>
 				<hz:property name="hazelcast.index.copy.behavior">NEVER</hz:property>
 				<!--hz:property name="hazelcast.socket.buffer.direct">true</hz:property-->
+				<hz:property name="hazelcast.wait.seconds.before.join">5</hz:property>
 				<hz:property name="hazelcast.partition.count">${bdb.schema.partition.count}</hz:property>
 				<hz:property name="hazelcast.operation.thread.count">${bdb.schema.partition.pool}</hz:property>
 				<hz:property name="hazelcast.operation.generic.thread.count">${bdb.schema.partition.pool}</hz:property>
