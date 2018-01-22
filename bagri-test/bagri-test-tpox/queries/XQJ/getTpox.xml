@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workload name="insertTpox" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
 	<collections>
-		<collection name="orderids">
-			<ids first="103282" last="603281" />
-		</collection>
-
 		<collection name="custids">
 			<ids first="1002" last="101001" />
+		</collection>
+		<collection name="orderids">
+			<ids first="103282" last="603281" />
 		</collection>
 	</collections>
 

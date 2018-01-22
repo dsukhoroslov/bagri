@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="insertTpox" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="workload_properties.xsd">
+	<collections>
+		<collection name="account">
+			<files dir="/data/account" firstfileid="1" lastfileid="1" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="custacc">
+			<files dir="/data/custacc" firstfileid="1" lastfileid="2" docsperfile="50000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="order">
+			<files dir="/data/order" firstfileid="1" lastfileid="2" docsperfile="500000" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="security">
+			<files dir="/data/security" firstfileid="1" lastfileid="1" docsperfile="20833" fileprefix="batch-" filepostfix="xml.offset"/>
+		</collection>
+		<collection name="custids">
+			<ids first="1002" last="101001" />
+		</collection>
+		<collection name="orderids">
+			<ids first="103282" last="603281" />
+		</collection>
+	</collections>
+
+	<transactions>
+		<transaction id="1" name="addAccount" weight="13">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $uri external;
+declare variable $doc external;
+
+let $id := bgdb:store-document($uri, $doc)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="10" step="1"/>
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="account"/>
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="2" name="addCustomer" weight="13">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $uri external;
+declare variable $doc external;
+
+let $id := bgdb:store-document($uri, $doc)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="30000" step="1"/>
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="custacc"/>
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="3" name="addOrder" weight="14">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $doc external;
+declare variable $uri external;
+
+let $id := bgdb:store-document($uri, $doc)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="100000" step="1"/>
+				</parameter>
+				<parameter>
+					<constant value="doc" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="order"/>
+				</parameter>
+			</parameters>
+		</transaction>
+		<!--transaction id="2" name="addSecurity" weight="50">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $sec external;
+declare variable $uri external;
+
+let $id := bgdb:store-document($uri, $sec)
+return $id" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="10000" step="1"/>
+				</parameter>
+				<parameter>
+					<constant value="sec" />
+				</parameter>
+				<parameter>
+					<constant value="document" />
+				</parameter>
+				<parameter>
+					<files collection="security"/>
+				</parameter>
+			</parameters>
+		</transaction-->
+		<transaction id="4" name="getCustomerProfile" weight="10">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
+declare variable $id external;
+
+for $cust in fn:collection(&quot;CLN_Customer&quot;)/Customer
+where $cust/@id=$id
+return 
+        &lt;Customer_Profile CUSTOMERID=&quot;{$cust/@id}&quot;&gt;
+                {$cust/Name}
+                {$cust/DateOfBirth}
+                {$cust/Gender}
+                {$cust/CountryOfResidence}
+                {$cust/Languages}
+                {$cust/Addresses}
+                {$cust/EmailAddresses}
+        &lt;/Customer_Profile&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="id" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="custids" />
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="5" name="getCustomerAccounts" weight="10">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare default element namespace &quot;http://tpox-benchmark.com/custacc&quot;;
+declare variable $id external;
+
+for $cust in fn:collection(&quot;CLN_Customer&quot;)/Customer
+where $cust/@id=$id
+return
+	&lt;Customer&gt;{$cust/@id}
+		{$cust/Name}
+		&lt;Customer_Securities&gt;
+			{
+			 for $account in $cust/Accounts/Account	
+			 return 
+				&lt;Account BALANCE=&quot;{$account/Balance/OnlineActualBal}&quot; ACCOUNT_ID=&quot;{$account/@id}&quot;&gt;
+					&lt;Securities&gt;
+						{$account/Holdings/Position/Name}
+					&lt;/Securities&gt;
+				&lt;/Account&gt;
+			}
+		&lt;/Customer_Securities&gt;
+	&lt;/Customer&gt;" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="id" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="custids" />
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="6" name="getOrder" weight="10">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace o=&quot;http://www.fixprotocol.org/FIXML-4-4&quot;;
+declare variable $ID external;
+
+for $ord in fn:collection(&quot;CLN_Order&quot;)/o:FIXML
+where $ord/o:Order/@ID=$ID
+return $ord/o:Order" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="ID" />
+				</parameter>
+				<parameter>
+					<constant value="string" />
+				</parameter>
+				<parameter>
+					<ids collection="orderids" />
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="7" name="deleteAccount" weight="10">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $uri external;
+
+let $uri := bgdb:remove-document($uri)
+return $uri" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="10" step="1"/>
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="8" name="deleteCustomer" weight="10">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $uri external;
+
+let $uri := bgdb:remove-document($uri)
+return $uri" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="30000" step="1"/>
+				</parameter>
+			</parameters>
+		</transaction>
+		<transaction id="9" name="deleteOrder" weight="10">
+			<java-plugin>com.bagri.test.tpox.workload.BagriXQJPlugin</java-plugin>
+			<parameters>
+				<parameter>
+					<constant value="
+declare namespace bgdb=&quot;http://bagridb.com/bdb&quot;;
+declare variable $uri external;
+
+let $uri := bgdb:remove-document($uri)
+return $uri" />
+				</parameter>
+				<parameter>
+					<constant value="true" />
+				</parameter>
+				<parameter>
+					<constant value="uri" />
+				</parameter>
+				<parameter>
+					<constant value="anyURI" />
+				</parameter>
+				<parameter>
+					<sequence start="100000" step="1"/>
+				</parameter>
+			</parameters>
+		</transaction>
+	</transactions>
+</workload>
+
