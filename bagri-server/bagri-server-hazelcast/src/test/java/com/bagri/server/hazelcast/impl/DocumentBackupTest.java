@@ -6,7 +6,6 @@ import static com.bagri.core.test.TestUtils.loadProperties;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -20,18 +19,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.server.api.CacheConstants;
-import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
-import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
 public class DocumentBackupTest {
 
-	private static final int map_cln_id = 1;
 	private static final int cluster_size = 2; 
 	private static ClassPathXmlApplicationContext[] contexts = new ClassPathXmlApplicationContext[cluster_size];
 	
@@ -51,13 +47,10 @@ public class DocumentBackupTest {
 		for (int i=0; i < cluster_size; i++) {
 			System.setProperty(pn_node_instance, String.valueOf(i));
 			contexts[i] = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
-			Thread.sleep(1000);
 			repos[i] = contexts[i].getBean(SchemaRepositoryImpl.class);
 			Schema schema = repos[i].getSchema();
 			if (schema == null) {
 				schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
-				Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), map_cln_id, "maps", "", "custom", true);
-				schema.addCollection(collection);
 				repos[i].setSchema(schema);
 				repos[i].setDataFormats(getBasicDataFormats());
 				repos[i].setLibraries(new ArrayList<Library>());
@@ -65,6 +58,7 @@ public class DocumentBackupTest {
 				((ClientManagementImpl) repos[i].getClientManagement()).addClient("client", "guest");
 				repos[i].setClientId("client");
 			}
+			Thread.sleep(1000);
 		}
 	}
 
@@ -79,32 +73,50 @@ public class DocumentBackupTest {
 
 	@Test
 	public void testDocumentBackupInTx() throws Exception {
-		testDocumentBackup(TransactionIsolation.readCommited.name());
+	    Properties props = new Properties();
+	    props.setProperty(pn_client_id, "client");
+		props.setProperty(pn_document_data_format, "MAP");
+		Map<String, Object> m1 = new HashMap<>();
+		m1.put("intProp", 7); 
+		m1.put("boolProp", false);
+		m1.put("strProp", "xyz123");
+		String uri = "map_test7";
+		int idx = getIndexForUri(uri);
+		SchemaRepositoryImpl repo = repos[idx];
+		long txId = repo.getTxManagement().beginTransaction(TransactionIsolation.readCommited);
+		DocumentAccessor mDoc = repo.getDocumentManagement().storeDocument(uri, m1, props);
+		assertNotNull(mDoc);
+		assertEquals(uri, mDoc.getUri());
+		repo.getTxManagement().commitTransaction(txId);
+		testDocumentBackup(uri);
 	}
 
 	@Test
 	public void testDocumentBackupNoTx() throws Exception {
-		testDocumentBackup(pv_client_txLevel_skip);
-	}
-
-	private void testDocumentBackup(String txLevel) throws Exception {
 	    Properties props = new Properties();
 	    props.setProperty(pn_client_id, "client");
-		props.setProperty(pn_document_collections, "maps");
 		props.setProperty(pn_document_data_format, "MAP");
-		props.setProperty(pn_client_txLevel, txLevel);
+		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
 		Map<String, Object> m1 = new HashMap<>();
 		m1.put("intProp", 7); 
-		m1.put("boolProp", 7 % 2 == 0);
-		m1.put("strProp", "xyz" + 32*7);
-		String uri = "map_test" + 7;
+		m1.put("boolProp", false);
+		m1.put("strProp", "xyz321");
+		String uri = "map_test7";
 		int idx = getIndexForUri(uri);
 		SchemaRepositoryImpl repo = repos[idx];
 		DocumentAccessor mDoc = repo.getDocumentManagement().storeDocument(uri, m1, props);
 		assertNotNull(mDoc);
 		assertEquals(uri, mDoc.getUri());
+		testDocumentBackup(uri);
+	}
+
+	private void testDocumentBackup(String uri) throws Exception {
+	    Properties props = new Properties();
+	    props.setProperty(pn_client_id, "client");
+		int idx = getIndexForUri(uri);
+		SchemaRepositoryImpl repo = repos[idx];
 		DocumentAccessor oDoc = repo.getDocumentManagement().getDocument(uri, props);
-		assertEquals(mDoc.getUri(), oDoc.getUri());
+		assertEquals(uri, oDoc.getUri());
 		HazelcastInstance hz = repo.getHzInstance();
 		IMap cCnts = hz.getMap(CacheConstants.CN_XDM_CONTENT);
 		assertEquals(0, cCnts.getLocalMapStats().getBackupEntryCount());
