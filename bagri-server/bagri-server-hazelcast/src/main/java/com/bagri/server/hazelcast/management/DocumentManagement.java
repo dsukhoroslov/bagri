@@ -1,6 +1,6 @@
 package com.bagri.server.hazelcast.management;
 
-import static com.bagri.support.util.CollectionUtils.copyIterator;
+import static com.bagri.core.Constants.pn_document_headers;
 import static com.bagri.support.util.PropUtils.propsFromString;
 
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -28,6 +29,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
@@ -412,12 +414,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		}
 
 		try {
-			Iterable<String> itr = docManager.getDocumentUris("collections.contains(" + clName + "), txFinish = 0", propsFromString(properties));
-			List<String> result = new ArrayList<>();
-			copyIterator(itr.iterator(), result);
-			logger.debug("getCollectionDocuments; returning {} uris", result);
-			return result;
-		} catch (BagriException | IOException ex) {
+			return getUris("collections.contains(" + clName + "), txFinish = 0", properties);
+		} catch (Exception ex) {
 			logger.error("getCollectionDocuments.error", ex);
 			return null;
 		}
@@ -429,15 +427,24 @@ public class DocumentManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "properties", description = "A list of properties in key=value form separated by semicolon")})
 	public java.util.Collection<String> getDocumentUris(String pattern, String properties) {
 		try {
-			Iterable<String> itr = docManager.getDocumentUris(pattern, propsFromString(properties));
-			List<String> result = new ArrayList<>();
-			copyIterator(itr.iterator(), result);
-			logger.debug("getDocumentUris; returning uris {}", result);
-			return result;
-		} catch (BagriException | IOException ex) {
+			return getUris(pattern, properties);
+		} catch (Exception ex) {
 			logger.error("getDocumentUris.error", ex);
 			return null;
 		}
+	}
+	
+	private java.util.Collection<String> getUris(String pattern, String properties) throws Exception {
+		Properties props = propsFromString(properties);
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
+		ResultCollection uris = (ResultCollection) docManager.getDocuments(pattern, props);
+		List<String> result = new ArrayList<>(uris.size());
+		for (DocumentAccessor doc: uris) {
+			result.add(doc.getUri());
+		}
+		uris.close();
+		logger.debug("getUris; returning {} uris", result);
+		return result;
 	}
 
 }

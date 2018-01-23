@@ -1,6 +1,12 @@
 package com.bagri.rest.service;
 
+import static com.bagri.core.Constants.pn_document_headers;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -13,6 +19,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
@@ -53,10 +60,19 @@ public class CollectionService extends RestService {
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON) 
 	@ApiOperation(value = "getCollectionDocuments: return Document uris belonging to the specified Collection")
-    public Iterable<String> getCollectionDocuments(@PathParam("name") String name) {
+    public Collection<String> getCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
+		Properties props = new Properties();
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
 		try {
-			return docMgr.getDocumentUris("collections.contains(" + name + ")", null);
+			ResultCollection itr = (ResultCollection) docMgr.getDocuments("collections.contains(" + name + "), txFinish = 0", props);
+			List<String> result = new ArrayList<>(itr.size());
+			Iterator<DocumentAccessor> it = itr.iterator();
+			while (it.hasNext()) {
+				result.add(it.next().getUri());
+			}
+			itr.close();
+			return result;
     	} catch (Exception ex) {
     		logger.error("getCollectionDocuments.error", ex);
     		throw new WebApplicationException(ex, Status.INTERNAL_SERVER_ERROR);
@@ -70,7 +86,7 @@ public class CollectionService extends RestService {
     public int deleteCollectionDocuments(@PathParam("name") String name) {
 		DocumentManagement docMgr = getDocManager();
 		try {
-			Iterable<DocumentAccessor> docs = docMgr.removeDocuments("collections.contains(" + name + ")", null);
+			Iterable<DocumentAccessor> docs = docMgr.removeDocuments("collections.contains(" + name + "), txFinish = 0", null);
 			int cnt = 0;
 			for (DocumentAccessor doc: docs) {
 				cnt++;

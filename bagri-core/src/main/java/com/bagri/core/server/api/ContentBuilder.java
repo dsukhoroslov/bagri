@@ -11,7 +11,7 @@ import com.bagri.core.model.Data;
 import com.bagri.core.model.Elements;
 
 /**
- * Converts internal XDM data representation to plain text representation. A counterpart to XDMParser interface.
+ * Converts internal XDM data representation to plain text representation. A counterpart to ContentParser interface.
  *  
  * @see ContentParser  
  * 
@@ -30,7 +30,7 @@ public interface ContentBuilder<C> {
 	/**
 	 * 
 	 * @param elements a map of data elements to convert
-	 * @return String content representation 
+	 * @return C content representation 
 	 * @throws BagriException in case of any conversion error
 	 */
     C buildContent(Map<DataKey, Elements> elements) throws BagriException;
@@ -38,7 +38,7 @@ public interface ContentBuilder<C> {
 	/**
 	 * 
 	 * @param elements a collection of data elements to convert
-	 * @return String content representation 
+	 * @return C content representation 
 	 * @throws BagriException in case of any conversion error
 	 */
     C buildContent(Collection<Data> elements) throws BagriException;

@@ -6,6 +6,7 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.model.Null;
 import com.hazelcast.core.HazelcastInstance;
@@ -14,7 +15,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>, IdentifiedDataSerializable {  
+public class QueuedCollectionImpl implements Iterator<DocumentAccessor>, ResultCollection, IdentifiedDataSerializable {  
 
 	protected String queueName;
 	protected Object current;
@@ -54,7 +55,7 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	}
 
 	@Override
-	public boolean add(T result) {
+	public boolean add(DocumentAccessor result) {
 		return queue.add(result);
 	}
 	
@@ -69,7 +70,7 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 	}
 	
 	@Override
-	public Iterator<T> iterator() {
+	public Iterator<DocumentAccessor> iterator() {
 		return this;
 	}
 
@@ -93,8 +94,8 @@ public class QueuedCollectionImpl<T> implements Iterator<T>, ResultCollection<T>
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public T next() {
-		return (T) current;
+	public DocumentAccessor next() {
+		return (DocumentAccessor) current;
 	}
 
 	@Override

@@ -2,11 +2,13 @@ package com.bagri.rest.service;
 
 import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_document_data_format;
+import static com.bagri.core.Constants.pn_document_headers;
 import static com.bagri.core.system.DataFormat.df_json;
 import static com.bagri.core.system.DataFormat.df_xml;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,6 +32,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
@@ -75,14 +78,17 @@ public class DocumentService  extends RestService {
 		// add paginaton, pattern
 		logger.trace("getDocuments.enter; query: {}, page: {}, size: {}", query, page, size);
 		DocumentManagement docMgr = getDocManager();
+		Properties props = new Properties();
+		props.setProperty(pn_client_fetchSize, String.valueOf(size));
+		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
     	try {
-    		Properties props = new Properties();
-    		props.setProperty(pn_client_fetchSize, String.valueOf(size));
-            Iterable<String> uris = docMgr.getDocumentUris(query, props);
-            List<String> names = new ArrayList<>(size);
-            for (String uri: uris) {
-            	names.add(uri);
-            }
+   			ResultCollection itr = (ResultCollection) docMgr.getDocuments(query, props);
+   			List<String> names = new ArrayList<>(itr.size());
+   			Iterator<DocumentAccessor> it = itr.iterator();
+   			while (it.hasNext()) {
+   				names.add(it.next().getUri());
+   			}
+   			itr.close();
             Collections.sort(names);
             DocumentBean[] docs = new DocumentBean[size];
             long now = new java.util.Date().getTime();
@@ -91,7 +97,7 @@ public class DocumentService  extends RestService {
             	start = names.size() - size;
             } 
             for (int i = 0; i < size && start + i < names.size(); i++) {
-            	String uri = ((List<String>) uris).get(i);
+            	String uri = names.get(i);
             	docs[i] = new DocumentBean(uri, now, "owner", "xml", "utf-8", 1000);
             }
             return Response.ok(docs).build();

@@ -5,6 +5,7 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Collection;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
@@ -12,7 +13,7 @@ import com.hazelcast.nio.IOUtil;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class CompressingCollectionImpl<T> extends FixedCollectionImpl<T> {
+public class CompressingCollectionImpl extends FixedCollectionImpl {
 	
 	protected SchemaRepository repo;
 	
@@ -25,7 +26,7 @@ public class CompressingCollectionImpl<T> extends FixedCollectionImpl<T> {
 		this.repo = repo;
 	}
 
-	public CompressingCollectionImpl(SchemaRepository repo, Collection<T> results) {
+	public CompressingCollectionImpl(SchemaRepository repo, Collection<DocumentAccessor> results) {
 		super(results);
 		this.repo = repo;
 	}

@@ -280,64 +280,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@Override
-	public Iterable<String> getDocumentUris(final String pattern, final Properties props) {
-		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
-		final int fetchSize;
-		boolean asynch = false;
-		if (props != null) {
-			fetchSize = Integer.valueOf(props.getProperty(pn_client_fetchSize, "0"));
-			asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		} else {
-			fetchSize = 0;
-		}
-
-		final ResultCollection<String> cln;
-		if (asynch) {
-			String clientId = props.getProperty(pn_client_id);
-			String queueName = "client:" + clientId;
-			cln = new BoundedQueueCollectionImpl<>(hzInstance, queueName, fetchSize);
-			execSvc.execute(new Runnable() {
-				@Override
-				public void run() {
-					fetchUris(pattern, fetchSize, cln);
-					cln.finish(); 
-				}
-			});
-		} else {
-			// what if fetchSize = 0!?
-			cln = new FixedCollectionImpl<>(fetchSize);
-			fetchUris(pattern, fetchSize, cln);
-		}
-
-		logger.trace("getDocumentUris.exit; returning: {}", cln);
-		return cln;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void fetchUris(String pattern, int fetchSize, ResultCollection<String> cln) {
-		Predicate<DocumentKey, Document> query;
-		if (pattern == null) {
-			query = Predicates.equal(fnTxFinish, TX_NO);
-		} else {
-			query = DocumentPredicateBuilder.getQuery(repo, pattern);
-		}
-		if (fetchSize > 0) {
-			query = new LimitPredicate<>(fetchSize, query);
-		}
-
-		int cnt = 0;
-		if (query != null) {
-			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
-			for (Document doc: docs) {
-				if (!cln.add(doc.getUri())) {
-					break;
-				}
-			}
-		}
-		logger.trace("fetchUris.exit; fetched {} uris", cnt);
-	}
-
-	@Override
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		Document doc = getDocument(uri);
 		if (doc == null) {
@@ -440,22 +382,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cc;
 	}
 	
-	private ResultCollection<DocumentAccessor> getResultIterator(Properties props) {
-		ResultCollection<DocumentAccessor> iter;
+	private ResultCollection getResultIterator(Properties props) {
+		ResultCollection iter;
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
 			String clientId = props.getProperty(pn_client_id);
 			String queueName = "client:" + clientId;
 			if (hzInstance.getCluster().getMembers().size() > 1) {
-				iter = new BoundedQueueCollectionImpl<>(hzInstance, queueName, fetchSize);
+				iter = new BoundedQueueCollectionImpl(hzInstance, queueName, fetchSize);
 			} else {
-				iter = new QueuedCollectionImpl<>(hzInstance, queueName);
+				iter = new QueuedCollectionImpl(hzInstance, queueName);
 			}
 		} else {
 			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
-				iter = new CompressingCollectionImpl<>(repo, fetchSize);
+				iter = new CompressingCollectionImpl(repo, fetchSize);
 			} else {
-				iter = new FixedCollectionImpl<>(fetchSize);
+				iter = new FixedCollectionImpl(fetchSize);
 			}
 		}
 		return iter;
@@ -465,7 +407,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Iterable<DocumentAccessor> getDocuments(final String pattern, final Properties props) throws BagriException {
 		logger.trace("getDocuments.enter; got pattern: {}; props: {}", pattern, props);
 
-		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		final ResultCollection cln = getResultIterator(props);
 		if (cln.isAsynch()) {
 			execSvc.execute(new Runnable() {
 				@Override
@@ -487,7 +429,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	@SuppressWarnings("unchecked")
-	private void fetchDocuments(String pattern, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
+	private void fetchDocuments(String pattern, Properties props, ResultCollection cln) throws BagriException {
 		Predicate<DocumentKey, Document> query;
 		if (pattern == null) {
 			query = Predicates.equal(fnTxFinish, TX_NO);
@@ -1047,7 +989,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public <T> Iterable<DocumentAccessor> storeDocuments(final Map<String, T> documents, final Properties props) throws BagriException {
 		logger.trace("storeDocuments.enter; got documents: {}; props: {}", documents, props);
-		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		final ResultCollection cln = getResultIterator(props);
 		if (cln.isAsynch()) {
 			try {
 				execSvc.execute(new Runnable() {
@@ -1072,7 +1014,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cln;
 	}
 
-	private void iterateDocuments(Map<String, Object> documents, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
+	private void iterateDocuments(Map<String, Object> documents, Properties props, ResultCollection cln) throws BagriException {
 		for (Map.Entry<String, Object> document: documents.entrySet()) {
 			if (ddSvc.isLocalKey(document.getKey().hashCode())) {
 				cln.add(storeDocument(document.getKey(), document.getValue(), props));
@@ -1259,7 +1201,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	@Override
 	public Iterable<DocumentAccessor> removeDocuments(final String pattern, final Properties props) throws BagriException {
 		logger.trace("removeDocuments.enter; pattern: {}", pattern);
-		final ResultCollection<DocumentAccessor> cln = getResultIterator(props);
+		final ResultCollection cln = getResultIterator(props);
 		if (cln.isAsynch()) {
 			try {
 				execSvc.execute(new Runnable() {
@@ -1284,7 +1226,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return cln;
 	}
 
-	private void deleteDocuments(String pattern, Properties props, ResultCollection<DocumentAccessor> cln) throws BagriException {
+	private void deleteDocuments(String pattern, Properties props, ResultCollection cln) throws BagriException {
 		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
 
 		// remove local documents only?! yes!

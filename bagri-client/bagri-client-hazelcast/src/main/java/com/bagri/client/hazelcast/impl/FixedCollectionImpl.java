@@ -8,14 +8,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDataSerializable {
+public class FixedCollectionImpl implements ResultCollection, IdentifiedDataSerializable {
 	
-	protected ArrayList<T> results;
+	protected ArrayList<DocumentAccessor> results;
 	
 	public FixedCollectionImpl() {
 		//
@@ -25,7 +26,7 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 		results = new ArrayList<>(size);
 	}
 	
-	public FixedCollectionImpl(Collection<T> results) {
+	public FixedCollectionImpl(Collection<DocumentAccessor> results) {
 		this(results.size());
 		this.results.addAll(results);
 	}
@@ -36,7 +37,7 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 	}
 
 	@Override
-	public boolean add(T result) {
+	public boolean add(DocumentAccessor result) {
 		return results.add(result);
 	}
 	
@@ -51,7 +52,7 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 	}
 	
 	@Override
-	public Iterator<T> iterator() {
+	public Iterator<DocumentAccessor> iterator() {
 		return results.iterator();
 	}
 	
@@ -71,12 +72,11 @@ public class FixedCollectionImpl<T> implements ResultCollection<T>, IdentifiedDa
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void readData(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
 		results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
-			results.add((T) in.readObject());
+			results.add((DocumentAccessor) in.readObject());
 		}
 	}
 

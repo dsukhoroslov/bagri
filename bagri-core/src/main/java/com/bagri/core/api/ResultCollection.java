@@ -1,10 +1,15 @@
 package com.bagri.core.api;
 
-public interface ResultCollection<T> extends AutoCloseable, Iterable<T> {
+/**
+ * Provides an ability to asynchronously fetch selected Documents from client side
+ * 
+ * @author Denis Sukhoroslov
+ */
+public interface ResultCollection extends AutoCloseable, Iterable<DocumentAccessor> {
 	
 	//void init(SchemaRepository repo);
 	
-	boolean add(T result);
+	boolean add(DocumentAccessor result);
 	
 	void finish();
 	

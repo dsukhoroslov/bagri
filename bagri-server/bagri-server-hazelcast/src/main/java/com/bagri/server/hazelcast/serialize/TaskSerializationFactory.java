@@ -12,7 +12,6 @@ import com.bagri.server.hazelcast.task.doc.DocumentProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
 import com.bagri.server.hazelcast.task.doc.DocumentRemover;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;
-import com.bagri.server.hazelcast.task.doc.DocumentUrisProvider;
 import com.bagri.server.hazelcast.task.doc.DocumentsProvider;
 import com.bagri.server.hazelcast.task.format.DataFormatCreator;
 import com.bagri.server.hazelcast.task.format.DataFormatRemover;
@@ -143,7 +142,6 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 		switch (typeId) {
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_GetDocumentsTask: return new DocumentsProvider(); 
-			case cli_GetDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_StoreDocumentTask: return new DocumentCreator();
 			case cli_StoreDocumentsTask: return new DocumentsCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();

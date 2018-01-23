@@ -12,17 +12,6 @@ import java.util.Properties;
 public interface DocumentManagement {
 
 	/**
-	 * search Document attributes by pattern provided
-	 * 
-	 * @param pattern String; the query string conforming to syntax: Document attribute CMP value,
-	 * for instance: createdBy = admin, bytes &gt; 3000, uri like security%
-	 * @param props contains query processing instructions
-	 * @return Iterable&lt;String&gt; over matched Document uris
-	 * @throws BagriException in case of any error
-	 */
-	Iterable<String> getDocumentUris(String pattern, Properties props) throws BagriException;
-
-	/**
 	 * 
 	 * @param uri the Document uri
 	 * @param props contains Document retrieve instructions

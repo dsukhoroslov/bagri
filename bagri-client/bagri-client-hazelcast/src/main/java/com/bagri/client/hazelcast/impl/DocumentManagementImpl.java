@@ -73,31 +73,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@Override
-	@SuppressWarnings("resource")
-	public Iterable<String> getDocumentUris(String pattern, Properties props) throws BagriException {
-		logger.trace("getDocumentUris.enter; got pattern: {}; props: {}", pattern, props);
-		CombinedCollectionImpl<String> result = new CombinedCollectionImpl<>();
-		props = checkDocumentProperties(props);
-		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		DocumentUrisProvider task = new DocumentUrisProvider(repo.getClientId(), repo.getTransactionId(), props, pattern);
-		Map<Member, Future<ResultCollection<String>>> results = execService.submitToAllMembers(task);
-		for (Map.Entry<Member, Future<ResultCollection<String>>> entry: results.entrySet()) {
-			try {
-				ResultCollection<String> cln = entry.getValue().get();
-				if (asynch) {
-					((QueuedCollectionImpl<String>) cln).init(repo.getHazelcastClient());
-				}
-				result.addResults(cln);
-			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("getDocumentUris; error getting result", ex);
-				throw new BagriException(ex, ecDocument);
-			}
-		}
-		logger.trace("getDocumentUris.exit; got results: {}", result);
-		return result;
-	}
-	
-	@Override
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		logger.trace("getDocument.enter; got uri: {}; props: {}", uri, props);
 		props = checkDocumentProperties(props);
@@ -220,22 +195,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 	
 	@SuppressWarnings("resource")
-	private Iterable<DocumentAccessor> runIterableDocumentTask(Callable<ResultCollection<DocumentAccessor>> task, Properties props) throws BagriException {
+	private Iterable<DocumentAccessor> runIterableDocumentTask(Callable<ResultCollection> task, Properties props) throws BagriException {
 		Iterable<DocumentAccessor> result;
 		//checkDocumentProperties(props);
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
-		Map<Member, Future<ResultCollection<DocumentAccessor>>> results = execService.submitToAllMembers(task);
+		Map<Member, Future<ResultCollection>> results = execService.submitToAllMembers(task);
 		try {
 			if (asynch) {
-				ResultCollection<DocumentAccessor> cln;
+				ResultCollection cln;
 				cln = results.values().iterator().next().get();
-				((QueuedCollectionImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
+				((QueuedCollectionImpl) cln).init(repo.getHazelcastClient());
 				result = cln;
 			} else {
 				int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 				CombinedCollectionImpl<DocumentAccessor> comb = new CombinedCollectionImpl<>(fSize);
-				for (Map.Entry<Member, Future<ResultCollection<DocumentAccessor>>> entry: results.entrySet()) {
-					ResultCollection<DocumentAccessor> cln = entry.getValue().get();
+				for (Map.Entry<Member, Future<ResultCollection>> entry: results.entrySet()) {
+					ResultCollection cln = entry.getValue().get();
 					comb.addResults(cln);
 				}
 				result = comb;

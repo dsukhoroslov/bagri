@@ -1,14 +1,17 @@
 package com.bagri.xquery.saxon.ext.doc;
 
 import static com.bagri.core.Constants.cmd_get_document_uris;
+import static com.bagri.core.Constants.pn_document_headers;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
-import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
+import com.bagri.core.api.ResultCollection;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -58,15 +61,20 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 				Properties props = null; 
 				if (arguments.length > 1) {
 					props = sequence2Properties(arguments[1]);
+				} else {
+					props = new Properties();
 				}
+				props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
 				try {
-					Iterable<String> uris = xdm.getDocumentUris(pattern, props);
-					ArrayList<AtomicValue> list = new ArrayList<>(); //uris.size());
-					for (String uri: uris) {
-						list.add(new StringValue(uri));
+					ResultCollection uris = (ResultCollection) xdm.getDocuments(pattern, props);
+					List<AtomicValue> result = new ArrayList<>(uris.size());
+					Iterator<DocumentAccessor> it = uris.iterator();
+					while (it.hasNext()) {
+						result.add(new StringValue(it.next().getUri()));
 					}
-					return new AtomicArray(list);
-				} catch (BagriException ex) {
+					uris.close();
+					return new AtomicArray(result);
+				} catch (Exception ex) {
 					throw new XPathException(ex);
 				}
 			}

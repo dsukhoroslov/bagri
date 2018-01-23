@@ -45,10 +45,10 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 			case cli_PartitionStats: return new PartitionStatistics();
 			case cli_QueuedCursor: return new QueuedCursorImpl();
 			case cli_FixedCursor: return new FixedCursorImpl();
-			case cli_QueuedCollection: return new QueuedCollectionImpl<>();
-			case cli_FixedCollection: return new FixedCollectionImpl<>();
-			case cli_CompressingCollection: return new CompressingCollectionImpl<>();
-			case cli_BoundedQueueCollection: return new BoundedQueueCollectionImpl<>();
+			case cli_QueuedCollection: return new QueuedCollectionImpl();
+			case cli_FixedCollection: return new FixedCollectionImpl();
+			case cli_CompressingCollection: return new CompressingCollectionImpl();
+			case cli_BoundedQueueCollection: return new BoundedQueueCollectionImpl();
 			case cli_DocumentAccessor: return new DocumentAccessorImpl();
 			case cli_CompressingDocumentAccessor: return new CompressingDocumentAccessorImpl(); 
 			case cli_DocumentKey: return new DocumentPartKey(); 

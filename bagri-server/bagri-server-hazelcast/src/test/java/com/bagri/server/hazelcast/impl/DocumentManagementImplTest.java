@@ -1,7 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.DocumentKey;
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
@@ -119,11 +118,11 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
 		Properties props = getDocumentProperties();
-		ResultCollection<String> uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like security%, txFinish = 0", props);
+		ResultCollection uris = (ResultCollection) dMgr.getDocuments("uri like security%, txFinish = 0", props);
 		assertEquals(4, uris.size());
-		uris = (ResultCollection<String>) dMgr.getDocumentUris("uri like order%, txFinish = 0", props);
+		uris = (ResultCollection) dMgr.getDocuments("uri like order%, txFinish = 0", props);
 		assertEquals(2, uris.size());
-		uris = (ResultCollection<String>) dMgr.getDocumentUris("createdBy = guest, txFinish = 0", props);
+		uris = (ResultCollection) dMgr.getDocuments("createdBy = guest, txFinish = 0", props);
 		assertEquals(6, uris.size());
 	}
 	
@@ -136,7 +135,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		docs.put("security29674.xml", readTextFile(sampleRoot + "security29674.xml"));
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
-		ResultCollection<DocumentAccessor> results = (ResultCollection<DocumentAccessor>) getDocManagement().storeDocuments(docs, props);
+		ResultCollection results = (ResultCollection) getDocManagement().storeDocuments(docs, props);
 		assertEquals(4, results.size());
 	}
 	

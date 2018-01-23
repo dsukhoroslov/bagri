@@ -4,7 +4,6 @@ import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.TransactionIsolation;
@@ -29,19 +28,19 @@ public class DocumentsRemover extends com.bagri.client.hazelcast.task.doc.Docume
 	}
 
     @Override
-	public ResultCollection<DocumentAccessor> call() throws Exception {
+	public ResultCollection call() throws Exception {
 
 		checkPermission(Permission.Value.modify);
     	
     	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
     	if (tiLevel == null) {
-    		return (ResultCollection<DocumentAccessor>) docMgr.removeDocuments(pattern, context);
+    		return (ResultCollection) docMgr.removeDocuments(pattern, context);
     	}
     	
-    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection<DocumentAccessor>>() {
+    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection>() {
     		
-	    	public ResultCollection<DocumentAccessor> call() throws Exception {
-	    		return (ResultCollection<DocumentAccessor>) docMgr.removeDocuments(pattern, context);
+	    	public ResultCollection call() throws Exception {
+	    		return (ResultCollection) docMgr.removeDocuments(pattern, context);
 	    	}
     	});
 	}

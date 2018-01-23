@@ -4,15 +4,16 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCollection;
 
-public class CombinedCollectionImpl<T> implements AutoCloseable, Iterable<T>, Iterator<T> {
+public class CombinedCollectionImpl<T> implements AutoCloseable, Iterable<DocumentAccessor>, Iterator<DocumentAccessor> {
 	
 	private int limit;
 	private int index = 0;
-	private Iterator<T> curIter = null;
-	private ResultCollection<T> curResult = null;
-	private Deque<ResultCollection<T>> results = new LinkedList<>();
+	private ResultCollection curResult = null;
+	private Iterator<DocumentAccessor> curIter = null;
+	private Deque<ResultCollection> results = new LinkedList<>();
 	
 	public CombinedCollectionImpl() {
 		this(0);
@@ -24,18 +25,18 @@ public class CombinedCollectionImpl<T> implements AutoCloseable, Iterable<T>, It
 
 	@Override
 	public void close() throws Exception {
-		for (ResultCollection<T> cln: results) {
+		for (ResultCollection cln: results) {
 			cln.close();
 		}
 		index = 0;
 	}
 	
-	public void addResults(ResultCollection<T> result) {
+	public void addResults(ResultCollection result) {
 		results.add(result);
 	}
 
 	@Override
-	public Iterator<T> iterator() {
+	public Iterator<DocumentAccessor> iterator() {
 		return this;
 	}
 
@@ -65,7 +66,7 @@ public class CombinedCollectionImpl<T> implements AutoCloseable, Iterable<T>, It
 	}
 
 	@Override
-	public T next() {
+	public DocumentAccessor next() {
 		index++;
 		return curIter.next();
 	}

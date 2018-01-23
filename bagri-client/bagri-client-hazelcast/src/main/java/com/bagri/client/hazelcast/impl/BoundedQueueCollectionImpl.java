@@ -7,11 +7,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.core.api.DocumentAccessor;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class BoundedQueueCollectionImpl<T> extends QueuedCollectionImpl<T> {
+public class BoundedQueueCollectionImpl extends QueuedCollectionImpl {
 	
     private final static Logger logger = LoggerFactory.getLogger(BoundedQueueCollectionImpl.class);
 
@@ -42,7 +43,7 @@ public class BoundedQueueCollectionImpl<T> extends QueuedCollectionImpl<T> {
 	}
 
 	@Override
-	public boolean add(T result) {
+	public boolean add(DocumentAccessor result) {
 		int size = queue.size();
 		if (size < limit) {
 			return queue.add(result);

@@ -11,7 +11,7 @@ import com.bagri.core.model.Data;
 import com.bagri.core.model.ParseResults;
 
 /**
- * Convert Document's content to its internal XDM data representation. A counterpart to XDMBuilder interface.
+ * Convert Document's content to its internal XDM data representation. A counterpart to ContentBuilder interface.
  *  
  * @see ContentBuilder  
  * 

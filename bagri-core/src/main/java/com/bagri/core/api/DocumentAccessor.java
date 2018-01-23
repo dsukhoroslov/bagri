@@ -1,10 +1,11 @@
 package com.bagri.core.api;
 
-import java.awt.Component;
-import java.util.Properties;
-
-import javax.swing.JLabel;
-
+/**
+ * The DocumentAccessor structure provides access to Document's system headers on the client side. 
+ * Client can specify which headers it wants to see and only this data will be transfered from the server side.
+ * 
+ * @author Denis Sukhoroslov
+ */
 public interface DocumentAccessor {
 
 	static byte IDX_COLLECTIONS       = 0; 

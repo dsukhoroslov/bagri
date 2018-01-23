@@ -4,6 +4,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * Allows customizing document's content serialization when transfered to client side
+ * 
+ * @author Denis Sukhoroslov
+ */
 public interface ContentSerializer<C> {
 
 	/**

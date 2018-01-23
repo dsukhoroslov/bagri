@@ -6,7 +6,6 @@ import com.bagri.client.hazelcast.task.doc.DocumentCollectionUpdater;
 import com.bagri.client.hazelcast.task.doc.DocumentCreator;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentRemover;
-import com.bagri.client.hazelcast.task.doc.DocumentUrisProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentsCreator;
 import com.bagri.client.hazelcast.task.doc.DocumentsProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentsRemover;
@@ -26,7 +25,7 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 
 	public static final int cli_GetDocumentTask = 100;
 	public static final int cli_GetDocumentsTask = 101;
-	public static final int cli_GetDocumentUrisTask = 102;
+	//public static final int cli_GetDocumentUrisTask = 102;
 	public static final int cli_StoreDocumentTask = 103; 
 	public static final int cli_StoreDocumentsTask = 104;
 	public static final int cli_RemoveDocumentTask = 105;
@@ -53,7 +52,7 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 		switch (typeId) {
 			case cli_GetDocumentTask: return new DocumentProvider();
 			case cli_GetDocumentsTask: return new DocumentsProvider(); 
-			case cli_GetDocumentUrisTask: return new DocumentUrisProvider(); 
+			//case cli_GetDocumentUrisTask: return new DocumentUrisProvider(); 
 			case cli_StoreDocumentTask: return new DocumentCreator();
 			case cli_StoreDocumentsTask: return new DocumentsCreator();
 			case cli_RemoveDocumentTask: return new DocumentRemover();

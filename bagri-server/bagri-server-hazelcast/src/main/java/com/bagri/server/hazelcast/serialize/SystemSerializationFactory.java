@@ -38,7 +38,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	public IdentifiedDataSerializable create(int typeId) {
 		
 		switch (typeId) {
-			case cli_CompressingCollection: return new CompressingCollectionImpl<>();
+			case cli_CompressingCollection: return new CompressingCollectionImpl();
 			case cli_DocumentAccessor: return new DocumentAccessorImpl(repo);
 			case cli_CompressingDocumentAccessor: return new CompressingDocumentAccessorImpl(); 
 			case cli_GroupCountPredicate: return new GroupCountPredicate();

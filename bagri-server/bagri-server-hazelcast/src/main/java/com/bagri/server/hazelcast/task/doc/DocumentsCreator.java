@@ -8,7 +8,6 @@ import java.util.concurrent.Callable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.TransactionIsolation;
@@ -33,20 +32,20 @@ public class DocumentsCreator extends com.bagri.client.hazelcast.task.doc.Docume
 	}
 
 	@Override
-	public ResultCollection<DocumentAccessor> call() throws Exception {
+	public ResultCollection call() throws Exception {
     	
 		checkPermission(Permission.Value.modify);
     	
     	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
     	if (tiLevel == null) {
     		// bypass tx stack completely!
-    		return (ResultCollection<DocumentAccessor>) docMgr.storeDocuments(documents, context);
+    		return (ResultCollection) docMgr.storeDocuments(documents, context);
     	}
     	
-    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection<DocumentAccessor>>() {
+    	return txMgr.callInTransaction(txId, false, tiLevel, new Callable<ResultCollection>() {
     		
-	    	public ResultCollection<DocumentAccessor> call() throws Exception {
-	    		return (ResultCollection<DocumentAccessor>) docMgr.storeDocuments(documents, context);
+	    	public ResultCollection call() throws Exception {
+	    		return (ResultCollection) docMgr.storeDocuments(documents, context);
 	    	}
     	});
     }
