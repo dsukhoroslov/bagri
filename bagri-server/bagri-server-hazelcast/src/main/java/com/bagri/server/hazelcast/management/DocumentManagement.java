@@ -436,13 +436,16 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	
 	private java.util.Collection<String> getUris(String pattern, String properties) throws Exception {
 		Properties props = propsFromString(properties);
+		if (props == null) {
+			props = new Properties();
+		}
 		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
-		ResultCollection uris = (ResultCollection) docManager.getDocuments(pattern, props);
-		List<String> result = new ArrayList<>(uris.size());
+		Iterable<DocumentAccessor> uris = (Iterable<DocumentAccessor>) docManager.getDocuments(pattern, props);
+		List<String> result = new ArrayList<>(); //uris.size()
 		for (DocumentAccessor doc: uris) {
 			result.add(doc.getUri());
 		}
-		uris.close();
+		//uris.close();
 		logger.debug("getUris; returning {} uris", result);
 		return result;
 	}
