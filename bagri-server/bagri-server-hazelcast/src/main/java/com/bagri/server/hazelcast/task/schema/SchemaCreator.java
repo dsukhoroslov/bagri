@@ -42,9 +42,9 @@ public class SchemaCreator extends SchemaProcessor implements IdentifiedDataSeri
 			}
 			Schema schema = new Schema(getVersion(), new Date(), getAdmin(), schemaName, 
 					description, true, properties);
-			if (initSchemaInCluster(schema) == 0) {
+			//if (initSchemaInCluster(schema) == 0) {
 				schema.setActive(false);
-			}
+			//}
 			entry.setValue(schema);
 			auditEntity(AuditType.create, schema);
 

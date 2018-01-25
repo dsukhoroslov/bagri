@@ -81,4 +81,29 @@ public class SchemaManagementBeanTest extends AdminServerTest {
 		}
 	}
 
+	@Test
+	public void testAddDeleteSchema() throws Exception {
+		ObjectName name = getObjectName();
+		//public boolean addSchema(String schemaName, String description, String properties) {
+		Boolean result = (Boolean) mbsc.invoke(name, "addSchema", new Object[] {"Test", "schema for tests",
+				"bdb.schema.store.enabled=true;bdb.schema.population.size=2;bdb.schema.store.data.path=../data/test"}, 
+				new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
+		assertTrue(result);
+		checkExpectedNames("SchemaNames", "XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default", "Test");
+
+		// check schema properties here..
+		
+		result = (Boolean) mbsc.invoke(name, "addSchema", new Object[] {"Test", "schema for tests",
+				"bdb.schema.store.enabled=true;bdb.schema.population.size=2;bdb.schema.store.data.path=../data/test"}, 
+				new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
+		assertFalse(result);
+        
+		result = (Boolean) mbsc.invoke(name, "deleteSchema", new Object[] {"Test"}, new String[] {String.class.getName()});
+		assertTrue(result);
+		checkExpectedNames("SchemaNames", "XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default");
+
+		result = (Boolean) mbsc.invoke(name, "deleteSchema", new Object[] {"Test"}, new String[] {String.class.getName()});
+		assertFalse(result);
+	}
+
 }

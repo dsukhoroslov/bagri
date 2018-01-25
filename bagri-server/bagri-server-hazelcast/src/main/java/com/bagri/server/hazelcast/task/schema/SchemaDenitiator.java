@@ -27,13 +27,16 @@ public class SchemaDenitiator extends SchemaProcessingTask implements Callable<B
 		//return schemaManager.denitSchema(schemaName);
 		
     	logger.trace("call.enter; schema: {}", schemaName);
-    	boolean result = false;
+    	boolean result = true;
 		// get hzInstance and close it...
 		HazelcastInstance hz = findSchemaInstance(schemaName);
 		if (hz != null) {
-			ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) getContext(schemaName);
-			ctx.close();
-			result = true;
+			try {
+				ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) getContext(schemaName);
+				ctx.close();
+			} catch (Exception ex) {
+				result = false;
+			}
 		}
     	logger.trace("call.exit; schema {} deactivated: {}", schemaName, result);
 		return result;
