@@ -1,28 +1,12 @@
 package com.bagri.server.hazelcast.management;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
-import com.bagri.support.util.JMXUtils;
-
-public class SchemaManagementBeanTest extends AdminServerTest {
+public class SchemaManagementBeanTest extends EntityManagementBeanTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -56,54 +40,22 @@ public class SchemaManagementBeanTest extends AdminServerTest {
 
 	@Override
 	protected String[] getExpectedOperations() {
-		return new String[] {"getSchemas", "getSchemaNames", "getDefaultProperties", "setDefaultProperty", "addSchema", "deleteSchema"};
+		return new String[] {"getSchemas", "getSchemaNames", "addSchema", "deleteSchema", "getDefaultProperties", "setDefaultProperty"};
 	}
 
-	@Test
-	public void testGetSchemaNames() throws Exception {
-        ObjectName oName = getObjectName();
-		checkExpectedNames("SchemaNames", "XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default");
+	@Override
+	protected String[] getExpectedEntities() {
+		return new String[] {"XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default"};
 	}
 
-	@Test
-	public void testGetSchemas() throws Exception {
-        ObjectName oName = getObjectName();
-        TabularData schemas = (TabularData) mbsc.getAttribute(oName, "Schemas");
-		assertNotNull(schemas);
-		assertEquals(6, schemas.size());
-		List<String> expected = Arrays.asList("XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default");
-    	Set<List> keys = (Set<List>) schemas.keySet();
-    	for (List key: keys) {
-    		Object[] index = key.toArray();
-			CompositeData schema = schemas.get(index);
-			String sn = (String) schema.get("name");
-			assertTrue(expected.contains(sn));
-		}
+	@Override
+	protected Object[] getAddEntityParams() {
+		return new Object[] {"Test", "schema for tests", "bdb.schema.store.enabled=true;bdb.schema.population.size=2;bdb.schema.store.data.path=../data/test"};
 	}
-
-	@Test
-	public void testAddDeleteSchema() throws Exception {
-		ObjectName name = getObjectName();
-		//public boolean addSchema(String schemaName, String description, String properties) {
-		Boolean result = (Boolean) mbsc.invoke(name, "addSchema", new Object[] {"Test", "schema for tests",
-				"bdb.schema.store.enabled=true;bdb.schema.population.size=2;bdb.schema.store.data.path=../data/test"}, 
-				new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
-		assertTrue(result);
-		checkExpectedNames("SchemaNames", "XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default", "Test");
-
-		// check schema properties here..
-		
-		result = (Boolean) mbsc.invoke(name, "addSchema", new Object[] {"Test", "schema for tests",
-				"bdb.schema.store.enabled=true;bdb.schema.population.size=2;bdb.schema.store.data.path=../data/test"}, 
-				new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
-		assertFalse(result);
-        
-		result = (Boolean) mbsc.invoke(name, "deleteSchema", new Object[] {"Test"}, new String[] {String.class.getName()});
-		assertTrue(result);
-		checkExpectedNames("SchemaNames", "XMark", "TPoX", "XDM", "TPoX-J", "YCSB", "default");
-
-		result = (Boolean) mbsc.invoke(name, "deleteSchema", new Object[] {"Test"}, new String[] {String.class.getName()});
-		assertFalse(result);
+	
+	@Override
+	protected String[] getAddEntityParamClasses() {
+		return new String[] {String.class.getName(), String.class.getName(), String.class.getName()};
 	}
 
 }

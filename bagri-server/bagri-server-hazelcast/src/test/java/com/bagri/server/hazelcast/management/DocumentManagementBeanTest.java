@@ -12,24 +12,25 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 @Ignore
-public class DocumentManagementBeanTest extends AdminServerTest {
+public class DocumentManagementBeanTest { //extends EntityManagementBeanTest {
 	
     private static ClassPathXmlApplicationContext servCtx;
 	
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-        mbsc = startAdminServer();
-	}
+	//@BeforeClass
+	//public static void setUpBeforeClass() throws Exception {
+    //    mbsc = startAdminServer();
+	//}
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-		stopAdminServer();
-	}
+	//@AfterClass
+	//public static void tearDownAfterClass() throws Exception {
+	//	stopAdminServer();
+	//}
 	
-	@Override
-	protected ObjectName getObjectName() throws MalformedObjectNameException {
+	//@Override
+	//protected ObjectName getObjectName() throws MalformedObjectNameException {
 		//type=Schema,name=" + schemaName + ",kind=" + getFeatureKind()); //DocumentManagement
-        return null; //new ObjectName("com.bagri.db:type=Management,name=ClusterManagement");
-	}
+    //    return null; //new ObjectName("com.bagri.db:type=Management,name=ClusterManagement");
+	//}
+	
 	
 }
