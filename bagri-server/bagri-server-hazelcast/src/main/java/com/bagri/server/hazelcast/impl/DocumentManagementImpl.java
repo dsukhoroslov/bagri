@@ -1,6 +1,5 @@
 package com.bagri.server.hazelcast.impl;
 
-import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.client.hazelcast.impl.BoundedCursorImpl;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
@@ -52,7 +51,6 @@ import com.hazelcast.query.Predicates;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.bagri.core.Constants.*;
@@ -83,7 +81,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private IMap<DocumentKey, Object> cntCache;
 	private IMap<DocumentKey, Document> docCache;
     private IMap<DataKey, Elements> eltCache;
-    private IMap<UrlHashKey, List<DocumentKey>> keyCache;
+    //private IMap<UrlHashKey, List<DocumentKey>> keyCache;
 
 	private boolean binaryDocs;
 	private boolean binaryElts;
@@ -92,8 +90,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
 
-	//private IExecutorService execSvc;
-	private ExecutorService execSvc;
+	private ExecutorService execPool;
 
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -105,9 +102,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
 
-    	execSvc = Executors.newFixedThreadPool(32);
-    	keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
-    	//execSvc = repo.getHzInstance().getExecutorService(PN_XDM_TRANS_POOL);
+    	//keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
     }
 
     IMap<DocumentKey, Object> getContentCache() {
@@ -160,6 +155,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	this.ddSvc = ddSvc;
     }
 
+    public void setExecPool(ExecutorService execSvc) {
+    	this.execPool = execSvc;
+    }
+    
     private Set<DataKey> getDocumentElementKeys(String path, long[] fragments) {
     	Set<Integer> parts = model.getPathElements(path);
     	Set<DataKey> keys = new HashSet<DataKey>(parts.size()*fragments.length);
@@ -410,7 +409,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		final ResultCursorBase<DocumentAccessor> cln = getResultCursor(props);
 		if (cln.isAsynch()) {
-			execSvc.execute(new Runnable() {
+			execPool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -993,7 +992,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		final ResultCursorBase<DocumentAccessor> cln = getResultCursor(props);
 		if (cln.isAsynch()) {
 			try {
-				execSvc.execute(new Runnable() {
+				execPool.execute(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -1205,7 +1204,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		final ResultCursorBase<DocumentAccessor> cln = getResultCursor(props);
 		if (cln.isAsynch()) {
 			try {
-				execSvc.execute(new Runnable() {
+				execPool.execute(new Runnable() {
 					@Override
 					public void run() {
 						try {

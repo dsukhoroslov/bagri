@@ -8,6 +8,11 @@ package com.bagri.core.api;
  */
 public interface ResultCursor<T> extends AutoCloseable, Iterable<T> {
 	
+	public static final int ONE = 1;
+	public static final int EMPTY = 0;
+	public static final int ONE_OR_MORE = -1;
+	public static final int UNKNOWN = -2;
+	
 	/**
 	 * 
 	 * @return true if cursor has a static List of results fetched, false otherwise 

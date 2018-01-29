@@ -96,13 +96,16 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		txGen.adjust(TX_START);
 		cTopic = hzInstance.getTopic(TPN_XDM_COUNTERS);
 		execService = hzInstance.getExecutorService(PN_XDM_TRANS_POOL);
-    	execPool = Executors.newFixedThreadPool(32);
 	}
 	
 	public TransactionIsolation getTransactionLevel() {
 		return txLevel;
 	}
 	
+    public void setExecPool(ExecutorService execSvc) {
+    	this.execPool = execSvc;
+    }
+    
 	public void setTransactionLevel(String txLevel) throws BagriException {
 		logger.debug("setTransactionLevel.enter; got tx level: {}", txLevel);
 		if (txLevel == null || txLevel.isEmpty() || txLevel.equals(pv_client_txLevel_skip)) {

@@ -79,11 +79,7 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		ResultCursor<XQItemAccessor> result = connection.executeQuery(query, context);
 		XQResultSequence sequence;
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			try {
-				sequence = new ScrollableXQResultSequence(this, ((ResultCursorBase<XQItemAccessor>) result).getList());
-			} catch (BagriException ex) {
-				throw getXQException(ex); 
-			}
+			sequence = new ScrollableXQResultSequence(this, ((ResultCursorBase<XQItemAccessor>) result).getList());
 		} else {
 			sequence = new IterableXQResultSequence(this, result); 
 		}

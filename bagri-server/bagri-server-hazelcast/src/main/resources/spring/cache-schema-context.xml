@@ -344,6 +344,10 @@
 
 	<bean id="xqCompiler" class="com.bagri.xquery.saxon.XQCompilerImpl"/>
 
+	<bean id="execService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool" destroy-method="shutdownNow">
+    	<constructor-arg value="${bdb.schema.thread.pool}"/>
+	</bean>
+  
 	<!--bean id="popManager" class="com.bagri.server.hazelcast.management.PopulationManager">
 		<constructor-arg ref="hzInstance" />
 		<property name="schemaName" value="${bdb.schema.name}"/>
@@ -371,7 +375,7 @@
 		<property name="indexManager" ref="idxManager"/>
 		<property name="statsQueue" ref="docQueue"/>
 		<property name="distrService" ref="distrService"/>
-		<!--property name="txManager" ref="txManager"/-->
+		<property name="execPool" ref="execService"/>
    		<!--property name="repository" ref="xdmRepo" /-->
 	</bean>
 
@@ -399,9 +403,7 @@
 	<bean id="queryManager" class="com.bagri.server.hazelcast.impl.QueryManagementImpl">
 		<property name="queryCache" ref="xdm-query"/>
 		<property name="resultCache" ref="xdm-result"/>
-		<!--property name="xddCache" ref="xdm-document"/>
-		<property name="xdmCache" ref="xdm-element"/>
-		<property name="idxCache" ref="xdm-index"/-->
+		<property name="execPool" ref="execService"/>
 		<property name="statsQueue" ref="queryCacheQueue"/>
    		<property name="repository" ref="xdmRepo" />
    		<property name="indexManager" ref="idxManager" />
@@ -425,6 +427,7 @@
 
 	<bean id="txManager" class="com.bagri.server.hazelcast.impl.TransactionManagementImpl">
 		<!--property name="hzInstance" ref="hzInstance"/-->
+		<property name="execPool" ref="execService"/>
 		<property name="transactionLevel" value="${bdb.schema.transaction.level}"/>
 		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/>
 	</bean>

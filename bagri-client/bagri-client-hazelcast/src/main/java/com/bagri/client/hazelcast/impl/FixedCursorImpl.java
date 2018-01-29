@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bagri.core.api.BagriException;
 import com.bagri.core.api.impl.ResultCursorBase;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -50,7 +49,7 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 	}
 	
 	@Override
-	public List<T> getList() throws BagriException {
+	public List<T> getList() {
 		return results;
 	}
 

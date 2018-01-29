@@ -202,18 +202,20 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Map<Member, Future<ResultCursor<DocumentAccessor>>> results = execService.submitToAllMembers(task);
 		try {
 			if (asynch) {
-				ResultCursor<DocumentAccessor> cln;
-				cln = results.values().iterator().next().get();
-				((QueuedCursorImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
-				result = cln;
+				// get the fastest result somehow..
+				result = results.values().iterator().next().get();
+				((QueuedCursorImpl<DocumentAccessor>) result).init(repo.getHazelcastClient());
 			} else {
-				int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-				CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(fSize);
-				for (Map.Entry<Member, Future<ResultCursor<DocumentAccessor>>> entry: results.entrySet()) {
-					ResultCursor<DocumentAccessor> cln = entry.getValue().get();
-					comb.addResults(cln);
+				if (repo.getHazelcastClient().getCluster().getMembers().size() > 1) { 
+					CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(); //fSize);
+					for (Map.Entry<Member, Future<ResultCursor<DocumentAccessor>>> entry: results.entrySet()) {
+						ResultCursor<DocumentAccessor> cln = entry.getValue().get();
+						comb.addResults(cln);
+					}
+					result = (ResultCursor<DocumentAccessor>) comb;
+				} else {
+					result = results.values().iterator().next().get();
 				}
-				result = (ResultCursor<DocumentAccessor>) comb;
 			}
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.error("runIterableDocumentTask; error getting result", ex);

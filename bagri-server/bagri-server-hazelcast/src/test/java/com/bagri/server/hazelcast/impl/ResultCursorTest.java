@@ -125,7 +125,7 @@ public class ResultCursorTest extends BagriManagementTest {
 		checkCursorResult(query, params, props, null);
 	}
 
-	@Test
+	//@Test
 	public void fetchSecuritiesTest() throws Exception {
 		storeSecurityTest();
 		final String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +

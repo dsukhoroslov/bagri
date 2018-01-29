@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import com.bagri.core.api.ResultCursor;
 
-public class CombinedCursorImpl<T> implements AutoCloseable, Iterable<T> {
+public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	
 	private int limit;
 	private int index = 0;
@@ -35,10 +35,30 @@ public class CombinedCursorImpl<T> implements AutoCloseable, Iterable<T> {
 	}
 
 	@Override
+	public boolean isAsynch() {
+		return true;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (ResultCursor<T> cursor: results) {
+			if (!cursor.isEmpty()) {
+				return false;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public Iterator<T> iterator() {
 		return new CombinedCursorIterator<T>();
 	}
 	
+	@Override
+	public int size() {
+		return UNKNOWN;
+	}
+
 	
 	private class CombinedCursorIterator<T> implements Iterator<T> {
 
@@ -71,6 +91,11 @@ public class CombinedCursorImpl<T> implements AutoCloseable, Iterable<T> {
 		public T next() {
 			index++;
 			return (T) curIter.next();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove() method not implemented");
 		}
 	
 	}

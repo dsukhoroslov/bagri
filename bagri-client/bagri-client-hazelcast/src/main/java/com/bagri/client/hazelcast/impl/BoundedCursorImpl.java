@@ -27,7 +27,7 @@ public class BoundedCursorImpl<T> extends QueuedCursorImpl<T> {
 	public BoundedCursorImpl(HazelcastInstance hzi, String queueName, int limit) {
 		super(hzi, queueName);
 		if (limit <= 0) {
-			throw new IllegalArgumentException("collection limit must be greated than 0");
+			throw new IllegalArgumentException("cursor limit must be greated than 0");
 		}
 		this.limit = limit;
 	}
@@ -44,15 +44,15 @@ public class BoundedCursorImpl<T> extends QueuedCursorImpl<T> {
 		return cli_BoundedCursor;
 	}
 
-	//@Override
-	//public boolean add(DocumentAccessor result) {
-	//	int size = queue.size();
-	//	if (size < limit) {
-	//		return queue.add(result);
-	//	}
-	//	logger.debug("add; queue {} is full: {}; limit: {}", queueName, size, limit);
-	//	return false;
-	//}
+	@Override
+	public boolean add(T result) {
+		int size = queue.size();
+		if (size < limit) {
+			return queue.add(result);
+		}
+		//logger.debug("add; queue {} is full: {}; limit: {}", queueName, size, limit);
+		return false;
+	}
 	
 	@Override
 	public Iterator<T> iterator() {

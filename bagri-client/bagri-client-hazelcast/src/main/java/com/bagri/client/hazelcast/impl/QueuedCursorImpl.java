@@ -38,7 +38,7 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 	
 	@Override
 	public void close() throws Exception {
-		logger.trace("close.enter; queue remaining size: {}", queue.size());
+		//logger.trace("close.enter; queue remaining size: {}", queue.size());
 		queue.clear();
 		//queue.destroy();
 	}
@@ -67,9 +67,9 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 	}
 
 	@Override
-	public List<T> getList() throws BagriException {
+	public List<T> getList() {
 		//return null;
-		throw new BagriException("Not implemented in queued cursor", BagriException.ecInOut);
+		throw new UnsupportedOperationException("Not implemented in queued cursor");
 	}
 	
 	@Override
@@ -135,6 +135,11 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 			return current;
 		}
 		
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove() method not implemented");
+		}
+	
 	}
 
 }

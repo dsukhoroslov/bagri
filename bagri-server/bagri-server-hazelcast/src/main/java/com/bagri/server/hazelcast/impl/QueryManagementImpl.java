@@ -81,8 +81,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	private static final String xqScrollForwardStr = String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY);
 	private static final String xqDefFetchSizeStr = "50";
 
-    private ExecutorService localPool = Executors.newFixedThreadPool(32);
-	
 	private SchemaRepositoryImpl repo;
 	private ModelManagement model;
     private IndexManagementImpl idxMgr;
@@ -101,6 +99,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	private BlockingQueue<StatisticsEvent> timeQueue;
 
 	private boolean cacheResults = true;
+
+	private ExecutorService execPool;
+
 	
 	private ThreadLocal<QueryExecContext> thContext = new ThreadLocal<QueryExecContext>() {
 		
@@ -147,6 +148,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     
     public void setCacheResults(boolean cacheResults) {
     	this.cacheResults = cacheResults;
+    }
+    
+    public void setExecPool(ExecutorService execSvc) {
+    	this.execPool = execSvc;
     }
     
 	public void setStopWatch(StopWatch stopWatch) {
@@ -252,12 +257,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		final List<Object> resList;
 		if (cursor != null) {
-			try {
-				resList = ((ResultCursorBase) cursor).getList();
-			} catch (BagriException ex) {
-				logger.error("addQueryResults.error", ex);
-				return;
-			}
+			resList = ((ResultCursorBase) cursor).getList();
 		} else {
 			resList = new ArrayList<>();
 		}
@@ -775,15 +775,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 	
-	private <T> ResultCursor<T> createCursor(final List<T> results, final Iterator<Object> iter, final Properties props) {
+	private <T> ResultCursor<T> createCursor(final List<T> results, final Iterator<T> iter, final Properties props) {
 
 		final ResultCursorBase<T> cursor = getResultCursor(props);
 		if (cursor.isAsynch()) {
-			localPool.execute(new Runnable() {
+			execPool.execute(new Runnable() {
 				@Override
 				public void run() {
 					//try {
-						fetchResults(results, props, cursor);
+					if (results == null) {
+						fetchResults(iter, props, cursor);
+					} else {
+						fetchResults(results.iterator(), props, cursor);
+					}
 					//} catch (BagriException ex) {
 					//	throw new RuntimeException(ex);
 					//}
@@ -791,20 +795,33 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			});
 		} else {
-			fetchResults(results, props, cursor);
+			if (results == null) {
+				fetchResults(iter, props, cursor);
+			} else {
+				fetchResults(results.iterator(), props, cursor);
+			}
 		}
 		
 		return cursor;
 	}
 	
-	private <T> void fetchResults(List<T> results, Properties props, ResultCursorBase<T> cursor) {
-		 for (T result: results) {
-			 cursor.add(result);
-		 }
+	private <T> void fetchResults(Iterator<T> results, Properties props, ResultCursorBase<T> cursor) {
+		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+		if (fetchSize > 0) {
+			int cnt = 0;
+			while (results.hasNext() && cnt < fetchSize) {
+				cursor.add(results.next());
+				cnt++;
+			}
+		} else {
+			while (results.hasNext()) {
+				cursor.add(results.next());
+			}
+		}
 	}
-	
-	private ResultCursorBase getResultCursor(Properties props) {
-		ResultCursorBase cursor;
+
+	private <T> ResultCursorBase<T> getResultCursor(Properties props) {
+		ResultCursorBase<T> cursor;
 
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		int scrollType = Integer.parseInt(props.getProperty(pn_xqj_scrollability, xqScrollForwardStr));
@@ -823,7 +840,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
 					cursor = new CompressingCursorImpl<>(repo, fetchSize);
 				} else {
-					cursor = new FixedCursorImpl<>(); //fetchSize);
+					cursor = new FixedCursorImpl<>(fetchSize);
 				}
 			}
 		}
