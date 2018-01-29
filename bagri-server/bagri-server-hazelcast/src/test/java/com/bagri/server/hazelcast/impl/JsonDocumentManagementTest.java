@@ -133,10 +133,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 				"where $pro('id') = $prod('product_id')\n" +
 				"return serialize(m:put(m:remove($ord, 'products'), 'product', m:put($pro, 'quantity', $prod('quantity'))), map{'method': 'json'})";
 				
-		ResultCursor docs = query(query, null, null);
-		assertNotNull(docs);
-		assertTrue(docs.next());
-		docs.close();
+		checkCursorResult(query, null, null, null);
 	}
 	
 	@Test
@@ -156,11 +153,7 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 				"where m:get($phone, 'type') = 'fax'\n" +
 				"return serialize($phone, map{'method': 'json'})";
 				
-		ResultCursor docs = query(query, null, null);
-		assertNotNull(docs);
-		assertTrue(docs.next());
-		//System.out.println(docs.getString());
-		docs.close();
+		checkCursorResult(query, null, null, null);
 	}
 
 }

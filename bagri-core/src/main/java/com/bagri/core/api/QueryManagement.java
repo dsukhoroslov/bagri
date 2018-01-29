@@ -1,7 +1,6 @@
 package com.bagri.core.api;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -21,7 +20,7 @@ public interface QueryManagement {
 	 * @return wrapping cursor over resulting data sequence 
 	 * @throws BagriException in case of any query processing error
 	 */
-	ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException;
+	<T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException;
 
 	/**
 	 * 
@@ -31,7 +30,7 @@ public interface QueryManagement {
 	 * @return collection of document uris found by query
 	 * @throws BagriException in case of any query processing error
 	 */
-	Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException;
+	ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException;
 	
 	/**
 	 * cancels currently executing query

@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.xquery.XQItemAccessor;
+
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
 import static org.junit.Assert.*;
@@ -92,16 +94,14 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				"let $props := entry('method', 'json')\n" +
 				"let $json := fn:serialize($map, $props)\n" +
 				"return fn:json-to-xml($json)";
-		ResultCursor docs = query(query, null, null);
-		assertNotNull(docs);
-		List<String> jsons = new ArrayList<>();
-		while (docs.next()) {
-			String json = docs.getString();
-			jsons.add(json);
-			//System.out.println(json);
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				cnt++;
+			}
+			assertEquals(3, cnt);
 		}
-		docs.close();
-		assertEquals(3, jsons.size());
 	}
 	
 	@Test
@@ -114,18 +114,14 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 		
 		Properties props = new Properties();
 		//props.setProperty("method", "json");
-		ResultCursor docs = query(query, null, props);
-		assertNotNull(docs);
-		props = new Properties();
-		//props.setProperty("method", "json");
-		List<String> jsons = new ArrayList<>();
-		while (docs.next()) {
-			String json = docs.getString();
-			jsons.add(json);
-			//System.out.println(json);
+		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				cnt++;
+			}
+			assertEquals(3, cnt);
 		}
-		docs.close();
-		assertEquals(3, jsons.size());
 	}
 
 	@Test
@@ -135,17 +131,14 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				"let $v := get($map, 'Security')\n" +
 				"where get($v, 'Symbol') = 'IBM'\n" +
 				"return $v?('Symbol', 'Name')";
-		ResultCursor docs = query(query, null, null);
-		assertNotNull(docs);
-		Properties props = new Properties();
-		props.setProperty("method", "text");
-		List<String> results = new ArrayList<>();
-		while (docs.next()) {
-			String text = docs.getString();
-			results.add(text);
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				cnt++;
+			}
+			assertEquals(2, cnt);
 		}
-		docs.close();
-		assertEquals(2, results.size());
 	}
 	
 	@Test
@@ -163,16 +156,13 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				"return fn:serialize($map, map{'method': 'json'})";
 		
 		Properties props = new Properties();
-		//props.setProperty("method", "json");
-		ResultCursor docs = query(query, null, props);
-		assertNotNull(docs);
-		List<String> jsons = new ArrayList<>();
-		while (docs.next()) {
-			String json = docs.getString();
-			jsons.add(json);
-			//System.out.println(json);
+		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				cnt++;
+			}
+			assertEquals(1, cnt);
 		}
-		docs.close();
-		assertEquals(1, jsons.size());
 	}
 }

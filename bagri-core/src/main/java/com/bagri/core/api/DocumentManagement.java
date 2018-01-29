@@ -29,7 +29,7 @@ public interface DocumentManagement {
 	 * @return Iterable over the contents of matched documents
 	 * @throws BagriException in case of any error
 	 */
-	Iterable<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException;
+	ResultCursor<DocumentAccessor> getDocuments(String pattern, Properties props) throws BagriException;
 	
 	/**
 	 * Creates a new Document or overrides an existing one in Repository
@@ -52,7 +52,7 @@ public interface DocumentManagement {
 	 * @return Iterable over stored documents
 	 * @throws BagriException in case of any error
 	 */
-	<T> Iterable<DocumentAccessor> storeDocuments(Map<String, T> documents, Properties props) throws BagriException;
+	<T> ResultCursor<DocumentAccessor> storeDocuments(Map<String, T> documents, Properties props) throws BagriException;
 	
 	/**
 	 * removes Document from Repository
@@ -72,7 +72,7 @@ public interface DocumentManagement {
 	 * @return Iterable over removed documents
 	 * @throws BagriException in case of any error
 	 */
-	Iterable<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException;
+	ResultCursor<DocumentAccessor> removeDocuments(String pattern, Properties props) throws BagriException;
 	
 	/**
 	 * return Collection names registered in Repository

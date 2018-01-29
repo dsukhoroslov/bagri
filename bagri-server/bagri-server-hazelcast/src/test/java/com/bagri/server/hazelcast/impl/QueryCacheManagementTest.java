@@ -84,10 +84,7 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 		params.put("sym", "VFINX");
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
-		ResultCursor rc = query(query, params, props);
-		assertNotNull(rc);
-		assertTrue(rc.next());
-		rc.close();
+		checkCursorResult(query, params, props, null);
 		Thread.currentThread().sleep(1000);
 		
 		// here we must have 1 result cached
@@ -133,10 +130,7 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 		
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
-		ResultCursor rc = query(query, params, props);
-		assertNotNull(rc);
-		assertTrue(rc.next());
-		rc.close();
+		checkCursorResult(query, params, props, null);
 		Thread.currentThread().sleep(1000);
 		
 		// here we must have 1 result cached

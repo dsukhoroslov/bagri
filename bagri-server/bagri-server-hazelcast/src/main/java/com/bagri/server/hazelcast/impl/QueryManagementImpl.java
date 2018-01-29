@@ -1,7 +1,9 @@
 package com.bagri.server.hazelcast.impl;
 
+import static com.bagri.core.Constants.pn_client_fetchAsynch;
 import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_client_id;
+import static com.bagri.core.Constants.pn_document_compress;
 import static com.bagri.core.Constants.pn_query_command;
 import static com.bagri.core.Constants.pn_xqj_scrollability;
 import static com.bagri.core.Constants.pn_schema_fetch_size;
@@ -20,6 +22,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
@@ -29,12 +33,15 @@ import javax.xml.xquery.XQItemType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bagri.client.hazelcast.impl.BoundedCursorImpl;
+import com.bagri.client.hazelcast.impl.CompressingCursorImpl;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.api.impl.ResultCursorBase;
 import com.bagri.core.model.Document;
@@ -73,6 +80,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private static final String xqScrollForwardStr = String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY);
 	private static final String xqDefFetchSizeStr = "50";
+
+    private ExecutorService localPool = Executors.newFixedThreadPool(32);
 	
 	private SchemaRepositoryImpl repo;
 	private ModelManagement model;
@@ -244,7 +253,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		final List<Object> resList;
 		if (cursor != null) {
 			try {
-				resList = cursor.getList();
+				resList = ((ResultCursorBase) cursor).getList();
 			} catch (BagriException ex) {
 				logger.error("addQueryResults.error", ex);
 				return;
@@ -260,7 +269,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//	public void run() {
 				long qpKey = getResultsKey(query, params);
 				if (cursor != null) {
-					if (!cursor.isFixed()) {
+					if (cursor.isAsynch()) {
 						CollectionUtils.copyIterator(results, resList);
 					}
 				} else {
@@ -603,16 +612,16 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
-	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
+	public ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; query: {}, params: {}; properties: {}", query, params, props);
-		Collection<String> result = null;
+		ResultCursor<String> result = null;
 		int qKey = 0;
 		if (cacheResults) {
 			qKey = getQueryKey(query);
 			if (xqCache.containsKey(qKey)) {
 				Map<Long, String> keys = getQueryUris(query, params, props);
 				if (keys != null) {
-					result = keys.values();
+					result = new FixedCursorImpl<String>(new ArrayList<>(keys.values()));
 				}
 			}
 		}
@@ -622,7 +631,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
-				result = thContext.get().getDocKeys().values();
+				result = new FixedCursorImpl<String>(new ArrayList<>(thContext.get().getDocKeys().values()));
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
@@ -662,7 +671,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
+	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		List<Object> resList = null;
@@ -766,63 +775,61 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 	
-	private ResultCursor createCursor(List<Object> results, Iterator<Object> iter, Properties props) {
-		int count = 0;
-		final ResultCursorBase xqCursor;
+	private <T> ResultCursor<T> createCursor(final List<T> results, final Iterator<Object> iter, final Properties props) {
 
-		int batchSize = 0;
-		boolean fixed = true;
+		final ResultCursorBase<T> cursor = getResultCursor(props);
+		if (cursor.isAsynch()) {
+			localPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					//try {
+						fetchResults(results, props, cursor);
+					//} catch (BagriException ex) {
+					//	throw new RuntimeException(ex);
+					//}
+					cursor.finish();
+				}
+			});
+		} else {
+			fetchResults(results, props, cursor);
+		}
+		
+		return cursor;
+	}
+	
+	private <T> void fetchResults(List<T> results, Properties props, ResultCursorBase<T> cursor) {
+		 for (T result: results) {
+			 cursor.add(result);
+		 }
+	}
+	
+	private ResultCursorBase getResultCursor(Properties props) {
+		ResultCursorBase cursor;
+
+		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		int scrollType = Integer.parseInt(props.getProperty(pn_xqj_scrollability, xqScrollForwardStr));
 		if (scrollType == XQConstants.SCROLLTYPE_SCROLLABLE) {
-			if (results == null) {
-				results = CollectionUtils.copyIterator(iter);
-			}
+			cursor = new FixedCursorImpl<>(fetchSize);
 		} else {
-			String fetchSize = props.getProperty(pn_client_fetchSize);
-			// not set -> use default BS
-			if (fetchSize == null) {
-				fetchSize = repo.getSchema().getProperty(pn_schema_fetch_size);
-				if (fetchSize == null) {
-					fetchSize = xqDefFetchSizeStr;
+			if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
+				String clientId = props.getProperty(pn_client_id);
+				String queueName = "client:" + clientId;
+				if (repo.getHzInstance().getCluster().getMembers().size() > 1) {
+					cursor = new BoundedCursorImpl<>(repo.getHzInstance(), queueName, fetchSize);
+				} else {
+					cursor = new QueuedCursorImpl<>(repo.getHzInstance(), queueName);
+				}
+			} else {
+				if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
+					cursor = new CompressingCursorImpl<>(repo, fetchSize);
+				} else {
+					cursor = new FixedCursorImpl<>(); //fetchSize);
 				}
 			}
-			batchSize = Integer.parseInt(fetchSize);
-			// fetch BS results.
-			if (results == null) {
-				results = CollectionUtils.copyIterator(iter, batchSize);
-			}
-			// if RS < BS -> put them to FixedCursor
-			// else -> serialize them in QueuedCursor
-			//if (results.size() < batchSize) {
-			//	fixed = true;
-			//} else {
-			//	fixed = iter.hasNext();
-			//}
-			fixed = results.size() <= batchSize;
 		}
-
-		if (fixed) {
-			xqCursor = new FixedCursorImpl(results);
-			count = results.size();
-		} else {
-			int size = QueuedCursorImpl.UNKNOWN;
-			if (iter != null && iter instanceof XQIterator) {
-				size = ((XQIterator) iter).getFullSize();
-			}
-			String clientId = props.getProperty(pn_client_id);
-			// we do not close cursors on the server side
-			@SuppressWarnings("resource")
-			QueuedCursorImpl qc = new QueuedCursorImpl(results, clientId, batchSize, size, iter);
-			count = qc.serialize(repo.getHzInstance());
-			xqCursor = qc;
-		}
-		if (count > batchSize) {
-			logger.info("createCursor.exit; requested: {}; serialized: {}; results: {}", batchSize, count, results);
-		} else {
-			logger.trace("createCursor.exit; requested: {}; serialized: {} results", batchSize, count);
-		}
-		return xqCursor;
+		return cursor;
 	}
+
 	
 	private class QueryExecContext {
 		

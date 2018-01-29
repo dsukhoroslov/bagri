@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
-import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.ResultCursor;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -65,14 +65,11 @@ public class GetDocumentUris extends DocumentFunctionExtension {
 					props = new Properties();
 				}
 				props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
-				try {
-					ResultCollection uris = (ResultCollection) xdm.getDocuments(pattern, props);
-					List<AtomicValue> result = new ArrayList<>(uris.size());
-					Iterator<DocumentAccessor> it = uris.iterator();
-					while (it.hasNext()) {
-						result.add(new StringValue(it.next().getUri()));
+				try (ResultCursor<DocumentAccessor> uris = xdm.getDocuments(pattern, props)) {
+					List<AtomicValue> result = new ArrayList<>(); //uris.size());
+					for (DocumentAccessor da: uris) {
+						result.add(new StringValue(da.getUri()));
 					}
-					uris.close();
 					return new AtomicArray(result);
 				} catch (Exception ex) {
 					throw new XPathException(ex);

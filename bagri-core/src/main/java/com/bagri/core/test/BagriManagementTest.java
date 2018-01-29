@@ -2,13 +2,20 @@ package com.bagri.core.test;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.FileUtils.readTextFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.QueryManagement;
@@ -65,14 +72,37 @@ public abstract class BagriManagementTest {
 		return schema;
 	}
 	
-	protected ResultCursor query(String query, Map<String, Object> params, Properties props) throws Exception {
+	protected ResultCursor<XQItemAccessor> query(String query, Map<String, Object> params, Properties props) throws Exception {
 		if (props == null) {
 			props = getDocumentProperties();
 			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 		}
-		ResultCursor result = getQueryManagement().executeQuery(query, params, props);
+		ResultCursor<XQItemAccessor> result = getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(result);
 		return result;
+	}
+
+	protected void checkCursorResult(ResultCursor<XQItemAccessor> results, String expected) throws Exception {
+		try {
+			Iterator<XQItemAccessor> iter = results.iterator();
+			assertTrue(iter.hasNext());
+			if (expected == null) {
+				assertNotNull(iter.next().getObject());
+			} else {
+				Properties props = new Properties();
+				props.setProperty("method", "text");
+				XQItem item = (XQItem) iter.next();
+				assertEquals(expected, item.getItemAsString(props));
+			}
+			assertFalse(iter.hasNext());
+		} finally {
+			results.close();
+		}
+	}
+	
+	protected void checkCursorResult(String query, Map<String, Object> params, Properties props, String expected) throws Exception {
+		ResultCursor<XQItemAccessor> results = query(query, params, props);
+		checkCursorResult(results, expected);
 	}
 
 	protected void removeDocumentsTest() throws Exception {

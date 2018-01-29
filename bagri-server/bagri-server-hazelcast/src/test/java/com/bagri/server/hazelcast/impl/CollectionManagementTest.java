@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.ResultCursor;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
@@ -85,35 +85,35 @@ public class CollectionManagementTest extends BagriManagementTest {
 	
 	@Test
 	public void addDefaultCollectionDocumentsTest() throws Exception {
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments(null, props);
-		assertEquals(0, ids.size());
+		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
+		assertTrue(docs.isEmpty());
 		//props.setProperty(xdm_document_collections, "CLN_Security");
 		storeSecurityTest();
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(4, ids.size());
-		//int cnt = 0;
-		//for (String id: ids) {
-		//	if (ids.contains(id)) {
-		//		cnt++;
-		//	}
-		//}
-		//assertEquals(4, cnt);
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
+		assertEquals(4, docs.size());
+		int cnt = 0;
+		for (DocumentAccessor doc: docs) {
+			if (uris.contains(doc.getUri())) {
+				cnt++;
+			}
+		}
+		assertEquals(4, cnt);
 	}
 
 	@Test
 	public void addCustomCollectionDocumentsTest() throws Exception {
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments(null, props);
-		assertEquals(0, ids.size());
+		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
+		assertTrue(docs.isEmpty());
 		props.setProperty(pn_document_collections, "CLN_Custom");
 		assertEquals(0, uris.size());
 		storeSecurityTest();
 		assertEquals(4, uris.size());
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(0, ids.size());
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(4, ids.size());
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
+		assertTrue(docs.isEmpty());
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
+		assertEquals(4, docs.size());
 		int cnt = 0;
-		for (DocumentAccessor doc: ids) {
+		for (DocumentAccessor doc: docs) {
 			if (uris.contains(doc.getUri())) {
 				cnt++;
 			}
@@ -123,14 +123,14 @@ public class CollectionManagementTest extends BagriManagementTest {
 
 	@Test
 	public void getCollectionDocumentsTest() throws Exception {
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments(null, props);
-		assertEquals(0, ids.size());
+		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
+		assertTrue(docs.isEmpty());
 		props.setProperty(pn_document_collections, "CLN_Security");
 		storeSecurityTest();
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(4, ids.size());
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
+		assertEquals(4, docs.size());
 		int cnt = 0;
-		for (DocumentAccessor doc: ids) {
+		for (DocumentAccessor doc: docs) {
 			if (uris.contains(doc.getUri())) {
 				cnt++;
 			}
@@ -141,34 +141,34 @@ public class CollectionManagementTest extends BagriManagementTest {
 	@Test
 	public void limitCollectionDocumentsTest() throws Exception {
 		addDocumentsToCollectionTest();
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(4, ids.size());
+		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
+		assertEquals(4, docs.size());
 		props.setProperty(pn_client_fetchSize, "2");
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(2, ids.size());
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
+		assertEquals(2, docs.size());
 	}
 
 	@Test
 	public void addDocumentsToCollectionTest() throws Exception {
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments(null, props);
-		assertEquals(0, ids.size());
+		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
+		assertTrue(docs.isEmpty());
 		assertEquals(0, uris.size());
 		storeSecurityTest();
 		assertEquals(4, uris.size());
 		// docs in default collection
-		ids = (ResultCollection) this.getDocManagement().getDocuments(null, props);
-		assertEquals(4, ids.size());
+		docs = this.getDocManagement().getDocuments(null, props);
+		assertEquals(4, docs.size());
 		// the docs are already in CLN_Security collection 
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(4, ids.size());
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
+		assertEquals(4, docs.size());
 
 		for (String uri: uris) {
 			this.getDocManagement().addDocumentToCollections(uri, new String[] {"CLN_Custom"});
 		}
-		ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(4, ids.size());
+		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
+		assertEquals(4, docs.size());
 		int cnt = 0;
-		for (DocumentAccessor doc: ids) {
+		for (DocumentAccessor doc: docs) {
 			if (uris.contains(doc.getUri())) {
 				cnt++;
 			}
@@ -182,8 +182,8 @@ public class CollectionManagementTest extends BagriManagementTest {
 		for (String uri: uris) {
 			this.getDocManagement().removeDocumentFromCollections(uri, new String[] {"CLN_Custom"});
 		}
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(0, ids.size());
+		ResultCursor<DocumentAccessor> ids = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
+		assertTrue(ids.isEmpty());
 	}
 
 	@Test
@@ -200,8 +200,8 @@ public class CollectionManagementTest extends BagriManagementTest {
 		}
 		assertEquals(4, cnt);
 		
-		ResultCollection ids = (ResultCollection) this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(0, ids.size());
+		ResultCursor<DocumentAccessor> ids = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
+		assertTrue(ids.isEmpty());
 	}
 
 

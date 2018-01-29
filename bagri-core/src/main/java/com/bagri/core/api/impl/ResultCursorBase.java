@@ -2,6 +2,7 @@ package com.bagri.core.api.impl;
 
 import static com.bagri.support.util.XQUtils.mapFromSequence;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,7 +23,7 @@ import com.bagri.core.api.BagriException;
  * @author Denis Sukhoroslov
  *
  */
-public abstract class ResultCursorBase implements ResultCursor {
+public abstract class ResultCursorBase<T> implements ResultCursor<T> {
 
     protected Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -33,182 +34,10 @@ public abstract class ResultCursorBase implements ResultCursor {
 	
 	protected int position;
 
-	protected abstract Object getCurrent();
-	
-	private XQItemAccessor checkCurrent() throws BagriException {
-		Object current = getCurrent();
-		if (current == null) {
-			throw new BagriException("no current item", BagriException.ecQuery);
-		}
-		return (XQItemAccessor) current; 
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean getBoolean() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getBoolean();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public byte getByte() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getByte();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public double getDouble() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getDouble();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public float getFloat() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getFloat();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getInt() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getInt();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public long getLong() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getLong();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Map<String, Object> getMap() throws BagriException {
-		XQSequence cs = (XQSequence) checkCurrent();
-		try {
-			logger.trace("getMap.enter; sequence: {}", cs);
-			Map<String, Object> result = mapFromSequence(cs);
-			logger.trace("getMap.exit; result: {}", result); 
-        	return result;
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Node getNode() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getNode();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Object getObject() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getObject();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public short getShort() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getShort();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getString() throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getAtomicValue();
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public XQItemAccessor getXQItem() throws BagriException {
-		return checkCurrent();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getItemAsString(Properties props) throws BagriException {
-		XQItemAccessor ci = checkCurrent();
-		try {
-			return ci.getItemAsString(props);
-		} catch (XQException ex) {
-			throw new BagriException(ex, BagriException.ecQuery);
-		}
-	}
+	public abstract List<T> getList() throws BagriException;
 
+	public abstract boolean add(T result);
+	
+	public abstract void finish();
 	
 }

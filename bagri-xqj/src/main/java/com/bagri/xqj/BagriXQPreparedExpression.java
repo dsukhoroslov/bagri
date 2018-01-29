@@ -20,6 +20,7 @@ import javax.xml.xquery.XQSequenceType;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.impl.ResultCursorBase;
 import com.bagri.core.api.BagriException;
 
 import static javax.xml.xquery.XQSequenceType.*;
@@ -80,11 +81,11 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	public XQResultSequence executeQuery() throws XQException {
 
 		checkState(ex_expression_closed);
-		ResultCursor result = connection.executeQuery(xquery, context);
+		ResultCursor<XQItemAccessor> result = connection.executeQuery(xquery, context);
 		XQResultSequence sequence;
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			try {
-				sequence = new ScrollableXQResultSequence(this, result.getList());
+				sequence = new ScrollableXQResultSequence(this, ((ResultCursorBase<XQItemAccessor>) result).getList());
 			} catch (BagriException ex) {
 				throw getXQException(ex); 
 			}

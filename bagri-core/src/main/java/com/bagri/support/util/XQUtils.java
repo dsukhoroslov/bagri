@@ -767,30 +767,6 @@ public class XQUtils {
 		}
 	}
 	
-	public static Map<String, Object> sequenceToMap(XQSequence sequence) throws XQException {
-		Map<String, Object> result;
-		synchronized (sequence) {
-			if (sequence.isScrollable()) {
-				result = new HashMap<>(sequence.count());
-				sequence.beforeFirst();
-			} else {
-				result = new HashMap<>();
-			}
-			while (sequence.next()) {
-				XQSequence pair = (XQSequence) sequence.getObject();
-				pair.beforeFirst();
-				if (pair.next()) {
-					String key = pair.getAtomicValue();
-					if (pair.next()) {
-						Object value = pair.getObject();
-						result.put(key, value);
-					}
-				}
-			}
-		}
-       	return result;
-	}
-	
 	public static XQSequence mapToSequence(XQDataFactory factory, Map<String, Object> map) throws XQException {
 
     	List<XQSequence> pairs = new ArrayList<>(); 

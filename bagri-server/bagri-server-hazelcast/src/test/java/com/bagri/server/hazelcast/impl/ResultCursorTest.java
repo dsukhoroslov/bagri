@@ -19,11 +19,16 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.xquery.XQItemAccessor;
+import javax.xml.xquery.XQSequence;
+
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
+import static com.bagri.support.util.XQUtils.mapFromSequence;
 import static org.junit.Assert.*;
 
 public class ResultCursorTest extends BagriManagementTest {
@@ -100,11 +105,7 @@ public class ResultCursorTest extends BagriManagementTest {
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
 		//props.setProperty(pn_client_id, "dummy");
-		try (ResultCursor rc = query(query, params, props)) {
-			assertTrue(rc.next());
-			assertNotNull(rc.getObject());
-			assertFalse(rc.next());
-		}
+		checkCursorResult(query, params, props, null);
 	}
 
 	@Test
@@ -121,11 +122,7 @@ public class ResultCursorTest extends BagriManagementTest {
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "1");
 		//props.setProperty(pn_client_id, "dummy");
-		try (ResultCursor rc = query(query, params, props)) {
-			assertTrue(rc.next());
-			assertNotNull(rc.getObject());
-			assertFalse(rc.next());
-		}
+		checkCursorResult(query, params, props, null);
 	}
 
 	@Test
@@ -147,10 +144,8 @@ public class ResultCursorTest extends BagriManagementTest {
 				Properties props = getDocumentProperties();
 				props.setProperty(pn_client_fetchSize, "1");
 				//props.setProperty(pn_client_id, "thread1");
-				try (ResultCursor rc = query(query, params, props)) {
-					assertTrue(rc.next());
-					assertNotNull(rc.getObject());
-					assertFalse(rc.next());
+				try {
+					checkCursorResult(query, params, props, null);
 				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
 				}
@@ -166,10 +161,8 @@ public class ResultCursorTest extends BagriManagementTest {
 				Properties props = getDocumentProperties();
 				props.setProperty(pn_client_fetchSize, "1");
 				//props.setProperty(pn_client_id, "thread2");
-				try (ResultCursor rc = query(query, params, props)) {
-					assertTrue(rc.next());
-					assertNotNull(rc.getObject());
-					assertFalse(rc.next());
+				try {
+					checkCursorResult(query, params, props, null);
 				} catch (Exception ex) {
 					assertTrue(ex.getMessage(), false);
 				}
@@ -201,15 +194,16 @@ public class ResultCursorTest extends BagriManagementTest {
 				"where m:get($doc, '@intProp') = 10\n" +
 				"return $doc";
 
-		try (ResultCursor results = query(query, null, null)) {
-			assertTrue(results.next());
-			Map<String, Object> doc = results.getMap();
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			Map<String, Object> doc = mapFromSequence((XQSequence) itr.next());
 			assertNotNull(doc);
 			//System.out.println(doc);
 			assertEquals(10, doc.get("intProp"));
 			assertEquals(true, doc.get("boolProp"));
 			assertEquals("ABC", doc.get("strProp"));
-			assertFalse(results.next());
+			assertFalse(itr.hasNext());
 		}
 	}
 	
@@ -241,13 +235,13 @@ public class ResultCursorTest extends BagriManagementTest {
 		props.setProperty(pn_client_fetchSize, "5");
 		Map<String, Object> params = new HashMap<>();
 		//params.put("value", 1);
-		try (ResultCursor results = query(query, params, props)) {
-			for (int i=0; i < 5; i++) {
-				assertTrue(results.next());
-				String text = results.getString();
-				assertNotNull(text);
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				assertNotNull(item.getAtomicValue());
+				cnt++;
 			}
-			assertFalse(results.next());
+			assertEquals(5, cnt);
 		}
 	}
 	

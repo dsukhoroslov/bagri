@@ -1,6 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
+import static com.bagri.core.api.BagriException.ecDocument;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_QUERY;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
@@ -23,6 +24,7 @@ import com.bagri.client.hazelcast.task.query.QueryProcessor;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.model.Query;
 import com.bagri.core.model.QueryResult;
@@ -86,7 +88,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Collection<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
+	public ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("getDocumentUris.enter; query: {}", query);
 		props = checkQueryProperties(props);
@@ -100,20 +102,21 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("getDocumentUris; got cached results: {}", res);
-				return res.getDocUris();
+				return new FixedCursorImpl(res.getResults());
 			}
 		}
 		
 		QueryUrisProvider task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		Future<Collection<String>> future = execService.submit(task);
+		// check props, submit query to members accordingly..
+		Future<ResultCursor<String>> future = execService.submit(task);
 		execution = future;
-		Collection<String> result = getResults(future, 0);
+		ResultCursor<String> result = getResults(future, 0);
 		logger.trace("getDocumentUris.exit; returning: {}", result);
 		return result;
 	}
 	
 	@Override
-	public ResultCursor executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
+	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
 		props = checkQueryProperties(props);
@@ -180,8 +183,24 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//}
 		ResultCursor cursor = getResults(future, timeout);
 		logger.trace("execXQuery; got cursor: {}", cursor);
+		
+		//if (asynch) {
+		//	ResultCursor<DocumentAccessor> cln;
+		//	cln = results.values().iterator().next().get();
+		//	((QueuedCursorImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
+		//	result = cln;
+		//} else {
+		//	int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+		//	CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(fSize);
+		//	for (Map.Entry<Member, Future<ResultCursor<DocumentAccessor>>> entry: results.entrySet()) {
+		//		ResultCursor<DocumentAccessor> cln = entry.getValue().get();
+		//		comb.addResults(cln);
+		//	}
+		//	result = (ResultCursor<DocumentAccessor>) comb;
+		//}
+		
 		if (cursor instanceof QueuedCursorImpl) {
-			((QueuedCursorImpl) cursor).deserialize(repo.getHazelcastClient());
+			((QueuedCursorImpl<DocumentAccessor>) cursor).init(repo.getHazelcastClient());
 		}
 		logger.trace("executeQuery.exit; returning: {}", cursor);
 		return cursor; 

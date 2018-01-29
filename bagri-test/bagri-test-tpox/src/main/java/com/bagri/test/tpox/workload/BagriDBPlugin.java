@@ -12,6 +12,7 @@ import java.util.Properties;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQDataSource;
 import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItemAccessor;
 
 import net.sf.tpox.databaseoperations.DatabaseOperations;
 import net.sf.tpox.workload.parameter.ActualParamInfo;
@@ -191,15 +192,20 @@ public class BagriDBPlugin extends BagriTPoXPlugin {
 		return logger;
 	}
 	
-	private Collection<String> toCollection(ResultCursor cursor) throws BagriException {
+	private Collection<String> toCollection(ResultCursor<XQItemAccessor> cursor) throws BagriException {
 		if (cursor == null) {
 			return null;
 		}
-		List<String> result = new ArrayList<>();
-		while (cursor.next()) {
-			result.add(cursor.getString());
+		
+		try {
+			List<String> result = new ArrayList<>();
+			for (XQItemAccessor item: cursor) {
+				result.add(item.getAtomicValue());
+			}
+			return result;
+		} catch (XQException ex) {
+			throw new BagriException(ex, BagriException.ecQuery);
 		}
-		return result;
 	}
 
 	private static class TPoXQueryManagerTest extends ClientQueryManagementTest {

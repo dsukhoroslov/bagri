@@ -2,7 +2,6 @@ package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.model.Document;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
@@ -16,8 +15,11 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -180,15 +182,7 @@ public class BindDocumentManagementTest extends BagriManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("value", 1);
-		try (ResultCursor results = query(query, params, null)) {
-			assertTrue(results.next());
-			Properties props = new Properties();
-			props.setProperty("method", "text");
-			XQItem item = (XQItem) results.getXQItem();
-			String text = item.getItemAsString(props);
-			assertEquals("XYZ", text);
-			assertFalse(results.next());
-		}
+		checkCursorResult(query, params, null, "XYZ");
 	}
 		
 }

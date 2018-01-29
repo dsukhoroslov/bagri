@@ -7,6 +7,7 @@ import static com.bagri.xqj.BagriXQErrors.ex_sequence_not_scrollable;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
+import java.util.Iterator;
 import java.util.Properties;
 
 import javax.xml.stream.XMLStreamReader;
@@ -24,12 +25,14 @@ import com.bagri.core.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
 	
-	private ResultCursor cursor;
+	private ResultCursor<XQItemAccessor> cursor;
+	private Iterator<XQItemAccessor> iter;
 	private boolean accessed;
 	
-	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, ResultCursor cursor) {
+	IterableXQSequence(BagriXQDataFactory xqFactory, XQProcessor  xqProcessor, ResultCursor<XQItemAccessor> cursor) {
 		super(xqFactory, xqProcessor);
 		this.cursor = cursor;
+		this.iter = cursor.iterator();
 		accessed = false;
 	}
 	
@@ -282,9 +285,9 @@ public class IterableXQSequence extends BagriXQSequence {
 	public boolean next() throws XQException {
 		
 		checkState(ex_sequence_closed);
-		try {
-			if (cursor.next()) {
-				XQItemAccessor current = cursor.getXQItem();
+		//try {
+			if (iter.hasNext()) {
+				XQItemAccessor current = iter.next();
 				//if (current instanceof BagriXQItemAccessor) {
 					setCurrent(((BagriXQItemAccessor) current).type, ((BagriXQItemAccessor) current).value);
 				//} else if (current instanceof XQItem) {
@@ -297,9 +300,9 @@ public class IterableXQSequence extends BagriXQSequence {
 			}
 			positioned = false;
 			return false;
-		} catch (BagriException ex) {
-			throw getXQException(ex);
-		}
+		//} catch (BagriException ex) {
+		//	throw getXQException(ex);
+		//}
 	}
 
 	@Override

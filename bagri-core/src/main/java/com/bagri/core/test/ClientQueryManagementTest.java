@@ -1,15 +1,15 @@
 package com.bagri.core.test;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
+
+import javax.xml.xquery.XQItemAccessor;
 
 import com.bagri.core.api.ResultCursor;
 
 public abstract class ClientQueryManagementTest extends BagriManagementTest {
 
-	public ResultCursor getPrice(String symbol) throws Exception {
+	public ResultCursor<XQItemAccessor> getPrice(String symbol) throws Exception {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" +
@@ -22,7 +22,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor getSecurity(String symbol) throws Exception {
+	public ResultCursor<XQItemAccessor> getSecurity(String symbol) throws Exception {
 		
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sym external;\n" + 
@@ -34,7 +34,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor getOrder(String id) throws Exception {
+	public ResultCursor<XQItemAccessor> getOrder(String id) throws Exception {
 		
 		String query = "declare namespace o=\"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare variable $ID external;\n" +
@@ -46,7 +46,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor getCustomer(String id) throws Exception {
+	public ResultCursor<XQItemAccessor> getCustomer(String id) throws Exception {
 		
 		String query = "declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
@@ -58,7 +58,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor getCustomerProfile(String id) throws Exception {
+	public ResultCursor<XQItemAccessor> getCustomerProfile(String id) throws Exception {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
@@ -79,7 +79,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor getCustomerAccounts(String id) throws Exception {
+	public ResultCursor<XQItemAccessor> getCustomerAccounts(String id) throws Exception {
 		
 		String query = "declare default element namespace \"http://tpox-benchmark.com/custacc\";\n" +
 				"declare variable $id external;\n" +
@@ -105,7 +105,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
+	public ResultCursor<XQItemAccessor> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
 
 		String query = "declare default element namespace \"http://tpox-benchmark.com/security\";\n" +
 				"declare variable $sect external;\n" + 
@@ -130,7 +130,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 	
-	public ResultCursor getTodayOrderPrice(String ID) throws Exception {
+	public ResultCursor<XQItemAccessor> getTodayOrderPrice(String ID) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
@@ -146,7 +146,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 
-	public ResultCursor getOrderCustomers(float cash, String country) throws Exception {
+	public ResultCursor<XQItemAccessor> getOrderCustomers(float cash, String country) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
@@ -162,7 +162,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 
-	public ResultCursor getCustomerByAddress(int postalCode, int orderSide, boolean isPrimary) throws Exception {
+	public ResultCursor<XQItemAccessor> getCustomerByAddress(int postalCode, int orderSide, boolean isPrimary) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
@@ -184,7 +184,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
 	}
 
 	
-	public ResultCursor getMaxOrderPrice(int id) throws Exception {
+	public ResultCursor<XQItemAccessor> getMaxOrderPrice(int id) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +
@@ -199,7 +199,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 
-	public ResultCursor getMaxOrderForIndustry(String industry, String state) throws Exception {
+	public ResultCursor<XQItemAccessor> getMaxOrderForIndustry(String industry, String state) throws Exception {
 
 		String query = "declare default element namespace \"http://www.fixprotocol.org/FIXML-4-4\";\n" +
 				"declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
@@ -218,7 +218,7 @@ public abstract class ClientQueryManagementTest extends BagriManagementTest {
    		return query(query, params, null);
 	}
 
-	public ResultCursor getCustomerSecurities(int id) throws Exception {
+	public ResultCursor<XQItemAccessor> getCustomerSecurities(int id) throws Exception {
 
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
 				"declare namespace c=\"http://tpox-benchmark.com/custacc\";\n" +

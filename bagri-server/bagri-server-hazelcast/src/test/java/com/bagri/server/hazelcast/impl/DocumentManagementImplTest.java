@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.DocumentKey;
-import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.server.api.CacheConstants.*;
@@ -106,10 +105,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 					"    {$ord/products/product/quantity}\n" +
 					"</order>";
 
-		ResultCursor docs = query(query, null, null);
-		assertNotNull(docs);
-		assertTrue(docs.next());
-		docs.close();
+		checkCursorResult(query, null, null, null);
 	}
 
 	@Test
@@ -118,11 +114,11 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
 		Properties props = getDocumentProperties();
-		ResultCollection uris = (ResultCollection) dMgr.getDocuments("uri like security%, txFinish = 0", props);
-		assertEquals(4, uris.size());
-		uris = (ResultCollection) dMgr.getDocuments("uri like order%, txFinish = 0", props);
-		assertEquals(2, uris.size());
-		uris = (ResultCollection) dMgr.getDocuments("createdBy = guest, txFinish = 0", props);
+		ResultCursor<DocumentAccessor> docs = dMgr.getDocuments("uri like security%, txFinish = 0", props);
+		assertEquals(4, docs.size());
+		docs = dMgr.getDocuments("uri like order%, txFinish = 0", props);
+		assertEquals(2, docs.size());
+		docs = dMgr.getDocuments("createdBy = guest, txFinish = 0", props);
 		assertEquals(6, uris.size());
 	}
 	
@@ -135,7 +131,7 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		docs.put("security29674.xml", readTextFile(sampleRoot + "security29674.xml"));
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_txLevel, pv_client_txLevel_skip);
-		ResultCollection results = (ResultCollection) getDocManagement().storeDocuments(docs, props);
+		ResultCursor<DocumentAccessor> results = getDocManagement().storeDocuments(docs, props);
 		assertEquals(4, results.size());
 	}
 	

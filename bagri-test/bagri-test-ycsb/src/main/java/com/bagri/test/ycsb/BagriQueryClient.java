@@ -81,11 +81,11 @@ public class BagriQueryClient extends BagriClientBase {
 		params.put("content", content);
 		params.put("props", insertProps);
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, queryProps)) {
-			if (cursor.next()) {
-				return Status.OK;
-			} else {
+			if (cursor.isEmpty()) {
 				logger.debug("insert; document was not created for some reason; key: {}", key);
 				return Status.UNEXPECTED_STATE;
+			} else {
+				return Status.OK;
 			}
 		} catch (Exception ex) {
 			logger.error("insert.error; key: {}", key, ex);
@@ -98,14 +98,14 @@ public class BagriQueryClient extends BagriClientBase {
 			    final HashMap<String, ByteIterator> result) {
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("key", key);
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qRead, params, queryProps)) {
-			if (cursor.next()) {
-				Map<String, Object> map = cursor.getMap();
-				populateStringResult(map, fields, result);
-				return Status.OK;
-			} else {
+		try (ResultCursor<Map<String, Object>> cursor = xRepo.getQueryManagement().executeQuery(qRead, params, queryProps)) {
+			if (cursor.isEmpty()) {
 				logger.debug("read; not found document for key: {}", key);
 				return Status.NOT_FOUND;
+			} else {
+				Map<String, Object> map = cursor.iterator().next();
+				populateStringResult(map, fields, result);
+				return Status.OK;
 			}
 		} catch (Exception ex) {
 			logger.error("read.error; key: {}", key, ex);
@@ -121,13 +121,12 @@ public class BagriQueryClient extends BagriClientBase {
 		params.put("startKey", startkey);
 		params.put("props", scanProps);
 		scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qScan, params, scanProps)) {
+		try (ResultCursor<Map<String, Object>> cursor = xRepo.getQueryManagement().executeQuery(qScan, params, scanProps)) {
 			timer2.addAndGet(System.currentTimeMillis() - stamp);
 			result.ensureCapacity(recordcount);
 			int count = 0;
 			HashMap<String, ByteIterator> doc = null;
-			while (cursor.next()) {
-				Map<String, Object> map = cursor.getMap();
+			for (Map<String, Object> map: cursor) {
 				doc = new HashMap<>(map.size());
 				populateStringResult(map, fields, doc);
 				result.add(doc);
@@ -155,11 +154,11 @@ public class BagriQueryClient extends BagriClientBase {
 		params.put("content", content);
 		params.put("props", updateProps);
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, queryProps)) {
-			if (cursor.next()) {
-				return Status.OK;
-			} else {
+			if (cursor.isEmpty()) {
 				logger.debug("update; document was not updated for some reason; key: {}", key);
 				return Status.UNEXPECTED_STATE;
+			} else {
+				return Status.OK;
 			}
 		} catch (Exception ex) {
 			logger.error("update.error; key: {}", key, ex);
@@ -173,11 +172,11 @@ public class BagriQueryClient extends BagriClientBase {
 		params.put("uri", URI.create(key));
 		params.put("props", deleteProps);
 		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qDelete, params, queryProps)) {
-			if (cursor.next()) {
-				return Status.OK;
-			} else {
+			if (cursor.isEmpty()) {
 				logger.debug("delete; not found document for key: {}", key, table);
 				return Status.NOT_FOUND;
+			} else {
+				return Status.OK;
 			}
 		} catch (Exception ex) {
 			logger.error("delete.error; key: {}", key, ex);

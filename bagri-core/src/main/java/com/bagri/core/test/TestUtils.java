@@ -38,10 +38,9 @@ public class TestUtils {
 		return cFormats;
 	}
 	
-	public static int exploreCursor(ResultCursor cursor) throws Exception {
+	public static int exploreCursor(ResultCursor<String> cursor) throws Exception {
 		int cnt = 0;
-		while (cursor.next()) {
-			String text = cursor.getItemAsString(null);
+		for (String text: cursor) {
 			System.out.println("" + cnt + ": " + text);
 			cnt++;
 		}

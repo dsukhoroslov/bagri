@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import static com.bagri.core.Constants.*;
 
+import javax.xml.xquery.XQItemAccessor;
+
 public class QueryManagementImplTest extends ClientQueryManagementTest {
 
 	@BeforeClass
@@ -52,19 +54,19 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 	public void getPriceTest() throws Exception {
 		storeSecurityTest();
 
-		ResultCursor sec = getPrice("VFINX");
+		ResultCursor<XQItemAccessor> sec = getPrice("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 
 		sec = getPrice("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 
 		sec = getPrice("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 	}
 
@@ -72,19 +74,19 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 	public void getSecurityTest() throws Exception {
 		storeSecurityTest();
 
-		ResultCursor sec = getSecurity("VFINX");
+		ResultCursor<XQItemAccessor> sec = getSecurity("VFINX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 
 		sec = getSecurity("IBM");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 
 		sec = getSecurity("PTTAX");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 	}
 
@@ -92,51 +94,51 @@ public class QueryManagementImplTest extends ClientQueryManagementTest {
 	public void searchSecurityTest() throws Exception {
 		storeSecurityTest();
 
-		ResultCursor sec = searchSecurity("Technology", 25, 28, 0);
+		ResultCursor<XQItemAccessor> sec = searchSecurity("Technology", 25, 28, 0);
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 
 		sec = searchSecurity("Technology", 25, 28, 1);
 		Assert.assertNotNull(sec);
-		Assert.assertFalse(sec.next());
+		Assert.assertTrue(sec.isEmpty());
 		sec.close();
 
 		sec = searchSecurity("Technology", 28, 29, 0);
 		Assert.assertNotNull(sec);
-		Assert.assertFalse(sec.next());
+		Assert.assertTrue(sec.isEmpty());
 		sec.close();
 	}
 
 	@Test
 	public void getOrderTest() throws Exception {
 		storeOrderTest();
-		ResultCursor sec = getOrder("103404");
+		ResultCursor<XQItemAccessor> sec = getOrder("103404");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 
 		sec = getOrder("103935");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 	}
 
 	@Test
 	public void getCustomerProfileTest() throws Exception {
 		storeCustomerTest();
-		ResultCursor sec = getCustomerProfile("1011");
+		ResultCursor<XQItemAccessor> sec = getCustomerProfile("1011");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 	}
 
 	@Test
 	public void getCustomerAccountsTest() throws Exception {
 		storeCustomerTest();
-		ResultCursor sec = getCustomerAccounts("1011");
+		ResultCursor<XQItemAccessor> sec = getCustomerAccounts("1011");
 		Assert.assertNotNull(sec);
-		Assert.assertTrue(sec.next());
+		Assert.assertFalse(sec.isEmpty());
 		sec.close();
 	}
 	

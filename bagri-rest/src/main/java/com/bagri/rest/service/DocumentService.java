@@ -8,7 +8,6 @@ import static com.bagri.core.system.DataFormat.df_xml;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,7 +31,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
-import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 
 import io.swagger.annotations.Api;
@@ -81,14 +80,11 @@ public class DocumentService  extends RestService {
 		Properties props = new Properties();
 		props.setProperty(pn_client_fetchSize, String.valueOf(size));
 		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
-    	try {
-   			ResultCollection itr = (ResultCollection) docMgr.getDocuments(query, props);
-   			List<String> names = new ArrayList<>(itr.size());
-   			Iterator<DocumentAccessor> it = itr.iterator();
-   			while (it.hasNext()) {
-   				names.add(it.next().getUri());
+    	try (ResultCursor<DocumentAccessor> uris = docMgr.getDocuments(query, props)) {
+   			List<String> names = new ArrayList<>(); //itr.size());
+   			for (DocumentAccessor uri: uris) {
+   				names.add(uri.getUri());
    			}
-   			itr.close();
             Collections.sort(names);
             DocumentBean[] docs = new DocumentBean[size];
             long now = new java.util.Date().getTime();

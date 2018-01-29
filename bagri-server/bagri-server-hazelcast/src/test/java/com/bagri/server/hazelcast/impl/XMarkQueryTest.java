@@ -15,8 +15,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.xquery.XQItemAccessor;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
@@ -79,14 +82,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("name", "person0");
-		try (ResultCursor results = query(query, params, null)) {
-			assertTrue(results.next());
-			Properties props = new Properties();
-			props.setProperty("method", "text");
-			String text = results.getItemAsString(props);
-			assertEquals("Huei Demke", text);
-			assertFalse(results.next());
-		}
+		checkCursorResult(query, params, null, "Huei Demke");
 	}
 	
 	@Test
@@ -97,14 +93,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"let $auction := fn:doc(\"auction.xml\") return\n" +
 				"for $b in $auction/site/people/person[@id = 'person0'] return $b/name/text()";
 		
-		try (ResultCursor results = query(query, null, null)) {
-			assertTrue(results.next());
-			Properties props = new Properties();
-			props.setProperty("method", "text");
-			String text = results.getItemAsString(props);
-			assertEquals("Huei Demke", text);
-			assertFalse(results.next());
-		}
+		checkCursorResult(query, null, null, "Huei Demke");
 	}
 	
 	@Test
@@ -115,10 +104,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"for $b in $auction/site/open_auctions/open_auction\n" +
 				"return <increase>{$b/bidder[1]/increase/text()}</increase>";
 		
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for(XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
 				cnt++;
 			}
@@ -137,12 +126,12 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"where zero-or-one($b/bidder[1]/increase/text()) * 2 <= $b/bidder[last()]/increase/text()\n" +
 				"return <increase first=\"{$b/bidder[1]/increase/text()}\" last=\"{$b/bidder[last()]/increase/text()}\"/>";
 		
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			//<increase first="4.50" last="12.00"/>
 			//<increase first="6.00" last="30.00"/>
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<increase"));
 				cnt++;
 			}
@@ -168,9 +157,11 @@ public class XMarkQueryTest extends BagriManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("name1", "person8");
 		params.put("name2", "person19");
-		try (ResultCursor results = query(query, params, null)) {
-			assertTrue(results.next());
-			assertFalse(results.next());
+		try (ResultCursor<XQItemAccessor> results = query(query, params, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			assertNotNull(itr.next());
+			assertFalse(itr.hasNext());
 		}
 	}
 
@@ -188,10 +179,11 @@ public class XMarkQueryTest extends BagriManagementTest {
 		
 		Map<String, Object> params = new HashMap<>();
 		params.put("pmin", new Integer(40));
-		try (ResultCursor results = query(query, params, null)) {
-			assertTrue(results.next());
-			assertEquals(7, results.getInt());
-			assertFalse(results.next());
+		try (ResultCursor<XQItemAccessor> results = query(query, params, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			assertEquals(7, itr.next().getInt());
+			assertFalse(itr.hasNext());
 		}
 	}
 
@@ -202,10 +194,11 @@ public class XMarkQueryTest extends BagriManagementTest {
 		String query = "let $auction := doc(\"auction.xml\") return\n" +
 				"for $b in $auction//site/regions return count($b//item)";
 
-		try (ResultCursor results = query(query, null, null)) {
-			assertTrue(results.next());
-			assertEquals(22, results.getInt());
-			assertFalse(results.next());
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			assertEquals(22, itr.next().getInt());
+			assertFalse(itr.hasNext());
 		}
 	}
 
@@ -217,10 +210,11 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"for $p in $auction/site return\n" +
 				"  count($p//description) + count($p//annotation) + count($p//emailaddress)";
 
-		try (ResultCursor results = query(query, null, null)) {
-			assertTrue(results.next());
-			assertEquals(92, results.getInt());
-			assertFalse(results.next());
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			assertEquals(92, itr.next().getInt());
+			assertFalse(itr.hasNext());
 		}
 	}
 
@@ -237,10 +231,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"  return $t\n" +
 				"return <item person=\"{$p/name/text()}\">{count($a)}</item>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item person") && text.endsWith("</item>"));
 				cnt++;
 			}
@@ -266,10 +260,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"		return <item>{$n/name/text()}</item>\n" +
 				"return <person name=\"{$p/name/text()}\">{$a}</person>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
 				cnt++;
 			}
@@ -310,11 +304,12 @@ public class XMarkQueryTest extends BagriManagementTest {
 		        "		</personne>\n" +
 		        "return <categorie>{<id>{$i}</id>, $p}</categorie>";
 
-		try (ResultCursor results = query(query, null, null)) {
-			assertTrue(results.next());
-			String text = results.getItemAsString(null);
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			String text = itr.next().getItemAsString(null);
 			assertTrue("unexpected result: " + text, text.startsWith("<categorie>") && text.endsWith("</categorie>"));
-			assertFalse(results.next());
+			assertFalse(itr.hasNext());
 		}
 	}
 	
@@ -331,10 +326,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"	return $i\n" +
 				"return <items name=\"{$p/name/text()}\">{count($l)}</items>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<items name") && text.endsWith("</items>"));
 				cnt++;
 			}
@@ -357,10 +352,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"where $p/profile/@income > 50000\n" +
 				"return <items person=\"{$p/profile/@income}\">{count($l)}</items>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<items person") && text.endsWith("</items>"));
 				cnt++;
 			}
@@ -377,10 +372,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"for $i in $auction/site/regions/australia/item\n" +
 				"return <item name=\"{$i/name/text()}\">{$i/description}</item>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
 				cnt++;
 			}
@@ -401,9 +396,9 @@ public class XMarkQueryTest extends BagriManagementTest {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("word", "gold");
-		try (ResultCursor results = query(query, params, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, params, null)) {
 			int cnt = 0;
-			while (results.next()) {
+			for (XQItemAccessor item: results) {
 				cnt++;
 			}
 			assertEquals(2, cnt);
@@ -420,8 +415,8 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"   listitem/parlist/listitem/text/emph/keyword/text()\n" +
 				"return <text>{$a}</text>";
 
-		try (ResultCursor results = query(query, null, null)) {
-			assertFalse(results.next());
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			assertTrue(results.isEmpty());
 		}
 	}
 
@@ -442,8 +437,8 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"	)\n" +
 				"return <person id=\"{$a/seller/@person}\"/>";
 
-		try (ResultCursor results = query(query, null, null)) {
-			assertFalse(results.next());
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
+			assertTrue(results.isEmpty());
 		}
 	}
 
@@ -456,10 +451,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"where empty($p/homepage/text())\n" +
 				"return <person name=\"{$p/name/text()}\"/>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<person name"));
 				cnt++;
 			}
@@ -481,10 +476,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"for $i in $auction/site/open_auctions/open_auction\n" +
 				"return local:convert(zero-or-one($i/reserve))";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				BigDecimal bd = (BigDecimal) results.getObject();
+			for (XQItemAccessor item: results) {
+				BigDecimal bd = (BigDecimal) item.getObject();
 				assertTrue("unexpected result: " + bd, bd.compareTo(BigDecimal.ZERO) > 0);
 				cnt++;
 			}
@@ -503,10 +498,10 @@ public class XMarkQueryTest extends BagriManagementTest {
 				"order by zero-or-one($b/location) ascending empty greatest\n" +
 				"return <item name=\"{$k}\">{$b/location/text()}</item>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
-			while (results.next()) {
-				String text = results.getItemAsString(null);
+			for (XQItemAccessor item: results) {
+				String text = item.getItemAsString(null);
 				assertTrue("unexpected result: " + text, text.startsWith("<item name") && text.endsWith("</item>"));
 				cnt++;
 			}
@@ -546,7 +541,7 @@ public class XMarkQueryTest extends BagriManagementTest {
 		    	"	</na>\n" +
 		    	"</result>";
 
-		try (ResultCursor results = query(query, null, null)) {
+		checkCursorResult(query, null, null, null);
 			//<result>
 			//  <preferred>
 			//	0
@@ -561,9 +556,6 @@ public class XMarkQueryTest extends BagriManagementTest {
 			//	14
 			//  </na>
 			//</result>
-			assertTrue(results.next());
-			assertFalse(results.next());
-		}
 	}
 	
 	

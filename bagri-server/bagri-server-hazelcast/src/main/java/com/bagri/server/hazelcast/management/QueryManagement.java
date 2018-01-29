@@ -20,6 +20,7 @@ import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQStaticContext;
@@ -159,23 +160,23 @@ public class QueryManagement extends SchemaFeatureManagement {
 		}
 	}
 	
-	private String extractResult(ResultCursor cursor, Properties props) throws XQException, BagriException {
+	private String extractResult(ResultCursor<XQItemAccessor> cursor, Properties props) throws XQException, BagriException {
 		StringBuilder buff = new StringBuilder();
 		//cursor.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
 		XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
 		Properties outProps = getOutputProperties(props);
-		int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
-		if (fSize > 0) {
-			int cnt = 0;
-			while (cursor.next() && cnt < fSize) {
-				buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
-				cnt++;
+		//int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
+		//if (fSize > 0) {
+		//	int cnt = 0;
+		//	while (cursor.next() && cnt < fSize) {
+		//		buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
+		//		cnt++;
+		//	}
+		//} else {
+			for (XQItemAccessor item: cursor) {
+				buff.append(xqp.convertToString(item, outProps));
 			}
-		} else {
-			while (cursor.next()) {
-				buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
-			}
-		}
+		//}
 		return buff.toString();
 	}
 	

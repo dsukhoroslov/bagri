@@ -68,10 +68,10 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 
     	boolean empty = false;
     	Properties props = new Properties();
-		ResultCursor cursor = null;
+		ResultCursor<String> cursor = null;
 		try {
 			cursor = repo.getQueryManagement().executeQuery(query, params, props);
-	    	empty = !cursor.next();
+	    	empty = cursor.isEmpty();
 		} catch (BagriException ex) {
 			logger.error("apply.error: ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
@@ -229,17 +229,18 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		}
     }
     
-    private boolean fillResponse(ResultCursor cursor, Response.ResponseBuilder response) throws BagriException {
+    private boolean fillResponse(ResultCursor<String> cursor, Response.ResponseBuilder response) throws BagriException {
     	int status = Response.Status.OK.getStatusCode(); 
     	String message = null;
     	boolean empty = false;
     	Node node = null;
-    	try {
-    		node = cursor.getNode();
-       		logger.debug("fillResponse; got node: {}", node);
-    	} catch (BagriException ex) {
-       		logger.debug("fillResponse; got non-xml content, skipping");
-    	}
+    	// TODO: fix this!
+    	//try {
+    		//node = cursor.getNode();
+       	//	logger.debug("fillResponse; got node: {}", node);
+    	//} catch (BagriException ex) {
+       	//	logger.debug("fillResponse; got non-xml content, skipping");
+    	//}
 
     	if (node != null) {
     		logger.trace("fillResponse; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
@@ -263,7 +264,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	    			}
 		    	}
 	   			// move cursor one position further
-	   			empty = !cursor.next();
+	   			empty = cursor.isEmpty();
    			} else {
    				logger.debug("fillResponse; non-standard response structure: {}", elt);
    			}
@@ -276,18 +277,17 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return empty;
     }
     
-    private StreamingOutput getResultStream(final ResultCursor result) {
+    private StreamingOutput getResultStream(final ResultCursor<String> result) {
 	    return new StreamingOutput() {
 	        @Override
 	        public void write(OutputStream os) throws IOException, WebApplicationException {
 	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
-		            do {
-		             	String chunk = result.getItemAsString(null); 
+		            for (String chunk: result) {
 		                logger.trace("write; out: {}", chunk);
 		                writer.write(chunk + "\n");
 			            writer.flush();
-		            } while (result.next());
-	            } catch (BagriException ex) {
+		            } 
+	            } catch (Exception ex) {
 	            	logger.error("write.error: error getting result from cursor ", ex);
         			// how to handle it properly?? throw WebAppEx?
                 } finally {

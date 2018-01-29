@@ -33,8 +33,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.xquery.XQItemAccessor;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.server.api.CacheConstants.*;
@@ -341,10 +344,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 			String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 				"for $sec in fn:doc(\"" + uri + "\")/s:Security\n" +
 				"return $sec\n";
-			try (ResultCursor rc = query(query, params, props)) {
-				assertNotNull(rc);
-				assertTrue(rc.next());
-			}
+			checkCursorResult(query, params, props, null);
 		}
 	}
 	
@@ -363,22 +363,25 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		Properties props = getDocumentProperties();
 		props.setProperty(pn_client_fetchSize, "5");
 		props.setProperty(pn_xqj_defaultElementTypeNamespace, "");
-		ResultCursor rc = query(query, params, props);
-		assertNotNull(rc);
-		assertTrue(rc.next());
-		XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
-		Object result = rc.getObject();
-		assertNotNull(result);
-		String text = xqp.convertToString(result, null);
-		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
-		assertFalse(rc.next());
+
+		//ResultCursor rc = query(query, params, props);
+		//assertNotNull(rc);
+		//assertTrue(rc.next());
+		//XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
+		//Object result = rc.getObject();
+		//assertNotNull(result);
+		//String text = xqp.convertToString(result, null);
+		//assertEquals(", text);
+		//assertFalse(rc.next());
+		checkCursorResult(query, params, props, "The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars");
+		
 		props = new Properties();
 		//props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
 		//props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
-		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
-		text = xqp.convertToString(result, props);
-		assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
-		rc.close();
+		//props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
+		//text = xqp.convertToString(result, props);
+		//assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
+		//rc.close();
 	}
 	
 	@Test
@@ -412,12 +415,13 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				"; doc partition: " + hz.getPartitionService().getPartition(dk).getPartitionId() +
 				"; hash partition: " + hz.getPartitionService().getPartition(dk.getHash()).getPartitionId());
 
-		ResultCursor rc = (ResultCursor) qrCache.executeOnKey(dk.getHash(), qp);
+		ResultCursor<XQItemAccessor> rc = (ResultCursor<XQItemAccessor>) qrCache.executeOnKey(dk.getHash(), qp);
 		assertNotNull(rc);
-		assertTrue(rc.next());
-		String text = rc.getString();
+		Iterator<XQItemAccessor> itr = rc.iterator();
+		assertTrue(itr.hasNext());
+		String text = itr.next().getAtomicValue();
 		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
-		assertFalse(rc.next());
+		assertFalse(itr.hasNext());
 		rc.close();
 	}
 }

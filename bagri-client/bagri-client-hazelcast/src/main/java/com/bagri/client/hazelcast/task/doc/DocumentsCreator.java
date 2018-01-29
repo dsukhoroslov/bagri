@@ -14,13 +14,14 @@ import java.util.concurrent.Callable;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.client.hazelcast.task.ContextAwareTask;
 import com.bagri.core.api.ContentSerializer;
-import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.ResultCursor;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentsCreator extends ContextAwareTask implements Callable<ResultCollection> {
+public class DocumentsCreator extends ContextAwareTask implements Callable<ResultCursor<DocumentAccessor>> {
 
 	protected Map<String, Object> documents;
 
@@ -34,7 +35,7 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 	}
 
 	@Override
-	public ResultCollection call() throws Exception {
+	public ResultCursor<DocumentAccessor> call() throws Exception {
 		return null; 
 	}
 

@@ -1,7 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.api.ResultCollection;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
@@ -21,8 +20,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.xquery.XQItemAccessor;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
@@ -148,13 +150,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		uris.add(mDoc.getUri());
 
 		xRepo.getTxManagement().commitTransaction(txId);
-		
-		try (ResultCursor results = query(qDoc, null, null)) {
-			assertTrue(results.next());
-			Object value = results.getObject();
-			assertNotNull(value);
-			assertFalse(results.next());
-		}
+		checkCursorResult(qDoc, null, null, null);
 	}
 	
 	@Test
@@ -188,12 +184,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 				"where m:get($doc, 'intProp') = 2\n" +
 				"return fn:serialize($doc, map{'method': 'json'})";
 		
-		try (ResultCursor results = query(query, null, null)) {
-			assertTrue(results.next());
-			Object value = results.getObject();
-			assertNotNull(value);
-			assertFalse(results.next());
-		}
+		checkCursorResult(query, null, null, null);
 	}
 	
 	@Test
@@ -213,13 +204,14 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		//uris.add(mDoc.getUri());
 		xRepo.getTxManagement().commitTransaction(txId);
 		
-		try (ResultCursor results = query(qDoc, null, null)) {
-			assertTrue(results.next());
-			String value = results.getString();
+		try (ResultCursor<XQItemAccessor> results = query(qDoc, null, null)) {
+			Iterator<XQItemAccessor> itr = results.iterator();
+			assertTrue(itr.hasNext());
+			String value = itr.next().getAtomicValue();
 			assertNotNull(value);
 			assertTrue(value.indexOf("\"boolProp\":true") > 0);
 			assertTrue(value.indexOf("\"strProp\":\"CDE10\"") > 0);
-			assertFalse(results.next());
+			assertFalse(itr.hasNext());
 		}
 	}
 	
@@ -252,11 +244,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		params.put("content", m1);
 		params.put("props", props);
 
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(qStore, params, props)) {
-			assertTrue(cursor.next());
-			assertEquals(uri, cursor.getString());
-			assertFalse(cursor.next());
-		}
+		checkCursorResult(qStore, params, props, uri);
 		
 		//assertNotNull(mDoc);
 		//assertEquals(txId, mDoc.getTxStart());
@@ -288,11 +276,11 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 		}
 		//xRepo.getTxManagement().commitTransaction(txId);
 		
-		ResultCollection uris2 = (ResultCollection) xRepo.getDocumentManagement().getDocuments("uri >= map_test50, txFinish = 0", props);
+		ResultCursor<DocumentAccessor> uris2 = xRepo.getDocumentManagement().getDocuments("uri >= map_test50, txFinish = 0", props);
 		assertEquals(54, uris2.size());
 		
 		props.setProperty(pn_client_fetchSize, "25");
-		ResultCollection results = (ResultCollection) xRepo.getDocumentManagement().getDocuments("uri >= map_test50, txFinish = 0", props);
+		ResultCursor<DocumentAccessor> results = xRepo.getDocumentManagement().getDocuments("uri >= map_test50, txFinish = 0", props);
 		assertEquals(25, results.size());
 	}
 	

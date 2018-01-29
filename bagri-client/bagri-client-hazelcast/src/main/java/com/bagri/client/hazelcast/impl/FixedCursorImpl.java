@@ -5,6 +5,7 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,52 +15,60 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
-public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataSerializable {
+public class FixedCursorImpl<T> extends ResultCursorBase<T> implements IdentifiedDataSerializable {
 
-	private Object value = null;
-	private Iterator<Object> iter;
-	private List<Object> values = new ArrayList<>();
+	private List<T> results;
 	
 	public FixedCursorImpl() {
 		//
 	}
 
-	public FixedCursorImpl(List<Object> values) {
-		setValues(values);
+	public FixedCursorImpl(int size) {
+		this.results = new ArrayList<>(size);
+	}
+	
+	public FixedCursorImpl(Collection<T> results) {
+		if (results != null) {
+			this.results = new ArrayList<>(results);
+		}
+	}
+
+	@Override
+	public boolean add(T result) {
+		return results.add(result);
 	}
 	
 	@Override
 	public void close() throws Exception {
-		values = null;
-		value = null;
-		iter = null;
-	}
-
-	protected Object getCurrent() {
-		return value;
-	}
-	
-	@Override
-	public List<Object> getList() throws BagriException {
-		return values;
+		results.clear();
+		results = null;
 	}
 
 	@Override
-	public boolean isFixed() {
-		return true;
+	public void finish() {
+		// do nothing
 	}
 	
 	@Override
-	public boolean next() {
-		boolean result = iter.hasNext();
-		if (result) {
-			value = iter.next();
-		} else {
-			value = null;
-		}
-		return result;
-	}	
+	public List<T> getList() throws BagriException {
+		return results;
+	}
+
+	@Override
+	public boolean isAsynch() {
+		return false;
+	}
 	
+	@Override
+	public boolean isEmpty() {
+		return results.isEmpty(); 
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return results.iterator();
+	}
+
 	@Override
 	public int getFactoryId() {
 		return cli_factory_id;
@@ -70,26 +79,32 @@ public class FixedCursorImpl extends ResultCursorBase implements IdentifiedDataS
 		return cli_FixedCursor;
 	}
 	
-	private void setValues(List<Object> values) {
-		if (values != null) {
-			this.values.addAll(values);
-		}
-		iter = this.values.iterator();
+	@Override
+	public int size() {
+		return results.size();
 	}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		setValues((List) in.readObject());
+		int size = in.readInt();
+		results = new ArrayList<>(size);
+		for (int i=0; i < size; i++) {
+			results.add((T) in.readObject());
+		}
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeObject(values);
+		out.writeInt(results.size());
+		for (Object result: results) {
+			out.writeObject(result);
+		}
 	}
 
 	@Override
 	public String toString() {
-		return "FixedCursorImpl [values=" + values.size() + "]"; 
+		return "FixedCursorImpl [results=" + results.size() + "]"; 
 	}
 
 }
+

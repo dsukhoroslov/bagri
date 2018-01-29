@@ -17,8 +17,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+import javax.xml.xquery.XQItem;
+import javax.xml.xquery.XQItemAccessor;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
@@ -85,167 +89,134 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 
 	@Test
 	public void getPriceTest() throws Exception {
-		ResultCursor sec = getPrice("VFINX");
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		Properties props = new Properties();
-		props.setProperty("method", "text");
-		String text = sec.getItemAsString(props);
-		assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
-		sec.close();
-
-		sec = getPrice("IBM");
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		text = sec.getItemAsString(props);
-		assertEquals("The open price of the security \"Internatinal Business Machines Corporation\" is 86.23 dollars", text);
-		sec.close();
-
-		sec = getPrice("PTTAX");
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		text = sec.getItemAsString(props);
-		assertEquals("The open price of the security \"PIMCO Total Return A\" is 36.23 dollars", text);
-		sec.close();
+		checkCursorResult(getPrice("VFINX"), "The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars");
+		checkCursorResult(getPrice("IBM"), "The open price of the security \"Internatinal Business Machines Corporation\" is 86.23 dollars");
+		checkCursorResult(getPrice("PTTAX"), "The open price of the security \"PIMCO Total Return A\" is 36.23 dollars");
 	}
 
 	@Test
 	public void getSecurityTest() throws Exception {
-		ResultCursor sec = getSecurity("VFINX");
+		ResultCursor<XQItemAccessor> sec = getSecurity("VFINX");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		String xml = itr.next().getItemAsString(null);
 		assertEquals(4289, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 
 		sec = getSecurity("IBM");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		xml = sec.getItemAsString(null);
+		itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		xml = itr.next().getItemAsString(null);
 		assertEquals(3502, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 
 		sec = getSecurity("PTTAX");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		xml = sec.getItemAsString(null);
+		itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		xml = itr.next().getItemAsString(null);
 		assertEquals(2774, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 
 	@Test
 	public void searchSecurityTest() throws Exception {
-		ResultCursor sec = searchSecurity("Technology", 25, 28, 0);
+		checkCursorResult(searchSecurity("Technology", 25, 28, 0), null);
+		ResultCursor<XQItemAccessor> sec = searchSecurity("Technology", 25, 28, 1);
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
-		//<Symbol>IBM</Symbol>
-		//<Name>Internatinal Business Machines Corporation</Name>
-		//<SecurityType>Stock</SecurityType>
-		//<Sector>Technology</Sector>
-		//<PE>27.13</PE>
-		//<Yield>0.74</Yield>
-		sec.close();
-
-		sec = searchSecurity("Technology", 25, 28, 1);
-		assertNotNull(sec);
-		assertFalse(sec.next());
+		assertTrue(sec.isEmpty());
 		sec.close();
 
 		sec = searchSecurity("Technology", 28, 29, 0);
 		assertNotNull(sec);
-		assertFalse(sec.next());
+		assertTrue(sec.isEmpty());
 		sec.close();
 	}
 
 	@Test
 	public void getOrderTest() throws Exception {
-		ResultCursor sec = getOrder("103404");
+		ResultCursor<XQItemAccessor> sec = getOrder("103404");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		String xml = itr.next().getItemAsString(null);
 		assertEquals(1990, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 
 		sec = getOrder("103935");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		xml = sec.getItemAsString(null);
+		itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		xml = itr.next().getItemAsString(null);
 		assertEquals(2041, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 
 	@Test
 	public void getCustomerTest() throws Exception {
-		ResultCursor sec = getCustomer("1011");
+		ResultCursor<XQItemAccessor> sec = getCustomer("1011");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		String xml = itr.next().getItemAsString(null);
 		assertEquals(6699, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 	
 	@Test
 	public void getCustomerProfileTest() throws Exception {
-		ResultCursor sec = getCustomerProfile("1011");
+		ResultCursor<XQItemAccessor> sec = getCustomerProfile("1011");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		String xml = itr.next().getItemAsString(null);
 		assertEquals(2048, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 
 	@Test
 	public void getCustomerAccountsTest() throws Exception {
-		ResultCursor sec = getCustomerAccounts("1011");
+		ResultCursor<XQItemAccessor> sec = getCustomerAccounts("1011");
 		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
+		String xml = itr.next().getItemAsString(null);
 		assertEquals(775, xml.length());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 	
 	@Test
 	public void getTodayOrderPriceTest() throws Exception {
-		ResultCursor sec = getTodayOrderPrice("103935");
+		ResultCursor<XQItemAccessor> sec = getTodayOrderPrice("103935");
 		assertNotNull(sec);
-		assertTrue(sec.next());
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		String text = sec.getItemAsString(props);
+		String text = itr.next().getItemAsString(props);
 		assertEquals("164230.5448", text.trim());
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 
 	@Test
 	public void getOrderCustomersTest() throws Exception {
-		ResultCursor sec = getOrderCustomers(2000, "Portugal");
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		Properties props = new Properties();
-		props.setProperty("method", "text");
-		String text = sec.getItemAsString(props);
-		assertEquals("Marjo Villoldo", text);
-		assertFalse(sec.next());
-		sec.close();
+		checkCursorResult(getOrderCustomers(2000, "Portugal"), "Marjo Villoldo"); 
 	}
 
 	@Test
 	public void getCustomerByAddressTest() throws Exception {
-		ResultCursor sec = getCustomerByAddress(56137, 1, true);
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		String xml = sec.getItemAsString(null);
-		assertFalse(sec.next());
+		checkCursorResult(getCustomerByAddress(56137, 1, true), null); 
 		//<Customer xmlns="http://www.fixprotocol.org/FIXML-4-4">
 		//Villoldo - <Phone xmlns="http://tpox-benchmark.com/custacc"
         //  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -256,49 +227,37 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		//			<Number>4744196</Number>
 		//		</Phone>
 		//</Customer>
-		sec.close();
 	}
 	
 	@Test
 	public void getMaxOrderPriceTest() throws Exception {
-		ResultCursor sec = getMaxOrderPrice(1011);
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		String price = sec.getItemAsString(null);
-		assertEquals("1479.06", price);
-		assertFalse(sec.next());
-		sec.close();
+		checkCursorResult(getMaxOrderPrice(1011), "1479.06"); 
 	}
 
 	@Test
 	public void getMaxIndustryOrderTest() throws Exception {
-		ResultCursor sec = getMaxOrderForIndustry("ComputerHardware", "California");
-		assertNotNull(sec);
-		assertTrue(sec.next());
-		String price = sec.getItemAsString(null);
-		assertEquals("1479.06", price);
-		assertFalse(sec.next());
-		sec.close();
+		checkCursorResult(getMaxOrderForIndustry("ComputerHardware", "California"), "1479.06"); 
 	}
 	
 	@Test
 	public void getCustomerSecuritiesTest() throws Exception {
-		ResultCursor sec = getCustomerSecurities(1011);
+		ResultCursor<XQItemAccessor> sec = getCustomerSecurities(1011);
 		assertNotNull(sec);
-		assertTrue(sec.next());
+		Iterator<XQItemAccessor> itr = sec.iterator();
+		assertTrue(itr.hasNext());
 		Properties props = new Properties();
 		props.setProperty("method", "text");
-		String text = sec.getItemAsString(props);
+		String text = itr.next().getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
 
-		assertTrue(sec.next());
-		text = sec.getItemAsString(props);
+		assertTrue(itr.hasNext());
+		text = itr.next().getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
 		
-		assertTrue(sec.next());
-		text = sec.getItemAsString(props);
+		assertTrue(itr.hasNext());
+		text = itr.next().getItemAsString(props);
 		assertTrue("unknown name: '" + text + "'", names.contains(text));
-		assertFalse(sec.next());
+		assertFalse(itr.hasNext());
 		sec.close();
 	}
 	
@@ -308,13 +267,13 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" + 
 				"for $ind in distinct-values(collection(\"CLN_Security\")/s:Security/s:SecurityInformation/*/s:Industry)\n" + 
 				"return $ind";
-		ResultCursor ind = query(query, null, null);
+		ResultCursor<XQItemAccessor> ind = query(query, null, null);
 		assertNotNull(ind);
 		Properties props = new Properties();
 		props.setProperty("method", "text");
 		List<String> industries = new ArrayList<>();
-		while (ind.next()) {
-			String text = ind.getItemAsString(props);
+		for (XQItemAccessor item: ind) {
+			String text = item.getItemAsString(props);
 			industries.add(text);
 		}
 		assertEquals(10, industries.size());

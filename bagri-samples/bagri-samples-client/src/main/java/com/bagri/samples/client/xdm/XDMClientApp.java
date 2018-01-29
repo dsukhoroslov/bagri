@@ -77,10 +77,10 @@ public class XDMClientApp implements BagriClientApp {
 		String query = "for $doc in fn:doc(\"" + uri + "\")\n" +
 				"return $doc\n";
 
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
+		try (ResultCursor<String> cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
 			String result = null;
-			if (cursor.next()) {
-				result = cursor.getString(); // proc.convertToString(itr.next(), null);
+			if (!cursor.isEmpty()) {
+				result = cursor.iterator().next(); // proc.convertToString(itr.next(), null);
 			}
 			return result;
 		}
@@ -92,10 +92,10 @@ public class XDMClientApp implements BagriClientApp {
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";
 
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
+		try (ResultCursor<String> cursor = xRepo.getQueryManagement().executeQuery(query, null, new Properties())) {
 			String result = null;
-			if (cursor.next()) {
-				result = cursor.getString(); // proc.convertToString(itr.next(), null);
+			if (!cursor.isEmpty()) {
+				result = cursor.iterator().next(); // proc.convertToString(itr.next(), null);
 			}
 			return result;
 		}

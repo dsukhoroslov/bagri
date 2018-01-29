@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import static com.bagri.core.Constants.*;
 
+import javax.xml.xquery.XQItemAccessor;
+
 public class TransactionManagementImplTest extends ClientQueryManagementTest {
 	
 	@BeforeClass
@@ -50,19 +52,19 @@ public class TransactionManagementImplTest extends ClientQueryManagementTest {
 		try {
 			storeSecurityTest();
 	
-			ResultCursor sec = getSecurity("VFINX");
+			ResultCursor<XQItemAccessor> sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.next());
+			Assert.assertFalse(sec.isEmpty());
 			sec.close();
 
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.next());
+			Assert.assertFalse(sec.isEmpty());
 			sec.close();
 
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertTrue(sec.next());
+			Assert.assertFalse(sec.isEmpty());
 			sec.close();
 
 			xRepo.getTxManagement().rollbackTransaction(txId);
@@ -70,17 +72,17 @@ public class TransactionManagementImplTest extends ClientQueryManagementTest {
 			
 			sec = getSecurity("VFINX");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.next());
+			Assert.assertTrue(sec.isEmpty());
 			sec.close();
 
 			sec = getSecurity("IBM");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.next());
+			Assert.assertTrue(sec.isEmpty());
 			sec.close();
 
 			sec = getSecurity("PTTAX");
 			Assert.assertNotNull(sec);
-			Assert.assertFalse(sec.next());
+			Assert.assertTrue(sec.isEmpty());
 			sec.close();
 		} finally {
 			if (txId > 0) {

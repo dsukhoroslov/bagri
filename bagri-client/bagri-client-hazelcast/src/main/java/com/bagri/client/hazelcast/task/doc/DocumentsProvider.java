@@ -7,11 +7,12 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.client.hazelcast.task.ContextAwareTask;
-import com.bagri.core.api.ResultCollection;
+import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.ResultCursor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
-public class DocumentsProvider extends ContextAwareTask implements Callable<ResultCollection> {
+public class DocumentsProvider extends ContextAwareTask implements Callable<ResultCursor<DocumentAccessor>> {
 	
 	protected String pattern;
 	
@@ -25,7 +26,7 @@ public class DocumentsProvider extends ContextAwareTask implements Callable<Resu
 	}
 
 	@Override
-	public ResultCollection call() throws Exception {
+	public ResultCursor<DocumentAccessor> call() throws Exception {
 		return null;
 	}
 

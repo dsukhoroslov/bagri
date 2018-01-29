@@ -27,6 +27,8 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.xml.xquery.XQItemAccessor;
+
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -374,9 +376,9 @@ public class BookingApp {
 		Properties props = new Properties();
 		List<String> result = new ArrayList<String>();
 		Properties outProps = getOutputProperties(props);
-		try (ResultCursor cursor = xRepo.getQueryManagement().executeQuery(query, null, props)) {
-			while (cursor.next()) {
-				result.add(proc.convertToString(cursor.getXQItem(), outProps));
+		try (ResultCursor<XQItemAccessor> cursor = xRepo.getQueryManagement().executeQuery(query, null, props)) {
+			for (XQItemAccessor item: cursor) {
+				result.add(proc.convertToString(item, outProps));
 			}
 		}
 		return result;

@@ -1,6 +1,7 @@
 package com.bagri.rest.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
@@ -11,6 +12,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.xquery.XQItemAccessor;
 
 import org.glassfish.jersey.server.ChunkedOutput;
 
@@ -53,14 +55,13 @@ public class QueryService extends RestService {
         new Thread() {
             public void run() {
         		QueryManagement queryMgr = getQueryManager();
-                try {
-            		ResultCursor cursor = queryMgr.executeQuery(params.query, params.params, params.props);
+                try (ResultCursor<XQItemAccessor> cursor = queryMgr.executeQuery(params.query, params.params, params.props)) {
             		int idx = 0;
-                    while (cursor.next()) {
+            		for (XQItemAccessor item: cursor) {
                     	if (idx > 0) {
                             output.write(splitter);
                     	}
-                    	String chunk = cursor.getItemAsString(null); 
+                    	String chunk = item.getItemAsString(null);
                         logger.trace("postQuery; idx: {}; chunk: {}", idx, chunk);
                         output.write(chunk);
                         idx++;
@@ -91,7 +92,11 @@ public class QueryService extends RestService {
 		logger.debug("getURIs; got query: {}", params);
 		QueryManagement queryMgr = getQueryManager();
     	try {
-    		Collection<String> uris = queryMgr.getDocumentUris(params.query, params.params, params.props);
+    		ResultCursor<String> cursor = queryMgr.getDocumentUris(params.query, params.params, params.props);
+    		Collection<String> uris = new ArrayList<>();
+    		for (String uri: cursor) {
+    			uris.add(uri);
+    		}
     		logger.trace("getURIs; returning URIs: {}", uris);
             return Response.ok(uris).build();
     	} catch (Exception ex) {

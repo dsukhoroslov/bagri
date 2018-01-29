@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -29,7 +28,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.api.ResultCollection;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 import com.bagri.server.hazelcast.task.doc.DocumentStructureProvider;

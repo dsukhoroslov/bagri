@@ -7,12 +7,12 @@ import static com.bagri.xquery.saxon.SaxonUtils.itemToMap;
 import static com.bagri.xquery.saxon.SaxonUtils.sequence2Properties;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import com.bagri.core.api.QueryManagement;
+import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
 
 import net.sf.saxon.expr.XPathContext;
@@ -100,8 +100,8 @@ public class QueryDocumentUris extends ExtensionFunctionDefinition {
 					props = sequence2Properties(arguments[2]);
 				}
 				try {
-					Collection<String> uris = qm.getDocumentUris(query, params, props);
-					ArrayList<AtomicValue> list = new ArrayList<>(uris.size());
+					ResultCursor<String> uris = qm.getDocumentUris(query, params, props);
+					ArrayList<AtomicValue> list = new ArrayList<>(); //uris.size());
 					for (String uri: uris) {
 						list.add(new StringValue(uri));
 					}

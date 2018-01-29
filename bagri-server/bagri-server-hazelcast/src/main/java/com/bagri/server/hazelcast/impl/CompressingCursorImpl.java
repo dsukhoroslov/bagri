@@ -2,22 +2,21 @@ package com.bagri.server.hazelcast.impl;
 
 import java.util.Collection;
 
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.SchemaRepository;
 import com.hazelcast.instance.HazelcastInstanceProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 
-public class CompressingCollectionImpl extends com.bagri.client.hazelcast.impl.CompressingCollectionImpl {
+public class CompressingCursorImpl<T> extends com.bagri.client.hazelcast.impl.CompressingCursorImpl<T> {
 
-	public CompressingCollectionImpl() {
+	public CompressingCursorImpl() {
 		super();
 	}
 	
-	public CompressingCollectionImpl(SchemaRepository repo, int size) {
+	public CompressingCursorImpl(SchemaRepository repo, int size) {
 		super(repo, size);
 	}
 
-	public CompressingCollectionImpl(SchemaRepository repo, Collection<DocumentAccessor> results) {
+	public CompressingCursorImpl(SchemaRepository repo, Collection<T> results) {
 		super(repo, results);
 	}
 	

@@ -16,7 +16,10 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
+
+import javax.xml.xquery.XQItemAccessor;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.test.TestUtils.*;
@@ -91,15 +94,16 @@ public class SimpleQueryManagementTest extends BagriManagementTest {
 		String query = "for $doc in fn:collection()\n" +
 				"return $doc\n";
 
-		ResultCursor rc = query(query, null, null);
-		assertTrue(rc.next());
+		ResultCursor<XQItemAccessor> rc = query(query, null, null);
+		Iterator<XQItemAccessor> itr = rc.iterator();
+		assertTrue(itr.hasNext());
 		
 		props = new Properties();
 		props.setProperty(pn_document_data_format, "XML");
 		props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
 		props.setProperty(javax.xml.transform.OutputKeys.INDENT, "no");
 		props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
-		String text = xqProc.convertToString(rc.getXQItem(), props);
+		String text = xqProc.convertToString(itr.next(), props);
 		assertEquals("XML Content", text);
 		rc.close();
 		

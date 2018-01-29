@@ -14,6 +14,7 @@ import javax.xml.xquery.XQCancelledException;
 import javax.xml.xquery.XQConnection;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQMetaData;
 import javax.xml.xquery.XQPreparedExpression;
 import javax.xml.xquery.XQStaticContext;
@@ -345,22 +346,22 @@ public class BagriXQConnection extends BagriXQDataFactory implements XQConnectio
 		}
 	}
 
-	ResultCursor executeQuery(String query) throws XQException {
+	ResultCursor<XQItemAccessor> executeQuery(String query) throws XQException {
 		
 		return executeQuery(query, context); 
 	}
 	
-	ResultCursor executeQuery(final String query, final XQStaticContext ctx) throws XQException {
+	ResultCursor<XQItemAccessor> executeQuery(final String query, final XQStaticContext ctx) throws XQException {
 		
 		checkState(ex_connection_closed);
-		ResultCursor result = null;
+		ResultCursor<XQItemAccessor> result = null;
 		cancelled = false;
 		try {
 			if (transactional) {
 				try {
-					executeInTransaction(new Callable<ResultCursor>() {
+					executeInTransaction(new Callable<ResultCursor<XQItemAccessor>>() {
 						@Override
-				    	public ResultCursor call() throws XQException {
+				    	public ResultCursor<XQItemAccessor> call() throws XQException {
 							return getProcessor().executeXQuery(query, ctx);
 				    	}
 					});

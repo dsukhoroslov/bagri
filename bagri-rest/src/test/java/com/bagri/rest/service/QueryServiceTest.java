@@ -17,8 +17,10 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQItemType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -62,11 +64,10 @@ public class QueryServiceTest extends JerseyTest {
     }
     
 	@Test
-	//@Ignore
     @SuppressWarnings("unchecked")
     public void testQueryService() throws Exception {
 		
-    	List response1 = new ArrayList<>();  
+    	List<XQItemAccessor> response1 = new ArrayList<>();  
 		XQProcessor proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();
 		xqFactory.setProcessor(proc);
@@ -113,11 +114,8 @@ public class QueryServiceTest extends JerseyTest {
     @SuppressWarnings("unchecked")
     public void testQueryURIService() throws Exception {
     	//
-    	Collection<String> response1 = new ArrayList<>();  
-        response1.add("security1500.xml");
-        response1.add("security5621.xml");
-        response1.add("security9012.xml");
-		when(queryMgr.getDocumentUris(q1, null, null)).thenReturn(response1);
+    	List<String> response1 = Arrays.asList("security1500.xml", "security5621.xml", "security9012.xml");
+		when(queryMgr.getDocumentUris(q1, null, null)).thenReturn(new FixedCursorImpl<>(response1));
 
     	QueryParams params = new QueryParams(q1, null, null);
         Collection<String> uris = target("query/uris").request()
@@ -131,9 +129,8 @@ public class QueryServiceTest extends JerseyTest {
 
     	Map<String, Object> params2 = new HashMap<>();
         params2.put("sym", "IBM");
-    	Collection<String> response2 = new ArrayList<>();  
-        response2.add("security5621.xml");
-		when(queryMgr.getDocumentUris(q2, params2, null)).thenReturn(response2);
+    	List<String> response2 = Arrays.asList("security5621.xml");
+		when(queryMgr.getDocumentUris(q2, params2, null)).thenReturn(new FixedCursorImpl<>(response2));
     	
     	params = new QueryParams(q2, params2, null);
         uris = target("query/uris").request()

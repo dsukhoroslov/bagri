@@ -12,10 +12,12 @@ import java.util.List;
 import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQExpression;
+import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQResultSequence;
 import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.impl.ResultCursorBase;
 import com.bagri.core.api.BagriException;
 import com.bagri.support.util.XMLUtils;
 
@@ -74,11 +76,11 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 			throw new XQException("Provided query is null");
 		}
 		
-		ResultCursor result = connection.executeQuery(query, context);
+		ResultCursor<XQItemAccessor> result = connection.executeQuery(query, context);
 		XQResultSequence sequence;
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
 			try {
-				sequence = new ScrollableXQResultSequence(this, result.getList());
+				sequence = new ScrollableXQResultSequence(this, ((ResultCursorBase<XQItemAccessor>) result).getList());
 			} catch (BagriException ex) {
 				throw getXQException(ex); 
 			}
