@@ -128,6 +128,11 @@ public class ResultCursorTest extends BagriManagementTest {
 		props.setProperty(pn_client_fetchSize, "1");
 		//props.setProperty(pn_client_id, "dummy");
 		checkCursorResult(query, params, props, null);
+
+		props = getDocumentProperties();
+		props.setProperty(pn_client_fetchAsynch, "true");
+		checkCursorResult(query, params, props, null);
+		// check queue exists
 	}
 
 	@Test

@@ -8,7 +8,8 @@ rem set memory=1024m
 set memory=2048m
 
 set schema_addr=localhost:10150
-rem set schema_addr=192.168.1.100:10150
+rem ,localhost:10151
+rem set schema_addr=192.168.1.139:10150
 
 :start
 if "%java_home%"=="" (set java_exec=java) else (set java_exec=%java_home%\bin\java)
@@ -28,8 +29,9 @@ set java_opts=%java_opts% -Dbdb.schema.name=YCSB
 set java_opts=%java_opts% -Dbdb.schema.user=guest
 set java_opts=%java_opts% -Dbdb.schema.password=password
 
-rem possible values are: member, owner, any
-set java_opts=%java_opts% -Dbdb.client.submitTo=owner
+rem possible values are: all, any, query-key-owner, param-hash-owner, param-value-owner, partition key value
+set java_opts=%java_opts% -Dbdb.client.submitTo=param-hash-owner
+set java_opts=%java_opts% -Dbdb.client.ownerParam=uri
 set java_opts=%java_opts% -Dbdb.client.bufferSize=32
 set java_opts=%java_opts% -Dbdb.client.fetchSize=10
 set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
@@ -41,13 +43,14 @@ set java_opts=%java_opts% -Dbdb.client.queryCache=true
 set java_opts=%java_opts% -Dbdb.client.customAuth=true
 set java_opts=%java_opts% -Dbdb.client.fetchAsynch=false
 rem set java_opts=%java_opts% -Dbdb.client.sharedConnection=true
-rem set java_opts=%java_opts% -Dbdb.client.contentSerializers=MAP
+set java_opts=%java_opts% -Dbdb.client.contentSerializers=BMAP
 rem set java_opts=%java_opts% -Dbdb.client.contentSerializer.MAP= 
 
 rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
-set java_opts=%java_opts% -Dbdb.client.txLevel=skip
-set java_opts=%java_opts% -Dbdb.document.compress=true
+rem set java_opts=%java_opts% -Dbdb.client.txLevel=skip
+set java_opts=%java_opts% -Dbdb.document.cache.elements=true
+set java_opts=%java_opts% -Dbdb.document.compress=false
 set java_opts=%java_opts% -Dbdb.document.data.format=BMAP
 set java_opts=%java_opts% -Dbdb.document.map.merge=true
 

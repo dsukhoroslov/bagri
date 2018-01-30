@@ -23,7 +23,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
@@ -41,7 +40,6 @@ import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.api.impl.ResultCursorBase;
 import com.bagri.core.model.Document;
@@ -68,7 +66,6 @@ import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
 import com.bagri.support.util.CollectionUtils;
-import com.bagri.xquery.saxon.XQIterator;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
@@ -79,8 +76,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
 	private static final String xqScrollForwardStr = String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY);
-	private static final String xqDefFetchSizeStr = "50";
-
+	
 	private SchemaRepositoryImpl repo;
 	private ModelManagement model;
     private IndexManagementImpl idxMgr;
@@ -831,7 +827,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			if (Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"))) {
 				String clientId = props.getProperty(pn_client_id);
 				String queueName = "client:" + clientId;
-				if (repo.getHzInstance().getCluster().getMembers().size() > 1) {
+				if (fetchSize > 0) {
 					cursor = new BoundedCursorImpl<>(repo.getHzInstance(), queueName, fetchSize);
 				} else {
 					cursor = new QueuedCursorImpl<>(repo.getHzInstance(), queueName);
