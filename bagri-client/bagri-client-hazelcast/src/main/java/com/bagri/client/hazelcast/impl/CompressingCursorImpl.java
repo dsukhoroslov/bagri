@@ -17,7 +17,7 @@ public class CompressingCursorImpl<T> extends FixedCursorImpl<T> {
 	protected SchemaRepository repo;
 	
 	public CompressingCursorImpl() {
-		// de-ser
+		super();
 	}
 	
 	public CompressingCursorImpl(SchemaRepository repo, int size) {

@@ -39,6 +39,7 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 	
 	@Override
 	public void close() throws Exception {
+		logger.trace("close; results: {}", results);
 		results.clear();
 		results = null;
 	}
@@ -86,7 +87,7 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
-		results = new ArrayList<>(size);
+		this.results = new ArrayList<>(size);
 		for (int i=0; i < size; i++) {
 			results.add((T) in.readObject());
 		}

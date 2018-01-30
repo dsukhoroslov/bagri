@@ -1,5 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,10 +11,7 @@ import com.bagri.core.api.ResultCursor;
 public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	
 	private int limit;
-	private int index = 0;
-	private ResultCursor<T> curResult = null;
-	private Iterator<T> curIter = null;
-	private Deque<ResultCursor<T>> results = new LinkedList<>();
+	private Collection<ResultCursor<T>> results = new ArrayList<>();
 	
 	public CombinedCursorImpl() {
 		this(0);
@@ -27,7 +26,8 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 		for (ResultCursor<T> cln: results) {
 			cln.close();
 		}
-		index = 0;
+		//index = 0;
+		// close iterators?
 	}
 	
 	public void addResults(ResultCursor<T> result) {
@@ -36,7 +36,7 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 
 	@Override
 	public boolean isAsynch() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -46,12 +46,12 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		return new CombinedCursorIterator<T>();
+		return new CombinedCursorIterator<>(limit, results);
 	}
 	
 	@Override
@@ -60,7 +60,18 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	}
 
 	
-	private class CombinedCursorIterator<T> implements Iterator<T> {
+	private static class CombinedCursorIterator<T> implements Iterator<T> {
+
+		private int limit = 0;
+		private int index = 0;
+		private Iterator<T> curIter = null;
+		private ResultCursor<T> curResult = null;
+		private Deque<ResultCursor<T>> results = null;
+		
+		CombinedCursorIterator(int limit, Collection<ResultCursor<T>> results) {
+			this.limit = limit;
+			this.results = new LinkedList<>(results);
+		}
 
 		@Override
 		public boolean hasNext() {

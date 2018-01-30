@@ -16,7 +16,7 @@ import com.bagri.core.api.ResultCursor;
  */
 public abstract class ResultCursorBase<T> implements ResultCursor<T> {
 
-    //protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 	
 	//protected int position;
 

@@ -2,7 +2,6 @@ package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;

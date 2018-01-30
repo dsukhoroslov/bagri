@@ -125,6 +125,12 @@ public class DocumentBackupTest {
 		IMap cElts = hz.getMap(CacheConstants.CN_XDM_ELEMENT);
 		assertEquals(0, cElts.getLocalMapStats().getBackupEntryCount());
 		
+		int counter = 0;
+		final int retries = 5;
+		while (hz.getCluster().getMembers().size() < cluster_size && counter < retries) {
+			Thread.sleep(200);
+			counter++;
+		}
 		assertEquals(cluster_size, hz.getCluster().getMembers().size());
 		
 		int bdx = idx ^ 1;

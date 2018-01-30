@@ -1,6 +1,5 @@
 package com.bagri.xqj;
 
-import static com.bagri.support.util.XQUtils.getXQException;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.io.IOException;
@@ -18,7 +17,6 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.impl.ResultCursorBase;
-import com.bagri.core.api.BagriException;
 import com.bagri.support.util.XMLUtils;
 
 public class BagriXQExpression extends BagriXQDynamicContext implements XQExpression {
@@ -40,8 +38,14 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 	@Override
 	public void close() throws XQException {
 		super.close();
+		closeResults();
+	}
+	
+	private void closeResults() throws XQException {
 		for (XQResultSequence sq: results) {
-			sq.close();
+			if (!sq.isClosed()) {
+				sq.close();
+			}
 		}
 		results.clear();
 	}
@@ -75,6 +79,7 @@ public class BagriXQExpression extends BagriXQDynamicContext implements XQExpres
 		if (query == null) {
 			throw new XQException("Provided query is null");
 		}
+		closeResults();
 		
 		ResultCursor<XQItemAccessor> result = connection.executeQuery(query, context);
 		XQResultSequence sequence;

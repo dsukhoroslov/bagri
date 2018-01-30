@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.api.BagriException;
 import com.bagri.core.xquery.api.XQProcessor;
 
 public class IterableXQSequence extends BagriXQSequence {
@@ -47,11 +46,13 @@ public class IterableXQSequence extends BagriXQSequence {
 	
 	@Override
 	public void close() throws XQException {
-		super.close();
-		try {
-			cursor.close();
-		} catch (Exception ex) {
-			throw getXQException(ex);
+		if (!isClosed()) {
+			super.close();
+			try {
+				cursor.close();
+			} catch (Exception ex) {
+				throw getXQException(ex);
+			}
 		}
 	}
 

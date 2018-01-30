@@ -203,16 +203,18 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		try {
 			if (asynch) {
 				// get the fastest result somehow..
+				// no need to use combined cursor as results from all members 
+				// will go to the queue anyway 
 				result = results.values().iterator().next().get();
 				((QueuedCursorImpl<DocumentAccessor>) result).init(repo.getHazelcastClient());
 			} else {
 				if (repo.getHazelcastClient().getCluster().getMembers().size() > 1) { 
-					CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(); //fSize);
+					int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+					CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(fetchSize);
 					for (Map.Entry<Member, Future<ResultCursor<DocumentAccessor>>> entry: results.entrySet()) {
-						ResultCursor<DocumentAccessor> cln = entry.getValue().get();
-						comb.addResults(cln);
+						comb.addResults(entry.getValue().get());
 					}
-					result = (ResultCursor<DocumentAccessor>) comb;
+					result = comb;
 				} else {
 					result = results.values().iterator().next().get();
 				}

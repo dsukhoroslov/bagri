@@ -141,7 +141,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
 	    		cnt++;
 	    	}
 	    }
-	    xqs.close();
+	    //xqs.close(); will be closed at next line
 	    xqpe.close();
 	    return cnt;
 	}

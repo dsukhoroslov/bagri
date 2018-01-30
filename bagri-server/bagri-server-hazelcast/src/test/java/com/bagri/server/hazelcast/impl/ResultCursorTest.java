@@ -1,7 +1,9 @@
 package com.bagri.server.hazelcast.impl;
 
+import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
+import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
@@ -20,8 +22,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.xquery.XQItemAccessor;
 import javax.xml.xquery.XQSequence;
@@ -125,52 +130,19 @@ public class ResultCursorTest extends BagriManagementTest {
 		checkCursorResult(query, params, props, null);
 	}
 
-	//@Test
+	@Test
 	public void fetchSecuritiesTest() throws Exception {
 		storeSecurityTest();
-		final String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				"declare variable $sym external;\n" + 
-				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
-				"for $sec in fn:collection()/s:Security\n" +
-		  		"where $sec/s:Symbol=$sym\n" + 
-				"return $sec\n";
 		
-		Thread th1 = new Thread(new Runnable() {
+		AtomicInteger counter = new AtomicInteger(2);
+		CountDownLatch latch = new CountDownLatch(2);
 
-			@Override
-			public void run() {
-				Map<String, Object> params = new HashMap<>();
-				params.put("sym", "IBM");
-				Properties props = getDocumentProperties();
-				props.setProperty(pn_client_fetchSize, "1");
-				//props.setProperty(pn_client_id, "thread1");
-				try {
-					checkCursorResult(query, params, props, null);
-				} catch (Exception ex) {
-					assertTrue(ex.getMessage(), false);
-				}
-			}
-		});
-
-		Thread th2 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				Map<String, Object> params = new HashMap<>();
-				params.put("sym", "VFINX");
-				Properties props = getDocumentProperties();
-				props.setProperty(pn_client_fetchSize, "1");
-				//props.setProperty(pn_client_id, "thread2");
-				try {
-					checkCursorResult(query, params, props, null);
-				} catch (Exception ex) {
-					assertTrue(ex.getMessage(), false);
-				}
-			}
-		});
-		
+		Thread th1 = new Thread(new DocQuery("IBM", latch, counter));
+		Thread th2 = new Thread(new DocQuery("VFINX", latch, counter));
 		th1.start();
 		th2.start();
+		latch.await();
+		assertEquals(0, counter.get());
 	}
 	
 	@Test
@@ -242,6 +214,44 @@ public class ResultCursorTest extends BagriManagementTest {
 				cnt++;
 			}
 			assertEquals(5, cnt);
+		}
+	}
+	
+
+	private class DocQuery implements Runnable {
+
+		private String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				"declare variable $sym external;\n" + 
+				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
+				"for $sec in fn:collection()/s:Security\n" +
+		  		"where $sec/s:Symbol=$sym\n" + 
+				"return $sec\n";
+
+		private String symbol;
+		private CountDownLatch latch;
+		private AtomicInteger counter;
+		
+		DocQuery(String symbol, CountDownLatch latch, AtomicInteger counter) {
+			this.symbol = symbol;
+			this.latch = latch;
+			this.counter = counter;
+		}
+		
+		@Override
+		public void run() {
+			Map<String, Object> params = new HashMap<>();
+			params.put("sym", symbol);
+			Properties props = getDocumentProperties();
+			props.setProperty(pn_client_fetchSize, "1");
+			//props.setProperty(pn_client_id, "thread2");
+			try {
+				checkCursorResult(query, params, props, null);
+				counter.decrementAndGet();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				//System.out.println(ex);
+			}
+			latch.countDown();
 		}
 	}
 	

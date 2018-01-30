@@ -1,6 +1,5 @@
 package com.bagri.xqj;
 
-import static com.bagri.support.util.XQUtils.*;
 import static com.bagri.xqj.BagriXQErrors.ex_expression_closed;
 
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import javax.xml.xquery.XQStaticContext;
 
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.impl.ResultCursorBase;
-import com.bagri.core.api.BagriException;
 
 import static javax.xml.xquery.XQSequenceType.*;
 
@@ -63,8 +61,14 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	@Override
 	public void close() throws XQException {
 		super.close();
+		closeResults();
+	}
+	
+	private void closeResults() throws XQException {
 		for (XQResultSequence sq: results) {
-			sq.close();
+			if (!sq.isClosed()) {
+				sq.close();
+			}
 		}
 		results.clear();
 	}
@@ -81,6 +85,7 @@ public class BagriXQPreparedExpression extends BagriXQDynamicContext implements	
 	public XQResultSequence executeQuery() throws XQException {
 
 		checkState(ex_expression_closed);
+		closeResults();
 		ResultCursor<XQItemAccessor> result = connection.executeQuery(xquery, context);
 		XQResultSequence sequence;
 		if (context.getScrollability() == XQConstants.SCROLLTYPE_SCROLLABLE) {
