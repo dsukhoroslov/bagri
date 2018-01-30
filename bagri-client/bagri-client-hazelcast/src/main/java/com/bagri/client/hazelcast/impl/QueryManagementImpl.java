@@ -15,6 +15,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.xml.xquery.XQItemAccessor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,12 +163,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					}
 				}
 			}
-		} else {
+		//} else {
 			// not sure this is correct, just for future investigation..
-			Long partKey = new Long(runOn.hashCode());
+		//	Long partKey = new Long(runOn.hashCode());
 			//future = execService.submitToKeyOwner(task, partKey);
-			QueryProcessor qp = new QueryProcessor(true, query, params, props);
-			return (ResultCursor) resCache.executeOnKey(partKey, qp);
+		//	QueryProcessor qp = new QueryProcessor(repo.getClientId(), repo.getTransactionId(), query, params, props, true);
+		//	return (ResultCursor) resCache.executeOnKey(partKey, qp);
 		}
 
 		if (future == null) {

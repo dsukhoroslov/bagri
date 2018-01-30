@@ -24,6 +24,11 @@ public class UserManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "User";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"Users", "UserNames", "CurrentUser"};
 	}

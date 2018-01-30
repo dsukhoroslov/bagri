@@ -24,6 +24,11 @@ public class RoleManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "Role";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"Roles", "RoleNames"};
 	}

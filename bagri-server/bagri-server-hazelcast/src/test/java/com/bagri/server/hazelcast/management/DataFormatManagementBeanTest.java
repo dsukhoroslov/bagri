@@ -24,6 +24,11 @@ public class DataFormatManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "DataFormat";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"DataFormats", "DataFormatNames"};
 	}

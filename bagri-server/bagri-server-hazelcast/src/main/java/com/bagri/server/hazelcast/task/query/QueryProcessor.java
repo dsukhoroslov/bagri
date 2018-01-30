@@ -26,8 +26,8 @@ public class QueryProcessor extends com.bagri.client.hazelcast.task.query.QueryP
 		super();
 	}
 	
-	public QueryProcessor(boolean readOnly, String query, Map<String, Object> params, Properties props) {
-		super(readOnly, query, params, props);
+	public QueryProcessor(String clientId, long txId, String query, Map<String, Object> params, Properties context, boolean readOnly) {
+		super(clientId, txId, query, params, context, readOnly);
 	}
 	
     @Autowired
@@ -44,7 +44,7 @@ public class QueryProcessor extends com.bagri.client.hazelcast.task.query.QueryP
 	@Override
 	public ResultCursor process(Entry<Long, QueryResult> entry) {
 		try {
-			return queryMgr.executeQuery(query, params, props);
+			return queryMgr.executeQuery(query, params, context);
 		} catch (BagriException ex) {
 			// already logged?
 			logger.error("process.error;", ex);

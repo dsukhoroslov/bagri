@@ -34,6 +34,11 @@ public class SchemaManagementBeanTest extends EntityManagementBeanTest {
 	}
 	
 	@Override
+	protected String getEntityType() {
+		return "Schema";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"Schemas", "SchemaNames", "DefaultProperties"};
 	}

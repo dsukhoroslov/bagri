@@ -321,16 +321,20 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
     @Override
     public Object runQuery(String schemaName, boolean direct, String query, Map<String, Object> params, Properties props) throws ServiceException {
         try {
-        	CompositeData bindings = null;
-        	if (params != null) {
-        		bindings = mapToComposite("param", "desc", params);
+        	Object result;
+        	if (params == null) {
+	            result = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
+	                    , "runQuery"
+	                    , new Object[] {query, direct, props}
+	                    , new String[] {String.class.getName(), boolean.class.getName(), Properties.class.getName()});
+        	} else {
+            	CompositeData bindings = mapToComposite("param", "desc", params);
+	            result = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
+	                    , "runPreparedQuery"
+	                    , new Object[] {query, direct, bindings, props}
+	                    , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName(), Properties.class.getName()});
         	}
-            Object res = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
-                    , "runPreparedQuery"
-                    , new Object[] {query, direct, bindings, props}
-                    , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName(), Properties.class.getName()}
-            );
-            return res;
+            return result;
         } catch (Throwable e) {
             LOGGER.throwing(this.getClass().getName(), "runQuery", e);
             throw new ServiceException(e);

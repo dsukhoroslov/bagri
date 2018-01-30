@@ -24,6 +24,11 @@ public class ClusterManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "Node";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"Nodes", "NodeNames"};
 	}

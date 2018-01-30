@@ -24,6 +24,11 @@ public class DataStoreManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "DataStore";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"DataStores", "DataStoreNames"};
 	}

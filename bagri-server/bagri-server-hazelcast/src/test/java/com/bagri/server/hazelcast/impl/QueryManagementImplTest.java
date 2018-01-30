@@ -2,20 +2,16 @@ package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.query.PathBuilder;
-import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
-import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
-import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.server.hazelcast.task.query.QueryProcessor;
 import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
@@ -91,10 +87,6 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		((SchemaRepositoryImpl) xRepo).setClientId(client_id);
 		removeDocumentsTest();
 		Thread.sleep(1000);
-	}
-
-	private ModelManagement getModelManagement() {
-		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
 	
@@ -403,7 +395,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		KeyFactory f = context.getBean(KeyFactory.class);
 		HazelcastInstance hz = context.getBean(HazelcastInstance.class);
 		IMap qrCache = hz.getMap(CN_XDM_RESULT);
-		QueryProcessor qp = new QueryProcessor(true, query, params, props);
+		QueryProcessor qp = new QueryProcessor(client_id, 0, query, params, props, true);
 		//Long key = new Long("security1500.xml".hashCode());
 		int hc = "security1500.xml".hashCode();
 		long ch = hc;
@@ -424,4 +416,5 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		assertFalse(itr.hasNext());
 		rc.close();
 	}
+	
 }

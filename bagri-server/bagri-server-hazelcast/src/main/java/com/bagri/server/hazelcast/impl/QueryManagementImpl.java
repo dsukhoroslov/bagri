@@ -801,7 +801,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return cursor;
 	}
 	
-	private <T> void fetchResults(Iterator<T> results, Properties props, ResultCursorBase<T> cursor) {
+	private void fetchResults(Iterator results, Properties props, ResultCursorBase cursor) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		if (fetchSize > 0) {
 			int cnt = 0;
@@ -840,6 +840,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			}
 		}
+		logger.trace("getResultCursor.exit; returning {} for props {}", cursor, props);
 		return cursor;
 	}
 

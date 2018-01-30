@@ -24,6 +24,11 @@ public class ModuleManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "Module";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"Modules", "ModuleNames"};
 	}

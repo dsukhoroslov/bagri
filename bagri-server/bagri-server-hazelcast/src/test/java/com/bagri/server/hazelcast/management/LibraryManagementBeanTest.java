@@ -24,6 +24,11 @@ public class LibraryManagementBeanTest extends EntityManagementBeanTest {
 	}
 
 	@Override
+	protected String getEntityType() {
+		return "Library";
+	}
+	
+	@Override
 	protected String[] getExpectedAttributes() {
 		return new String[] {"Libraries", "LibraryNames"};
 	}

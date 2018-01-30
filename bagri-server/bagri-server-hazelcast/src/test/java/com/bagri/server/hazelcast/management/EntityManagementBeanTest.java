@@ -96,6 +96,7 @@ public abstract class EntityManagementBeanTest {
 		return new String[0];
 	}
 	
+	protected abstract String getEntityType();
 	protected abstract Object[] getAddEntityParams();
 	protected abstract String[] getAddEntityParamClasses();
 	
@@ -188,4 +189,16 @@ public abstract class EntityManagementBeanTest {
 		result = (Boolean) mbsc.invoke(oName, methods[3], new Object[] {eName}, new String[] {String.class.getName()});
 		assertFalse(result);
 	}
+
+	@Test
+	public void testEntityManagers() throws Exception {
+		for (String eName: getExpectedEntities()) {
+			ObjectName oName = new ObjectName("com.bagri.db:name=" + eName + ",type=" + getEntityType());
+	        String name = (String) mbsc.getAttribute(oName, "Name");
+			assertEquals(eName, name);
+			// test expected manager attributes
+			// test expected manager operations
+		}
+	}
+
 }
