@@ -11,6 +11,10 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.support.util.JMXUtils;
+import com.hazelcast.collection.impl.queue.QueueService;
+import com.hazelcast.core.DistributedObject;
+import com.hazelcast.core.HazelcastInstance;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -132,7 +136,46 @@ public class ResultCursorTest extends BagriManagementTest {
 		props = getDocumentProperties();
 		props.setProperty(pn_client_fetchAsynch, "true");
 		checkCursorResult(query, params, props, null);
-		// check queue exists
+		assertTrue(findDistributedObject(QueueService.SERVICE_NAME, "client:client"));
+	}
+	
+	@Test
+	public void fetchSecAsynchTest() throws Exception {
+		storeSecurityTest();
+		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
+				//"declare variable $sym external;\n" + 
+				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
+				//"for $sec in fn:collection()/s:Security\n" +
+				"for $sec in fn:collection()\n" +
+		  		//"where $sec/s:Symbol=$sym\n" + 
+				"return $sec\n";
+		
+		Properties props = getDocumentProperties();
+		props.setProperty(pn_client_fetchAsynch, "true");
+		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getItemAsString(null);
+				//assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
+				cnt++;
+			}
+			assertEquals(4, cnt); //results.size());
+			assertTrue(findDistributedObject(QueueService.SERVICE_NAME, "client:client"));
+		}
+	}
+	
+	private boolean findDistributedObject(String serviceName, String objectName) {
+		HazelcastInstance hzi = ((SchemaRepositoryImpl) xRepo).getHzInstance();
+		for (DistributedObject svc: hzi.getDistributedObjects()) {
+			if (objectName.equals(svc.getName())) {
+				if (serviceName == null) {
+					return true;
+				} else if (serviceName.equals(svc.getServiceName())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Test

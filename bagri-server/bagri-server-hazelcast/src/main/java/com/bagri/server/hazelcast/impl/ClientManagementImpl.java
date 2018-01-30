@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.core.server.api.ClientManagement;
 import com.bagri.support.stats.StatisticsEvent;
+import com.hazelcast.collection.impl.queue.QueueService;
 import com.hazelcast.core.Client;
 import com.hazelcast.core.ClientListener;
 import com.hazelcast.core.DistributedObject;
@@ -125,7 +126,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 		java.util.Collection<DistributedObject> all = hzInstance.getDistributedObjects();
 		int sizeBefore = all.size();
 		for (DistributedObject obj: all) {
-			if (qName.equals(obj.getName())) {
+			if (qName.equals(obj.getName()) && QueueService.SERVICE_NAME.equals(obj.getServiceName())) {
 				// remove queue
 				obj.destroy();
 				removed = true;

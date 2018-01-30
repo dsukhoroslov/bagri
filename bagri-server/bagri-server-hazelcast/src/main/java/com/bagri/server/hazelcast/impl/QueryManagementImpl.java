@@ -252,10 +252,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		final QueryExecContext ctx = thContext.get();
 
 		final List<Object> resList;
-		if (cursor != null) {
-			resList = ((ResultCursorBase) cursor).getList();
-		} else {
+		if (cursor == null || cursor.isAsynch()) {
 			resList = new ArrayList<>();
+		} else {
+			resList = ((ResultCursorBase) cursor).getList();
 		}
 		
 		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);

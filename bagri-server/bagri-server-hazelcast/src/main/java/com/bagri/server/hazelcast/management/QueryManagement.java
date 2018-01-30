@@ -106,7 +106,8 @@ public class QueryManagement extends SchemaFeatureManagement {
 	    
 	@ManagedOperation(description="Parse XQuery. Return array of parameter names, if any")
 	@ManagedOperationParameters({
-		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax")})
+		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
+		@ManagedOperationParameter(name = "props", description = "Query processing properties")})
 	public String[] parseQuery(String query, Properties props) {
 		XQPreparedExpression xqpExp = null;
 		try {
