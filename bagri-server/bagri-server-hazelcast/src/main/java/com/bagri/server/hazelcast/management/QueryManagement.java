@@ -5,6 +5,7 @@ package com.bagri.server.hazelcast.management;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.getOutputProperties;
+import static com.bagri.support.util.FileUtils.EOL;
 import static com.bagri.support.util.XQUtils.props2Context;
 
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import com.bagri.server.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.server.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.support.stats.StatsAggregator;
+import com.bagri.support.util.FileUtils;
 import com.bagri.xqj.BagriXQConnection;
 import com.hazelcast.core.Member;
 
@@ -144,6 +146,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 			if (useXDM) {
 				ResultCursor<XQItemAccessor> cursor = queryMgr.executeQuery(query, null, props);
 				result = extractResult(cursor, props);
+				cursor.close();
 			} else {
 				XQStaticContext ctx = xqConn.getStaticContext();
 				props2Context(schemaManager.getEntity().getProperties(), ctx);
@@ -151,24 +154,19 @@ public class QueryManagement extends SchemaFeatureManagement {
 			    XQExpression xqExp = xqConn.createExpression(ctx);
 			    XQResultSequence xqSec = xqExp.executeQuery(query);
 			    result = xqSec.getSequenceAsString(props);
-			    //xqSec.close();
 			    xqExp.close();
 			}	
-		} catch (XQException | BagriException ex) {
+		} catch (Exception ex) {
 			logger.error("runQuery.error", ex); 
 			throw new RuntimeException(ex.getMessage());
-		} catch (Throwable ex) {
-			logger.error("runQuery.error", ex); 
-			throw ex;
 		}
 		logger.debug("runQuery.exit; returning: {}", result);
 		return result;
 	}
 	
-	private String extractResult(ResultCursor<XQItemAccessor> cursor, Properties props) throws /*XQException,*/ BagriException {
+	private String extractResult(ResultCursor<XQItemAccessor> cursor, Properties props) throws BagriException {
 		try {
 			StringBuilder buff = new StringBuilder();
-			//cursor.deserialize(((RepositoryImpl) schemaManager.getRepository()).getHzInstance());
 			XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
 			Properties outProps = getOutputProperties(props);
 			//int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
@@ -181,6 +179,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 			//} else {
 				for (XQItemAccessor item: cursor) {
 					buff.append(xqp.convertToString(item, outProps));
+					buff.append(EOL);
 				}
 			//}
 			return buff.toString();
@@ -209,6 +208,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 			    }
 				ResultCursor<XQItemAccessor> cursor = queryMgr.executeQuery(query, params, props);
 				result = extractResult(cursor, props);
+				cursor.close();
 			} else {
 				XQStaticContext ctx = xqConn.getStaticContext();
 				props2Context(schemaManager.getEntity().getProperties(), ctx);
@@ -219,10 +219,9 @@ public class QueryManagement extends SchemaFeatureManagement {
 			    }
 			    XQResultSequence xqSec = xqpExp.executeQuery();
 			    result = xqSec.getSequenceAsString(props);
-			    //xqSec.close();
 			    xqpExp.close();
 			}
-		} catch (XQException | BagriException ex) {
+		} catch (Exception ex) {
 			logger.error("runPreparedQuery.error", ex); 
 			throw new RuntimeException(ex.getMessage());
 		}

@@ -1,10 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
-import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
-import com.bagri.core.api.TransactionIsolation;
-import com.bagri.core.model.Document;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
@@ -26,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -143,11 +139,7 @@ public class ResultCursorTest extends BagriManagementTest {
 	public void fetchSecAsynchTest() throws Exception {
 		storeSecurityTest();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
-				//"declare variable $sym external;\n" + 
-				//"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
-				//"for $sec in fn:collection()/s:Security\n" +
-				"for $sec in fn:collection()\n" +
-		  		//"where $sec/s:Symbol=$sym\n" + 
+				"for $sec in fn:collection(\"CLN_Security\")/s:Security\n" +
 				"return $sec\n";
 		
 		Properties props = getDocumentProperties();
@@ -159,7 +151,7 @@ public class ResultCursorTest extends BagriManagementTest {
 				//assertTrue("unexpected result: " + text, text.startsWith("<increase>") && text.endsWith("</increase>"));
 				cnt++;
 			}
-			//assertEquals(4, cnt); //results.size());
+			assertEquals(4, cnt); //results.size());
 			assertTrue(findDistributedObject(QueueService.SERVICE_NAME, "client:client"));
 		}
 	}

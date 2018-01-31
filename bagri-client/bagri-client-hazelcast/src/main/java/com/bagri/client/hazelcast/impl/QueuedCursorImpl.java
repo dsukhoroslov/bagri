@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bagri.core.api.BagriException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.core.api.impl.ResultCursorBase;
 import com.bagri.core.model.Null;
 import com.hazelcast.core.HazelcastInstance;
@@ -32,18 +34,22 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean add(T result) {
-		return queue.add(result);
+		boolean added = queue.offer(result);
+		logger.trace("add; added: {}", added);
+		return added;
 	}
 	
 	@Override
 	public void close() throws Exception {
-		//logger.trace("close.enter; queue remaining size: {}", queue.size());
+		logger.trace("close.enter; queue remaining size: {}", queue.size());
 		queue.clear();
 		//queue.destroy();
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void finish() {
 		queue.add(Null._null);
 	}
@@ -110,6 +116,8 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 	
 	protected static class QueuedCursorIterator<T> implements Iterator<T> {
 
+	    private static final Logger log = LoggerFactory.getLogger(QueuedCursorImpl.class);
+		
 		private T current;
 		private IQueue queue;
 		
@@ -118,6 +126,7 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public boolean hasNext() {
 			try {
 				current = (T) queue.take();
@@ -127,6 +136,7 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 			} catch (InterruptedException e) {
 				current = null;
 			}
+			log.trace("hasNext; current: {}", current);
 			return current != null;
 		}
 

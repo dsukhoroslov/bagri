@@ -246,7 +246,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return false;
 	}
 
-	void addQueryResults(final String query, final Map<String, Object> params, final Properties props, 
+	private void addQueryResults(final String query, final Map<String, Object> params, final Properties props, 
 			final ResultCursor cursor, final Iterator<Object> results) {
 
 		final QueryExecContext ctx = thContext.get();
@@ -688,16 +688,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (resList == null) {
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
-				cursor = createCursor(resList, iter, props);
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
 						addQuery(xQuery);
-						addQueryResults(query, params, props, cursor, iter);
+						//addQueryResults(query, params, props, cursor, iter);
+						cursor = createCachedCursor(query, params, props, iter);
 					} else {
 						// TODO: fix it!
 						logger.debug("executeQuery; query is not cached after processing: {}", query);
+						cursor = createCursor(resList, iter, props);
 					}
+				} else {
+					cursor = createCursor(resList, iter, props);
 				}
 			} catch (XQException ex) {
 				String em = ex.getMessage();
@@ -800,7 +803,31 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		return cursor;
 	}
+
+	private <T> ResultCursor<T> createCachedCursor(final String query, final Map<String, Object> params, final Properties props, final Iterator<T> iter) {
+
+		final QueryExecContext ctx = thContext.get();
+		final ResultCursorBase<T> cursor = getResultCursor(props);
+		if (cursor.isAsynch()) {
+			execPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					//try {
+					fetchAndCacheResults(ctx, query, params, iter, props, cursor);
+					//} catch (BagriException ex) {
+					//	throw new RuntimeException(ex);
+					//}
+					cursor.finish();
+				}
+			});
+		} else {
+			fetchAndCacheResults(ctx, query, params, iter, props, cursor);
+		}
+		
+		return cursor;
+	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void fetchResults(Iterator results, Properties props, ResultCursorBase cursor) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		if (fetchSize > 0) {
@@ -813,6 +840,40 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			while (results.hasNext()) {
 				cursor.add(results.next());
 			}
+		}
+	}
+
+	private void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator results, Properties props, ResultCursorBase cursor) {
+		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+		List<Object> resList;
+		if (fetchSize > 0) {
+			resList = new ArrayList<>(fetchSize);
+			int cnt = 0;
+			while (results.hasNext() && cnt < fetchSize) {
+				Object o = results.next();
+				resList.add(o);
+				cursor.add(o);
+				cnt++;
+			}
+		} else {
+			resList = new ArrayList<>();
+			while (results.hasNext()) {
+				Object o = results.next();
+				resList.add(o);
+				cursor.add(o);
+			}
+		}
+		
+		if (resList.size() > 0 && ctx.getDocKeys().size() == 0) {
+			logger.warn("fetchAndCacheResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
+					params, ctx.getDocKeys(), resList);
+		} else {
+			long qpKey = getResultsKey(query, params);
+			QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+			// what is better to use here: putAsync or set ?
+			xrCache.set(qpKey, xqr);
+			updateStats(query, 1, resList.size());
+			logger.trace("fetchAndCacheResults.exit; stored results: {} for key: {}", xqr, qpKey);
 		}
 	}
 

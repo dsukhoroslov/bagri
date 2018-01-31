@@ -118,6 +118,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
@@ -136,8 +137,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		// TODO: implement asynch querying..
-
 		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
 		Future<ResultCursor> future = null;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
@@ -186,11 +185,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		ResultCursor cursor = getResults(future, timeout);
 		logger.trace("execXQuery; got cursor: {}", cursor);
 		
-		//if (asynch) {
-		//	ResultCursor<DocumentAccessor> cln;
-		//	cln = results.values().iterator().next().get();
-		//	((QueuedCursorImpl<DocumentAccessor>) cln).init(repo.getHazelcastClient());
-		//	result = cln;
+		if (cursor.isAsynch()) {
+			((QueuedCursorImpl<T>) cursor).init(repo.getHazelcastClient());
+		}
 		//} else {
 		//	int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		//	CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(fSize);
@@ -200,11 +197,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		//	}
 		//	result = (ResultCursor<DocumentAccessor>) comb;
 		//}
-		
-		if (cursor instanceof QueuedCursorImpl) {
-			((QueuedCursorImpl<DocumentAccessor>) cursor).init(repo.getHazelcastClient());
-		}
-		logger.trace("executeQuery.exit; returning: {}", cursor);
+		logger.debug("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
 	}
 
