@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.management;
 
+import static com.bagri.server.hazelcast.BagriServerTestHelper.*;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 

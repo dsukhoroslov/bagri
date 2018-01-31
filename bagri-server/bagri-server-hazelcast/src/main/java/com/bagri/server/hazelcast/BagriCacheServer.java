@@ -44,7 +44,6 @@ import com.bagri.server.hazelcast.security.BagriJMXAuthenticator;
 import com.bagri.server.hazelcast.store.system.ModuleCacheStore;
 import com.bagri.server.hazelcast.task.schema.SchemaAdministrator;
 import com.bagri.server.hazelcast.task.schema.SchemaInitiator;
-import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
@@ -58,7 +57,7 @@ public class BagriCacheServer {
 	public static void main(String[] args) {
     	
         String contextPath = System.getProperty(pn_config_context_file);
-        logger.info("Starting XDM node with Context [{}]", contextPath);
+        logger.info("Starting BagriDB node with Context [{}]", contextPath);
     	
         context = new ClassPathXmlApplicationContext(contextPath);
         HazelcastInstance hz = context.getBean(hz_instance, HazelcastInstance.class);

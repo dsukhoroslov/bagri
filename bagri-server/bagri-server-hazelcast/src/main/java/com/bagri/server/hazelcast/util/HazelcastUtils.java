@@ -21,7 +21,14 @@ public class HazelcastUtils {
 
 	public static HazelcastInstance findSystemInstance() {
 
-		return Hazelcast.getHazelcastInstanceByName(hz_instance);
+		String instance_name;
+		String sys_instance = System.getProperty(pn_node_instance);
+		if (sys_instance == null) {
+			instance_name = hz_instance;
+		} else {
+			instance_name = hz_instance + "-" + sys_instance;  
+		}
+		return Hazelcast.getHazelcastInstanceByName(instance_name);
 	}
 	
 	public static HazelcastInstance findSchemaInstance(String schemaName) {

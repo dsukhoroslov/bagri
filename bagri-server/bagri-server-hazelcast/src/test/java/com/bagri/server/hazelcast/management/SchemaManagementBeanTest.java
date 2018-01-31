@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.management;
 
+import static com.bagri.server.hazelcast.BagriServerTestHelper.*;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -17,16 +19,6 @@ public class SchemaManagementBeanTest extends EntityManagementBeanTest {
 	public static void tearDownAfterClass() throws Exception {
 		stopAdminServer();
 	}
-	
-	//@Before
-	//public void setUp() throws Exception {
-    //    mbsc = startAdminServer();
-	//}
-
-	//@After
-	//public void tearDown() throws Exception {
-	//	stopAdminServer();
-	//}
 	
 	@Override
 	protected ObjectName getObjectName() throws MalformedObjectNameException {
