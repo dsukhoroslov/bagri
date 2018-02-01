@@ -22,6 +22,15 @@ public abstract class EntityManagementBeanTest extends ManagementBeanTest {
 	}
 	
 	protected abstract String getEntityType();
+	
+	protected String getEntityName() {
+		return getEntityType() + "s";
+	}
+	
+	protected String getEntityNames() {
+		return getEntityType() + "Names";
+	}
+
 	protected abstract Object[] getAddEntityParams();
 	protected abstract String[] getAddEntityParamClasses();
 	
@@ -37,15 +46,13 @@ public abstract class EntityManagementBeanTest extends ManagementBeanTest {
 
 	@Test
 	public void testGetEntityNames() throws Exception {
-		String[] names = getExpectedAttributes();
-		checkEntityNames(names[1], getExpectedEntities());
+		checkEntityNames(getEntityNames(), getExpectedEntities());
 	}
 
 	@Test
 	public void testGetEntities() throws Exception {
 		ObjectName name = getObjectName();
-		String[] names = getExpectedAttributes();
-        TabularData entities = (TabularData) mbsc.getAttribute(name, names[0]);
+        TabularData entities = (TabularData) mbsc.getAttribute(name, getEntityName());
         assertNotNull(entities);
 		List<String> expected = Arrays.asList(getExpectedEntities());
         assertEquals(expected.size(), entities.size());
@@ -71,8 +78,8 @@ public abstract class EntityManagementBeanTest extends ManagementBeanTest {
 		String[] original = getExpectedEntities();
 		String[] added = Arrays.copyOf(original, original.length + 1);
 		added[original.length] = eName;
-		String[] attrs = getExpectedAttributes();
-		checkEntityNames(attrs[1], added);
+		//String[] attrs = getExpectedAttributes();
+		checkEntityNames(getEntityNames(), added);
 
 		// check entity properties here..
 		
@@ -81,7 +88,7 @@ public abstract class EntityManagementBeanTest extends ManagementBeanTest {
         
 		result = (Boolean) mbsc.invoke(oName, methods[3], new Object[] {eName}, new String[] {String.class.getName()});
 		assertTrue(result);
-		checkEntityNames(attrs[1], original);
+		checkEntityNames(getEntityNames(), original);
 
 		result = (Boolean) mbsc.invoke(oName, methods[3], new Object[] {eName}, new String[] {String.class.getName()});
 		assertFalse(result);

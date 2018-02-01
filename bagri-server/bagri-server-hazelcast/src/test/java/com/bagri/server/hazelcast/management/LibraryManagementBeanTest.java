@@ -2,6 +2,9 @@ package com.bagri.server.hazelcast.management;
 
 import static com.bagri.server.hazelcast.BagriServerTestHelper.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -31,10 +34,18 @@ public class LibraryManagementBeanTest extends EntityManagementBeanTest {
 	}
 	
 	@Override
-	protected String[] getExpectedAttributes() {
-		return new String[] {"Libraries", "LibraryNames"};
+	protected String getEntityName() {
+		return "Libraries";
 	}
-
+	
+	@Override
+	protected Map<String, Object> getExpectedAttributes() {
+		Map<String, Object> map = new HashMap<>(2);
+		map.put("Libraries", null);
+		map.put("LibraryNames", null);
+		return map;
+	}
+	
 	@Override
 	protected String[] getExpectedOperations() {
 		return new String[] {"getLibraries", "getLibraryNames", "addLibrary", "deleteLibrary"};

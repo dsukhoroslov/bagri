@@ -104,16 +104,16 @@ public class DocumentServiceTest {
         // expect no results
         assertEquals(Status.NO_CONTENT.getStatusCode(), resp.getStatus());
         
-    	query = "createdBy = guest";
-        resp = target.path("docs").queryParam("query", query).queryParam("page", 1).queryParam("size", 50)
-        		.request()
-        		.header("Content-Type", "application/json")
-        		.cookie(bg_cookie, cuid)
-        		.get();
+    	//query = "createdBy = guest";
+        //resp = target.path("docs").queryParam("query", query).queryParam("page", 1).queryParam("size", 50)
+        //		.request()
+        //		.header("Content-Type", "application/json")
+        //		.cookie(bg_cookie, cuid)
+        //		.get();
         // expect results
-        assertEquals(Status.OK.getStatusCode(), resp.getStatus());
-        DocumentBean[] docs = resp.readEntity(DocumentBean[].class);
-        assertEquals(1, docs.length);
+        //assertEquals(Status.OK.getStatusCode(), resp.getStatus());
+        //DocumentBean[] docs = resp.readEntity(DocumentBean[].class);
+        //assertEquals(1, docs.length);
         
         //assertTrue(resp.getLocation().getPath().endsWith("/a0001.xml"));
         //DocumentBean doc = resp.readEntity(DocumentBean.class);

@@ -17,7 +17,6 @@ import javax.management.ObjectName;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class DocumentManagementBeanTest extends ManagementBeanTest {
 	
@@ -44,11 +43,7 @@ public class DocumentManagementBeanTest extends ManagementBeanTest {
 	}
 	
 	@Override
-	protected String[] getExpectedAttributes() {
-		return new String[] {"Schema", "TotalCounts", "DocumentCount", "ElementCount", "SchemaSize", "Collections", "CollectionStatistics"};
-	}
-
-	protected Map<String, Object> getExpectedAttributes2() {
+	protected Map<String, Object> getExpectedAttributes() {
 		Map<String, Object> map = new HashMap<>(7);
 		map.put("Schema", "default");
 		map.put("TotalCounts", null);
@@ -68,18 +63,4 @@ public class DocumentManagementBeanTest extends ManagementBeanTest {
 				"resetStatistics", "addDocumentToCollection", "removeDocumentFromCollection", "getCollectionDocuments", "getDocumentUris"};
 	}
 
-	@Test
-	public void testBeanAttributes() throws Exception {
-        ObjectName oName = getObjectName();
-        Map<String, Object> expected = getExpectedAttributes2();
-        for (Map.Entry<String, Object> attr: expected.entrySet()) {
-        	Object o = mbsc.getAttribute(oName, attr.getKey());
-        	if (attr.getValue() != null) {
-        		assertEquals(attr.getValue(), o);
-        	} else {
-        		System.out.println("attribute: " + attr.getKey() + " value: " + o);
-        	}
-        }
-	}
-	
 }

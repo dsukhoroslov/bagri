@@ -1,6 +1,9 @@
 package com.bagri.server.hazelcast.management;
 
-import static com.bagri.server.hazelcast.BagriServerTestHelper.*; 
+import static com.bagri.server.hazelcast.BagriServerTestHelper.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -31,8 +34,11 @@ public class ClusterManagementBeanTest extends EntityManagementBeanTest {
 	}
 	
 	@Override
-	protected String[] getExpectedAttributes() {
-		return new String[] {"Nodes", "NodeNames"};
+	protected Map<String, Object> getExpectedAttributes() {
+		Map<String, Object> map = new HashMap<>(2);
+		map.put("Nodes", null);
+		map.put("NodeNames", null);
+		return map;
 	}
 
 	@Override

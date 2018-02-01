@@ -2,6 +2,9 @@ package com.bagri.server.hazelcast.management;
 
 import static com.bagri.server.hazelcast.BagriServerTestHelper.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -31,10 +34,14 @@ public class UserManagementBeanTest extends EntityManagementBeanTest {
 	}
 	
 	@Override
-	protected String[] getExpectedAttributes() {
-		return new String[] {"Users", "UserNames", "CurrentUser"};
+	protected Map<String, Object> getExpectedAttributes() {
+		Map<String, Object> map = new HashMap<>(3);
+		map.put("Users", null);
+		map.put("UserNames", null);
+		map.put("CurrentUser", null);
+		return map;
 	}
-
+	
 	@Override
 	protected String[] getExpectedOperations() {
 		return new String[] {"getUsers", "getUserNames", "addUser", "deleteUser", "getCurrentUser"};
