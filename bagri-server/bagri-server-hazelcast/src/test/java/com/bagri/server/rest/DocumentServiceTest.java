@@ -34,7 +34,7 @@ import com.bagri.rest.service.LoginParams;
 //@Ignore
 public class DocumentServiceTest {
 
-    private static MBeanServerConnection mbsc;
+    //private static MBeanServerConnection mbsc;
     private static WebTarget target;
     private static String cuid;
 
@@ -42,10 +42,11 @@ public class DocumentServiceTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		//System.setProperty("bdb.log.level", "trace");
-        mbsc = startAdminServer();
+        startAdminServer();
 		startCacheServer("0");
 		
-    	URI baseURI = new URI("https://localhost:3443");
+    	//URI baseURI = new URI("https://localhost:3443");
+    	URI baseURI = new URI("http://localhost:3030");
     	ClientConfig clientConfig = new ClientConfig();
     	Client client = ClientBuilder.newClient(clientConfig);
     	target = client.target(baseURI);
@@ -70,7 +71,7 @@ public class DocumentServiceTest {
 	}
 
     @Test
-    public void testDocumentService() throws Exception {
+    public void testDocumentCreation() throws Exception {
     	
     	Properties propsXml = new Properties();
     	propsXml.setProperty(pn_document_data_format, df_xml);
@@ -87,4 +88,35 @@ public class DocumentServiceTest {
         assertEquals("a0001.xml", doc.uri);
     }	
     
+
+    @Test
+    public void testDocumentSelection() throws Exception {
+    	
+    	Properties propsXml = new Properties();
+    	propsXml.setProperty(pn_document_data_format, df_xml);
+
+    	String query = "createdBy = admin, bytes > 3000, uri like security%, collections.contains(securities)";
+        Response resp = target.path("docs").queryParam("query", query).queryParam("page", 1).queryParam("size", 50)
+        		.request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, cuid)
+        		.get();
+        // expect no results
+        assertEquals(Status.NO_CONTENT.getStatusCode(), resp.getStatus());
+        
+    	query = "createdBy = guest";
+        resp = target.path("docs").queryParam("query", query).queryParam("page", 1).queryParam("size", 50)
+        		.request()
+        		.header("Content-Type", "application/json")
+        		.cookie(bg_cookie, cuid)
+        		.get();
+        // expect results
+        assertEquals(Status.OK.getStatusCode(), resp.getStatus());
+        DocumentBean[] docs = resp.readEntity(DocumentBean[].class);
+        assertEquals(1, docs.length);
+        
+        //assertTrue(resp.getLocation().getPath().endsWith("/a0001.xml"));
+        //DocumentBean doc = resp.readEntity(DocumentBean.class);
+        //assertEquals("a0001.xml", doc.uri);
+    }	
 }

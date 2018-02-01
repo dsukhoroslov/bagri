@@ -81,6 +81,10 @@ public class DocumentService  extends RestService {
 		props.setProperty(pn_client_fetchSize, String.valueOf(size));
 		props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
     	try (ResultCursor<DocumentAccessor> uris = docMgr.getDocuments(query, props)) {
+    		if (uris.isEmpty()) {
+                return Response.noContent().build();
+    		}
+    		
    			List<String> names = new ArrayList<>(); //itr.size());
    			for (DocumentAccessor uri: uris) {
    				names.add(uri.getUri());

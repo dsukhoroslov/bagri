@@ -17,7 +17,6 @@ public class DocumentBean {
     }
     
     public DocumentBean(String uri, long createdAt, String createdBy, String format, String encoding, long size) {
-		super();
 		this.uri = uri;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;

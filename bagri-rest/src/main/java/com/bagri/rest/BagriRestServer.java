@@ -73,20 +73,6 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private Reloader reloader = new Reloader();
     private Set<String> activeSchemas = new HashSet<>();
 	
-	static {
-	    //for localhost testing only
-	    javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(
-	    new javax.net.ssl.HostnameVerifier(){
-
-	        public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
-	            if (hostname.equals("localhost")) {
-	                return true;
-	            }
-	            return false;
-	        }
-	    });
-	}
-    
     public static void main(String[] args) throws Exception {
     	BagriRestServer server = new BagriRestServer();
         try {
@@ -138,6 +124,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     }
     
     public void reload(final String schemaName, final boolean force) {
+        logger.debug("reload.enter; got schema: {}, force: {}; active schemas: {}", schemaName, force, activeSchemas);
     	if (force || !activeSchemas.contains(schemaName)) {
 	    	new Thread() {
 	    		@Override
@@ -153,12 +140,14 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    				}
 	    			}
 	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
-	    			reloader.reload(config);
-	    			// rebuild Swagger definitions
-	    			bildSwaggerConfig();
-	    			activeSchemas = newList;
-	    			// what about current clients?
-	    			// should we disconnect all of them?
+	    	        if (newList.size() > 0) {
+	    	        	reloader.reload(config);
+	    	        	// rebuild Swagger definitions
+	    	        	bildSwaggerConfig();
+	    	        	activeSchemas = newList;
+	    	        	// what about current clients?
+	    	        	// should we disconnect all of them?
+	    	        }
 	    		}
 	    	}.start();
     	}
