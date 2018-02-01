@@ -29,6 +29,8 @@ public class BagriServerTestHelper {
 	private static String url = "service:jmx:rmi://localhost/jndi/rmi://localhost:3330/jmxrmi";
 	private static String user = "admin";
 	private static String password = "password";
+	
+	private static ClassPathXmlApplicationContext schemaCtx;
 
 	public static MBeanServerConnection startAdminServer() throws Exception {
 		
@@ -77,8 +79,18 @@ public class BagriServerTestHelper {
 		System.setProperty(pn_config_filename, "config.xml");
         System.setProperty(pn_config_context_file, "spring/cache-system-context.xml");
 		System.setProperty(pn_config_properties_file, "first.properties");
+		System.setProperty(pn_cluster_node_schemas, "default");
 		System.setProperty(pn_node_instance, instance);
 		BagriCacheServer.main(null);
+		
+        HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("hzInstance-" + instance);
+        schemaCtx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
+        Thread.sleep(1000);
 	}
 	
+	public static void stopCacheServer() {
+		//BagriCacheServer.closeAdmin();
+		schemaCtx.close();
+	}
+
 }

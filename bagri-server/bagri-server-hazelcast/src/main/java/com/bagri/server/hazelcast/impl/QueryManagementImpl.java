@@ -569,6 +569,64 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
+	public void cancelExecution() throws BagriException {
+		// no-op on the server side
+	}
+	
+	@Override
+	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
+
+		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
+		List<Object> resList = null;
+		int qKey = 0;
+		if (cacheResults) {
+			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
+			qKey = getQueryKey(query);
+			if (isQuery) {
+				if (xqCache.containsKey(qKey)) {
+					resList = getQueryResults(query, params, props);
+				}
+			}
+		}
+		
+		ResultCursor cursor;
+		String clientId = props.getProperty(pn_client_id);
+		XQProcessor xqp = repo.getXQProcessor(clientId);
+		if (resList == null) {
+			try {
+				Iterator<Object> iter = runQuery(query, params, props);
+				if (cacheResults) {
+					Query xQuery = xqp.getCurrentQuery(query);
+					if (xQuery != null) {
+						addQuery(xQuery);
+						//addQueryResults(query, params, props, cursor, iter);
+						cursor = createCachedCursor(query, params, props, iter, false);
+					} else {
+						// TODO: fix it!
+						logger.debug("executeQuery; query is not cached after processing: {}", query);
+						cursor = createCursor(iter, props);
+					}
+				} else {
+					cursor = createCursor(iter, props);
+				}
+			} catch (XQException ex) {
+				String em = ex.getMessage();
+				if (em == null) {
+					em = ex.getClass().getName();
+				}
+				throw new BagriException(em, ex, BagriException.ecQuery);
+			}
+		} else {
+			// already cached
+			cursor = createCursor(resList.iterator(), props);
+		}
+		//logger.info("executeQuery.exit; params: {}; props: {}; cursor: {}", params, props, cursor.getList().size());
+		xqp.setResults(cursor);
+		logger.trace("executeQuery.exit; returning: {}", cursor);
+		return cursor;
+	}
+	
+	@Override
 	public Collection<String> getContent(ExpressionContainer query, String template, Map<String, Object> params) throws BagriException {
 		
 		Collection<Long> docKeys = getDocumentIds(query);
@@ -608,42 +666,50 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 		logger.trace("getDocumentUris.enter; query: {}, params: {}; properties: {}", query, params, props);
-		ResultCursor<String> result = null;
+		Collection resList = null;
 		int qKey = 0;
 		if (cacheResults) {
 			qKey = getQueryKey(query);
 			if (xqCache.containsKey(qKey)) {
 				Map<Long, String> keys = getQueryUris(query, params, props);
 				if (keys != null) {
-					result = new FixedCursorImpl<String>(new ArrayList<>(keys.values()));
+					resList = keys.values();
 				}
 			}
 		}
-		
-		if (result == null) {
+
+		ResultCursor cursor = null;
+		if (resList == null) {
 			String clientId = props.getProperty(pn_client_id);
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			try {
 				Iterator<Object> iter = runQuery(query, params, props);
-				result = new FixedCursorImpl<String>(new ArrayList<>(thContext.get().getDocKeys().values()));
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
 						addQuery(xQuery);
-						addQueryResults(query, params, props, null, iter);
+						cursor = createCachedCursor(query, params, props, iter, true);
 					} else {
-						logger.warn("getDocumentUris; query is not cached after processing: {}", query);
+						// TODO: fix it!
+						logger.debug("executeQuery; query is not cached after processing: {}", query);
+						cursor = createCursor(thContext.get().getDocKeys().values().iterator(), props);
 					}
+				} else {
+					cursor = createCursor(thContext.get().getDocKeys().values().iterator(), props);
 				}
 			} catch (XQException ex) {
 				throw new BagriException(ex, BagriException.ecQuery);
 			}
+		} else {
+			// already cached
+			cursor = createCursor(resList.iterator(), props);
 		}
-
-		logger.trace("getDocumentUris.exit; returning: {}", result);
-		return result;
+		
+		logger.trace("getDocumentUris.exit; returning: {}", cursor);
+		return cursor;
 	}
 
 	@Override
@@ -661,64 +727,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return xQuery.isReadOnly();
 	}
 
-	@Override
-	public void cancelExecution() throws BagriException {
-		// no-op on the server side
-	}
-	
-	@Override
-	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
-
-		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		List<Object> resList = null;
-		int qKey = 0;
-		if (cacheResults) {
-			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-			qKey = getQueryKey(query);
-			if (isQuery) {
-				if (xqCache.containsKey(qKey)) {
-					resList = getQueryResults(query, params, props);
-				}
-			}
-		}
-		
-		ResultCursor cursor;
-		String clientId = props.getProperty(pn_client_id);
-		XQProcessor xqp = repo.getXQProcessor(clientId);
-		if (resList == null) {
-			try {
-				Iterator<Object> iter = runQuery(query, params, props);
-				if (cacheResults) {
-					Query xQuery = xqp.getCurrentQuery(query);
-					if (xQuery != null) {
-						addQuery(xQuery);
-						//addQueryResults(query, params, props, cursor, iter);
-						cursor = createCachedCursor(query, params, props, iter);
-					} else {
-						// TODO: fix it!
-						logger.debug("executeQuery; query is not cached after processing: {}", query);
-						cursor = createCursor(resList, iter, props);
-					}
-				} else {
-					cursor = createCursor(resList, iter, props);
-				}
-			} catch (XQException ex) {
-				String em = ex.getMessage();
-				if (em == null) {
-					em = ex.getClass().getName();
-				}
-				throw new BagriException(em, ex, BagriException.ecQuery);
-			}
-		} else {
-			// already cached
-			cursor = createCursor(resList, null, props);
-		}
-		//logger.info("executeQuery.exit; params: {}; props: {}; cursor: {}", params, props, cursor.getList().size());
-		xqp.setResults(cursor);
-		logger.trace("executeQuery.exit; returning: {}", cursor);
-		return cursor;
-	}
-	
 	@Override
 	public Collection<String> prepareQuery(String query) {
 		// not used on the server side?
@@ -774,7 +782,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return iter;
 	}
 	
-	private <T> ResultCursor<T> createCursor(final List<T> results, final Iterator<T> iter, final Properties props) {
+	private <T> ResultCursor<T> createCursor(final Iterator<T> iter, final Properties props) {
 
 		final ResultCursorBase<T> cursor = getResultCursor(props);
 		if (cursor.isAsynch()) {
@@ -782,11 +790,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				@Override
 				public void run() {
 					//try {
-					if (results == null) {
-						fetchResults(iter, props, cursor);
-					} else {
-						fetchResults(results.iterator(), props, cursor);
-					}
+					fetchResults(iter, props, cursor);
 					//} catch (BagriException ex) {
 					//	throw new RuntimeException(ex);
 					//}
@@ -794,17 +798,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			});
 		} else {
-			if (results == null) {
-				fetchResults(iter, props, cursor);
-			} else {
-				fetchResults(results.iterator(), props, cursor);
-			}
+			fetchResults(iter, props, cursor);
 		}
 		
 		return cursor;
 	}
 
-	private <T> ResultCursor<T> createCachedCursor(final String query, final Map<String, Object> params, final Properties props, final Iterator<T> iter) {
+	private <T> ResultCursor<T> createCachedCursor(final String query, final Map<String, Object> params, final Properties props, final Iterator<T> iter, final boolean returnUris) {
 
 		final QueryExecContext ctx = thContext.get();
 		final ResultCursorBase<T> cursor = getResultCursor(props);
@@ -813,7 +813,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				@Override
 				public void run() {
 					//try {
-					fetchAndCacheResults(ctx, query, params, iter, props, cursor);
+					fetchAndCacheResults(ctx, query, params, iter, props, cursor, returnUris);
 					//} catch (BagriException ex) {
 					//	throw new RuntimeException(ex);
 					//}
@@ -821,7 +821,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			});
 		} else {
-			fetchAndCacheResults(ctx, query, params, iter, props, cursor);
+			fetchAndCacheResults(ctx, query, params, iter, props, cursor, returnUris);
 		}
 		
 		return cursor;
@@ -843,16 +843,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 
-	private void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator results, Properties props, ResultCursorBase cursor) {
+	private void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator results, Properties props, ResultCursorBase cursor, boolean returnUris) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		List<Object> resList;
+		Iterator uris = ctx.getDocKeys().values().iterator();
 		if (fetchSize > 0) {
 			resList = new ArrayList<>(fetchSize);
 			int cnt = 0;
 			while (results.hasNext() && cnt < fetchSize) {
 				Object o = results.next();
 				resList.add(o);
-				cursor.add(o);
+				cursor.add(returnUris ? uris.next() : o);
 				cnt++;
 			}
 		} else {
@@ -860,7 +861,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			while (results.hasNext()) {
 				Object o = results.next();
 				resList.add(o);
-				cursor.add(o);
+				cursor.add(returnUris ? uris.next() : o);
 			}
 		}
 		
