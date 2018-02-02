@@ -5,7 +5,12 @@ import static com.bagri.core.Constants.pn_node_instance;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.schema_context;
 
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import com.bagri.server.hazelcast.BagriCacheServer;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.core.Hazelcast;
@@ -14,10 +19,13 @@ import com.hazelcast.core.Member;
 
 
 public class HazelcastUtils {
+
+    private static final transient Logger logger = LoggerFactory.getLogger(HazelcastUtils.class);
+
+    private static String node_instance = null;
 	
 	public final static String hz_instance = "hzInstance";
 	
-	private static String node_instance = null;
 
 	public static HazelcastInstance findSystemInstance() {
 
@@ -28,7 +36,11 @@ public class HazelcastUtils {
 		} else {
 			instance_name = hz_instance + "-" + sys_instance;  
 		}
-		return Hazelcast.getHazelcastInstanceByName(instance_name);
+		HazelcastInstance result = Hazelcast.getHazelcastInstanceByName(instance_name);
+		if (result == null) {
+			logger.warn("findSystemInstance; cannot find HZ for name: {}", instance_name); 
+		}
+		return result; 
 	}
 	
 	public static HazelcastInstance findSchemaInstance(String schemaName) {
