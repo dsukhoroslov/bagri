@@ -28,7 +28,7 @@ public class ResourceManagementBeanTest extends ManagementBeanTest {
 	public static void tearDownAfterClass() throws Exception {
 		stopCacheServer(); //"0");
 		stopAdminServer();
-		//servCtx.close();
+		Thread.sleep(5000);
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class ResourceManagementBeanTest extends ManagementBeanTest {
 	protected Map<String, Object> getExpectedAttributes() {
 		Map<String, Object> map = new HashMap<>(7);
 		map.put("Schema", "default");
-		map.put("Resources", 0);
+		map.put("Resources", null);
 		map.put("ResourceStatistics", null);
 		return map;
 	}

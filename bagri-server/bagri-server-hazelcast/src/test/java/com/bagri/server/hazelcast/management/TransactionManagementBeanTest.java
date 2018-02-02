@@ -28,7 +28,7 @@ public class TransactionManagementBeanTest extends ManagementBeanTest {
 	public static void tearDownAfterClass() throws Exception {
 		stopCacheServer(); //"0");
 		stopAdminServer();
-		//servCtx.close();
+		Thread.sleep(5000);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class TransactionManagementBeanTest extends ManagementBeanTest {
 		map.put("Schema", "default");
 		map.put("TxStatistics", null);
 		map.put("InFlightTransactions", null);
-		map.put("TransactionTimeout", 0);
+		map.put("TransactionTimeout", 0L);
 		return map;
 	}
 	

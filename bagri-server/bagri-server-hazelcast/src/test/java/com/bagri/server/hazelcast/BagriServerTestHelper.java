@@ -30,7 +30,7 @@ public class BagriServerTestHelper {
 	private static String user = "admin";
 	private static String password = "password";
 	
-	private static ClassPathXmlApplicationContext schemaCtx;
+	private static ClassPathXmlApplicationContext systemCtx;
 
 	public static MBeanServerConnection startAdminServer() throws Exception {
 		
@@ -66,8 +66,9 @@ public class BagriServerTestHelper {
 		ctx.close();
 	}
 	
-	public static void startCacheServer(String instance) throws Exception {
+	public static ClassPathXmlApplicationContext startCacheServer(String instance) throws Exception {
 
+		String schemaName = "default";
 		System.setProperty("hz.log.level", "info");
 		//System.setProperty("bdb.log.level", "trace");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
@@ -79,18 +80,21 @@ public class BagriServerTestHelper {
 		System.setProperty(pn_config_filename, "config.xml");
         System.setProperty(pn_config_context_file, "spring/cache-system-context.xml");
 		System.setProperty(pn_config_properties_file, "first.properties");
-		System.setProperty(pn_cluster_node_schemas, "default");
+		System.setProperty(pn_cluster_node_schemas, schemaName);
 		System.setProperty(pn_node_instance, instance);
 		BagriCacheServer.main(null);
-		
+
         HazelcastInstance hz = Hazelcast.getHazelcastInstanceByName("hzInstance-" + instance);
-        schemaCtx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
+        systemCtx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
+        hz = Hazelcast.getHazelcastInstanceByName(schemaName + "-" + instance);
+        ClassPathXmlApplicationContext schemaCtx = (ClassPathXmlApplicationContext) hz.getUserContext().get(schema_context);
         Thread.sleep(1000);
+        return schemaCtx;
 	}
 	
 	public static void stopCacheServer() {
 		//BagriCacheServer.closeAdmin();
-		schemaCtx.close();
+		systemCtx.close();
 	}
 
 }

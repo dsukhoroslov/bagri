@@ -34,7 +34,7 @@ public class DocumentManagementBeanTest extends ManagementBeanTest {
 	public static void tearDownAfterClass() throws Exception {
 		stopCacheServer(); //"0");
 		stopAdminServer();
-		//servCtx.close();
+		Thread.sleep(5000);
 	}
 
 	@Override
