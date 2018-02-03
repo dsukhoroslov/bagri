@@ -13,6 +13,7 @@ import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.SequenceType;
 
 public class CommitTransaction extends ExtensionFunctionDefinition {
@@ -40,7 +41,7 @@ public class CommitTransaction extends ExtensionFunctionDefinition {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_INT}; 
+		return new SequenceType[] {BuiltInAtomicType.INT.one()}; 
 	}
 	
 	@Override

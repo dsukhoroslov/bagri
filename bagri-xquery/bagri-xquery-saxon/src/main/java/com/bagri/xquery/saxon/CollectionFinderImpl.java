@@ -21,6 +21,7 @@ import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 
 import net.sf.saxon.expr.Atomizer;
+import net.sf.saxon.expr.AttributeGetter;
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.BinaryExpression;
 import net.sf.saxon.expr.Binding;
@@ -28,7 +29,6 @@ import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
-import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
@@ -41,10 +41,10 @@ import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.parser.Token;
-import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
 import net.sf.saxon.om.AxisInfo;
+import net.sf.saxon.om.FingerprintedQName;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
@@ -237,7 +237,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterateParams(e, ctx);
 		}
 
-		if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
+		if (ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Object value = null;
 			String pName = null;
@@ -357,6 +357,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 			path.addPathSegment(axis, namespace, segment);
 		}
 
+		if (ex instanceof AttributeGetter) {
+			FingerprintedQName an = ((AttributeGetter) ex).getAttributeName();
+			path.addPathSegment(AxisType.ATTRIBUTE, an.getURI(), an.getLocalPart());
+		}
+		
 		int exIndex = -1;
 		if (ex instanceof BooleanExpression) {
 			Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
@@ -384,12 +389,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterate(e, ctx);
 		}
 
-		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { // GeneralComparison20
-			// ||
-			// ex
-			// instanceof
-			// ValueComparison)
-			// {
+		if (ex instanceof ComparisonExpression) { // GeneralComparison20 || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Object value = null;
 			String pName = null;
@@ -454,10 +454,10 @@ public class CollectionFinderImpl implements CollectionFinder {
 			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
 		}
 
-		if (ex instanceof IntegratedFunctionCall) {
-			IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
-			if ("map:get".equals(ifc.getDisplayName())) {
-				Expression arg = ifc.getArg(1);
+		if (ex instanceof SystemFunctionCall) {
+			SystemFunctionCall sfc = (SystemFunctionCall) ex;
+			if ("map:get".equals(sfc.getDisplayName())) {
+				Expression arg = sfc.getArg(1);
 				if (arg instanceof StringLiteral) {
 					String namespace = null;
 					String segment = ((StringLiteral) arg).getStringValue();
@@ -477,6 +477,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				}
 			}
 		}
+		
 		// if (ex instanceof SystemFunctionCall) {
 		// add FunctionExpression..?
 		// }
@@ -485,8 +486,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 			Atomizer at = (Atomizer) ex;
 			logger.trace("iterate; atomizing: {}", at.getBaseExpression());
 			if ((at.getBaseExpression() instanceof BindingReference) ||
-				(at.getBaseExpression() instanceof IntegratedFunctionCall && 
-						"map:get".equals(((IntegratedFunctionCall) at.getBaseExpression()).getDisplayName()))) {
+					(at.getBaseExpression() instanceof SystemFunctionCall && 
+							"map:get".equals(((SystemFunctionCall) at.getBaseExpression()).getDisplayName()))) {
 				// logger.trace("iterate; got base ref: {}",
 				// at.getBaseExpression());
 			} else {

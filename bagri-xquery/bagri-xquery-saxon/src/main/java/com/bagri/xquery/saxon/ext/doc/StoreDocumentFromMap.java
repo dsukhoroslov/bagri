@@ -10,7 +10,6 @@ import java.util.Properties;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.DocumentManagement;
-import com.bagri.core.model.Document;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -18,6 +17,7 @@ import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.AnyURIValue;
 import net.sf.saxon.value.SequenceType;
 
@@ -36,12 +36,12 @@ public class StoreDocumentFromMap extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, MapType.OPTIONAL_MAP_ITEM, MapType.OPTIONAL_MAP_ITEM}; //SequenceType.ATOMIC_SEQUENCE}; //STRING_SEQUENCE};
+		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), MapType.OPTIONAL_MAP_ITEM, MapType.OPTIONAL_MAP_ITEM}; //SequenceType.ATOMIC_SEQUENCE}; //STRING_SEQUENCE};
 	}
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.SINGLE_ANY_URI;
+		return BuiltInAtomicType.ANY_URI.one();
 	}
 
 	@Override 

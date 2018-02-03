@@ -14,6 +14,7 @@ import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.EmptySequence;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
@@ -31,7 +32,7 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, MapType.OPTIONAL_MAP_ITEM}; 
+		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), MapType.OPTIONAL_MAP_ITEM}; 
 	}
 
 	@Override 

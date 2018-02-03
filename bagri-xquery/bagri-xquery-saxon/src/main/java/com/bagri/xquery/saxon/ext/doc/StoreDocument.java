@@ -15,6 +15,7 @@ import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.ma.map.MapType;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.AnyURIValue;
 import net.sf.saxon.value.SequenceType;
 
@@ -33,12 +34,12 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM}; 
+		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM}; //STRING_SEQUENCE};
 	}
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.SINGLE_ANY_URI;
+		return BuiltInAtomicType.ANY_URI.one();
 	}
 
 	@Override 
