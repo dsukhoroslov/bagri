@@ -19,7 +19,7 @@
     
     <groupId>com.bagridb</groupId>
     <artifactId>bagri</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <description>Bagri: The Root Project</description>
@@ -69,7 +69,7 @@
         <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:ssh://github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
-        <tag>1.2.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
@@ -86,11 +86,11 @@
     </modules>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
+        <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jcache.version>1.0.0</jcache.version>
-        <hazelcast.version>3.8.7</hazelcast.version>
+        <hazelcast.version>3.9.2</hazelcast.version>
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.9</xstream.version>
