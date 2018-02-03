@@ -4,13 +4,13 @@
     <parent>
         <groupId>com.bagridb</groupId>
         <artifactId>bagri-server</artifactId>
-        <version>1.2.0-RC1</version>
+        <version>1.2.0</version>
         <relativePath>..</relativePath>
     </parent>
 
     <artifactId>bagri-server-hazelcast</artifactId>
     <name>bagri-server-hazelcast</name>
-    <description>Bagri XDM Cache: Hazelcast implementation</description>
+    <description>Bagri DB Cache: Hazelcast implementation</description>
 
     <properties>
         <!-- Local Run Hazelcast server java args -->
