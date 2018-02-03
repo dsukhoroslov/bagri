@@ -114,18 +114,6 @@
 
     </dependencies>
 
-    <build>
-	<plugins>
-	    <plugin>
-	        <groupId>org.apache.maven.plugins</groupId>
-	        <artifactId>maven-deploy-plugin</artifactId>
-	        <configuration>
-        	    <skip>false</skip>
-	        </configuration>
-	    </plugin>
-	</plugins>
-    </build>
-
     <profiles>
 
         <!--LOCAL REST SERVER RUN PROFILE-->
