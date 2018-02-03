@@ -19,7 +19,7 @@
     
     <groupId>com.bagridb</groupId>
     <artifactId>bagri</artifactId>
-    <version>1.2.0-RC1</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
     <name>bagri</name>
     <description>Bagri: The Root Project</description>
@@ -69,7 +69,7 @@
         <connection>scm:git:git://github.com/dsukhoroslov/bagri.git</connection>
         <developerConnection>scm:git:ssh://github.com:dsukhoroslov/bagri.git</developerConnection>
         <url>https://github.com/dsukhoroslov/bagri/</url>
-        <tag>1.2.0-RC1</tag>
+        <tag>1.2.0</tag>
     </scm>
 
     <modules>
