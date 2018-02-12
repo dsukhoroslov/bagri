@@ -19,43 +19,36 @@ import com.yahoo.ycsb.Status;
 import com.yahoo.ycsb.StringByteIterator;
 
 public class BagriQueryClient extends BagriClientBase {
-	
-    private static final Logger logger = LoggerFactory.getLogger(BagriQueryClient.class);
 
-	private static final String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-			"declare variable $startKey external;\n" +
-			"for $doc in fn:collection(\"usertable\")\n" +
-			"where m:get($doc, '@key') >= $startKey\n" + 
-			"return $doc";
-	//private static String qScan = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
-	//		"declare variable $startKey external;\n" +
-	//		"declare variable $props external;\n" +
-	//		"for $uri in bgdb:get-document-uris('uri >= $startKey', $props)\n" +
-	//		//"return fn:json-doc($uri)";
-	//		"return fn:doc($uri)";
+	private static final Logger logger = LoggerFactory.getLogger(BagriQueryClient.class);
 
-	private static final String qRead = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
-			"declare variable $key external;\n" +
-			"for $doc in fn:collection(\"usertable\")\n" +
-			"where m:get($doc, '@key') = $key\n" + 
-			"return $doc";
+	private static final String qScan = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n"
+			+ "declare variable $startKey external;\n" + "for $doc in fn:collection(\"usertable\")\n"
+			+ "where m:get($doc, '@key') >= $startKey\n" + "return $doc";
+	// private static String qScan = "declare namespace
+	// bgdb=\"http://bagridb.com/bdb\";\n" +
+	// "declare variable $startKey external;\n" +
+	// "declare variable $props external;\n" +
+	// "for $uri in bgdb:get-document-uris('uri >= $startKey', $props)\n" +
+	// //"return fn:json-doc($uri)";
+	// "return fn:doc($uri)";
 
-	private static final String qDelete = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
-			"declare variable $uri external;\n" + 
-			"let $uri := bgdb:remove-document($uri)\n" + 
-			"return $uri";
+	private static final String qRead = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n"
+			+ "declare variable $key external;\n" + "for $doc in fn:collection(\"usertable\")\n"
+			+ "where m:get($doc, '@key') = $key\n" + "return $doc";
 
-	private static final String qStore = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
-			"declare variable $uri external;\n" + 
-			"declare variable $content external;\n" + 
-			"declare variable $props external;\n" + 
-			"let $uri := bgdb:store-document-map($uri, $content, $props)\n" +
-			"return $uri";
-	
-    private final Properties queryProps = new Properties();
+	private static final String qDelete = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n"
+			+ "declare variable $uri external;\n" + "let $uri := bgdb:remove-document($uri)\n" + "return $uri";
 
-    public BagriQueryClient() {
-    	super();
+	private static final String qStore = "declare namespace bgdb=\"http://bagridb.com/bdb\";\n"
+			+ "declare variable $uri external;\n" + "declare variable $content external;\n"
+			+ "declare variable $props external;\n" + "let $uri := bgdb:store-document-map($uri, $content, $props)\n"
+			+ "return $uri";
+
+	private final Properties queryProps = new Properties();
+
+	public BagriQueryClient() {
+		super();
 		scanProps.setProperty(pn_xqj_scrollability, String.valueOf(SCROLLTYPE_FORWARD_ONLY));
 		queryProps.setProperty(pn_xqj_scrollability, String.valueOf(SCROLLTYPE_FORWARD_ONLY));
 		queryProps.setProperty(pn_client_fetchSize, "1");
@@ -63,13 +56,13 @@ public class BagriQueryClient extends BagriClientBase {
 		if (txLevel != null) {
 			queryProps.setProperty(pn_client_txLevel, txLevel);
 		}
-		//queryProps.setProperty(pn_client_submitTo, key);
-    }
+		// queryProps.setProperty(pn_client_submitTo, key);
+	}
 
-    @Override
+	@Override
 	protected Logger getLogger() {
-    	return logger;
-    }
+		return logger;
+	}
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -92,13 +85,14 @@ public class BagriQueryClient extends BagriClientBase {
 			return Status.ERROR;
 		}
 	}
-	
+
 	@Override
 	public Status read(final String table, final String key, final Set<String> fields,
-			    final HashMap<String, ByteIterator> result) {
+			final HashMap<String, ByteIterator> result) {
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("key", key);
-		try (ResultCursor<Map<String, Object>> cursor = xRepo.getQueryManagement().executeQuery(qRead, params, queryProps)) {
+		try (ResultCursor<Map<String, Object>> cursor = xRepo.getQueryManagement().executeQuery(qRead, params,
+				queryProps)) {
 			if (cursor.isEmpty()) {
 				logger.debug("read; not found document for key: {}", key);
 				return Status.NOT_FOUND;
@@ -112,31 +106,29 @@ public class BagriQueryClient extends BagriClientBase {
 			return Status.ERROR;
 		}
 	}
-	
+
 	@Override
-	public Status scan(final String table, final String startkey, final int recordcount,
-			final Set<String> fields, final Vector<HashMap<String, ByteIterator>> result) {
-		long stamp = System.currentTimeMillis();
+	public Status scan(final String table, final String startkey, final int recordcount, final Set<String> fields,
+			final Vector<HashMap<String, ByteIterator>> result) {
 		Map<String, Object> params = new HashMap<>(1);
 		params.put("startKey", startkey);
 		params.put("props", scanProps);
 		scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-		try (ResultCursor<Map<String, Object>> cursor = xRepo.getQueryManagement().executeQuery(qScan, params, scanProps)) {
-			timer2.addAndGet(System.currentTimeMillis() - stamp);
+		try (ResultCursor<Map<String, Object>> cursor = xRepo.getQueryManagement().executeQuery(qScan, params,
+				scanProps)) {
 			result.ensureCapacity(recordcount);
 			int count = 0;
 			HashMap<String, ByteIterator> doc = null;
-			for (Map<String, Object> map: cursor) {
+			for (Map<String, Object> map : cursor) {
 				doc = new HashMap<>(map.size());
 				populateStringResult(map, fields, doc);
 				result.add(doc);
 				count++;
 			}
 			if (count > recordcount) {
-				logger.info("scan; got more records then expected; expected: {}, got: {}; filter: {}", recordcount, count, startkey);
+				logger.info("scan; got more records then expected; expected: {}, got: {}; filter: {}", recordcount,
+						count, startkey);
 			}
-			timer.addAndGet(System.currentTimeMillis() - stamp);
-			counter++;
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("scan.error", ex);

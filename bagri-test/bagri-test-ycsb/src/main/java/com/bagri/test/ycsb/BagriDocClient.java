@@ -17,25 +17,25 @@ import com.yahoo.ycsb.StringByteIterator;
 
 public class BagriDocClient extends BagriClientBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(BagriDocClient.class);
-    
-    public BagriDocClient() {
-    	super();
-    }
+	private static final Logger logger = LoggerFactory.getLogger(BagriDocClient.class);
 
-    @Override
+	public BagriDocClient() {
+		super();
+	}
+
+	@Override
 	protected Logger getLogger() {
-    	return logger;
-    }
-    
-    private HashMap convertContent(final HashMap<String, ByteIterator> values) {
-    	HashMap<String, byte[]> result = new HashMap<>(values.size());
-    	for (Map.Entry<String, ByteIterator> e: values.entrySet()) {
-    		result.put(e.getKey(), e.getValue().toArray());
-    	}
-    	return result;
-    }
-    
+		return logger;
+	}
+
+	private HashMap convertContent(final HashMap<String, ByteIterator> values) {
+		HashMap<String, byte[]> result = new HashMap<>(values.size());
+		for (Map.Entry<String, ByteIterator> e : values.entrySet()) {
+			result.put(e.getKey(), e.getValue().toArray());
+		}
+		return result;
+	}
+
 	@Override
 	@SuppressWarnings({ "rawtypes" })
 	public Status insert(final String table, final String key, final HashMap<String, ByteIterator> values) {
@@ -56,10 +56,10 @@ public class BagriDocClient extends BagriClientBase {
 			return Status.ERROR;
 		}
 	}
-	
+
 	@Override
 	public Status read(final String table, final String key, final Set<String> fields,
-			    final HashMap<String, ByteIterator> result) {
+			final HashMap<String, ByteIterator> result) {
 		try {
 			DocumentAccessor doc = xRepo.getDocumentManagement().getDocument(key, readProps);
 			if (doc == null) {
@@ -78,25 +78,24 @@ public class BagriDocClient extends BagriClientBase {
 			return Status.ERROR;
 		}
 	}
-	
+
 	@Override
-	public Status scan(final String table, final String startkey, final int recordcount,
-				final Set<String> fields, final Vector<HashMap<String, ByteIterator>> results) {
+	public Status scan(final String table, final String startkey, final int recordcount, final Set<String> fields,
+			final Vector<HashMap<String, ByteIterator>> results) {
 		try {
-			//long stamp = System.currentTimeMillis();
 			scanProps.setProperty(pn_client_fetchSize, String.valueOf(recordcount));
-			Iterable<DocumentAccessor> docs = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey, scanProps);
-			//timer2.addAndGet(System.currentTimeMillis() - stamp);
+			Iterable<DocumentAccessor> docs = xRepo.getDocumentManagement().getDocuments("uri >= " + startkey,
+					scanProps);
 			results.ensureCapacity(recordcount);
 			if (byteFormat) {
-				for (DocumentAccessor doc: docs) {
+				for (DocumentAccessor doc : docs) {
 					Map<String, Object> map = doc.getContent();
 					HashMap<String, ByteIterator> result = new HashMap<>(map.size());
 					populateByteResult(map, fields, result);
 					results.add(result);
 				}
 			} else {
-				for (DocumentAccessor doc: docs) {
+				for (DocumentAccessor doc : docs) {
 					Map<String, Object> map = doc.getContent();
 					HashMap<String, ByteIterator> result = new HashMap<>(map.size());
 					populateStringResult(map, fields, result);
@@ -108,15 +107,13 @@ public class BagriDocClient extends BagriClientBase {
 			if (results.size() > recordcount) {
 				logger.info("scan; got {} records when requested {}", results.size(), recordcount);
 			}
-			//timer.addAndGet(System.currentTimeMillis() - stamp);
-			//counter++;
 			return Status.OK;
 		} catch (Exception ex) {
 			logger.error("scan.error", ex);
 			return Status.ERROR;
 		}
 	}
-	
+
 	@Override
 	@SuppressWarnings({ "rawtypes" })
 	public Status update(final String table, final String key, final HashMap<String, ByteIterator> values) {
@@ -149,5 +146,4 @@ public class BagriDocClient extends BagriClientBase {
 		}
 	}
 
-	
 }
