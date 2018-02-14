@@ -2,48 +2,48 @@ package com.bagri.test.ycsb;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 
+import com.bagri.support.util.FileUtils;
+
 public class ResultParser {
 	
 	private static String[] ab_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
-			"[CLEANUP]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[UPDATE]", "[UPDATE]", "[UPDATE]", "[UPDATE]", 
+			"[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[CLEANUP]", "[UPDATE]", "[UPDATE]", "[UPDATE]", "[UPDATE]", 
 			"[UPDATE]",	"[UPDATE]"};
 
 	private static String[] c_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
-			"[CLEANUP]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]"};
+			"[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[CLEANUP]"};
 
 	private static String[] d_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
-			"[CLEANUP]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", "[READ]", "[READ]", "[READ]", "[READ]", 
-			"[READ]", "[READ]"};
+			"[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[CLEANUP]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", 
+			"[INSERT]", "[INSERT]"};
 
 	private static String[] e_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
-			"[CLEANUP]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", 
+			"[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[CLEANUP]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", 
 			"[INSERT]", "[INSERT]"};
 	
 	private static String[] f_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
-			"[CLEANUP]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]",
-			"[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[UPDATE]", "[UPDATE]", "[UPDATE]", 
+			"[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", 
+			"[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[CLEANUP]", "[UPDATE]", "[UPDATE]", "[UPDATE]", 
 			"[UPDATE]",	"[UPDATE]",	"[UPDATE]"};
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		//
 		String profile = args[0];
 		ResultParser parser = new ResultParser(profile);
-		for (int i=1; i < args.length; i++) {
+		for (int i=1; i < args.length - 1; i++) {
 			String fName = args[i];
 			parser.parseResult(fName);
 		}
 		
-		//Map<Integer, String[]> csv = parser.getCsv();
-		//for (Map.Entry<Integer, String[]> entry: csv.entrySet()) {
-		//	System.out.println("   " + entry.getKey() + ": " + Arrays.toString(entry.getValue()));
-		//}
-		System.out.println(parser.getAsCsv());
+		String csv = parser.getAsCsv();
+		//System.out.println(csv);
+		FileUtils.writeTextFile(args[args.length - 1], csv);
 	}
 	
 	private Map<Integer, String[]> csv;
@@ -93,7 +93,7 @@ public class ResultParser {
 	        	if (line.startsWith(pattern)) {
 	        		String[] parts = line.split(", ");
 	        		results.put(idx, parts);
-	        		if (idx == 5) {
+	        		if ("[CLEANUP]".equals(pattern)) {
 	        			thCount = Integer.parseInt(parts[2]);
 	        		}
 	            	idx++;
@@ -113,12 +113,12 @@ public class ResultParser {
 		//System.out.println(fileName + "; " + idx);
 	    for (Map.Entry<Integer, String[]> entry: results.entrySet()) {
 	    	int key = entry.getKey();
-	    	if (key == 5) {
-	    		continue;
-	    	} 
-	    	if (key > 5) {
-	    		key--;
-	    	}
+	    	//if (key == 5) {
+	    	//	continue;
+	    	//} 
+	    	//if (key > 5) {
+	    	//	key--;
+	    	//}
     		String[] value = entry.getValue();
 	    	String[] line = csv.get(key);
 	    	if (line == null) {
