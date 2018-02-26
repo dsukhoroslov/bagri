@@ -5,9 +5,7 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_CLIENT;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -21,11 +19,9 @@ import javax.xml.xquery.XQSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.client.hazelcast.serialize.SystemSerializationFactory;
 import com.bagri.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.client.hazelcast.serialize.XQSequenceSerializer;
-import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.hazelcast.client.HazelcastClient;
@@ -120,6 +116,13 @@ public class ClientManagementImpl {
 	    		if (cc.removeClient(clientId)) {
 	    			found = cc;
 	        		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
+					if (cc.isEmpty()) {
+		        		if (clients.remove(found.clientKey) != null) {
+							logger.debug("disconnect; client container is empty, disposed");
+		    			} else {
+							logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
+		    			}
+					}
 					try {
 						ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
 						clientProps.remove(clientId);
@@ -133,11 +136,6 @@ public class ClientManagementImpl {
 
     	if (found != null) {
     		if (found.isEmpty()) {
-    			if (clients.remove(found.clientKey) != null) {
-					logger.debug("disconnect; client container is empty, disposed");
-    			} else {
-					logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
-    			}
     			if (found.hzInstance.getLifecycleService().isRunning()) {
 					logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
 					// probably, should do something like this:

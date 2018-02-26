@@ -97,7 +97,7 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		DocumentKey lastKey = null;
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
 		if (!pv_client_storeMode_insert.equals(storeMode)) {
-			lastKey = ddSvc.getLastKeyForUri(uri);
+			lastKey = ddSvc.getLastRevisionKeyForUri(uri);
 		}
 		long txStart = tx == null ? TX_NO : tx.getTxId();
 		if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {

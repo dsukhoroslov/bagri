@@ -110,23 +110,37 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(original, props, pn_client_sharedConnection, "sharedConnection");
 		setProperty(original, props, pn_client_bufferSize, null); 
 		setProperty(original, props, pn_client_connectAttempts, null);
+
 		Object factory = original.get(pn_client_dataFactory);
 		if (factory != null) {
 			props.put(pn_client_dataFactory, factory);
 		}
-		setProperty(props, pn_client_smart, null); 
-		setProperty(props, pn_client_poolSize, null);
-		setProperty(props, pn_client_healthCheck, null);
-		setProperty(props, pn_client_queryCache, null);
-		setProperty(props, pn_client_txLevel, null);
-		setProperty(props, pn_client_txTimeout, null);
-		setProperty(props, pn_client_customAuth, null);
+		
+		setProperty(original, props, pn_client_smart, null); 
+		setProperty(original, props, pn_client_poolSize, null);
+		setProperty(original, props, pn_client_healthCheck, null);
+		setProperty(original, props, pn_client_queryCache, null);
+		setProperty(original, props, pn_client_txLevel, null);
+		setProperty(original, props, pn_client_txTimeout, null);
+		setProperty(original, props, pn_client_customAuth, null);
+
+		//setProperty(original, props, pn_client_submitTo, null);
+		//setProperty(original, props, pn_client_ownerParam, null);
+		setProperty(original, props, pn_client_fetchSize, null);
+		setProperty(original, props, pn_client_fetchAsynch, null);
+		setProperty(original, props, pn_client_storeMode, null);
+		
 		setProperty(props, pn_client_contentSerializers, pv_client_defaultSerializers);
 		setProperty(props, pn_client_contentSerializer + "." + "MAP", ObjectMapContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "BMAP", ByteMapContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "SMAP", StringMapContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
+
+		//setProperty(original, props, pn_document_cache.elements=true
+		//-Dbdb.document.compress=false
+		//-Dbdb.document.data.format=BMAP
+		//-Dbdb.document.map.merge=true
 		return props;
 	}
 

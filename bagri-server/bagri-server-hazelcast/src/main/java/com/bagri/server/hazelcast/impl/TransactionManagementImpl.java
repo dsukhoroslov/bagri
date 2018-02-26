@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -68,7 +67,6 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	private AtomicLong cntRolled = new AtomicLong(0);
     
 	private SchemaRepositoryImpl repo;
-    private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private ITopic<Counter> cTopic;
@@ -87,7 +85,6 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
     }
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
-		this.hzInstance = hzInstance;
 		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
@@ -239,7 +236,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		
         Transaction txClean = null;
 		DocumentCleaner cleaner = new DocumentCleaner(xTx);
-		if (hzInstance.getCluster().getMembers().size() > 1) {
+		if (cluster.getMembers().size() > 1) {
 			// synchronous cleaning.. causes a deadlock if used from the common schema exec-pool. 
 			// that is why we use separate exec-pool for transaction tasks
 			Map<Member, Future<Transaction>> values = execService.submitToAllMembers(cleaner);
@@ -333,14 +330,13 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 				throw new BagriException("no transaction found for TXID: " + txId, ecTransNotFound);
 			}
 		} else {
-			//throw new BagriException("not in transaction", ecTransWrongState);
 			//cTopic.publish(new Counter(true, created, updated, deleted));
-			execPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					cTopic.publish(new Counter(true, created, updated, deleted));
-				}
-			});
+			//execPool.execute(new Runnable() {
+			//	@Override
+			//	public void run() {
+			//		cTopic.publish(new Counter(true, created, updated, deleted));
+			//	}
+			//});
 		}
 	}
 	

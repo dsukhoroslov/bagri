@@ -24,6 +24,7 @@ import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
+import com.bagri.core.KeyFactory;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Elements;
 import com.hazelcast.aggregation.Aggregators;
@@ -53,8 +54,13 @@ public class DataDistributionService implements ManagedService {
 
     private static final transient Logger logger = LoggerFactory.getLogger(DataDistributionService.class);
 
+	private KeyFactory factory;
     private NodeEngine nodeEngine;
     
+    public void setFactory(KeyFactory factory) {
+    	this.factory = factory;
+    }
+
 	@Override
 	public void init(NodeEngine nodeEngine, Properties properties) {
 		logger.info("init; properties: {}", properties);
@@ -194,20 +200,60 @@ public class DataDistributionService implements ManagedService {
 		return mapCtx.getExistingRecordStore(partitionId, storeName);
 	}
 	
-	public DocumentKey getLastPartKeyForUri(String uri) {
-		IMap<DocumentKey, Document> xdd = nodeEngine.getHazelcastInstance().getMap(CN_XDM_DOCUMENT);
-		Predicate<DocumentKey, Document> pp = new PartitionPredicate(uri.hashCode(), Predicates.equal("uri", uri));
-		Set<DocumentKey> keys = xdd.keySet(pp);
-		DocumentKey last = null;
-		for (DocumentKey key: keys) {
-			if (last == null) {
-				last = key;
-			} else {
-				if (key.getVersion() > last.getVersion()) {
+	public DocumentKey getLastRevisionKeyForUri(String uri) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Integer hash = uri.hashCode();
+		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("__key#hash", hash), IterationType.ENTRY, null, null);
+		try {
+			DocumentKey last = null;
+			boolean foundUri = false;
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
+			for (QueryResultRow row: rs.getRows()) {
+				DocumentKey key = nodeEngine.toObject(row.getKey());
+				Document doc = nodeEngine.toObject(row.getValue());
+				if (uri.equals(doc.getUri())) {
+					if (last == null || !foundUri) {
+						last = key;
+					} else {
+						if (key.getVersion() > last.getVersion()) {
+							last = key;
+						}
+					} 
+					foundUri = true;
+					continue;
+				}
+
+				if (!foundUri) {
+					if (last == null) {
+						last = key;
+					} else {
+						if (key.getRevision() > last.getRevision()) {
+							last = key;
+						}
+					}
+				}
+				
+				if (last == null) {
 					last = key;
+				} else {
+					if (key.getVersion() > last.getVersion()) {
+						last = key;
+					}
 				}
 			}
+
+			if (!foundUri && last != null) {
+				last = factory.newDocumentKey(uri, last.getRevision() + 1, 1);
+			}
+			
+			logger.trace("getLastRevisionKeyForUri; uri: {}; returning: {}", uri, last);
+			return last;
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastRevisionKeyForUri.error: ", ex);
+			return null;
 		}
+		
 		// alternatively, can run it on partition via QueryPartitionOperation:
 		//QueryPartitionOperation op = new QueryPartitionOperation(query);
 		//op.setMapService(svc);
@@ -216,8 +262,6 @@ public class DataDistributionService implements ManagedService {
 		//op.beforeRun();
 		//op.run();
 		//QueryResult rs = (QueryResult) op.getResponse();
-		logger.trace("getLastPartKeyForUri; uri: {}; returning: {}", uri, last);
-		return last;
 	}
 
 	public DocumentKey getLastKeyForUri(String uri) {

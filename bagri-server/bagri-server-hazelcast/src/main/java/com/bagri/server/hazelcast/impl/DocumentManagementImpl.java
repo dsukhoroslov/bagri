@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.api.BagriException.*;
@@ -253,7 +254,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Document doc = ddSvc.getLastDocumentForUri(uri);
    		if (doc != null) {
    			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
-   				logger.debug("getDocument; the latest document version is finished already: {}", doc);
+   				logger.info("getDocument; the latest document version is finished already: {}", doc);
    				doc = null;
    			}
     	}
@@ -650,7 +651,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		// update statistics
 		for (String cln: clns) {
 			updateStats(cln, true, data.size(), doc.getFragments().length);
-			//updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
 		updateStats(null, true, data.size(), doc.getFragments().length);
 		return doc;
@@ -881,15 +881,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		return result;
 	}
+	
+	private AtomicInteger counter = new AtomicInteger(0);
+	
+	private int checkDocCount(int zo) {
+		int size = docCache.size();
+		int delta = counter.addAndGet(zo) - size;
+		if (delta != 0) {
+			counter.set(size);
+		}
+		return delta;
+	}
 
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
 		logger.trace("storeDocumentInternal.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
 			throw new BagriException("Empty URI passed", ecDocument);
 		}
-
+		
 		boolean update = false;
-		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		DocumentKey docKey = ddSvc.getLastRevisionKeyForUri(uri);
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
