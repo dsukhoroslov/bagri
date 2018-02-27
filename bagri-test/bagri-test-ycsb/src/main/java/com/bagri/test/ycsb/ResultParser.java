@@ -24,8 +24,8 @@ public class ResultParser {
 			"[INSERT]", "[INSERT]"};
 
 	private static String[] e_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
-			"[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[SCAN]", "[CLEANUP]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", 
-			"[INSERT]", "[INSERT]"};
+			"[CLEANUP]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", "[INSERT]", "[SCAN]", "[SCAN]", "[SCAN]", 
+			"[SCAN]", "[SCAN]", "[SCAN]"};
 	
 	private static String[] f_patterns = new String[] {"[OVERALL]", "[OVERALL]", "[TOTAL_GCs]", "[TOTAL_GC_TIME]", "[TOTAL_GC_TIME_%]", 
 			"[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", "[READ-MODIFY-WRITE]", 
