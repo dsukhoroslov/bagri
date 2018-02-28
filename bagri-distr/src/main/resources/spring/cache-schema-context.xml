@@ -83,6 +83,7 @@
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
+					<hz:index attribute="__key#hash"/>
 					<hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
 					<hz:index attribute="typeRoot"/>
@@ -448,6 +449,7 @@
 
 	<bean id="distrService" class="com.bagri.server.hazelcast.impl.DataDistributionService">
 		<!--property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/-->
+   		<property name="factory" ref="xdmFactory" />
 	</bean>
 
 	<bean id="sysFactory" class="com.bagri.server.hazelcast.serialize.SystemSerializationFactory"/>
