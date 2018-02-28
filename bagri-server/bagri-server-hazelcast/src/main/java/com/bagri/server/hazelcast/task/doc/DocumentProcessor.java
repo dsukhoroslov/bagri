@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.task.doc;
 import static com.bagri.core.Constants.pn_client_storeMode;
 import static com.bagri.core.Constants.pv_client_storeMode_insert;
 import static com.bagri.core.Constants.pv_client_storeMode_merge;
+import static com.bagri.core.Constants.pv_client_storeMode_update;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_DocumentProcessor;
@@ -50,8 +51,8 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	private ParseResults data;
 	private Properties props;
 	
-	private boolean insert;
 	private Document result;
+	private boolean insert = false;
 
 	public DocumentProcessor() {
 		//
@@ -94,22 +95,37 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 
 	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
-		DocumentKey lastKey = null;
-		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
-		if (!pv_client_storeMode_insert.equals(storeMode)) {
-			lastKey = ddSvc.getLastRevisionKeyForUri(uri);
-		}
+		DocumentKey lastKey = ddSvc.getLastRevisionKeyForUri(uri);
 		long txStart = tx == null ? TX_NO : tx.getTxId();
-		if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
-			if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
-	    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
-	    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
+		if (pv_client_storeMode_insert.equals(storeMode) || pv_client_storeMode_merge.equals(storeMode)) {
+			if (lastKey != null) {
+				if (lastKey.getRevision() <= entry.getKey().getRevision()) {
+					if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+			    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
+			    				" has been concurrently inserted; latest key is: " + lastKey, BagriException.ecDocument);
+					}
+				}
+				entry = new MapEntrySimple<>(lastKey, null);
+			} else {
+				insert = true;
 			}
-			Document lastDoc = docMgr.getDocument(lastKey);
-			entry = new MapEntrySimple<>(lastKey, lastDoc);
+		} 
+
+		if (pv_client_storeMode_update.equals(storeMode) || pv_client_storeMode_merge.equals(storeMode)) {
+			if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
+				if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+		    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
+		    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+				}
+				// todo: what if the doc has been concurrently deleted?
+				
+				Document lastDoc = docMgr.getDocument(lastKey);
+				entry = new MapEntrySimple<>(lastKey, lastDoc);
+			}
 		}
-		insert = entry.getValue() == null;
-    	try {
+
+		try {
     		result = docMgr.processDocument(entry, txStart, uri, user, content, data, props);
     		return result;
     	} catch (BagriException ex) {

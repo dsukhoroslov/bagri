@@ -6,15 +6,14 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_ELEMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_INDEX;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_KEY;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
+import static com.bagri.core.model.Document.dvFirst;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -27,23 +26,15 @@ import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Elements;
-import com.hazelcast.aggregation.Aggregators;
-import com.hazelcast.core.IMap;
 import com.hazelcast.internal.serialization.InternalSerializationService;
-import com.hazelcast.map.impl.MapEntries;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
 import com.hazelcast.map.impl.mapstore.MapDataStore;
-import com.hazelcast.map.impl.query.AggregationResult;
 import com.hazelcast.map.impl.query.Query;
-import com.hazelcast.map.impl.query.QueryPartitionOperation;
 import com.hazelcast.map.impl.query.QueryResult;
 import com.hazelcast.map.impl.query.QueryResultRow;
-import com.hazelcast.map.impl.query.Result;
 import com.hazelcast.map.impl.recordstore.RecordStore;
-import com.hazelcast.mapreduce.aggregation.Aggregations;
 import com.hazelcast.nio.serialization.Data;
-import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.spi.ManagedService;
@@ -204,7 +195,7 @@ public class DataDistributionService implements ManagedService {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Integer hash = uri.hashCode();
-		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("__key#hash", hash), IterationType.ENTRY, null, null);
+		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("__key#hash", hash), IterationType.ENTRY, null, null); 
 		try {
 			DocumentKey last = null;
 			boolean foundUri = false;
@@ -213,7 +204,7 @@ public class DataDistributionService implements ManagedService {
 				DocumentKey key = nodeEngine.toObject(row.getKey());
 				Document doc = nodeEngine.toObject(row.getValue());
 				if (uri.equals(doc.getUri())) {
-					if (last == null || !foundUri) {
+					if (!foundUri) {
 						last = key;
 					} else {
 						if (key.getVersion() > last.getVersion()) {
@@ -233,18 +224,10 @@ public class DataDistributionService implements ManagedService {
 						}
 					}
 				}
-				
-				if (last == null) {
-					last = key;
-				} else {
-					if (key.getVersion() > last.getVersion()) {
-						last = key;
-					}
-				}
 			}
 
 			if (!foundUri && last != null) {
-				last = factory.newDocumentKey(uri, last.getRevision() + 1, 1);
+				last = factory.newDocumentKey(uri, last.getRevision() + 1, dvFirst);
 			}
 			
 			logger.trace("getLastRevisionKeyForUri; uri: {}; returning: {}", uri, last);
@@ -253,15 +236,6 @@ public class DataDistributionService implements ManagedService {
 			logger.error("getLastRevisionKeyForUri.error: ", ex);
 			return null;
 		}
-		
-		// alternatively, can run it on partition via QueryPartitionOperation:
-		//QueryPartitionOperation op = new QueryPartitionOperation(query);
-		//op.setMapService(svc);
-		//int partId = nodeEngine.getPartitionService().getPartitionId(uri.hashCode());
-		//op.setPartitionId(partId);
-		//op.beforeRun();
-		//op.run();
-		//QueryResult rs = (QueryResult) op.getResponse();
 	}
 
 	public DocumentKey getLastKeyForUri(String uri) {

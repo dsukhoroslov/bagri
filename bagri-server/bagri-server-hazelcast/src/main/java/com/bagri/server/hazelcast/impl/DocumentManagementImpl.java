@@ -808,19 +808,24 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		updateStats(null, true, newDoc.getElements(), newDoc.getFragments().length);
 
+		boolean revisioned = docKey.getRevision() > 0;
 		Scope scope;
 		if (old.getValue() == null) {
 			scope = Scope.insert;
-	    	old.setValue(newDoc);
+			if (revisioned) {
+				docCache.set(docKey, newDoc);
+			} else {
+				old.setValue(newDoc);
+			}
 		} else {
 			scope = Scope.update;
-			if (txId == TX_NO) {
+			if (txId == TX_NO && !revisioned) {
 				old.setValue(newDoc);
 			} else {
 				docCache.set(docKey, newDoc);
-				//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 			}
 		}
+		//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 		cntCache.set(docKey, content);
 		
@@ -900,7 +905,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		
 		boolean update = false;
-		DocumentKey docKey = ddSvc.getLastRevisionKeyForUri(uri);
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri); //Revision
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
