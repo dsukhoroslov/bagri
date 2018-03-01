@@ -114,12 +114,14 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		storeOrderTest();
 		DocumentManagementImpl dMgr = (DocumentManagementImpl) this.getDocManagement();
 		Properties props = getDocumentProperties();
-		ResultCursor<DocumentAccessor> docs = dMgr.getDocuments("uri like security%, txFinish = 0", props);
+		ResultCursor<DocumentAccessor> docs = dMgr.getDocuments("uri like security16%, txFinish = 0", props);
 		assertEquals(4, docs.size());
 		docs = dMgr.getDocuments("uri like order%, txFinish = 0", props);
 		assertEquals(2, docs.size());
 		docs = dMgr.getDocuments("createdBy = guest, txFinish = 0", props);
 		assertEquals(6, uris.size());
+		docs = dMgr.getDocuments("uri > security16, txFinish = 0", props);
+		assertEquals(3, docs.size());
 	}
 	
 	@Test

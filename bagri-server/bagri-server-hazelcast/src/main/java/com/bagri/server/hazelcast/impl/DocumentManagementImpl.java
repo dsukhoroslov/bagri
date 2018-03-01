@@ -47,6 +47,7 @@ import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
+import com.hazelcast.query.TruePredicate;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -434,6 +435,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Predicate<DocumentKey, Document> query;
 		if (pattern == null) {
 			query = Predicates.equal(fnTxFinish, TX_NO);
+			//query = new TruePredicate<>();
 		} else {
 			query = DocumentPredicateBuilder.getQuery(repo, pattern);
 		}
@@ -447,9 +449,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			fetchSize = 0;
 			headers = DocumentAccessor.HDR_URI_WITH_CONTENT;
 		}
-		if (fetchSize > 0) {
-			query = new LimitPredicate<>(fetchSize, query);
-		}
+		//if (fetchSize > 0) {
+		//	query = new LimitPredicate<>(fetchSize, query);
+		//}
 
 		int cnt = 0;
 		if (query != null) {

@@ -150,6 +150,7 @@ public class CollectionManagementTest extends BagriManagementTest {
 
 	@Test
 	public void addDocumentsToCollectionTest() throws Exception {
+		props.setProperty(pn_client_fetchSize, "20");
 		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
 		assertTrue(docs.isEmpty());
 		assertEquals(0, uris.size());
