@@ -14,7 +14,7 @@
     <description>Bagri YCSB test plugin</description>
 
     <properties>
-	<ycsb.version>0.13.0-SNAPSHOT</ycsb.version>
+	<ycsb.version>0.14.0-SNAPSHOT</ycsb.version>
 	<htrace.version>4.1.0-incubating</htrace.version>
         <hdrhistogram.version>2.1.9</hdrhistogram.version>
     </properties>

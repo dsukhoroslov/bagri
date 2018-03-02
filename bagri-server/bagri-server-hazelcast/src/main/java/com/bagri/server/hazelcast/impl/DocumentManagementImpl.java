@@ -456,7 +456,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		int cnt = 0;
 		if (query != null) {
 			DocumentAccessorImpl dai;
-			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+			java.util.Collection<Document> docs;
+			if (fetchSize == 0) {
+				docs = ddSvc.getLastDocumentsForQuery(query);
+			} else {
+				docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+			}
 			if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
 				// doc & content
 				for (Document doc: docs) {
@@ -1248,7 +1253,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
 
 		// remove local documents only?! yes!
-		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, 0);
+		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query);
 
 		for (Document doc: docs) {
 			DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());

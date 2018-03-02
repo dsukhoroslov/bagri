@@ -83,98 +83,93 @@ public class CollectionManagementTest extends BagriManagementTest {
 		return props;
 	}
 	
-	@Test
-	public void addDefaultCollectionDocumentsTest() throws Exception {
-		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
-		assertTrue(docs.isEmpty());
-		//props.setProperty(xdm_document_collections, "CLN_Security");
-		storeSecurityTest();
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(4, docs.size());
+	private void checkUris(ResultCursor<DocumentAccessor> docs, int size) {
+		assertEquals(size, docs.size());
 		int cnt = 0;
 		for (DocumentAccessor doc: docs) {
 			if (uris.contains(doc.getUri())) {
 				cnt++;
 			}
 		}
-		assertEquals(4, cnt);
+		assertEquals(size, cnt);
+	}
+	
+	@Test
+	public void addDefaultCollectionDocumentsTest() throws Exception {
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props)) {
+			assertTrue(docs.isEmpty());
+		}
+		//props.setProperty(xdm_document_collections, "CLN_Security");
+		storeSecurityTest();
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props)) {
+			checkUris(docs, 4);
+		}
 	}
 
 	@Test
 	public void addCustomCollectionDocumentsTest() throws Exception {
-		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
-		assertTrue(docs.isEmpty());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props)) {
+			assertTrue(docs.isEmpty());
+		}
 		props.setProperty(pn_document_collections, "CLN_Custom");
 		assertEquals(0, uris.size());
 		storeSecurityTest();
 		assertEquals(4, uris.size());
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertTrue(docs.isEmpty());
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(4, docs.size());
-		int cnt = 0;
-		for (DocumentAccessor doc: docs) {
-			if (uris.contains(doc.getUri())) {
-				cnt++;
-			}
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props)) {
+			assertTrue(docs.isEmpty());
 		}
-		assertEquals(4, cnt);
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props)) {
+			checkUris(docs, 4);
+		}
 	}
 
 	@Test
 	public void getCollectionDocumentsTest() throws Exception {
-		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
-		assertTrue(docs.isEmpty());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props)) {
+			assertTrue(docs.isEmpty());
+		}
 		props.setProperty(pn_document_collections, "CLN_Security");
 		storeSecurityTest();
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(4, docs.size());
-		int cnt = 0;
-		for (DocumentAccessor doc: docs) {
-			if (uris.contains(doc.getUri())) {
-				cnt++;
-			}
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props)) {
+			checkUris(docs, 4);
 		}
-		assertEquals(4, cnt);
 	}
 
 	@Test
 	public void limitCollectionDocumentsTest() throws Exception {
 		addDocumentsToCollectionTest();
-		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(4, docs.size());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props)) {
+			assertEquals(4, docs.size());
+		}
 		props.setProperty(pn_client_fetchSize, "2");
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(2, docs.size());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props)) {
+			assertEquals(2, docs.size());
+		}
 	}
 
 	@Test
 	public void addDocumentsToCollectionTest() throws Exception {
-		props.setProperty(pn_client_fetchSize, "20");
-		ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props);
-		assertTrue(docs.isEmpty());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props)) {
+			assertTrue(docs.isEmpty());
+		}
 		assertEquals(0, uris.size());
 		storeSecurityTest();
 		assertEquals(4, uris.size());
 		// docs in default collection
-		docs = this.getDocManagement().getDocuments(null, props);
-		assertEquals(4, docs.size());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments(null, props)) {
+			assertEquals(4, docs.size());
+		}
 		// the docs are already in CLN_Security collection 
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertEquals(4, docs.size());
-
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props)) {
+			assertEquals(4, docs.size());
+		}
+		
 		for (String uri: uris) {
 			this.getDocManagement().addDocumentToCollections(uri, new String[] {"CLN_Custom"});
 		}
-		docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props);
-		assertEquals(4, docs.size());
-		int cnt = 0;
-		for (DocumentAccessor doc: docs) {
-			if (uris.contains(doc.getUri())) {
-				cnt++;
-			}
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Custom), txFinish = 0", props)) {
+			checkUris(docs, 4);
 		}
-		assertEquals(4, cnt);
 	}
 
 	@Test
@@ -193,16 +188,14 @@ public class CollectionManagementTest extends BagriManagementTest {
 		assertEquals(4, uris.size());
 		
 		long txId = xRepo.getTxManagement().beginTransaction();
-		Iterable<DocumentAccessor> docs = getDocManagement().removeDocuments("collections.contains(CLN_Security)", props);
-		xRepo.getTxManagement().commitTransaction(txId);
-		int cnt = 0; 
-		for (DocumentAccessor doc: docs) {
-			cnt++;
+		try (ResultCursor<DocumentAccessor> docs = getDocManagement().removeDocuments("collections.contains(CLN_Security)", props)) {
+			xRepo.getTxManagement().commitTransaction(txId);
+			assertEquals(4, docs.size());
 		}
-		assertEquals(4, cnt);
 		
-		ResultCursor<DocumentAccessor> ids = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props);
-		assertTrue(ids.isEmpty());
+		try (ResultCursor<DocumentAccessor> docs = this.getDocManagement().getDocuments("collections.contains(CLN_Security), txFinish = 0", props)) {
+			assertTrue(docs.isEmpty());
+		}
 	}
 
 

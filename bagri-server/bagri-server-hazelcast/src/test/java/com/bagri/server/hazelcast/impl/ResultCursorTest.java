@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -36,6 +37,7 @@ import static com.bagri.core.test.TestUtils.*;
 import static com.bagri.support.util.XQUtils.mapFromSequence;
 import static org.junit.Assert.*;
 
+@Ignore
 public class ResultCursorTest extends BagriManagementTest {
 	
     private static ClassPathXmlApplicationContext context;

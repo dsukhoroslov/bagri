@@ -99,7 +99,9 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 		long txStart = tx == null ? TX_NO : tx.getTxId();
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge); 
 		if (pv_client_storeMode_insert.equals(storeMode) || pv_client_storeMode_merge.equals(storeMode)) {
-			if (lastKey != null) {
+			if (lastKey == null) {
+				insert = true;
+			} else if (!lastKey.equals(entry.getKey())) { 
 				if (lastKey.getRevision() <= entry.getKey().getRevision()) {
 					if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
 			    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
@@ -107,19 +109,18 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 					}
 				}
 				entry = new MapEntrySimple<>(lastKey, null);
-			} else {
-				insert = true;
 			}
 		} 
 
 		if (pv_client_storeMode_update.equals(storeMode) || pv_client_storeMode_merge.equals(storeMode)) {
-			if (lastKey != null && lastKey.getVersion() > entry.getKey().getVersion()) {
-				if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
-		    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
-		    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
-				}
-				// todo: what if the doc has been concurrently deleted?
-				
+			if (lastKey != null && !lastKey.equals(entry.getKey())) {
+				if (lastKey.getVersion() > entry.getKey().getVersion()) {
+					if (txStart > TX_NO && tx.getTxIsolation().ordinal() > TransactionIsolation.readCommited.ordinal()) {
+			    		return new BagriException("Document with key: " + entry.getKey() +	", uri: " + uri +
+			    				" has been concurrently updated; latest key is: " + lastKey, BagriException.ecDocument);
+					}
+					// todo: what if the doc has been concurrently deleted?
+				}				
 				Document lastDoc = docMgr.getDocument(lastKey);
 				entry = new MapEntrySimple<>(lastKey, lastDoc);
 			}

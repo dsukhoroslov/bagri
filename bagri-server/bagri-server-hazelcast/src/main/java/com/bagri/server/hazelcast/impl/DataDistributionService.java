@@ -314,6 +314,28 @@ public class DataDistributionService implements ManagedService {
 		return null;
 	}
 
+	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.VALUE, null, null);
+		Map<String, Document> results = new HashMap<>();
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			for (QueryResultRow row: rs.getRows()) {
+				Document doc = nodeEngine.toObject(row.getValue());
+				//Document last = results.get(doc.getUri());
+				//if (last == null || last.getVersion() < doc.getVersion()) {
+					results.put(doc.getUri(), doc);
+				//}
+			}
+			logger.trace("getLastDocumentsForQuery; returning: {}", results.size());
+			return results.values();
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastDocumentsForQuery.error: ", ex);
+		}
+		return null;
+	}
+
 	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
@@ -336,29 +358,8 @@ public class DataDistributionService implements ManagedService {
 			} while (shift > 0);
 		}
 		return results;
-/*
-		try {
-			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
-			results = new HashMap<>(fetchSize);
-			for (QueryResultRow row: rs.getRows()) {
-				Document doc = nodeEngine.toObject(row.getValue());
-				//Document last = results.get(doc.getUri());
-				//if (last == null || last.getVersion() < doc.getVersion()) {
-					results.put(doc.getUri(), doc);
-				//}
-				if (fetchSize > 0 && results.size() == fetchSize) {
-					break;
-				}
-			}
-			logger.trace("getLastDocumentsForQuery; returning: {}", results.size());
-			return results.values();
-		} catch (ExecutionException | InterruptedException ex) {
-			logger.error("getLastDocumentsForQuery.error: ", ex);
-		}
-		return null;
-*/		
 	}
-
+	
 	public Collection<DataKey> getElementKeys(long docId) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
