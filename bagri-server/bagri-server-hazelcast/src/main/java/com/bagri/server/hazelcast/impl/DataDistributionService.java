@@ -266,20 +266,17 @@ public class DataDistributionService implements ManagedService {
 		//return null;
 	}
 
-	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
+	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.KEY, null, null);
-		List<DocumentKey> results;
+		List<DocumentKey> results = new ArrayList<>();
 		try {
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
-			results = new ArrayList<>(fetchSize);
+			// TODO: we must take latest keys only..
 			for (QueryResultRow row: rs.getRows()) {
 				DocumentKey key = nodeEngine.toObject(row.getKey());
 				results.add(key);
-				if (fetchSize > 0 && results.size() == fetchSize) {
-					break;
-				}
 			}
 			logger.trace("getLastKeysForQuery; query: {}; returning: {}", query, results.size());
 			return results;
@@ -287,6 +284,32 @@ public class DataDistributionService implements ManagedService {
 			logger.error("getLastDocumentsForQuery.error: ", ex);
 		}
 		return null;
+	}
+
+	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.KEY, null, null);
+		List<DocumentKey> results = new ArrayList<>();
+		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
+		for (Integer partId: parts) {
+			int shift = 0;
+			do {
+				ResultSegment rs = mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runPartitionScanQueryOnPartitionChunk(q, partId, shift, fetchSize);
+				QueryResult qr = (QueryResult) rs.getResult();
+				for (QueryResultRow row: qr.getRows()) {
+					DocumentKey key = nodeEngine.toObject(row.getKey());
+					results.add(key);
+					if (results.size() == fetchSize) {
+						logger.trace("getLastKeysForQuery; query: {}; fSize: {}; returning: {}", query, fetchSize, results.size());
+						return results;
+					}
+				}
+				shift = rs.getNextTableIndexToReadFrom();
+			} while (shift > 0);
+		}
+		logger.trace("getLastKeysForQuery; query: {}; fSize: {}; returning: {}", query, fetchSize, results.size());
+		return results;
 	}
 
 	public Document getLastDocumentForUri(String uri) {
