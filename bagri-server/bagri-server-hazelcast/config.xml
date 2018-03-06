@@ -177,6 +177,7 @@
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.store.enabled">false</entry>
                 <entry name="bdb.schema.aws.enabled">false</entry>
+                <!--entry name="bdb.schema.publish.counters">false</entry-->
                 <entry name="bdb.schema.population.size">1</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="bdb.schema.ports.first">10150</entry>
