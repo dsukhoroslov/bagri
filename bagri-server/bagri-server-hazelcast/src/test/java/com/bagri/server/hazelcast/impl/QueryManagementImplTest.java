@@ -341,7 +341,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 	
 	@Test
-	public void compareSequrityPriceTest() throws Exception {
+	public void compareSecurityPriceTest() throws Exception {
 		storeSecurityTest();
 		String query = "declare namespace s=\"http://tpox-benchmark.com/security\";\n" +
 			"declare variable $sym external;\n" + 
@@ -353,27 +353,8 @@ public class QueryManagementImplTest extends BagriManagementTest {
 		Map<String, Object> params = new HashMap<>();
 		params.put("sym", "VFINX");
 		Properties props = getDocumentProperties();
-		props.setProperty(pn_client_fetchSize, "5");
 		props.setProperty(pn_xqj_defaultElementTypeNamespace, "");
-
-		//ResultCursor rc = query(query, params, props);
-		//assertNotNull(rc);
-		//assertTrue(rc.next());
-		//XQProcessor xqp = ((SchemaRepositoryImpl) xRepo).getXQProcessor();
-		//Object result = rc.getObject();
-		//assertNotNull(result);
-		//String text = xqp.convertToString(result, null);
-		//assertEquals(", text);
-		//assertFalse(rc.next());
 		checkCursorResult(query, params, props, "The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars");
-		
-		props = new Properties();
-		//props.setProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
-		//props.setProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
-		//props.setProperty(javax.xml.transform.OutputKeys.METHOD, "text");
-		//text = xqp.convertToString(result, props);
-		//assertEquals("The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars", text);
-		//rc.close();
 	}
 	
 	@Test
@@ -407,14 +388,14 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				"; doc partition: " + hz.getPartitionService().getPartition(dk).getPartitionId() +
 				"; hash partition: " + hz.getPartitionService().getPartition(dk.getHash()).getPartitionId());
 
-		ResultCursor<XQItemAccessor> rc = (ResultCursor<XQItemAccessor>) qrCache.executeOnKey(dk.getHash(), qp);
-		assertNotNull(rc);
-		Iterator<XQItemAccessor> itr = rc.iterator();
-		assertTrue(itr.hasNext());
-		String text = itr.next().getAtomicValue();
-		assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
-		assertFalse(itr.hasNext());
-		rc.close();
+		try (ResultCursor<XQItemAccessor> rc = (ResultCursor<XQItemAccessor>) qrCache.executeOnKey(dk.getHash(), qp)) {
+			assertNotNull(rc);
+			Iterator<XQItemAccessor> itr = rc.iterator();
+			assertTrue(itr.hasNext());
+			String text = itr.next().getAtomicValue();
+			assertEquals("<print>The open price of the security \"Vanguard 500 Index Fund\" is 101.12 dollars</print>", text);
+			assertFalse(itr.hasNext());
+		}
 	}
 	
 }
