@@ -145,7 +145,7 @@ public class Constants {
 	public static final String bg_schema = "bgdb";
 	public static final String bg_ns = "http://bagridb.com/bdb";
 
-	public static final String bg_version = "1.2.0";
+	public static final String bg_version = "1.2.1";
 	
 	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
 	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
