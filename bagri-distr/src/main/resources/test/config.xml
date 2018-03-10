@@ -579,6 +579,7 @@
                 <entry name="bdb.schema.ports.last">10160</entry>
                 <entry name="bdb.schema.population.size">1</entry>
                 <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.publish.counters">false</entry>
                 <entry name="bdb.schema.data.backup.async">1</entry>
                 <entry name="bdb.schema.store.data.path">../data/ycsb</entry>
                 <entry name="bdb.schema.dict.backup.sync">0</entry>

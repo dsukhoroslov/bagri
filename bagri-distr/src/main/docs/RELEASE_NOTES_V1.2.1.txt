@@ -17,7 +17,13 @@
 New Features and fixes in Bagri 1.2.1
 ========================================
 
-- 
+Moved to Nazelcast 3.9.3 in order to fix #156
+
+[#154] Document key collision on big number of inserted documents
+[#155] ConcurrentModificationException when client disconnects
+[#156] Query performance degradation on DB size increase
+[#157] Document retrieval hangs when compresion turned on
+[#158] Make publishing of document counters configurable (enable/disable)
 
 
 New Features and fixes in Bagri 1.2.0
