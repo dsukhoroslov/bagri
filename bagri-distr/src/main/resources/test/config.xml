@@ -585,7 +585,7 @@
                 <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.trans.backup.sync">1</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.buffer.size">16</entry>
+                <entry name="bdb.schema.buffer.size">128</entry>
                 <entry name="bdb.schema.dict.backup.async">1</entry>
                 <entry name="bdb.schema.dict.backup.read">true</entry>
                 <entry name="bdb.schema.trans.backup.read">false</entry>
