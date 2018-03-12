@@ -5,11 +5,11 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_CLIENT;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.xml.xquery.XQItem;
@@ -37,7 +37,8 @@ public class ClientManagementImpl {
     private final static Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
     private final static String key_separator = "::"; 
 	
-    private final static Map<String, ClientContainer> clients = new HashMap<>();
+    private final static Map<String, String> ids = new ConcurrentHashMap<>();
+    private final static Map<String, ClientContainer> clients = new ConcurrentHashMap<>();
     
     public HazelcastInstance connect(final String clientId, Properties props) {
 		ClientContainer cc = null;
@@ -54,6 +55,7 @@ public class ClientManagementImpl {
 			} else {
 				cKey += clientId;
 			}
+			ids.put(clientId, cKey);
    			if (cc == null) {
    				HazelcastInstance hzClient = initializeHazelcast(props);
    				cc = new ClientContainer(cKey, hzClient);
@@ -69,18 +71,16 @@ public class ClientManagementImpl {
     }
 
     public void connect(final String clientId, HazelcastClientProxy hzProxy) {
-    	ClientContainer cc = null;
     	String cKey = getConnectKey(hzProxy);
-		synchronized (clients) {
-			cc = clients.get(cKey);
-   			if (cc == null) {
-   				cc = new ClientContainer(cKey, hzProxy);
-   				clients.put(cKey, cc);
-				logger.info("connect; new container created for clientId: {}", clientId);
-   			} else {
-   				// check password -> authenticate(); ??
-   			}
+    	ClientContainer cNew = new ClientContainer(cKey, hzProxy);
+    	ClientContainer cOld = clients.putIfAbsent(cKey, cNew);
+    	if (cOld == null) {
+			logger.info("connect; new container created for clientId: {}", clientId);
+		} else {
+			// check password -> authenticate(); ??
+			cNew = cOld;
 		}
+    	ids.put(clientId, cKey);
 		Properties props = new Properties();
     	ClientConfig config = hzProxy.getClientConfig(); 
 		props.setProperty(pn_schema_name, config.getGroupConfig().getName());
@@ -88,7 +88,7 @@ public class ClientManagementImpl {
 		props.setProperty(pn_schema_user, config.getCredentials().getPrincipal());
 		props.setProperty(pn_client_smart, String.valueOf(config.getNetworkConfig().isSmartRouting()));
 		props.setProperty(pn_client_bufferSize, String.valueOf(config.getNetworkConfig().getSocketOptions().getBufferSize()));
-		addClient(cc, clientId, props);
+		addClient(cNew, clientId, props);
     }
     
     private void addClient(final ClientContainer cc, final String clientId, Properties props) {
@@ -108,39 +108,32 @@ public class ClientManagementImpl {
     }
     
     public static void disconnect(final String clientId) {
-    	ClientContainer found = null;
-    	synchronized (clients) {
-        	Iterator<ClientContainer> itr = clients.values().iterator();
-        	while (itr.hasNext()) {
-        		ClientContainer cc = itr.next();
-	    		if (cc.removeClient(clientId)) {
-	    			found = cc;
-	        		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
-					if (cc.isEmpty()) {
-		        		if (clients.remove(found.clientKey) != null) {
-							logger.debug("disconnect; client container is empty, disposed");
-		    			} else {
-							logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
-		    			}
-					}
-					try {
-						ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
-						clientProps.remove(clientId);
-					} catch (Exception ex) {
-						logger.info("disconnect; it seems the server has been stopped already");
-					}
-	        		break;
+    	String cKey = ids.remove(clientId);
+    	ClientContainer found = clients.get(cKey);
+    	if (found != null) { 
+    		found.removeClient(clientId);
+       		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
+			try {
+				ReplicatedMap<String, Properties> clientProps = found.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
+				clientProps.remove(clientId);
+			} catch (Exception ex) {
+				logger.info("disconnect; it seems the server has been stopped already");
+			}
+			if (found.isEmpty()) {
+        		if (clients.remove(found.clientKey) != null) {
+					logger.debug("disconnect; client container is empty, disposed");
+    			} else {
+					logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
 	    		}
-	    	}
-    	}	
-
-    	if (found != null) {
-    		if (found.isEmpty()) {
     			if (found.hzInstance.getLifecycleService().isRunning()) {
 					logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
 					// probably, should do something like this:
 					//execService.awaitTermination(100, TimeUnit.SECONDS);
-					found.hzInstance.shutdown();
+		    		
+					com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) found.hzInstance; 
+		    		proxy.client.doShutdown();
+
+					//found.hzInstance.getLifecycleService().terminate(); //  shutdown();
 					logger.trace("disconnect; instance disconnected");
 				} else {
 					logger.info("disconnect; attempted to shutdown not-running client!");
