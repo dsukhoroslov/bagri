@@ -73,7 +73,8 @@ public class ClientManagementImpl {
     public void connect(final String clientId, HazelcastClientProxy hzProxy) {
     	String cKey = getConnectKey(hzProxy);
     	ClientContainer cNew = new ClientContainer(cKey, hzProxy);
-    	ClientContainer cOld = clients.putIfAbsent(cKey, cNew);
+    	//ClientContainer cOld = clients.putIfAbsent(cKey, cNew);
+    	ClientContainer cOld = clients.put(cKey, cNew);
     	if (cOld == null) {
 			logger.info("connect; new container created for clientId: {}", clientId);
 		} else {
@@ -109,7 +110,7 @@ public class ClientManagementImpl {
     
     public static void disconnect(final String clientId) {
     	String cKey = ids.remove(clientId);
-    	ClientContainer found = clients.get(cKey);
+    	final ClientContainer found = clients.get(cKey);
     	if (found != null) { 
     		found.removeClient(clientId);
        		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
@@ -122,22 +123,28 @@ public class ClientManagementImpl {
 			if (found.isEmpty()) {
         		if (clients.remove(found.clientKey) != null) {
 					logger.debug("disconnect; client container is empty, disposed");
+	    			if (found.hzInstance.getLifecycleService().isRunning()) {
+						logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
+						// probably, should do something like this:
+						//execService.awaitTermination(100, TimeUnit.SECONDS);
+			    		
+						//com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) found.hzInstance; 
+			    		//proxy.client.doShutdown();
+						new Thread() {
+							@Override
+							public void run() {
+								long stamp = System.currentTimeMillis();
+								found.hzInstance.getLifecycleService().shutdown();
+								stamp = System.currentTimeMillis() - stamp;
+								logger.info("disconnect; instance disconnected, time taken: {}", stamp);
+							}
+						}.start();
+					} else {
+						logger.info("disconnect; attempted to shutdown not-running client!");
+					}
     			} else {
-					logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
+					logger.info("disconnect; concurrently removing container for found key: {}", found.clientKey);
 	    		}
-    			if (found.hzInstance.getLifecycleService().isRunning()) {
-					logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
-					// probably, should do something like this:
-					//execService.awaitTermination(100, TimeUnit.SECONDS);
-		    		
-					com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) found.hzInstance; 
-		    		proxy.client.doShutdown();
-
-					//found.hzInstance.getLifecycleService().terminate(); //  shutdown();
-					logger.trace("disconnect; instance disconnected");
-				} else {
-					logger.info("disconnect; attempted to shutdown not-running client!");
-				}
     		} else  {
 				logger.debug("disconnect; disconnected  client: {}; remaining clients: {}", clientId, found.getSize());
 			}
