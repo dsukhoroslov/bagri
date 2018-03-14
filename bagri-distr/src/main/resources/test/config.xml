@@ -558,7 +558,7 @@
         <schema name="YCSB" active="true">
             <version>1</version>
             <createdAt>2016-01-26T21:30:58.096+04:00</createdAt>
-            <createdBy>SDV</createdBy>
+            <createdBy>admin</createdBy>
             <description>Schema for YCSB Benchmark</description>
             <properties>
                 <entry name="bdb.schema.password">password</entry>
@@ -631,7 +631,7 @@
                 <!--index name="IDX_YCSB_Key">
                     <version>1</version>
                     <createdAt>2017-03-13T13:36:26.965+03:00</createdAt>
-                    <createdBy>SDV</createdBy>
+                    <createdBy>admin</createdBy>
                     <docType>/</docType>
                     <path>/@key</path>
                     <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>

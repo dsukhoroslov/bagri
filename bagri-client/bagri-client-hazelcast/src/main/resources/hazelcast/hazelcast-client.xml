@@ -9,6 +9,7 @@
 
 	<properties>
 		<property name="hazelcast.logging.type">slf4j</property>
+		<!--property name="hazelcast.socket.client.buffer.direct">true</property-->
 	</properties>
 
 	<network>
