@@ -8,7 +8,6 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.test.BagriManagementTest;
 import com.bagri.support.util.JMXUtils;
-import com.hazelcast.map.impl.query.ResultSegment;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,7 +27,6 @@ import java.util.Properties;
 import javax.xml.xquery.XQItemAccessor;
 
 import static com.bagri.core.Constants.*;
-import static com.bagri.core.server.api.CacheConstants.CN_XDM_DOCUMENT;
 import static com.bagri.core.test.TestUtils.*;
 import static org.junit.Assert.*;
 
