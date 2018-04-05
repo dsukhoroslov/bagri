@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.task.doc;
 
+import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL; 
+
 import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Document;
 import com.bagri.core.system.Permission;
+//import com.hazelcast.core.Offloadable;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
@@ -18,7 +21,14 @@ public class DocumentProvider extends com.bagri.client.hazelcast.task.doc.Docume
 
 	private transient DocumentManagement docMgr;
     
-    @Autowired
+	//@Override
+	//public String getExecutorName() {
+		// configure it. can even decide it dynamically.. ..
+	//	return PN_XDM_SCHEMA_POOL;
+		//return Offloadable.NO_OFFLOADING;
+	//}
+
+	@Autowired
     @Override
 	public void setRepository(SchemaRepository repo) {
 		super.setRepository(repo);

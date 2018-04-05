@@ -254,7 +254,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	Document getDocument(String uri) {
 		Document doc = ddSvc.getLastDocumentForUri(uri);
    		if (doc != null) {
-   			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
+   			if (doc.getTxFinish() != TX_NO) { // && txManager.isTxVisible(doc.getTxFinish())) {
    				logger.info("getDocument; the latest document version is finished already: {}", doc);
    				doc = null;
    			}
@@ -317,19 +317,21 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		long headMask = Long.parseLong(headers);
 		logger.trace("getDocumentInternal; returning document: {} for props: {}", doc, props);
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			// getConverter set dataFormat in props
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
 			logger.trace("getDocumentInternal; got content: {}", content);
 			if (content == null) {
-				String dataFormat = props.getProperty(pn_document_data_format);
 				// build it and store in cache
 				// if docId is not local then buildDocument returns null!
 				// query docId owner node for the XML instead
 				if (ddSvc.isLocalKey(docKey)) {
+					// do this asynchronously!?
+					String dataFormat = props.getProperty(pn_document_data_format);
 					Map<String, Object> params = new HashMap<>();
 					params.put(":doc", doc.getTypeRoot());
 					java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
-					if (results.isEmpty()) {
+					if (!results.isEmpty()) {
 						content = results.iterator().next();
 						cntCache.set(docKey, content);
 					}

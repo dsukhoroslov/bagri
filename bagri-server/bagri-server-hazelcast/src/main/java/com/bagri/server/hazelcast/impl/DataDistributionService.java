@@ -214,25 +214,15 @@ public class DataDistributionService implements ManagedService {
 			DocumentKey key = nodeEngine.toObject(row.getKey());
 			Document doc = nodeEngine.toObject(row.getValue());
 			if (uri.equals(doc.getUri())) {
-				if (!foundUri) {
+				if (!foundUri || key.getVersion() > last.getVersion()) {
 					last = key;
-				} else {
-					if (key.getVersion() > last.getVersion()) {
-						last = key;
-					}
 				} 
 				foundUri = true;
 				continue;
 			}
 
-			if (!foundUri) {
-				if (last == null) {
-					last = key;
-				} else {
-					if (key.getRevision() > last.getRevision()) {
-						last = key;
-					}
-				}
+			if (!foundUri && (last == null || key.getRevision() > last.getRevision())) {
+				last = key;
 			}
 		}
 
@@ -253,12 +243,8 @@ public class DataDistributionService implements ManagedService {
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
 			for (QueryResultRow row: rs.getRows()) {
 				DocumentKey key = nodeEngine.toObject(row.getKey());
-				if (last == null) {
+				if (last == null || key.getVersion() > last.getVersion()) {
 					last = key;
-				} else {
-					if (key.getVersion() > last.getVersion()) {
-						last = key;
-					}
 				}
 			}
 		} catch (ExecutionException | InterruptedException ex) {
@@ -307,13 +293,27 @@ public class DataDistributionService implements ManagedService {
 					DocumentKey key = nodeEngine.toObject(row.getKey());
 					results.add(key);
 					if (results.size() == fetchSize) {
-						logger.trace("getLastKeysForQuery; query: {}; fSize: {}; returning: {}", query, fetchSize, results.size());
-						return results;
+						break;
 					}
 				}
 				shift = rs.getNextTableIndexToReadFrom();
 			} while (shift > 0);
 		}
+
+		//try {
+		//	QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			// TODO: we must take latest keys only..
+		//	for (QueryResultRow row: rs.getRows()) {
+		//		DocumentKey key = nodeEngine.toObject(row.getKey());
+		//		results.add(key);
+		//		if (results.size() == fetchSize) {
+		//			break;
+		//		}
+		//	}
+		//} catch (ExecutionException | InterruptedException ex) {
+		//	logger.error("getLastDocumentsForQuery.error: ", ex);
+		//}
+
 		logger.trace("getLastKeysForQuery; query: {}; fSize: {}; returning: {}", query, fetchSize, results.size());
 		return results;
 	}
@@ -327,18 +327,14 @@ public class DataDistributionService implements ManagedService {
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
 			for (QueryResultRow row: rs.getRows()) {
 				Document doc = nodeEngine.toObject(row.getValue());
-				if (last == null) {
+				if (last == null || doc.getVersion() > last.getVersion()) {
 					last = doc;
-				} else {
-					if (doc.getVersion() > last.getVersion()) {
-						last = doc;
-					}
 				}
 			}
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("getLastDocumentForUri.error: ", ex);
 		}
-		logger.trace("getLastDocumentForUri; uri: {}; returning: {}", uri, last);
+		logger.trace("getLastDocumentForUri; returning: {} for uri: {}", last, uri);
 		return last;
 	}
 
@@ -352,7 +348,7 @@ public class DataDistributionService implements ManagedService {
 			for (QueryResultRow row: rs.getRows()) {
 				Document doc = nodeEngine.toObject(row.getValue());
 				//Document last = results.get(doc.getUri());
-				//if (last == null || last.getVersion() < doc.getVersion()) {
+				//if (last == null || doc.getVersion() > last.getVersion()) {
 					results.put(doc.getUri(), doc);
 				//}
 			}
@@ -378,12 +374,29 @@ public class DataDistributionService implements ManagedService {
 					Document doc = nodeEngine.toObject(row.getValue());
 					results.add(doc);
 					if (results.size() == fetchSize) {
-						return results;
+						break;
 					}
 				}
 				shift = rs.getNextTableIndexToReadFrom();
 			} while (shift > 0);
 		}
+		
+		//try {
+		//	QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+		//	for (QueryResultRow row: rs.getRows()) {
+		//		Document doc = nodeEngine.toObject(row.getValue());
+				//Document last = results.get(doc.getUri());
+				//if (last == null || doc.getVersion() > last.getVersion()) {
+		//			results.add(doc);
+				//}
+		//		if (results.size() == fetchSize) {
+		//			break;
+		//		}
+		//	}
+		//} catch (ExecutionException | InterruptedException ex) {
+		//	logger.error("getLastDocumentsForQuery.error: ", ex);
+		//}
+		
 		return results;
 	}
 	

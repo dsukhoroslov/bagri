@@ -1,7 +1,5 @@
 package com.bagri.client.hazelcast.task.doc;
 
-import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL; 
-
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -39,8 +37,6 @@ public abstract class DocumentProcessor extends DocumentAwareTask implements Ent
 
 	@Override
 	public String getExecutorName() {
-		// configure it. can even decide it dynamically.. ..
-		//return PN_XDM_SCHEMA_POOL;
 		return Offloadable.NO_OFFLOADING;
 	}
 
