@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItem;
 
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
@@ -68,7 +71,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 
     	boolean empty = false;
     	Properties props = new Properties();
-		ResultCursor<String> cursor = null;
+		ResultCursor<XQItem> cursor = null;
 		try {
 			cursor = repo.getQueryManagement().executeQuery(query, params, props);
 	    	empty = cursor.isEmpty();
@@ -90,7 +93,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 			logger.error("apply.error: error processing response ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
 	    }
-		logger.debug("apply: got response: {}", response);
+		logger.debug("apply; got response: {}", response);
     	
     	if (!empty) {
     		response.entity(getResultStream(cursor));
@@ -101,6 +104,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     private Map<String, Object> getParameters(ContainerRequestContext context) {
     	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
     	for (Parameter pm: fn.getParameters()) {
+    		logger.trace("getParameters; processing param: {}", pm);
 			// TODO: resolve cardinality properly!
     		if (isPathParameter(pm.getName())) {
         		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
@@ -109,6 +113,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         		}    			
     		} else {
     			String aType = getParamAnnotationType(pm.getName());
+        		logger.trace("getParameters; param annotation: {}", aType);
     			if (aType == null) {
     				// this is for POST/PUT only!
     				if (POST.equals(context.getMethod()) || PUT.equals(context.getMethod())) {
@@ -119,7 +124,8 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     				}
     			} else {
         			boolean found = false;
-        			List<String> atns = Collections.emptyList();
+        			List<String> atns = new ArrayList<>();
+        			// TODO: fill atns for every atn type
     				switch (aType) {
     					case apn_cookie: {
             	    		Cookie val = context.getCookies().get(pm.getType());
@@ -229,18 +235,20 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		}
     }
     
-    private boolean fillResponse(ResultCursor<String> cursor, Response.ResponseBuilder response) throws BagriException {
-    	int status = Response.Status.OK.getStatusCode(); 
-    	String message = null;
-    	boolean empty = false;
+    private boolean fillResponse(ResultCursor<XQItem> cursor, Response.ResponseBuilder response) throws BagriException {
     	Node node = null;
-    	// TODO: fix this!
-    	//try {
-    		//node = cursor.getNode();
-       	//	logger.debug("fillResponse; got node: {}", node);
-    	//} catch (BagriException ex) {
-       	//	logger.debug("fillResponse; got non-xml content, skipping");
-    	//}
+    	String message = null;
+    	int status = Response.Status.OK.getStatusCode(); 
+    	boolean empty = cursor.isEmpty();
+    	if (!empty) {
+    		XQItem item = cursor.iterator().next();
+	    	try {
+	    		node = item.getNode();
+	       		logger.debug("fillResponse; got node: {}", node);
+	    	} catch (XQException ex) {
+	       		logger.debug("fillResponse; got non-xml content, skipping");
+	    	}
+    	}
 
     	if (node != null) {
     		logger.trace("fillResponse; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
@@ -277,12 +285,13 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return empty;
     }
     
-    private StreamingOutput getResultStream(final ResultCursor<String> result) {
+    private StreamingOutput getResultStream(final ResultCursor<XQItem> result) {
 	    return new StreamingOutput() {
 	        @Override
 	        public void write(OutputStream os) throws IOException, WebApplicationException {
 	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
-		            for (String chunk: result) {
+		            for (XQItem item: result) {
+		            	String chunk = item.getAtomicValue(); // get as string ?
 		                logger.trace("write; out: {}", chunk);
 		                writer.write(chunk + "\n");
 			            writer.flush();

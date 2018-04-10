@@ -139,7 +139,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    					newList.add(schema);
 	    				}
 	    			}
-	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
+	    	        logger.debug("reload; going to reload context for schemas: {}", newList);
 	    	        if (newList.size() > 0) {
 	    	        	reloader.reload(config);
 	    	        	// rebuild Swagger definitions
@@ -147,6 +147,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    	        	activeSchemas = newList;
 	    	        	// what about current clients?
 	    	        	// should we disconnect all of them?
+	    	        } else {
+		    	        logger.info("reload; no reload required for schema: {}", schemaName);
 	    	        }
 	    		}
 	    	}.start();
@@ -297,7 +299,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    		try {
 	    			buildDynamicResources(config, res.getPath(), module);
 	    			cnt++;
-	    		} catch (BagriException ex) {
+	    		} catch (Exception ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
 	    		}
