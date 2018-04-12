@@ -66,7 +66,30 @@ public enum Comparison {
 	/**
 	 * not
 	 */
-	NOT;
+	NOT,
+	
+	/**
+	 * starts-with
+	 */
+	SW,
+	
+	/**
+	 * ends-with
+	 */
+	EW,
+	
+	/**
+	 * contains
+	 */
+	CNT;
+	
+	/**
+	 * 
+	 * @return true if it is String comparison, false otherwise
+	 */
+	public boolean isStringComparison() {
+		return this == SW || this == EW || this == CNT;
+	}
 	
 	/**
 	 * Negates the provided Comparison value

@@ -39,6 +39,9 @@ import net.sf.saxon.expr.UserFunctionCall;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
+import net.sf.saxon.expr.flwor.Clause;
+import net.sf.saxon.expr.flwor.FLWORExpression;
+import net.sf.saxon.expr.flwor.WhereClause;
 import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.parser.Token;
 import net.sf.saxon.functions.IntegratedFunctionCall;
@@ -216,6 +219,23 @@ public class CollectionFinderImpl implements CollectionFinder {
 			return null;
 		}
 	}
+	
+	private boolean isParentComparison(Expression ex) {
+		while (ex != null) {
+			if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { 
+				return true;
+			} else if (ex instanceof FLWORExpression) {
+				FLWORExpression fex = (FLWORExpression) ex;
+				for (Clause cls: fex.getClauseList()) {
+					if (cls instanceof WhereClause) {
+						return true;
+					}
+				}
+			}
+			ex = ex.getParentExpression();
+		} 
+		return false;
+	}
 
 	private void setParentPath(ExpressionBuilder eb, int exIndex, PathBuilder path) {
 		com.bagri.core.query.Expression ex = eb.getExpression(exIndex);
@@ -237,7 +257,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterateParams(e, ctx);
 		}
 
-		if (ex instanceof GeneralComparison10 || ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
+		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { // GeneralComparison20
 			BinaryExpression be = (BinaryExpression) ex;
 			Object value = null;
 			String pName = null;
@@ -294,7 +314,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	}
 
 	private void iterate(Expression ex, XPathContext ctx) throws XPathException {
-		logger.trace("start: {}; expression: {}", ex.getClass().getName(), ex);
+		logger.trace("iterate.start: {}; expression: {}", ex.getClass().getName(), ex);
 
 		PathBuilder path = currentPath;
 		// if (ex instanceof Block) {
@@ -305,8 +325,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 		if (ex instanceof SystemFunctionCall) {
 			SystemFunctionCall clx = (SystemFunctionCall) ex;
-			// if ("collection".equals(clx.getDisplayName()) ||
-			// "uri-collection".equals(clx.getDisplayName())) {
 			if (clx.isCallOnSystemFunction("collection") || clx.isCallOnSystemFunction("uri-collection")) {
 				String collectUri = "";
 				if (clx.getArity() > 0) {
@@ -334,7 +352,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 		if (ex instanceof AxisExpression) {
 			AxisExpression ae = (AxisExpression) ex;
-			logger.trace("iterate: axis: {}", AxisInfo.axisName[ae.getAxis()]);
+			logger.trace("iterate; axis: {}", AxisInfo.axisName[ae.getAxis()]);
 
 			AxisType axis = getAxisType(ae.getAxis());
 			String namespace = null;
@@ -355,6 +373,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				}
 			}
 			path.addPathSegment(axis, namespace, segment);
+			logger.trace("iterate; added path segment {}:{} for axis: {}; now path is: {}", namespace, segment, axis, path);
 		}
 
 		int exIndex = -1;
@@ -364,7 +383,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				// if (currentType == collectType) {
 				ExpressionContainer exCont = getCurrentContainer();
 				exIndex = exCont.addExpression(currentType, compType, path);
-				logger.trace("iterate; added expression at index: {}", exIndex);
+				logger.trace("iterate; added expression {} at index: {}", exCont, exIndex);
 				// }
 			} else {
 				throw new XPathException("Unknown comparison type for expression: " + ex);
@@ -384,12 +403,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterate(e, ctx);
 		}
 
-		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { // GeneralComparison20
-			// ||
-			// ex
-			// instanceof
-			// ValueComparison)
-			// {
+		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { 
+			// || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
 			Object value = null;
 			String pName = null;
@@ -425,8 +440,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				if (pName == null) {
 					pName = bind.getVariableQName().getClarkName();
 				}
-				// value =
-				// getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+				// value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
 				try {
 					value = getValues(bind.evaluateVariable(ctx));
 				} catch (NullPointerException ee) {
@@ -457,29 +471,50 @@ public class CollectionFinderImpl implements CollectionFinder {
 		if (ex instanceof IntegratedFunctionCall) {
 			IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
 			if ("map:get".equals(ifc.getDisplayName())) {
-				Expression arg = ifc.getArg(1);
-				if (arg instanceof StringLiteral) {
-					String namespace = null;
-					String segment = ((StringLiteral) arg).getStringValue();
-					AxisType axis = AxisType.CHILD;
-					if (segment.startsWith("@")) {
-						axis = AxisType.ATTRIBUTE;
-						segment = segment.substring(1);
-					} else if (segment.startsWith("#")) {
-						axis = AxisType.NAMESPACE;
-						segment = segment.substring(1);
+				if (isParentComparison(ex)) {
+					Expression arg = ifc.getArg(1);
+					if (arg instanceof StringLiteral) {
+						String namespace = null;
+						String segment = ((StringLiteral) arg).getStringValue();
+						AxisType axis = AxisType.CHILD;
+						if (segment.startsWith("@")) {
+							axis = AxisType.ATTRIBUTE;
+							segment = segment.substring(1);
+						} else if (segment.startsWith("#")) {
+							axis = AxisType.NAMESPACE;
+							segment = segment.substring(1);
+						}
+						path.addPathSegment(axis, namespace, segment);
+						logger.trace("iterate; added path segment {}:{} for axis: {} in IFC {}", namespace, segment, axis, ifc.getDisplayName());
+					} else {
+						// the arg can be instanceof VariableReference pointing to array of literals. Can it be used in comparison condition..?
 					}
-					path.addPathSegment(axis, namespace, segment);
-				} else {
-					// the arg can be instanceof VariableReference pointing to
-					// array of
-					// literals. Can it be used in comparison condition..?
 				}
 			}
 		}
-		// if (ex instanceof SystemFunctionCall) {
-		// add FunctionExpression..?
-		// }
+		
+		if (ex instanceof SystemFunctionCall) {
+			// add FunctionExpression..?
+			Comparison compType = null;
+			SystemFunctionCall sfc = (SystemFunctionCall) ex;
+			if ("starts-with".equals(sfc.getDisplayName())) {
+				compType = Comparison.SW;
+			} else if ("ends-with".equals(sfc.getDisplayName())) {
+				compType = Comparison.EW;
+			} else {
+				//
+			}
+				
+			if (compType != null) {
+				ExpressionContainer exCont = getCurrentContainer();
+				exIndex = exCont.addExpression(currentType, compType, path, null, sfc.getOperanda().getOperand(1).toString());
+				logger.trace("iterate; added path expression at index: {}", exIndex);
+				setParentPath(exCont.getBuilder(), exIndex, path);
+				logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+			}
+			logger.trace("iterate; got string comparison function call; args: {}", (Object[]) sfc.getArguments());
+			path.removeLastSegment();
+		}
 
 		if (ex instanceof Atomizer) {
 			Atomizer at = (Atomizer) ex;
@@ -487,17 +522,17 @@ public class CollectionFinderImpl implements CollectionFinder {
 			if ((at.getBaseExpression() instanceof BindingReference) ||
 				(at.getBaseExpression() instanceof IntegratedFunctionCall && 
 						"map:get".equals(((IntegratedFunctionCall) at.getBaseExpression()).getDisplayName()))) {
-				// logger.trace("iterate; got base ref: {}",
-				// at.getBaseExpression());
+				// logger.trace("iterate; got base ref: {}", at.getBaseExpression());
 			} else {
 				PathSegment ps = path.getLastSegment();
 				if (ps != null && ps.getAxis() == AxisType.CHILD) {
 					path.addPathSegment(AxisType.CHILD, null, "text()");
+					logger.trace("iterate; added text() segment for CHILD in Atomizer");
 				}
 			}
 		}
 
-		logger.trace("end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
+		logger.trace("iterate.end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
 	}
 
 	private ExpressionContainer getCurrentContainer() {

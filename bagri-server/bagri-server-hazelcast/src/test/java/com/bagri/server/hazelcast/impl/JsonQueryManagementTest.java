@@ -32,7 +32,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "../../etc/samples/json/";
-		//System.setProperty(pn_log_level, "trace");
+		System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "json.properties");
@@ -128,28 +128,23 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	public void getJsonDocumentsTest() throws Exception {
 	
 		String query = "for $map in fn:collection(\"securities\")\n" + 
-				"let $v := get($map, 'Security')\n" +
-				"where get($v, 'Symbol') = 'IBM'\n" +
-				"return $v?('Symbol', 'Name')";
+				"let $sec := get($map, 'Security')\n" +
+				"where get($sec, 'Symbol') = 'IBM'\n" +
+				"return $sec?('Name')";
 		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
-				//String text = item.getAtomicValue();
+				String text = item.getAtomicValue();
+				assertEquals("Internatinal Business Machines Corporation", text);
 				cnt++;
 			}
-			assertEquals(2, cnt);
+			assertEquals(1, cnt);
 		}
 	}
 	
 	@Test
 	public void queryJsonDocumentsTest() throws Exception {
 	
-		//String query = "for $uri in fn:uri-collection(\"securities\")\n" +
-		//		"let $map := fn:json-doc($uri)\n" +
-		//		"let $sec := get($map, 'Security')\n" +
-		//		"where get($sec, 'id') = 5621\n" +
-		//		"return fn:serialize($map, map{'method': 'json'})";
-		
 		String query = "for $map in fn:collection(\"securities\")\n" +
 				"let $sec := get($map, 'Security')\n" +
 				"where get($sec, 'id') = 5621\n" +
@@ -163,6 +158,29 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				cnt++;
 			}
 			assertEquals(1, cnt);
+		}
+	}
+
+	@Test
+	public void queryStartsWithDocumentsTest() throws Exception {
+	
+		String query = "for $map in fn:collection(\"securities\")\n" +
+				"let $sec := get($map, 'Security')\n" +
+				"let $price := get($sec, 'Price')\n" +
+				"let $p52 := get($price, 'Price52week')\n" +
+				"let $phd := get($p52, 'Price52week-high-date')\n" +
+				"where fn:starts-with($phd, '2002')\n" +
+				"return $phd"; //fn:serialize($map, map{'method': 'json'})";
+		
+		Properties props = new Properties();
+		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				String text = item.getAtomicValue();
+				assertEquals("2002-11-02", text);
+				cnt++;
+			}
+			assertEquals(2, cnt);
 		}
 	}
 }

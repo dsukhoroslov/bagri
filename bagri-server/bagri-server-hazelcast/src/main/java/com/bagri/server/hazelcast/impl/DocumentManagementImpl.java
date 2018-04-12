@@ -320,7 +320,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			// getConverter set dataFormat in props
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
-			logger.trace("getDocumentInternal; got content: {}", content);
+			//logger.trace("getDocumentInternal; got content: {}", content);
 			if (content == null) {
 				// build it and store in cache
 				// if docId is not local then buildDocument returns null!

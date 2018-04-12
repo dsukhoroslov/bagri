@@ -64,7 +64,7 @@ public class PathBuilder {
 	
 	/**
 	 * 
-	 * @return the last stored path segment is any
+	 * @return the last stored path segment if any
 	 */
 	public PathSegment getLastSegment() {
 		if (segments.size() > 0) {
@@ -84,6 +84,16 @@ public class PathBuilder {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * 
+	 * @return removes the last stored path segment if any
+	 */
+	public void removeLastSegment() {
+		if (segments.size() > 0) {
+			segments.remove(segments.size() - 1);
+		}
 	}
 	
 	/**
