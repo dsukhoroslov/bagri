@@ -28,8 +28,10 @@ import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.FilterExpression;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
+import net.sf.saxon.expr.ContextItemExpression;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.Operand;
@@ -222,7 +224,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 	
 	private boolean isParentComparison(Expression ex) {
 		while (ex != null) {
-			if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { 
+			if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression || ex instanceof FilterExpression) { 
 				return true;
 			} else if (ex instanceof FLWORExpression) {
 				FLWORExpression fex = (FLWORExpression) ex;
@@ -241,10 +243,44 @@ public class CollectionFinderImpl implements CollectionFinder {
 		com.bagri.core.query.Expression ex = eb.getExpression(exIndex);
 		if (ex != null) {
 			path.setPath(ex.getPath());
-			logger.trace("iterate; path switched to: {}; from index: {}", path, exIndex);
+			logger.trace("setParentPath; path switched to: {}; from index: {}", path, exIndex);
 		}
 	}
 
+	private Object[] resolveComparison(Expression var, XPathContext ctx) throws XPathException {
+		
+		Object[] result = new Object[] {null, null};
+		if (var instanceof VariableReference) {
+			Binding bind = ((VariableReference) var).getBinding();
+			if (bind instanceof LetExpression) {
+				Expression e2 = ((LetExpression) bind).getSequence();
+				if (e2 instanceof Atomizer) {
+					e2 = ((Atomizer) e2).getBaseExpression();
+					if (e2 instanceof VariableReference) {
+						// paired ref to the e
+						result[0] = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart();
+					}
+				}
+			}
+
+			if (result[0] == null) {
+				result[0] = bind.getVariableQName().getClarkName();
+			}
+			// value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+			try {
+				result[1] = getValues(bind.evaluateVariable(ctx));
+			} catch (NullPointerException ee) {
+				result[1] = null;
+			}
+			logger.trace("resolveComparison; got reference: {}, value: {}", result[0], result[1]);
+		} else if (var instanceof StringLiteral) {
+			result[1] = ((StringLiteral) var).getStringValue();
+		} else if (var instanceof Literal) {
+			result[1] = getValues(((Literal) var).getValue());
+		}
+		return result;
+	}
+	
 	private void iterateParams(Expression ex, XPathContext ctx) throws XPathException {
 
 		// if (ex instanceof Block) {
@@ -383,13 +419,21 @@ public class CollectionFinderImpl implements CollectionFinder {
 				// if (currentType == collectType) {
 				ExpressionContainer exCont = getCurrentContainer();
 				exIndex = exCont.addExpression(currentType, compType, path);
-				logger.trace("iterate; added expression {} at index: {}", exCont, exIndex);
+				logger.trace("iterate; added {} expression {} at index: {}", compType, exCont, exIndex);
 				// }
 			} else {
 				throw new XPathException("Unknown comparison type for expression: " + ex);
 			}
 		}
 
+		if (ex instanceof GeneralComparison20) {
+			ExpressionContainer exCont = getCurrentContainer();
+			//if (exCont.getBuilder().getRoot() != null) {
+				exIndex = exCont.addExpression(currentType, Comparison.AND, path);
+				logger.trace("iterate; added explicit AND expression {} at index: {}", exCont, exIndex);
+			//}
+		}
+		
 		if (ex instanceof UserFunctionCall) {
 			UserFunctionCall ufc = (UserFunctionCall) ex;
 			logger.trace("iterate; switching to UDF: {}", ufc.getFunctionName());
@@ -406,8 +450,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { 
 			// || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
-			Object value = null;
-			String pName = null;
 			Expression le = be.getLhsExpression();
 
 			Comparison compType = getComparison(be.getOperator());
@@ -424,34 +466,9 @@ public class CollectionFinderImpl implements CollectionFinder {
 				var = be.getRhsExpression();
 			}
 
-			if (var instanceof VariableReference) {
-				Binding bind = ((VariableReference) var).getBinding();
-				if (bind instanceof LetExpression) {
-					Expression e2 = ((LetExpression) bind).getSequence();
-					if (e2 instanceof Atomizer) {
-						e2 = ((Atomizer) e2).getBaseExpression();
-						if (e2 instanceof VariableReference) {
-							// paired ref to the e
-							pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart();
-						}
-					}
-				}
-
-				if (pName == null) {
-					pName = bind.getVariableQName().getClarkName();
-				}
-				// value = getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
-				try {
-					value = getValues(bind.evaluateVariable(ctx));
-				} catch (NullPointerException ee) {
-					value = null;
-				}
-				logger.trace("iterate; got reference: {}, value: {}", pName, value);
-			} else if (var instanceof StringLiteral) {
-				value = ((StringLiteral) var).getStringValue();
-			} else if (var instanceof Literal) {
-				value = getValues(((Literal) var).getValue());
-			}
+			Object[] refs = resolveComparison(var, ctx);
+			String pName = (String) refs[0];
+			Object value = refs[1];
 
 			if (path.getSegments().size() > 0) {
 				ExpressionContainer exCont = getCurrentContainer();
@@ -459,6 +476,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				logger.trace("iterate; added path expression at index: {}", exIndex);
 				setParentPath(exCont.getBuilder(), exIndex, path);
 				logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+				//path.removeLastSegment();
 			}
 		}
 
@@ -493,6 +511,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 			}
 		}
 		
+		if (ex instanceof ContextItemExpression) {
+			ContextItemExpression cie = (ContextItemExpression) ex;
+			//cie.
+		}
+		
 		if (ex instanceof SystemFunctionCall) {
 			// add FunctionExpression..?
 			Comparison compType = null;
@@ -501,19 +524,24 @@ public class CollectionFinderImpl implements CollectionFinder {
 				compType = Comparison.SW;
 			} else if ("ends-with".equals(sfc.getDisplayName())) {
 				compType = Comparison.EW;
+			} else if ("contains".equals(sfc.getDisplayName())) {
+				compType = Comparison.CNT;
 			} else {
 				//
 			}
 				
 			if (compType != null) {
 				ExpressionContainer exCont = getCurrentContainer();
-				exIndex = exCont.addExpression(currentType, compType, path, null, sfc.getOperanda().getOperand(1).toString());
-				logger.trace("iterate; added path expression at index: {}", exIndex);
-				setParentPath(exCont.getBuilder(), exIndex, path);
-				logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+				Object[] refs = resolveComparison(sfc.getOperanda().getOperand(1).getChildExpression(), ctx);
+				String pName = (String) refs[0];
+				Object value = refs[1];
+				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
+				logger.trace("iterate; added functional path expression at index: {}", exIndex);
+				//setParentPath(exCont.getBuilder(), exIndex, path);
+				//logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
 			}
-			logger.trace("iterate; got string comparison function call; args: {}", (Object[]) sfc.getArguments());
-			path.removeLastSegment();
+			//logger.trace("iterate; removing last segment after string comparison call; current path: {}", path.getFullPath());
+			//path.removeLastSegment();
 		}
 
 		if (ex instanceof Atomizer) {

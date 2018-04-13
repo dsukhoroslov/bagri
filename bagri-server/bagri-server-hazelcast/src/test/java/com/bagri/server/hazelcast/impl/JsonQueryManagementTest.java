@@ -16,7 +16,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.xquery.XQItemAccessor;
@@ -170,7 +172,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				"let $p52 := get($price, 'Price52week')\n" +
 				"let $phd := get($p52, 'Price52week-high-date')\n" +
 				"where fn:starts-with($phd, '2002')\n" +
-				"return $phd"; //fn:serialize($map, map{'method': 'json'})";
+				"return $phd"; 
 		
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
@@ -183,4 +185,119 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 			assertEquals(2, cnt);
 		}
 	}
+
+	@Test
+	public void queryEndsWithDocumentsTest() throws Exception {
+	
+		String query = "for $map in fn:collection(\"securities\")\n" +
+				"let $sec := get($map, 'Security')\n" +
+				"let $price := get($sec, 'Price')\n" +
+				"let $p52 := get($price, 'Price52week')\n" +
+				"let $pld := get($p52, 'Price52week-low-date')\n" +
+				"where fn:ends-with($pld, '05-12')\n" +
+				"return $pld"; 
+		
+		Properties props = new Properties();
+		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				String text = item.getAtomicValue();
+				assertEquals("2002-05-12", text);
+				cnt++;
+			}
+			assertEquals(2, cnt);
+		}
+	}
+	
+	@Test
+	public void queryContainsDocumentsTest() throws Exception {
+	
+		String query = "for $map in fn:collection(\"securities\")\n" +
+				"let $sec := get($map, 'Security')\n" +
+				"let $price := get($sec, 'Price')\n" +
+				"let $p52 := get($price, 'Price52week')\n" +
+				"let $pld := get($p52, 'Price52week-low-date')\n" +
+				"where fn:contains($pld, '04-03')\n" +
+				"return $pld"; 
+
+		Properties props = new Properties();
+		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				String text = item.getAtomicValue();
+				assertEquals("2004-03-05", text);
+				cnt++;
+			}  
+			assertEquals(1, cnt);
+		}
+	}
+
+	@Test
+	public void queryProductDocumentsTest() throws Exception {
+	
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
+					   "declare variable $pid external;\n" +
+					   "declare variable $rid external;\n" +
+					   "\n" +
+					   "for $map in fn:collection(\"securities\")\n" +
+					   "  let $props := map {'method': 'json'}\n" +
+					   "  let $inv := m:get($map, 'inventory')\n" +
+					   "  for $prod in a:flatten($inv)\n" +
+					   "    where m:get($prod, 'product-id') = $pid\n" +
+					   "    let $vs := m:get($prod, 'virtual-stores')\n" +
+					   "    for $item in a:flatten($vs)\n" +
+					   "      where (m:get($item, 'status') = 'active')\n" +
+					   "        and (m:get($item, 'region-id') = $rid)\n" + 
+					   //"        and (fn:not(fn:exists($rid)) or m:get($item, 'region-id') = $rid)\n" + 
+					   "      return fn:serialize($item, $props)"; 	
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("pid", 28844);
+		params.put("rid", 123);
+		Properties props = new Properties();
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				//assertEquals("2004-03-05", text);
+				cnt++;
+			}  
+			assertEquals(0, cnt);
+		}
+	}
+	
+	@Test
+	public void queryCategoryDocumentsTest() throws Exception {
+	
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
+					   "declare variable $rid external;\n" +
+					   "\n" +
+					   "for $map in fn:collection(\"securities\")\n" +
+					   "  let $props := map {'method': 'json'}\n" +
+					   "  let $inv := m:get($map, 'inventory')\n" +
+					   "  for $prod in a:flatten($inv)\n" +
+					   "    where fn:starts-with(m:get($prod, 'product-category'), '050511')\n" + //$pcat)\n" +
+					   "    let $vs := m:get($prod, 'virtual-stores')\n" +
+					   "    for $item in a:flatten($vs)\n" +
+					   "      where (m:get($item, 'status') = 'active')\n" +
+					   "        and (m:get($item, 'region-id') = $rid)\n" + 
+					   //"        and (fn:not(fn:exists($rid)) or m:get($item, 'region-id') = $rid)\n" + 
+					   "      return fn:serialize($item, $props)"; 	
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("rid", 123);
+		Properties props = new Properties();
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				//assertEquals("2004-03-05", text);
+				cnt++;
+			}  
+			assertEquals(0, cnt);
+		}
+	}
 }
+
