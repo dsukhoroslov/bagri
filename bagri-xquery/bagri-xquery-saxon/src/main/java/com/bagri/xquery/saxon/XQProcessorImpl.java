@@ -96,7 +96,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
         //JPConverter.allocate(XQItem.class, null, config);
-        config.setConfigurationProperty(FeatureKeys.LAZY_CONSTRUCTION_MODE, true);
+        //config.setConfigurationProperty(FeatureKeys.LAZY_CONSTRUCTION_MODE, true);
     }
     
     public String getProperty(String propName) {
