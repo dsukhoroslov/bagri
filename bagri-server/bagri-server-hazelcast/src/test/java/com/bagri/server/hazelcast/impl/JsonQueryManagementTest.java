@@ -14,6 +14,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.io.File;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -234,7 +239,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 
 	@Test
 	public void queryProductDocumentsTest() throws Exception {
-	
+
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
 					   "declare variable $pid external;\n" +
@@ -270,24 +275,39 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void queryCategoryDocumentsTest() throws Exception {
 	
+		long txId = xRepo.getTxManagement().beginTransaction();
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp2/"), "*.json")) {
+		    for (Path path: stream) {
+				createDocumentTest(path.toFile().getAbsolutePath());
+		    }
+		}		
+		xRepo.getTxManagement().commitTransaction(txId);
+		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-					   "declare variable $rid external;\n" +
+					   "declare variable $pcat external;\n" +
+					   //"declare variable $rid external;\n" +
 					   "\n" +
-					   "for $map in fn:collection(\"securities\")\n" +
-					   "  let $props := map {'method': 'json'}\n" +
+					   "let $props := map {'method': 'json'}\n" +
+					   "let $sq := for $map in fn:collection(\"securities\")\n" +
 					   "  let $inv := m:get($map, 'inventory')\n" +
 					   "  for $prod in a:flatten($inv)\n" +
-					   "    where fn:starts-with(m:get($prod, 'product-category'), '050511')\n" + //$pcat)\n" +
+					   "    where fn:starts-with(m:get($prod, 'product-category'), $pcat)\n" +
 					   "    let $vs := m:get($prod, 'virtual-stores')\n" +
 					   "    for $item in a:flatten($vs)\n" +
 					   "      where (m:get($item, 'status') = 'active')\n" +
-					   "        and (m:get($item, 'region-id') = $rid)\n" + 
+					   //"        and (m:get($item, 'region-id') = $rid)\n" + 
 					   //"        and (fn:not(fn:exists($rid)) or m:get($item, 'region-id') = $rid)\n" + 
-					   "      return fn:serialize($item, $props)"; 	
+					   "      let $item := m:put($item, 'product-id', m:get($prod, 'product-id'))\n" +
+					   "      let $item := m:put($item, 'product-scu', m:get($prod, 'product-scu'))\n" +
+					   //"      order by m:get($item, 'product-id')\n" + 	
+					   "      return fn:serialize($item, $props)\n" + 	
+					   "\n" +
+					   "for $item at $cnt in fn:subsequence($sq, 3, 2)\n" +
+					   "  return $item";
 
 		Map<String, Object> params = new HashMap<>();
-		params.put("rid", 123);
+		params.put("pcat", "04090");
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
@@ -296,7 +316,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				//assertEquals("2004-03-05", text);
 				cnt++;
 			}  
-			assertEquals(0, cnt);
+			assertEquals(2, cnt);
 		}
 	}
 }

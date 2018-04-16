@@ -43,6 +43,7 @@ import net.sf.saxon.expr.VariableReference;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.flwor.Clause;
 import net.sf.saxon.expr.flwor.FLWORExpression;
+import net.sf.saxon.expr.flwor.ForClause;
 import net.sf.saxon.expr.flwor.WhereClause;
 import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.parser.Token;
@@ -198,7 +199,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 	private Comparison getComparison(int operator) {
 		switch (operator) {
-		case Token.AND:
+		case Token.AND:	
 			return Comparison.AND;
 		case Token.OR:
 			return Comparison.OR;
@@ -229,7 +230,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 			} else if (ex instanceof FLWORExpression) {
 				FLWORExpression fex = (FLWORExpression) ex;
 				for (Clause cls: fex.getClauseList()) {
-					if (cls instanceof WhereClause) {
+					if (cls instanceof ForClause) {
+						if (((ForClause) cls).getSequence() instanceof FilterExpression) {
+							return true;
+						}
+					} else if (cls instanceof WhereClause) {
 						return true;
 					}
 				}

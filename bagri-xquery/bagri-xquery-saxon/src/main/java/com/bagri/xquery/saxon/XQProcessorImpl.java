@@ -59,6 +59,7 @@ import net.sf.saxon.dom.DocumentOverNodeInfo;
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.expr.instruct.GlobalVariable;
+import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.Logger;
 import net.sf.saxon.lib.StandardLogger;
 import net.sf.saxon.lib.Validation;
@@ -95,6 +96,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
         //JPConverter.allocate(XQItem.class, null, config);
+        config.setConfigurationProperty(FeatureKeys.LAZY_CONSTRUCTION_MODE, true);
     }
     
     public String getProperty(String propName) {
