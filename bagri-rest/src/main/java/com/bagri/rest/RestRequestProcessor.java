@@ -51,11 +51,13 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     private Function fn;
 	private String query;
 	private RepositoryProvider rePro;
+	private Properties qProps;
 	
 	public RestRequestProcessor(Function fn, String query, RepositoryProvider rePro) {
 		this.fn = fn;
 		this.query = query;
 		this.rePro = rePro;
+		qProps = getQueryProperties();
 	}
 
     @Override
@@ -70,16 +72,18 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		logger.debug("apply; got params: {}", params); 
 
     	boolean empty = false;
-    	Properties props = new Properties();
 		ResultCursor<XQItem> cursor = null;
+		logger.trace("apply; going to execute query: {}\n with params: {} and props: {}", query, params, qProps); 
 		try {
-			cursor = repo.getQueryManagement().executeQuery(query, params, props);
+			cursor = repo.getQueryManagement().executeQuery(query, params, qProps);
 	    	empty = cursor.isEmpty();
 		} catch (BagriException ex) {
 			logger.error("apply.error: ", ex);
 			return Response.serverError().entity(ex.getMessage()).build();
 		}
 	    logger.debug("apply; got cursor: {}", cursor);
+	    
+	    // check and process here bgdb:follow-rules("create/update/delete") annotations
 	    
     	if (empty) {
     		// send response right away
@@ -106,13 +110,13 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	for (Parameter pm: fn.getParameters()) {
     		logger.trace("getParameters; processing param: {}", pm);
 			// TODO: resolve cardinality properly!
-    		if (isPathParameter(pm.getName())) {
+    		if (isPathParameter(fn, pm.getName())) {
         		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
         		if (vals != null) {
         			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
         		}    			
     		} else {
-    			String aType = getParamAnnotationType(pm.getName());
+    			String aType = getParamAnnotationType(fn, pm.getName());
         		logger.trace("getParameters; param annotation: {}", aType);
     			if (aType == null) {
     				// this is for POST/PUT only!
@@ -124,8 +128,6 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     				}
     			} else {
         			boolean found = false;
-        			List<String> atns = new ArrayList<>();
-        			// TODO: fill atns for every atn type
     				switch (aType) {
     					case apn_cookie: {
             	    		Cookie val = context.getCookies().get(pm.getType());
@@ -175,7 +177,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     					}
     				}
     				if (!found) {
-    	    			setNotFoundParameter(params, atns, pm);
+    	    			setNotFoundParameter(params, aType, pm);
     				}
     			}
     		}
@@ -183,17 +185,23 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return params;
     }
 
-    private boolean isPathParameter(String pName) {
-    	List<String> pa = fn.getAnnotations().get(an_path);
-    	return (pa != null && pa.size() == 1 && pa.get(0).indexOf("{" + pName + "}") > 0);
+    public static boolean isPathParameter(Function fn, String pName) {
+    	List<List<String>> pa = fn.getAnnotations().get(an_path);
+    	if (pa != null && pa.size() == 1) {
+    		List<String> pb = pa.get(0);
+    		return (pb != null && pb.size() == 1 && pb.get(0).indexOf("{" + pName + "}") > 0);
+    	}
+    	return false; 
     }
     
-    private String getParamAnnotationType(String pName) {
+    public static String getParamAnnotationType(Function fn, String pName) {
 		String xpName = "{$" + pName + "}";
-    	for (Map.Entry<String, List<String>> ant: fn.getAnnotations().entrySet()) {
-    		for (String val: ant.getValue()) {
-    			if (pName.equals(val) || xpName.equals(val)) {
-    				return ant.getKey();
+    	for (Map.Entry<String, List<List<String>>> ant: fn.getAnnotations().entrySet()) {
+    		for (List<String> values: ant.getValue()) {
+    			for (String val: values) {
+	    			if (pName.equals(val) || xpName.equals(val)) {
+	    				return ant.getKey();
+	    			}
     			}
     		}
     	}
@@ -225,11 +233,23 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return null;
     }
     
-    private void setNotFoundParameter(Map<String, Object> params, List<String> atns, Parameter pm) {
+    private void setNotFoundParameter(Map<String, Object> params, String pType, Parameter pm) {
 		// handle default values
-		if (atns.size() > 2) {
-			params.put(pm.getName(), getAtomicValue(pm.getType(), atns.get(2)));
-		} else if (pm.getCardinality().isOptional()) {
+    	List<List<String>> atns = fn.getAnnotations().get(pType);
+    	if (atns != null) {
+    		String pName = pm.getName();
+    		String xpName = "{$" + pm.getName() + "}";
+       		for (List<String> values: atns) {
+       			if (values.size() > 2) {
+       				if (pName.equals(values.get(0)) || xpName.equals(values.get(1))) {
+       					params.put(pm.getName(), getAtomicValue(pm.getType(), values.get(2)));
+       		    		return;
+       				}
+        		}
+        	}
+    	}
+		
+    	if (pm.getCardinality().isOptional()) {
 			// pass empty value..
 			params.put(pm.getName(), null);
 		}
@@ -309,6 +329,32 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	            
             }
         };
+    }
+    
+    private Properties getQueryProperties() {
+    	Properties props = new Properties();
+    	List<List<String>> paa = fn.getAnnotations().get(apn_properties);
+    	if (paa != null) {
+    		for (List<String> properties: paa) {
+    			for (String property: properties) {
+    				int pos = property.indexOf("=");
+    				if (pos > 0) {
+    					props.setProperty(property.substring(0, pos), property.substring(pos + 1));
+    				}
+    			}
+    		}
+    	}
+    	
+    	paa = fn.getAnnotations().get(apn_property);
+    	if (paa != null) {
+    		for (List<String> properties: paa) {
+    			if (properties.size() == 2) {
+					props.setProperty(properties.get(0), properties.get(1));
+    			}
+    		}
+    	}
+		logger.debug("getQueryProperties; resolved props: {}", props);
+    	return props;
     }
     
 }

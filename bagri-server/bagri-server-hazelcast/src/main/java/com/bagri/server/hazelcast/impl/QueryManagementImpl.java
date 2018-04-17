@@ -789,11 +789,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			execPool.execute(new Runnable() {
 				@Override
 				public void run() {
-					//try {
 					fetchResults(iter, props, cursor);
-					//} catch (BagriException ex) {
-					//	throw new RuntimeException(ex);
-					//}
 					cursor.finish();
 				}
 			});
@@ -812,11 +808,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			execPool.execute(new Runnable() {
 				@Override
 				public void run() {
-					//try {
 					fetchAndCacheResults(ctx, query, params, iter, props, cursor, returnUris);
-					//} catch (BagriException ex) {
-					//	throw new RuntimeException(ex);
-					//}
 					cursor.finish();
 				}
 			});

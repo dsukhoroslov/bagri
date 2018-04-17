@@ -329,11 +329,13 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     
     private void buildMethod(Resource.Builder builder, Module module, Function fn) {
 		logger.debug("buildMethod; got fn: {}", fn.getSignature());
-		Map<String, List<String>> annotations = fn.getAnnotations();
-        List<String> values = annotations.get(an_path);
-        if (values != null) {
-        	String subPath = values.get(0);
-        	builder = builder.addChildResource(subPath);
+		Map<String, List<List<String>>> annotations = fn.getAnnotations();
+        List<List<String>> values = annotations.get(an_path);
+        if (values != null && values.size() == 1) {
+        	List<String> subPath = values.get(0);
+        	if (subPath != null) {
+        		builder = builder.addChildResource(subPath.get(0));
+        	}
         }
 
 		//import module namespace tpox="http://tpox-benchmark.com/rest" at "../../etc/samples/tpox/rest_module.xq";
@@ -369,24 +371,28 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     
     private void buildMethodHandler(Resource.Builder builder, String method, String query, Function fn) {
 
-		Map<String, List<String>> annotations = fn.getAnnotations();
-    	List<String> consumes = annotations.get(an_consumes); 
-    	List<String> produces = annotations.get(an_produces);
+		Map<String, List<List<String>>> annotations = fn.getAnnotations();
+    	List<List<String>> consumes = annotations.get(an_consumes); 
+    	List<List<String>> produces = annotations.get(an_produces);
     	
     	ResourceMethod.Builder methodBuilder = builder.addMethod(method);
         List<MediaType> types;
         if (consumes != null) {
             types = new ArrayList<>(consumes.size());
-        	for (String value: consumes) {
-        		types.add(MediaType.valueOf(value));
+        	for (List<String> values: consumes) {
+	        	for (String value: values) {
+	        		types.add(MediaType.valueOf(value));
+	        	}
         	}
             methodBuilder = methodBuilder.consumes(types);
         }
         
         if (produces != null) {
             types = new ArrayList<>(produces.size());
-        	for (String value: produces) {
-        		types.add(MediaType.valueOf(value));
+        	for (List<String> values: produces) {
+	        	for (String value: values) {
+	        		types.add(MediaType.valueOf(value));
+	        	}
         	}
             methodBuilder = methodBuilder.produces(types);
         }

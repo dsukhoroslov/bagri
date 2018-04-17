@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.core.system.Function;
 import com.bagri.core.system.Parameter;
+import com.bagri.rest.RestRequestProcessor;
 
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.jaxrs.Reader;
@@ -66,10 +67,10 @@ public class SwaggerListener implements ReaderListener {
 			String base = rm.getBasePath();
 			Function fn = rm.getFunction();
 			logger.debug("afterScan; processing function: {}", fn);
-			Map<String, List<String>> annotations = fn.getAnnotations();
-			List<String> consumes = annotations.get(an_consumes); 
-	    	List<String> produces = annotations.get(an_produces);
-			List<String> paths = annotations.get(an_path);
+			Map<String, List<List<String>>> annotations = fn.getAnnotations();
+			List<String> consumes = fn.getFlatList(an_consumes); 
+	    	List<String> produces = fn.getFlatList(an_produces);
+			List<String> paths = fn.getFlatList(an_path);
 			String fullPath = base;
 			if (paths != null) {
 	        	fullPath += paths.get(0);
@@ -79,7 +80,7 @@ public class SwaggerListener implements ReaderListener {
 				path = new Path();
 			}
 	        for (String method: methods) {
-	        	List<String> values = annotations.get("rest:" + method);
+	        	List<List<String>> values = annotations.get("rest:" + method);
 	        	if (values != null) {
 	        		Operation op = new Operation();
 	        		op.addScheme(Scheme.HTTP);
@@ -98,10 +99,10 @@ public class SwaggerListener implements ReaderListener {
 	    	        for (Parameter param: fn.getParameters()) {
 	    	        	String pName = param.getName();
 	    	        	io.swagger.models.parameters.Parameter pm = null;
-	    	        	if (rm.isPathParameter(pName)) {
+	    	        	if (RestRequestProcessor.isPathParameter(rm.fn, pName)) {
 	    	        		pm = new PathParameter().type(param.getType()).required(true);
 	    	        	} else {
-	    	    			String aType = rm.getParamAnnotationType(pName);
+	    	    			String aType = RestRequestProcessor.getParamAnnotationType(rm.fn, pName);
 	    	    			if (aType == null) {
 	    	    				// this is for POST/PUT only!
 	    	    				if (POST.equals(method) || PUT.equals(method)) {
@@ -182,23 +183,6 @@ public class SwaggerListener implements ReaderListener {
 			return fn;
 		}
 	
-	    public boolean isPathParameter(String pName) {
-	    	List<String> pa = fn.getAnnotations().get(an_path);
-	    	return (pa != null && pa.size() == 1 && pa.get(0).indexOf("{" + pName + "}") > 0);
-	    }
-	    
-	    public String getParamAnnotationType(String pName) {
-			String xpName = "{$" + pName + "}";
-	    	for (Map.Entry<String, List<String>> ant: fn.getAnnotations().entrySet()) {
-	    		for (String val: ant.getValue()) {
-	    			if (pName.equals(val) || xpName.equals(val)) {
-	    				return ant.getKey();
-	    			}
-	    		}
-	    	}
-	    	return null;
-	    }
-		
 	}
 
 }

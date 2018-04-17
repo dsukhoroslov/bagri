@@ -24,4 +24,9 @@ public class RestConstants {
 	public static final String apn_matrix = "rest:matrix-param";
 	public static final String apn_query = "rest:query-param";
 
+	public static final String apn_property = "bgdb:property";
+	public static final String apn_properties = "bgdb:properties";
+	
+	public static final String apn_rest_rules = "bgdb:follow-rules";
+
 }

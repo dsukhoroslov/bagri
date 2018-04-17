@@ -1,6 +1,7 @@
 package com.bagri.core.system;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+
+import com.bagri.support.util.PropUtils;
 
 /**
  * Represents external function registered in XDMLibrary and to be used from XQuery 
@@ -49,7 +52,7 @@ public class Function {
 	private List<Parameter> parameters = new ArrayList<>();
 	
 	@XmlTransient
-	private Map<String, List<String>> annotations = new HashMap<>();
+	private Map<String, List<List<String>>> annotations = new HashMap<>();
 
 	/**
 	 * default constructor
@@ -127,8 +130,27 @@ public class Function {
 	 * 
 	 * @return the list of function annotations
 	 */
-	public Map<String, List<String>> getAnnotations() {
+	public Map<String, List<List<String>>> getAnnotations() {
 		return annotations;
+	}
+	
+	/**
+	 * 
+	 * @param aName the annotation name
+	 * @return the combined list of all annotation values
+	 */
+	public List<String> getFlatList(String aName) {
+		List<List<String>> values = annotations.get(aName);
+		if (values != null && values.size() > 0) {
+			List<String> flat = new ArrayList<>(values.size());
+			for (List<String> vals: values) {
+				for (String value: vals) {
+					flat.add(value);
+				}
+			}
+			return flat;
+		}
+		return Collections.emptyList();
 	}
 	
 	/**
@@ -137,14 +159,14 @@ public class Function {
 	 * @param name the annotation name
 	 * @param value the annotation value
 	 */
-	public void addAnnotation(String name, String value) {
-		List<String> values = annotations.get(name);
-		if (values == null) {
-			values = new ArrayList<>();
-			annotations.put(name,  values);
+	public void addAnnotation(String name, List<String> values) {
+		List<List<String>> vList = annotations.get(name);
+		if (vList == null) {
+			vList = new ArrayList<>();
+			annotations.put(name, vList);
 		}
-		if (value != null) {
-			values.add(value);
+		if (values != null) {
+			vList.add(new ArrayList<>(values)); 
 		}
 	}
 	

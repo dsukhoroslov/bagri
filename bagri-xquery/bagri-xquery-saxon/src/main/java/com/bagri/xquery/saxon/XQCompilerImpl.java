@@ -1,18 +1,16 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.core.Constants.bg_prefix;
 import static com.bagri.xquery.saxon.SaxonUtils.*; 
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
@@ -24,14 +22,12 @@ import org.slf4j.LoggerFactory;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.instruct.UserFunction;
 import net.sf.saxon.expr.instruct.UserFunctionParameter;
-import net.sf.saxon.functions.ExecutableFunctionLibrary;
 import net.sf.saxon.functions.FunctionLibrary;
 import net.sf.saxon.functions.FunctionLibraryList;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.UnfailingErrorListener;
 import net.sf.saxon.lib.Validation;
-import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.Annotation;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
@@ -48,19 +44,6 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Parameter;
 import com.bagri.core.system.XQueryTrigger;
 import com.bagri.core.xquery.api.XQCompiler;
-import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
-import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.RemoveDocuments;
-import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
-import com.bagri.xquery.saxon.ext.http.HttpGet;
-import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
-import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
-import com.bagri.xquery.saxon.ext.tx.RollbackTransaction;
-import com.bagri.xquery.saxon.ext.util.GetUuid;
-import com.bagri.xquery.saxon.ext.util.LogOutput;
 import com.bagri.xquery.saxon.ext.util.StaticFunctionExtension;
 
 public class XQCompilerImpl implements XQCompiler {
@@ -358,13 +341,15 @@ public class XQCompilerImpl implements XQCompiler {
 
 				for (Annotation atn: atns) {
 					String aName = atn.getAnnotationQName().getDisplayName();
-					if (aName.startsWith("rest:")) {
-						result.addAnnotation(aName, null);
+					if (aName.startsWith(bg_prefix) || aName.startsWith("rest:")) {
+						List<String> values = null;
 						if (atn.getAnnotationParameters() != null) {
+							values = new ArrayList<>(atn.getAnnotationParameters().size()); 
 							for (AtomicValue av: atn.getAnnotationParameters()) {
-								result.addAnnotation(aName, av.getStringValue());
-							}								
+								values.add(av.getStringValue());
+							}				
 						}
+						result.addAnnotation(aName, values);
 					}
 				}
 				

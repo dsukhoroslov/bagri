@@ -143,6 +143,7 @@ public class Constants {
 	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";
 
 	public static final String bg_schema = "bgdb";
+	public static final String bg_prefix = bg_schema + ":";
 	public static final String bg_ns = "http://bagridb.com/bdb";
 
 	public static final String bg_version = "1.2.1";
@@ -195,9 +196,9 @@ public class Constants {
 	public static final String cmd_store_document_map = "store-document-map";
 	
 	// updating functions
-	public static final String bg_remove_document = bg_schema + ":" + cmd_remove_document;
-	public static final String bg_remove_cln_documents = bg_schema + ":" + cmd_remove_cln_documents;
-	public static final String bg_store_document = bg_schema + ":" + cmd_store_document;
+	public static final String bg_remove_document = bg_prefix + cmd_remove_document;
+	public static final String bg_remove_cln_documents = bg_prefix + cmd_remove_cln_documents;
+	public static final String bg_store_document = bg_prefix + cmd_store_document;
 	
 	public static int propToInt(String property) {
 		switch (property) {

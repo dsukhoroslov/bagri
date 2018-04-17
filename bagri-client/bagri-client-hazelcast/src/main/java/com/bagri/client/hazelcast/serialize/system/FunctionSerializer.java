@@ -1,6 +1,7 @@
 package com.bagri.client.hazelcast.serialize.system;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,10 +40,14 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 		cnt = in.readInt();
 		for (int i=0; i < cnt; i++) {
 			String name = in.readUTF();
-			xFunc.addAnnotation(name, null);
-			int sz = in.readInt();
-			for (int j=0; j < sz; j++) {
-				xFunc.addAnnotation(name, in.readUTF());
+			int sz1 = in.readInt();
+			for (int j=0; j < sz1; j++) {
+				int sz2 = in.readInt();
+				List<String> values = new ArrayList<>(sz2);
+				for (int k=0; k < sz2; k++) {
+					values.add(in.readUTF());
+				}
+				xFunc.addAnnotation(name, values);
 			}
 		}
 		return xFunc;
@@ -60,11 +65,14 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 			out.writeObject(xp);
 		}
 		out.writeInt(xFunc.getAnnotations().size());
-		for (Map.Entry<String, List<String>> entry: xFunc.getAnnotations().entrySet()) {
+		for (Map.Entry<String, List<List<String>>> entry: xFunc.getAnnotations().entrySet()) {
 			out.writeUTF(entry.getKey());
 			out.writeInt(entry.getValue().size());
-			for (String value: entry.getValue()) {
-				out.writeUTF(value);
+			for (List<String> values: entry.getValue()) {
+				out.writeInt(values.size());
+				for (String value: values) {
+					out.writeUTF(value);
+				}
 			}
 		}
 	}

@@ -150,16 +150,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			if (param == null) {
 				logger.debug("executeQuery; the routing parameter not provided: {}", props);
 			} else {
-				Object value = params.get(param);
-				if (value == null) {
+				Object key = params.get(param);
+				if (key == null) {
 					logger.debug("executeQuery; the routing parameter '{}' not found: {}", param, params);
 				} else {
 					if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
-						value = value.toString().hashCode();
+						key = key.toString().hashCode();
 					}
-					if (value != null) {
-						future = execService.submitToKeyOwner(task, value);
-					}
+					future = execService.submitToKeyOwner(task, key);
 				}
 			}
 		//} else {
