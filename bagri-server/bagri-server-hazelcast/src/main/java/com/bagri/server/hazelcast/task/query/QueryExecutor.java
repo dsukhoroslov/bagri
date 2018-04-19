@@ -19,7 +19,7 @@ import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.spring.context.SpringAware;
 
 @SpringAware
-public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryExecutor {
+public class QueryExecutor<T> extends com.bagri.client.hazelcast.task.query.QueryExecutor<T> {
 
 	//private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 	
@@ -33,7 +33,7 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
 	}
 
     @Override
-	public ResultCursor call() throws Exception {
+	public ResultCursor<T> call() throws Exception {
     	
     	//logger.info("call.enter; context: {}; params: {}", context, params);
 
@@ -50,9 +50,9 @@ public class QueryExecutor extends com.bagri.client.hazelcast.task.query.QueryEx
 			return queryMgr.executeQuery(query, params, context);
     	}
 
-    	ResultCursor rc = ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, tiLevel, new Callable<ResultCursor>() {
+    	ResultCursor<T> rc = ((TransactionManagement) repo.getTxManagement()).callInTransaction(txId, false, tiLevel, new Callable<ResultCursor<T>>() {
     		
-	    	public ResultCursor call() throws BagriException {
+	    	public ResultCursor<T> call() throws BagriException {
 				return queryMgr.executeQuery(query, params, context);
 	    	}
     	});

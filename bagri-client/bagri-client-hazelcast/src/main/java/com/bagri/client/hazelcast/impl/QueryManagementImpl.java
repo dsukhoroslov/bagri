@@ -7,8 +7,11 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -46,6 +49,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     private Future<?> execution = null; 
     private IMap<Long, QueryResult> resCache;
     private ReplicatedMap<Integer, Query> xqCache;
+    private int runIdx = 0;
     
 	public QueryManagementImpl() {
 		// what should we do here? 
@@ -104,17 +108,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("getDocumentUris; got cached results: {}", res);
-				return new FixedCursorImpl(res.getResults());
+				return new FixedCursorImpl<String>(res.getDocUris());
 			}
 		}
 		
-		QueryUrisProvider task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		// check props, submit query to members accordingly..
-		Future<ResultCursor<String>> future = execService.submit(task);
-		execution = future;
-		ResultCursor<String> result = getResults(future, 0);
-		logger.trace("getDocumentUris.exit; returning: {}", result);
-		return result;
+		Callable<ResultCursor<String>> task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
+		ResultCursor<String> cursor = executeQueryTask(task, params, props, qKey);
+		logger.trace("getDocumentUris.exit; returning: {}", cursor);
+		return cursor;
 	}
 	
 	@Override
@@ -137,71 +138,108 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		QueryExecutor task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		Future<ResultCursor> future = null;
+		Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
+		ResultCursor cursor = executeQueryTask(task, params, props, qKey);
+		logger.debug("executeQuery.exit; returning: {}", cursor);
+		return cursor; 
+	}
+	
+	private <T> ResultCursor<T> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
+		
+		Map<Member, Future<ResultCursor<T>>> futures = null;
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
-			// TODO: implement it
-			// future = execService.submitToAllMembers(task);
-		} else if (pv_client_submitTo_query_key_owner.equalsIgnoreCase(runOn)) {
-			future = execService.submitToKeyOwner(task, qKey);
-		} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
-			String param = props.getProperty(pn_client_ownerParam);
-			if (param == null) {
-				logger.debug("executeQuery; the routing parameter not provided: {}", props);
-			} else {
-				Object key = params.get(param);
-				if (key == null) {
-					logger.debug("executeQuery; the routing parameter '{}' not found: {}", param, params);
+			// run query on all nodes in cluster
+			futures = execService.submitToAllMembers(task);
+		} else {
+			Object runKey = null;
+			futures = new HashMap<>(1);
+			if (pv_client_submitTo_query_key_owner.equalsIgnoreCase(runOn)) {
+				runKey = qKey;
+			} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
+				String param = props.getProperty(pn_client_ownerParam);
+				if (param == null) {
+					logger.debug("executeQuery; the routing parameter not provided: {}", props);
 				} else {
-					if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
-						key = key.toString().hashCode();
+					runKey = params.get(param);
+					if (runKey == null) {
+						logger.debug("executeQuery; the routing parameter '{}' not found: {}", param, params);
+					} else {
+						if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
+							runKey = runKey.toString().hashCode();
+						}
 					}
-					future = execService.submitToKeyOwner(task, key);
 				}
+			} else {
+				// just for future investigation..
+				// runKey = new Long(runOn.hashCode());
 			}
-		//} else {
-			// not sure this is correct, just for future investigation..
-		//	Long partKey = new Long(runOn.hashCode());
-			//future = execService.submitToKeyOwner(task, partKey);
-		//	QueryProcessor qp = new QueryProcessor(repo.getClientId(), repo.getTransactionId(), query, params, props, true);
-		//	return (ResultCursor) resCache.executeOnKey(partKey, qp);
+
+			Member owner = null;
+			if (runKey == null) {
+				// this is for ANY and default/not implemented cases
+				// balance job between nodes...
+				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
+				int cnt = runIdx % members.size();
+				Iterator<Member> itr = members.iterator();
+				for (int i=0; i <= cnt; i++) {
+					owner = itr.next();
+				}
+				futures.put(owner, execService.submitToMember(task, owner));
+				runIdx++;
+			} else {
+				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
+				futures.put(owner, execService.submitToKeyOwner(task, runKey));
+			}
 		}
-
-		if (future == null) {
-			// this is for ANY and default/not implemented cases
-			future = execService.submit(task);
-		}
-		
-		execution = future;
-
-		long timeout = Long.parseLong(props.getProperty(pn_xqj_queryTimeout, "0"));
-
+	
 		//if (cursor != null && cursor instanceof QueuedCursorImpl) {
 		//  purge queue, fetch/close current cursor..?
 		//}
-		ResultCursor cursor = getResults(future, timeout);
-		logger.trace("execXQuery; got cursor: {}", cursor);
 		
+		ResultCursor<T> cursor = getResults(futures, props);
 		if (cursor.isAsynch()) {
 			((QueuedCursorImpl<T>) cursor).init(repo.getHazelcastClient());
 		}
-		//} else {
-		//	int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-		//	CombinedCursorImpl<DocumentAccessor> comb = new CombinedCursorImpl<>(fSize);
-		//	for (Map.Entry<Member, Future<ResultCursor<DocumentAccessor>>> entry: results.entrySet()) {
-		//		ResultCursor<DocumentAccessor> cln = entry.getValue().get();
-		//		comb.addResults(cln);
-		//	}
-		//	result = (ResultCursor<DocumentAccessor>) comb;
-		//}
+		
 		logger.debug("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
 	}
 
-	private <T> T getResults(Future<T> future, long timeout) throws BagriException {
+	@SuppressWarnings({ "unchecked", "resource" })
+	private <T> ResultCursor<T> getResults(Map<Member, Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
 
-		T result;
+		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
+		long timeout = Long.parseLong(props.getProperty(pn_xqj_queryTimeout, "0"));
+
+		ResultCursor<T> result;
+		Future<ResultCursor<T>> future; 
+		if (asynch) {
+			// get the fastest result somehow..
+			// no need to use combined cursor as results from all members 
+			// will go to the queue anyway 
+			future = futures.values().iterator().next();
+			result = getResult(future, timeout);
+			((QueuedCursorImpl<ResultCursor<T>>) result).init(repo.getHazelcastClient());
+		} else {
+			if (repo.getHazelcastClient().getCluster().getMembers().size() > 1) { 
+				int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+				CombinedCursorImpl<T> comb = new CombinedCursorImpl<>(fetchSize);
+				for (Map.Entry<Member, Future<ResultCursor<T>>> entry: futures.entrySet()) {
+					comb.addResults(getResult(entry.getValue(), timeout));
+				}
+				result = comb;
+			} else {
+				result = getResult(futures.values().iterator().next(), timeout);
+			}
+		}
+		return result;
+	}
+	
+	private <T> ResultCursor<T> getResult(Future<ResultCursor<T>> future, long timeout) throws BagriException {
+	
+		ResultCursor<T> result;
+		execution = future;
 		try {
 			if (timeout > 0) {
 				result = future.get(timeout, TimeUnit.MILLISECONDS); 

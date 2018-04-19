@@ -3,9 +3,12 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.pn_client_fetchAsynch;
 import static com.bagri.core.Constants.pn_client_fetchSize;
 import static com.bagri.core.Constants.pn_client_id;
+import static com.bagri.core.Constants.pn_client_submitTo;
 import static com.bagri.core.Constants.pn_document_compress;
 import static com.bagri.core.Constants.pn_query_command;
 import static com.bagri.core.Constants.pn_xqj_scrollability;
+import static com.bagri.core.Constants.pv_client_submitTo_all;
+import static com.bagri.core.Constants.pv_client_submitTo_any;
 import static com.bagri.core.Constants.pn_schema_fetch_size;
 import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.support.util.XQUtils.getAtomicValue;
@@ -67,6 +70,7 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
 import com.bagri.support.util.CollectionUtils;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -365,7 +369,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	private Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws BagriException {
+	private Set<Long> queryKeys(boolean local, Set<Long> found, ExpressionContainer ec, Expression ex) throws BagriException {
 		if (ex == null) {
 			logger.debug("queryKeys; got null expression in container: {}, skipping..", ec);
 			return found;
@@ -377,15 +381,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
-			Set<Long> leftKeys = queryKeys(found, ec, be.getLeft());
+			Set<Long> leftKeys = queryKeys(local, found, ec, be.getLeft());
 			if (Comparison.AND == be.getCompType()) {
 				if (leftKeys != null && leftKeys.isEmpty()) {
 					return leftKeys;
 				}
-				Set<Long> rightKeys = queryKeys(leftKeys, ec, be.getRight());
+				Set<Long> rightKeys = queryKeys(local, leftKeys, ec, be.getRight());
 				return rightKeys;
 			} else if (Comparison.OR == be.getCompType()) {
-				Set<Long> rightKeys = queryKeys(found, ec, be.getRight());
+				Set<Long> rightKeys = queryKeys(local, found, ec, be.getRight());
 				if (leftKeys != null) {
 					if (rightKeys != null) {
 						leftKeys.addAll(rightKeys);
@@ -400,7 +404,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		PathExpression pex = (PathExpression) ex;
-		return queryPathKeys(found, pex, ec.getParam(pex));
+		return queryPathKeys(local, found, pex, ec.getParam(pex));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -447,7 +451,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return value;
 	}
 
-	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) throws BagriException {
+	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value) throws BagriException {
 
 		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
@@ -510,6 +514,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);
 				logger.trace("queryPathKeys; search for index - got keys: {}", docKeys == null ? null : docKeys.size()); 
 				if (docKeys != null) {
+					if (local && !docKeys.isEmpty()) {
+						docKeys = checkDocumentsLocal(docKeys);
+					}
 					if (found == null) {
 						result.addAll(docKeys);
 					} else {
@@ -540,7 +547,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			qp = new DocsAwarePredicate(pex, newVal, found);
 		}			
 		Predicate<DataKey, Elements> f = Predicates.and(pp, qp);
-	   	Set<DataKey> xdmKeys = xdmCache.keySet(f);
+	   	Set<DataKey> xdmKeys = local ? xdmCache.localKeySet(f) : xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		result = new HashSet<>(xdmKeys.size());
 		for (DataKey key: xdmKeys) {
@@ -566,6 +573,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		return result;
+	}
+	
+	private Set<Long> checkDocumentsLocal(Collection<Long> docKeys) {
+		// filter out external docKeys; size should be docKeys.size / cluster size
+		Set<Long> localKeys = new HashSet<>();
+		PartitionService ps = repo.getHzInstance().getPartitionService();
+		for (Long key: docKeys) {
+			if (ps.getPartition(key).getOwner().localMember()) {
+				localKeys.add(key);
+			}
+		}
+		return localKeys;
 	}
 
 	@Override
@@ -638,30 +657,44 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	@Override
 	public Collection<Long> getDocumentIds(ExpressionContainer query) throws BagriException {
+		QueryExecContext ctx = thContext.get();
+		Properties props = ctx.getQueryProperties();
+		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
+		
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
-				Set<Long> ids = queryKeys(null, query, exp.getRoot());
+				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot());
 				// otherwise filter out documents with wrong collectionIds here
 				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
-				thContext.get().setDocKeys(result);
+				ctx.setDocKeys(result);
 				return result.keySet();
 			}
 		}
 		logger.info("getDocumentIds; got rootless path: {}", query); 
 		
 		// fallback to full IDs set: default collection over all documents. not too good...
-		// TODO: how could we distribute it over cache nodes? can we use local keySet only !?
-		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
-		for (DocumentKey docKey: xddCache.keySet()) {
-			// we must provide only visible docIds!
-			if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
-				result.add(docKey.getKey());
+		List<Long> result;
+		if (localOnly) {
+			result = new ArrayList<Long>(xddCache.localKeySet().size());
+			for (DocumentKey docKey: xddCache.localKeySet()) {
+				if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
+					result.add(docKey.getKey());
+				}
+			}
+		} else {
+			result = new ArrayList<Long>(xddCache.keySet().size());
+			for (DocumentKey docKey: xddCache.keySet()) {
+				// we must provide only visible docIds!
+				if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
+					result.add(docKey.getKey());
+				}
 			}
 		}
-		// I don't want to cache all docIds here in result
+		// We don't want to cache all docIds here in result? 
 		return result;
 	}
 
@@ -747,7 +780,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			
 			QueryExecContext ctx = thContext.get();
-			ctx.clear();
+			ctx.reset(props);
 				
 			if (params != null) {
 				for (Map.Entry<String, Object> var: params.entrySet()) {
@@ -901,10 +934,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private class QueryExecContext {
 		
+		private Properties props;
 		private Map<Long, String> docKeys;
 		
 		void clear() {
 			this.docKeys = null;
+			this.props = null;
 		}
 		
 		Map<Long, String> getDocKeys() {
@@ -914,10 +949,25 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return docKeys;
 		}
 		
+		Properties getQueryProperties() {
+			if (props == null) {
+				return new Properties();
+			}
+			return props;
+		}
+		
 		void setDocKeys(Map<Long, String> docKeys) {
 			this.docKeys = docKeys;
 		}
 		
+		void setQueryProperties(Properties props) {
+			this.props = props;
+		}
+		
+		void reset(Properties props) {
+			this.docKeys = null;
+			this.props = props;
+		}
 	}
 
 }

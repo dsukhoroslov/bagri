@@ -83,25 +83,26 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		}
 	    logger.debug("apply; got cursor: {}", cursor);
 	    
-	    // check and process here bgdb:follow-rules("create/update/delete") annotations
-	    
+    	Response.ResponseBuilder response;
     	if (empty) {
-    		// send response right away
-	        return Response.ok().build();	    	
+	        response = Response.ok();	    	
+    	} else {
+    		response = Response.noContent();
+	    	try {
+	    		empty = fillResponse(cursor, response);
+		    	if (!empty) {
+		    		response.entity(getResultStream(cursor));
+		    	}
+		    } catch (BagriException ex) {
+				logger.error("apply.error: error processing response ", ex);
+				response = Response.serverError().entity(ex.getMessage());
+		    }
     	}
-	    
-    	Response.ResponseBuilder response = Response.noContent();
-    	try {
-    		empty = fillResponse(cursor, response);
-	    } catch (BagriException ex) {
-			logger.error("apply.error: error processing response ", ex);
-			return Response.serverError().entity(ex.getMessage()).build();
-	    }
 		logger.debug("apply; got response: {}", response);
-    	
-    	if (!empty) {
-    		response.entity(getResultStream(cursor));
-    	}
+
+		// check and process here bgdb:follow-rules("create/update/delete/..") annotations
+		applyRestRules(empty, response);
+	    
         return response.build();
 	}
     
@@ -304,7 +305,21 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	}
     	return empty;
     }
-    
+
+	private void applyRestRules(boolean empty, Response.ResponseBuilder response) {
+    	List<String> ra = fn.getFlatList(apn_rest_rules);
+    	if (ra != null && !ra.isEmpty()) {
+    		logger.debug("applyRestRules; got rules annotations: {}", ra);
+    		String rType = ra.get(0);
+    		switch (rType) {
+    			case arv_create:
+    			case arv_update:
+    			case arv_delete:
+    	    		// TODO: implement it..
+    		}
+    	}
+	}
+
     private StreamingOutput getResultStream(final ResultCursor<XQItem> result) {
 	    return new StreamingOutput() {
 	        @Override

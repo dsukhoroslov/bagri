@@ -65,12 +65,11 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	}
 	
 	private Long next() { 
-		logger.trace("next.enter");
 		if (docIds == null) {
 			loadData();
 		}
 		Long currentId = iter.next();
-		logger.trace("next.exit; returning: {}", currentId);
+		logger.trace("next; returning: {}", currentId);
 		return currentId;
 	}
 	
