@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -238,28 +239,35 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	}
 
 	@Test
+	@Ignore
 	public void queryProductDocumentsTest() throws Exception {
 
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-					   "declare variable $pid external;\n" +
+					   "declare variable $pids external;\n" +
 					   "declare variable $rid external;\n" +
 					   "\n" +
-					   "for $map in fn:collection(\"securities\")\n" +
-					   "  let $props := map {'method': 'json'}\n" +
-					   "  let $inv := m:get($map, 'inventory')\n" +
-					   "  for $prod in a:flatten($inv)\n" +
+					   "for $map in fn:collection(\"securities\"), $pid in $pids\n" +
+					   //"  let $props := map {'method': 'json'}\n" +
+					   //"  let $inv := m:get($map, 'inventory')\n" +
+					   "  for $prod in a:flatten(m:get($map, 'inventory'))\n" +
 					   "    where m:get($prod, 'product-id') = $pid\n" +
-					   "    let $vs := m:get($prod, 'virtual-stores')\n" +
-					   "    for $item in a:flatten($vs)\n" +
+					   //"    let $vs := m:get($prod, 'virtual-stores')\n" +
+					   "    for $item in a:flatten(m:get($prod, 'virtual-stores'))\n" +
 					   "      where (m:get($item, 'status') = 'active')\n" +
 					   "        and (m:get($item, 'region-id') = $rid)\n" + 
 					   //"        and (fn:not(fn:exists($rid)) or m:get($item, 'region-id') = $rid)\n" + 
-					   "      return fn:serialize($item, $props)"; 	
+					   "      let $item := m:put($item, 'product-id', m:get($prod, 'product-id'))\n" +
+					   "      let $item := m:put($item, 'product-category', m:get($prod, 'product-category'))\n" +
+					   "      return fn:serialize($item, map{'method': 'json'})"; 	
 
 		Map<String, Object> params = new HashMap<>();
-		params.put("pid", 28844);
-		params.put("rid", 123);
+		List<Integer> pids = new ArrayList<>();
+		pids.add(66751);
+		pids.add(98514);
+		pids.add(31386);
+		params.put("pids", pids);
+		params.put("rid", 1161);
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
@@ -273,6 +281,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	}
 	
 	@Test
+	@Ignore
 	public void queryCategoryDocumentsTest() throws Exception {
 	
 		long txId = xRepo.getTxManagement().beginTransaction();
@@ -300,7 +309,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 					   //"        and (fn:not(fn:exists($rid)) or m:get($item, 'region-id') = $rid)\n" + 
 					   "      let $item := m:put($item, 'product-id', m:get($prod, 'product-id'))\n" +
 					   "      let $item := m:put($item, 'product-scu', m:get($prod, 'product-scu'))\n" +
-					   //"      order by m:get($item, 'product-id')\n" + 	
+					   "      order by m:get($item, 'product-id')\n" + 	
 					   "      return fn:serialize($item, $props)\n" + 	
 					   "\n" +
 					   "for $item at $cnt in fn:subsequence($sq, 3, 2)\n" +
@@ -308,6 +317,45 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("pcat", "04090");
+		Properties props = new Properties();
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				//String text = item.getAtomicValue();
+				//assertEquals("2004-03-05", text);
+				cnt++;
+			}  
+			assertEquals(2, cnt);
+		}
+	}
+
+	@Test
+	@Ignore
+	public void queryDeliveryDocumentsTest() throws Exception {
+	
+		long txId = xRepo.getTxManagement().beginTransaction();
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp3/"), "*.json")) {
+		    for (Path path: stream) {
+				createDocumentTest(path.toFile().getAbsolutePath());
+		    }
+		}		
+		xRepo.getTxManagement().commitTransaction(txId);
+		
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
+					   //"declare variable $rid external;\n" +
+					   "\n" +
+					   "for $map in fn:collection(\"securities\")\n" +
+					   "  let $props := map {'method': 'json'}\n" +
+					   "  let $ships := m:get($map, 'shipments')\n" +
+					   "  for $from in a:flatten($ships)\n" +
+					   "    where m:get($from, 'region-id') = 462\n" + //$pid\n" +
+					   "    let $dests := m:get($from, 'destinations')\n" +
+					   "    for $item in a:flatten($dests)\n" +
+					   "      where m:get($item, 'region-id') = 304\n" +
+					   "      return fn:serialize($item, $props)"; 	
+
+		Map<String, Object> params = new HashMap<>();
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;

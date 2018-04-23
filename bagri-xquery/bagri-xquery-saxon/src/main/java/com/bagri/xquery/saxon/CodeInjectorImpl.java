@@ -21,7 +21,7 @@ public class CodeInjectorImpl implements CodeInjector {
 
 	@Override
 	public Clause injectClause(Clause target, StaticContext env) {
-		logger.debug("injectClause; traget: {}; env: {}", target, env);
+		logger.debug("injectClause; target: {}; env: {}", target, env);
 		return target;
 	}
 

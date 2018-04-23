@@ -1,5 +1,6 @@
 package com.bagri.xquery.saxon;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,11 +30,13 @@ import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FilterExpression;
+import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
 import net.sf.saxon.expr.ContextItemExpression;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.Literal;
+import net.sf.saxon.expr.LocalVariableReference;
 import net.sf.saxon.expr.Operand;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.SystemFunctionCall;
@@ -46,7 +49,11 @@ import net.sf.saxon.expr.flwor.FLWORExpression;
 import net.sf.saxon.expr.flwor.ForClause;
 import net.sf.saxon.expr.flwor.WhereClause;
 import net.sf.saxon.expr.instruct.Block;
+import net.sf.saxon.expr.instruct.UserFunction;
+import net.sf.saxon.expr.parser.ContextItemStaticInfo;
+import net.sf.saxon.expr.parser.ExpressionTool;
 import net.sf.saxon.expr.parser.Token;
+import net.sf.saxon.expr.parser.ExpressionTool.ExpressionPredicate;
 import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
@@ -334,8 +341,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				if (pName == null) {
 					pName = bind.getVariableQName().getClarkName();
 				}
-				// value =
-				// getValues(ctx.evaluateLocalVariable(bind.getLocalSlotNumber()));
+
 				try {
 					value = getValues(bind.evaluateVariable(ctx));
 				} catch (NullPointerException ee) {
@@ -353,7 +359,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			}
 		}
 	}
-
+	
 	private void iterate(Expression ex, XPathContext ctx) throws XPathException {
 		logger.trace("iterate.start: {}; expression: {}", ex.getClass().getName(), ex);
 
@@ -446,10 +452,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 			ex = ufc.getFunction().getBody();
 		}
 
-		Iterator<Operand> itr = ex.operands().iterator();
-		while (itr.hasNext()) {
-			Expression e = itr.next().getChildExpression();
-			iterate(e, ctx);
+		for (Operand op: ex.operands()) {
+			iterate(op.getChildExpression(), ctx);
 		}
 
 		if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { 
@@ -475,6 +479,13 @@ public class CollectionFinderImpl implements CollectionFinder {
 			String pName = (String) refs[0];
 			Object value = refs[1];
 
+			if (path.getSegments().size() == 0) {
+				PathBuilder p = resolveCurrentPath(ex, ctx);
+				ExpressionContainer exCont = getCurrentContainer();
+				exIndex = exCont.addExpression(currentType, compType, p, pName, value);
+				logger.trace("iterate; resolved path: {}", p);
+			}
+
 			if (path.getSegments().size() > 0) {
 				ExpressionContainer exCont = getCurrentContainer();
 				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
@@ -490,7 +501,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			setParentPath(exCont.getBuilder(), exIndex, path);
 			logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
 		}
-
+/*
 		if (ex instanceof IntegratedFunctionCall) {
 			IntegratedFunctionCall ifc = (IntegratedFunctionCall) ex;
 			if ("map:get".equals(ifc.getDisplayName())) {
@@ -515,12 +526,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				}
 			}
 		}
-		
-		if (ex instanceof ContextItemExpression) {
-			ContextItemExpression cie = (ContextItemExpression) ex;
-			//cie.
-		}
-		
+*/		
 		if (ex instanceof SystemFunctionCall) {
 			// add FunctionExpression..?
 			Comparison compType = null;
@@ -555,7 +561,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			if ((at.getBaseExpression() instanceof BindingReference) ||
 				(at.getBaseExpression() instanceof IntegratedFunctionCall && 
 						"map:get".equals(((IntegratedFunctionCall) at.getBaseExpression()).getDisplayName()))) {
-				// logger.trace("iterate; got base ref: {}", at.getBaseExpression());
+				logger.trace("iterate; got base ref: {}", at.getBaseExpression());
 			} else {
 				PathSegment ps = path.getLastSegment();
 				if (ps != null && ps.getAxis() == AxisType.CHILD) {
@@ -567,6 +573,46 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 		logger.trace("iterate.end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
 	}
+	
+	private PathBuilder resolveCurrentPath(Expression ex, XPathContext ctx) {
+		PathBuilder cp = new PathBuilder();
+		gatherGetPaths(ex, cp, ctx);
+		return cp;
+	}
+
+	private void gatherGetPaths(Expression exp, PathBuilder path, XPathContext ctx) {
+		if (exp instanceof StringLiteral && exp.getParentExpression() instanceof FunctionCall
+			&& "map:get".equals(((FunctionCall) exp.getParentExpression()).getDisplayName())) {
+				path.addPathSegment(AxisType.CHILD, null, ((StringLiteral) exp).getStringValue());
+		} else if (exp instanceof ContextItemExpression) {
+			ContextItemExpression cie = (ContextItemExpression) exp;
+			try {
+				Field f = cie.getClass().getDeclaredField("staticInfo");
+				f.setAccessible(true);
+				ContextItemStaticInfo si = (ContextItemStaticInfo) f.get(cie);
+				f = si.getClass().getDeclaredField("contextSettingExpression");
+				f.setAccessible(true);
+				gatherGetPaths((Expression) f.get(si), path, ctx);
+			} catch (Exception e) {
+				//
+			}
+		} else if (exp instanceof LocalVariableReference) {
+			Binding bind = ((LocalVariableReference) exp).getBinding();
+			//bind.
+			//ctx.evaluateLocalVariable(bind.getLocalSlotNumber())
+			try {
+				Sequence sq = bind.evaluateVariable(ctx);
+				sq.head();
+			} catch (XPathException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			for (Operand op: exp.operands()) {
+				gatherGetPaths(op.getChildExpression(), path, ctx);
+			}
+		}
+    }	
 
 	private ExpressionContainer getCurrentContainer() {
 		ExpressionContainer exCont = query.getContainer(currentType);

@@ -171,14 +171,18 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     					case apn_query: {
     	    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
     	    	    		if (vals != null) {
-    	    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+    	    	    			if (pm.getCardinality().isMultiple()) {
+    	    	    				params.put(pm.getName(), getSequenceValue(pm.getType(), vals));
+    	    	    			} else {
+    	    	    				params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+    	    	    			}
     	    	    			found = true;
     	    	    		}
     	    	    		break;
     					}
     				}
     				if (!found) {
-    	    			setNotFoundParameter(params, aType, pm);
+    	    			setNotFoundParam(params, aType, pm);
     				}
     			}
     		}
@@ -234,7 +238,24 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return null;
     }
     
-    private void setNotFoundParameter(Map<String, Object> params, String pType, Parameter pm) {
+    private List<Object> getSequenceValue(String type, List<String> values) {
+    	List<Object> list = new ArrayList<>();
+    	if (values.size() > 1) {
+    		for (String value: values) {
+    			list.add(getAtomicValue(type, value));
+    			//list.add(value);
+    		}
+    	} else if (values.size() > 0){
+    		String[] vals = values.get(0).split(",");
+    		for (String value: vals) {
+    			list.add(getAtomicValue(type, value));
+    			//list.add(value);
+    		}
+    	}
+    	return list;
+    }
+    
+    private void setNotFoundParam(Map<String, Object> params, String pType, Parameter pm) {
 		// handle default values
     	List<List<String>> atns = fn.getAnnotations().get(pType);
     	if (atns != null) {

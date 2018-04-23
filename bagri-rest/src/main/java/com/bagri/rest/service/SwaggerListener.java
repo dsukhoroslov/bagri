@@ -72,7 +72,7 @@ public class SwaggerListener implements ReaderListener {
 	    	List<String> produces = fn.getFlatList(an_produces);
 			List<String> paths = fn.getFlatList(an_path);
 			String fullPath = base;
-			if (paths != null) {
+			if (!paths.isEmpty()) {
 	        	fullPath += paths.get(0);
 			}
 			Path path = swagger.getPath(fullPath);
