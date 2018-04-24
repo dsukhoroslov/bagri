@@ -28,6 +28,7 @@ import net.sf.saxon.expr.Binding;
 import net.sf.saxon.expr.BindingReference;
 import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.ComparisonExpression;
+import net.sf.saxon.expr.Component;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FilterExpression;
 import net.sf.saxon.expr.FunctionCall;
@@ -546,10 +547,16 @@ public class CollectionFinderImpl implements CollectionFinder {
 				Object[] refs = resolveComparison(sfc.getOperanda().getOperand(1).getChildExpression(), ctx);
 				String pName = (String) refs[0];
 				Object value = refs[1];
-				exIndex = exCont.addExpression(currentType, compType, path, pName, value);
-				logger.trace("iterate; added functional path expression at index: {}", exIndex);
-				//setParentPath(exCont.getBuilder(), exIndex, path);
-				//logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+				if (path.getSegments().size() == 0) {
+					PathBuilder p = resolveCurrentPath(ex, ctx);
+					exIndex = exCont.addExpression(currentType, compType, p, pName, value);
+					logger.trace("iterate; resolved path: {}", p);
+				} else {
+					exIndex = exCont.addExpression(currentType, compType, path, pName, value);
+					logger.trace("iterate; added functional path expression at index: {}", exIndex);
+					//setParentPath(exCont.getBuilder(), exIndex, path);
+					//logger.trace("iterate; parent path {} set at index: {}", path, exIndex);
+				}
 			}
 			//logger.trace("iterate; removing last segment after string comparison call; current path: {}", path.getFullPath());
 			//path.removeLastSegment();
@@ -598,15 +605,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			}
 		} else if (exp instanceof LocalVariableReference) {
 			Binding bind = ((LocalVariableReference) exp).getBinding();
-			//bind.
-			//ctx.evaluateLocalVariable(bind.getLocalSlotNumber())
-			try {
-				Sequence sq = bind.evaluateVariable(ctx);
-				sq.head();
-			} catch (XPathException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			path.addPathSegment(AxisType.CHILD, null, bind.getVariableQName().getLocalPart());
 		} else {
 			for (Operand op: exp.operands()) {
 				gatherGetPaths(op.getChildExpression(), path, ctx);

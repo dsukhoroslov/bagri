@@ -75,7 +75,7 @@ public class PathBuilder {
 	
 	/**
 	 * 
-	 * @return tru if any internal path segment contains wildcard, false otherwise
+	 * @return true if any internal path segment contains wildcard, false otherwise
 	 */
 	public boolean hasRegex() {
 		for (PathSegment segment: segments) {
@@ -87,8 +87,7 @@ public class PathBuilder {
 	}
 	
 	/**
-	 * 
-	 * @return removes the last stored path segment if any
+	 * removes the last stored path segment if any
 	 */
 	public void removeLastSegment() {
 		if (segments.size() > 0) {

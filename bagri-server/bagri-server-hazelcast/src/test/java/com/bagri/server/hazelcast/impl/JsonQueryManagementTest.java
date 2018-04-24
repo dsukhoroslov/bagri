@@ -138,7 +138,10 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 		String query = "for $map in fn:collection(\"securities\")\n" + 
 				"let $sec := get($map, 'Security')\n" +
 				"where get($sec, 'Symbol') = 'IBM'\n" +
-				"return $sec?('Name')";
+				//"return $sec?('Name')";
+				"return get($sec, 'Name')";
+				//"where get(get($map, 'Security'), 'Symbol') = 'IBM'\n" +
+				//"return get(get($map, 'Security'), 'Name')";
 		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
@@ -179,6 +182,8 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 				"let $phd := get($p52, 'Price52week-high-date')\n" +
 				"where fn:starts-with($phd, '2002')\n" +
 				"return $phd"; 
+				//"where fn:starts-with(get(get(get(get($map, 'Security'), 'Price'), 'Price52week'), 'Price52week-high-date'), '2002')\n" +
+				//"return get(get(get(get($map, 'Security'), 'Price'), 'Price52week'), 'Price52week-high-date')"; 
 		
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, null, props)) {
@@ -239,7 +244,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	}
 
 	@Test
-	@Ignore
+	//@Ignore
 	public void queryProductDocumentsTest() throws Exception {
 
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
