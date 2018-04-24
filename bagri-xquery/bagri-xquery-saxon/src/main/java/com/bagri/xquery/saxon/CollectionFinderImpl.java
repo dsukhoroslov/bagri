@@ -21,6 +21,7 @@ import com.bagri.core.server.api.impl.ModelManagementBase;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Schema;
 
+import net.sf.saxon.expr.Assignation;
 import net.sf.saxon.expr.Atomizer;
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.BinaryExpression;
@@ -31,6 +32,7 @@ import net.sf.saxon.expr.ComparisonExpression;
 import net.sf.saxon.expr.Component;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FilterExpression;
+import net.sf.saxon.expr.ForExpression;
 import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison10;
 import net.sf.saxon.expr.GeneralComparison20;
@@ -48,6 +50,8 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.flwor.Clause;
 import net.sf.saxon.expr.flwor.FLWORExpression;
 import net.sf.saxon.expr.flwor.ForClause;
+import net.sf.saxon.expr.flwor.LetClause;
+import net.sf.saxon.expr.flwor.LocalVariableBinding;
 import net.sf.saxon.expr.flwor.WhereClause;
 import net.sf.saxon.expr.instruct.Block;
 import net.sf.saxon.expr.instruct.UserFunction;
@@ -119,6 +123,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			query = new QueryBuilder();
 			currentPath = new PathBuilder();
 			// query.addContainer(currentType, new ExpressionContainer());
+			//exp.getExpression().
 			iterate(exp.getExpression(), context);
 		} else if (query.hasEmptyParams()) {
 			iterateParams(exp.getExpression(), context);
@@ -481,7 +486,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			Object value = refs[1];
 
 			if (path.getSegments().size() == 0) {
-				PathBuilder p = resolveCurrentPath(ex, ctx);
+				PathBuilder p = resolveCurrentPath(ex, null);
 				ExpressionContainer exCont = getCurrentContainer();
 				exIndex = exCont.addExpression(currentType, compType, p, pName, value);
 				logger.trace("iterate; resolved path: {}", p);
@@ -548,7 +553,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 				String pName = (String) refs[0];
 				Object value = refs[1];
 				if (path.getSegments().size() == 0) {
-					PathBuilder p = resolveCurrentPath(ex, ctx);
+					PathBuilder p = resolveCurrentPath(ex, null);
 					exIndex = exCont.addExpression(currentType, compType, p, pName, value);
 					logger.trace("iterate; resolved path: {}", p);
 				} else {
@@ -577,17 +582,85 @@ public class CollectionFinderImpl implements CollectionFinder {
 				}
 			}
 		}
+		
+		//if (ex instanceof FLWORExpression) {
+		//	FLWORExpression flwor = (FLWORExpression) ex;
+		//	ExpressionContainer exCont = getCurrentContainer();
+		//	for (com.bagri.core.query.Expression e: exCont.getBuilder().getExpressions()) {
+		//		checkExpressionPath(e, flwor);
+		//	}
+		//}
 
 		logger.trace("iterate.end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
 	}
 	
-	private PathBuilder resolveCurrentPath(Expression ex, XPathContext ctx) {
+	private void checkExpressionPath(com.bagri.core.query.Expression ex, FLWORExpression flwor) {
+		do {
+			String path = ex.getPath().getFullPath();
+			if (path.contains("/$")) {
+				fixExpressionPath(ex, flwor);
+			} else {
+				break;
+			}
+		}
+		while (true);
+	}
+	
+	private void fixExpressionPath(com.bagri.core.query.Expression ex, FLWORExpression flwor) {
+		for (int i=0; i < ex.getPath().getSegments().size(); i++) {
+			PathSegment ps = ex.getPath().getSegments().get(i);
+			String seg = ps.getSegment();
+			if (seg.startsWith("$")) {
+				String var = seg.substring(1);
+				for (Clause cls: flwor.getClauseList()) {
+					LocalVariableBinding[] lvbs = cls.getRangeVariables();
+					for (LocalVariableBinding lvb: lvbs) {
+						if (var.equals(lvb.getVariableQName().getLocalPart())) {
+							PathBuilder pb;
+							switch (cls.getClauseKey()) {
+								case Clause.FOR: {
+									pb = resolveCurrentPath(((ForClause) cls).getSequence(), null);
+									break;
+								}
+								case Clause.LET: {
+									pb = resolveCurrentPath(((LetClause) cls).getSequence(), null);
+									break;
+								}
+								case Clause.WHERE: {
+									//
+								}
+								default: continue;
+							}
+							PathBuilder pa = new PathBuilder();
+							for (int j=0; j < i; j++) {
+								ps = ex.getPath().getSegments().get(j);
+								pa.addPathSegment(ps.getAxis(), ps.getNamespace(), ps.getSegment());
+							}
+							for (int j=0; j < pb.getSegments().size(); j++) {
+								ps = pb.getSegments().get(j);
+								pa.addPathSegment(ps.getAxis(), ps.getNamespace(), ps.getSegment());
+							}
+							for (int j=i+1; j < ex.getPath().getSegments().size(); j++) {
+								ps = ex.getPath().getSegments().get(j);
+								pa.addPathSegment(ps.getAxis(), ps.getNamespace(), ps.getSegment());
+							}
+							logger.debug("fixExpressionPath; got fixed path: {}", pa); 
+							ex.setPath(pa);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private PathBuilder resolveCurrentPath(Expression ex, StructuredQName var) {
 		PathBuilder cp = new PathBuilder();
-		gatherGetPaths(ex, cp, ctx);
+		gatherGetPaths(ex, cp, var);
 		return cp;
 	}
 
-	private void gatherGetPaths(Expression exp, PathBuilder path, XPathContext ctx) {
+	private void gatherGetPaths(Expression exp, PathBuilder path, StructuredQName var) {
 		if (exp instanceof StringLiteral && exp.getParentExpression() instanceof FunctionCall
 			&& "map:get".equals(((FunctionCall) exp.getParentExpression()).getDisplayName())) {
 				path.addPathSegment(AxisType.CHILD, null, ((StringLiteral) exp).getStringValue());
@@ -599,20 +672,92 @@ public class CollectionFinderImpl implements CollectionFinder {
 				ContextItemStaticInfo si = (ContextItemStaticInfo) f.get(cie);
 				f = si.getClass().getDeclaredField("contextSettingExpression");
 				f.setAccessible(true);
-				gatherGetPaths((Expression) f.get(si), path, ctx);
+				gatherGetPaths((Expression) f.get(si), path, var);
 			} catch (Exception e) {
 				//
 			}
 		} else if (exp instanceof LocalVariableReference) {
 			Binding bind = ((LocalVariableReference) exp).getBinding();
-			path.addPathSegment(AxisType.CHILD, null, bind.getVariableQName().getLocalPart());
+			PathBuilder pb = null;
+			if (bind instanceof Expression) {
+				if (!isParentExpression((Expression) bind, exp)) {
+					pb = resolveExVariable(bind, (Expression) bind, var);
+				}
+			} else {
+				pb = resolveExVariable(bind, this.exp.getExpression(), var);
+			}
+			if (pb != null) {
+				for (PathSegment ps: pb.getSegments()) {
+					path.addPathSegment(ps.getAxis(), ps.getNamespace(), ps.getSegment());
+				}
+				//} else {
+				//	path.addPathSegment(AxisType.CHILD, null, "$" + bind.getVariableQName().getLocalPart());
+			}
+			//int slot = ((LocalVariableReference) exp).getSlotNumber();
+			//if (bind instanceof LetExpression) {
+			//	Expression e2 = ((LetExpression) bind).getSequence();
+			//}
 		} else {
 			for (Operand op: exp.operands()) {
-				gatherGetPaths(op.getChildExpression(), path, ctx);
+				gatherGetPaths(op.getChildExpression(), path, var);
 			}
 		}
     }	
 
+	private boolean isParentExpression(Expression parent, Expression child) {
+		if (parent == null) {
+			return false;
+		}
+		if (parent == child) {
+			return true;
+		}
+		return isParentExpression(parent, child.getParentExpression());
+	}
+	
+	private PathBuilder resolveExVariable(Binding bind, Expression ex, StructuredQName v) {
+		PathBuilder pb = null;
+		if (ex instanceof Assignation) {
+			Assignation as = (Assignation) ex;
+			if (as.hasVariableBinding(bind)) {
+				return resolveCurrentPath(ex, v);
+			}
+		} else if (ex instanceof FLWORExpression) {
+			FLWORExpression flwor = (FLWORExpression) ex;
+			StructuredQName var = bind.getVariableQName();
+			for (Clause cls: flwor.clauses) {
+				LocalVariableBinding[] lvbs = cls.getRangeVariables();
+				for (LocalVariableBinding lvb: lvbs) {
+					if (var.equals(lvb.getVariableQName())) {
+						switch (cls.getClauseKey()) {
+							case Clause.FOR: {
+								pb = resolveCurrentPath(((ForClause) cls).getSequence(), v);
+								break;
+							}
+							case Clause.LET: {
+								pb = resolveCurrentPath(((LetClause) cls).getSequence(), v);
+								break;
+							}
+							case Clause.WHERE: {
+								//
+							}
+							default: continue;
+						}
+					}
+				}
+				if (pb != null && !pb.getSegments().isEmpty()) {
+					return pb;
+				}
+			}
+		}
+		for (Operand op: ex.operands()) {
+			pb = resolveExVariable(bind, op.getChildExpression(), v);
+			if (pb != null && !pb.getSegments().isEmpty()) {
+				return pb;
+			}
+		}
+		return null;
+	}
+		
 	private ExpressionContainer getCurrentContainer() {
 		ExpressionContainer exCont = query.getContainer(currentType);
 		if (exCont == null) {

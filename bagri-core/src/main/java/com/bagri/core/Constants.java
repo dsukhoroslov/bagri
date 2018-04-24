@@ -74,6 +74,7 @@ public class Constants {
     public static final String pv_document_data_source_xml = "XML"; 
 
 	public static final String pn_query_command = "bdb.query.command";
+	public static final String pn_query_customPaths = "bdb.query.customPaths";
 	
 	// XDM Server configuration constants
 	public static final String pn_cluster_login = "bdb.cluster.login";
@@ -232,6 +233,7 @@ public class Constants {
 			case pn_client_sharedConnection: return 28;
 			
 			case pn_query_command: return 40;
+			case pn_query_customPaths: return 41;
 
 			case pn_document_collections: return 50;
 			case pn_document_data_format: return 51;
@@ -294,6 +296,7 @@ public class Constants {
 			case 28: return pn_client_sharedConnection;
 
 			case 40: return pn_query_command;
+			case 41: return pn_query_customPaths;
 			
 			case 50: return pn_document_collections;
 			case 51: return pn_document_data_format;

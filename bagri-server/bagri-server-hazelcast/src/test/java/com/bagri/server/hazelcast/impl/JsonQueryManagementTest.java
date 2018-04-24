@@ -249,13 +249,17 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-					   "declare variable $pids external;\n" +
+					   "declare namespace bgdb=\"http://bagridb.com/bdb\";\n" +
+					   "declare option bgdb:custom-path \"true\";\n" +
+					   //"declare variable $pids external;\n" +
 					   "declare variable $rid external;\n" +
 					   "\n" +
-					   "for $map in fn:collection(\"securities\"), $pid in $pids\n" +
 					   //"  let $props := map {'method': 'json'}\n" +
-					   //"  let $inv := m:get($map, 'inventory')\n" +
-					   "  for $prod in a:flatten(m:get($map, 'inventory'))\n" +
+					   "let $pids := (66751, 98514, 31386)\n" +
+					   "for $map in fn:collection(\"securities\")\n" +
+					   "for $pid in $pids\n" +
+					   "  let $inv := m:get($map, 'inventory')\n" +
+					   "  for $prod in a:flatten($inv)\n" +
 					   "    where m:get($prod, 'product-id') = $pid\n" +
 					   //"    let $vs := m:get($prod, 'virtual-stores')\n" +
 					   "    for $item in a:flatten(m:get($prod, 'virtual-stores'))\n" +
@@ -268,10 +272,10 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 
 		Map<String, Object> params = new HashMap<>();
 		List<Integer> pids = new ArrayList<>();
-		pids.add(66751);
-		pids.add(98514);
-		pids.add(31386);
-		params.put("pids", pids);
+		//pids.add(66751);
+		//pids.add(98514);
+		//pids.add(31386);
+		//params.put("pids", pids);
 		params.put("rid", 1161);
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
@@ -286,34 +290,34 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void queryCategoryDocumentsTest() throws Exception {
 	
-		long txId = xRepo.getTxManagement().beginTransaction();
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp2/"), "*.json")) {
-		    for (Path path: stream) {
-				createDocumentTest(path.toFile().getAbsolutePath());
-		    }
-		}		
-		xRepo.getTxManagement().commitTransaction(txId);
+		//long txId = xRepo.getTxManagement().beginTransaction();
+		//try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp2/"), "*.json")) {
+		//    for (Path path: stream) {
+		//		createDocumentTest(path.toFile().getAbsolutePath());
+		//    }
+		//}		
+		//xRepo.getTxManagement().commitTransaction(txId);
 		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +
-					   "declare variable $pcat external;\n" +
+					   //"declare variable $pcat external;\n" +
 					   //"declare variable $rid external;\n" +
 					   "\n" +
 					   "let $props := map {'method': 'json'}\n" +
 					   "let $sq := for $map in fn:collection(\"securities\")\n" +
 					   "  let $inv := m:get($map, 'inventory')\n" +
 					   "  for $prod in a:flatten($inv)\n" +
-					   "    where fn:starts-with(m:get($prod, 'product-category'), $pcat)\n" +
+					   "    where fn:starts-with(m:get($prod, 'product-category'), '04090')\n" + //$pcat)\n" +
 					   "    let $vs := m:get($prod, 'virtual-stores')\n" +
 					   "    for $item in a:flatten($vs)\n" +
 					   "      where (m:get($item, 'status') = 'active')\n" +
 					   //"        and (m:get($item, 'region-id') = $rid)\n" + 
 					   //"        and (fn:not(fn:exists($rid)) or m:get($item, 'region-id') = $rid)\n" + 
 					   "      let $item := m:put($item, 'product-id', m:get($prod, 'product-id'))\n" +
-					   "      let $item := m:put($item, 'product-scu', m:get($prod, 'product-scu'))\n" +
+					   "      let $item := m:put($item, 'product-category', m:get($prod, 'product-category'))\n" +
 					   "      order by m:get($item, 'product-id')\n" + 	
 					   "      return fn:serialize($item, $props)\n" + 	
 					   "\n" +
@@ -321,7 +325,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 					   "  return $item";
 
 		Map<String, Object> params = new HashMap<>();
-		params.put("pcat", "04090");
+		//params.put("pcat", "04090");
 		Properties props = new Properties();
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
@@ -335,16 +339,16 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	}
 
 	@Test
-	@Ignore
+	//@Ignore
 	public void queryDeliveryDocumentsTest() throws Exception {
 	
-		long txId = xRepo.getTxManagement().beginTransaction();
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp3/"), "*.json")) {
-		    for (Path path: stream) {
-				createDocumentTest(path.toFile().getAbsolutePath());
-		    }
-		}		
-		xRepo.getTxManagement().commitTransaction(txId);
+		//long txId = xRepo.getTxManagement().beginTransaction();
+		//try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp3/"), "*.json")) {
+		//    for (Path path: stream) {
+		//		createDocumentTest(path.toFile().getAbsolutePath());
+		//    }
+		//}		
+		//xRepo.getTxManagement().commitTransaction(txId);
 		
 		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
 					   "declare namespace a=\"http://www.w3.org/2005/xpath-functions/array\";\n" +

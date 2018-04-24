@@ -66,4 +66,12 @@ public abstract class Expression {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param path the new path for expression
+	 */
+	public void setPath(PathBuilder path) {
+		this.path = path;
+	}
+	
 }

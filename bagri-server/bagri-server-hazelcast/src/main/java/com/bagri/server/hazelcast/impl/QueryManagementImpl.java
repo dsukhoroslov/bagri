@@ -1,19 +1,11 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_client_fetchAsynch;
-import static com.bagri.core.Constants.pn_client_fetchSize;
-import static com.bagri.core.Constants.pn_client_id;
-import static com.bagri.core.Constants.pn_client_submitTo;
-import static com.bagri.core.Constants.pn_document_compress;
-import static com.bagri.core.Constants.pn_query_command;
-import static com.bagri.core.Constants.pn_xqj_scrollability;
-import static com.bagri.core.Constants.pv_client_submitTo_all;
-import static com.bagri.core.Constants.pv_client_submitTo_any;
-import static com.bagri.core.Constants.pn_schema_fetch_size;
+import static com.bagri.core.Constants.*;
 import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.support.util.XQUtils.getAtomicValue;
 import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,6 +61,7 @@ import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
 import com.bagri.support.util.CollectionUtils;
+import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.PartitionService;
 import com.hazelcast.core.ReplicatedMap;
@@ -663,6 +656,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
 		
 		if (query != null) {
+			String overrides = props.getProperty(pn_query_customPaths);
+			if (overrides != null) {
+				logger.debug("getDocumentIds; got override paths: {}", overrides);
+				try {
+					Properties ops = PropUtils.propsFromString(overrides);
+					// override paths in expression container with ops..
+				} catch (IOException ex) {
+					logger.warn("getDocumentIds.error; can't read paths overries, skipping");
+				}
+			}
+					
 			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
