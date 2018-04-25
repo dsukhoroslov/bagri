@@ -5,6 +5,10 @@ import static com.bagri.core.test.TestUtils.getBasicDataFormats;
 import static com.bagri.core.test.TestUtils.loadProperties;
 import static org.junit.Assert.assertEquals;
 
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,7 +45,7 @@ public class QueryModuleTest extends BagriManagementTest {
 		System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
-		System.setProperty(pn_config_properties_file, "test.properties");
+		System.setProperty(pn_config_properties_file, "json.properties");
 		System.setProperty(pn_config_path, "src/test/resources");
 		context = new ClassPathXmlApplicationContext("spring/cache-test-context.xml");
 	}
@@ -58,8 +62,9 @@ public class QueryModuleTest extends BagriManagementTest {
 		Schema schema = xdmRepo.getSchema();
 		if (schema == null) {
 			Properties props = loadProperties("src/test/resources/json.properties");
+			props.setProperty(pn_xqj_baseURI, "file:/../../etc/samples/mp/");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
-			schema.setProperty(pn_schema_format_default, "JSON");
+			//schema.setProperty(pn_schema_format_default, "JSON");
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					1, "CLN_Product_Inventory", "/", "inventories", true);
 			schema.addCollection(collection);
@@ -76,13 +81,13 @@ public class QueryModuleTest extends BagriManagementTest {
 			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
 			xdmRepo.setClientId(client_id);
 			
-			//long txId = xRepo.getTxManagement().beginTransaction();
-			//try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp2/"), "*.json")) {
-			//    for (Path path: stream) {
-			//		createDocumentTest(path.toFile().getAbsolutePath());
-			//    }
-			//}		
-			//xRepo.getTxManagement().commitTransaction(txId);
+			long txId = xRepo.getTxManagement().beginTransaction();
+			try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../../etc/samples/mp/mp2/"), "*.json")) {
+			    for (Path path: stream) {
+					createDocumentTest(path.toFile().getAbsolutePath());
+			    }
+			}		
+			xRepo.getTxManagement().commitTransaction(txId);
 		}
 	}
 
@@ -94,7 +99,7 @@ public class QueryModuleTest extends BagriManagementTest {
 	@Test
 	public void queryProductsByCategoryTest() throws Exception {
 	
-		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"../../etc/samples/mp/inventory_service.xq\";\n" +
+		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
 	        		   "declare variable $pcat external;\n" +
 	        		   "declare variable $rid external;\n" +
 	        		   "declare variable $psize external;\n" +
@@ -117,6 +122,33 @@ public class QueryModuleTest extends BagriManagementTest {
 			assertEquals(0, cnt);
 		}
 	}
+	
+	@Test
+	public void queryProductsByIdTest() throws Exception {
+	
+		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
+	        		   "declare variable $pids external;\n" +
+	        		   "declare variable $rid external;\n" +
+					   "\n" +
+					   "inv:get-products-by-pid($pids, $rid)\n";
 
+		Map<String, Object> params = new HashMap<>();
+		List<Integer> pids = new ArrayList<>();
+		pids.add(5977);
+		pids.add(7525);
+		pids.add(11386);
+		params.put("pids", pids);
+		params.put("rid", null); //235
+		Properties props = new Properties();
+		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
+		//props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status");
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				cnt++;
+			}  
+			assertEquals(0, cnt);
+		}
+	}
 	
 }

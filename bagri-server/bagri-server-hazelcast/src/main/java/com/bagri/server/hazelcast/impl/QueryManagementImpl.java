@@ -406,14 +406,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (value == null) {
 			return null;
 		}
+		logger.trace("adjustSearchValue.enter; adjusting {}:{}; expected type is {}", value.getClass().getName(), value, pathType);
 		int valType = XQItemType.XQBASETYPE_ANYTYPE;
-		if (value instanceof Collection) {
+		while (value instanceof Collection) {
 			Collection values = (Collection) value;
 			if (values.size() == 0) {
 				return null;
 			}
 			if (values.size() == 1) {
 				value = values.iterator().next();
+				if (value == null) {
+					return null;
+				}
 			} else {
 				// CompType must be IN !
 				List newVals = new ArrayList(values.size());
@@ -423,6 +427,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				return newVals;
 			}
 		} 
+		logger.trace("adjustSearchValue; after reduction value is {}:{}", value.getClass().getName(), value);
 		if (value instanceof XQItem) {
 			try {
 				valType = ((XQItem) value).getItemType().getBaseType();
@@ -439,7 +444,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				value = value.toString();
 			} else {				
 				// conversion from value type to path type
-				value = getAtomicValue(pathType, value.toString());
+				String strVal = value.toString();
+				if (strVal.startsWith("[") && strVal.endsWith("]")) {
+					String[] values = strVal.substring(1, strVal.length() - 1).split(", ");
+					List newVals = new ArrayList(values.length);
+					for (String val: values) {
+						newVals.add(adjustSearchValue(val, pathType));
+					}
+					return newVals;
+				} else {
+					value = getAtomicValue(pathType, value.toString());
+				}
 			}
 		}
 		return value;
@@ -652,7 +667,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@Override
 	public Collection<Long> getDocumentIds(ExpressionContainer query) throws BagriException {
 		QueryExecContext ctx = thContext.get();
-		Properties props = ctx.getQueryProperties();
+		Properties props = ctx.getProperties();
+		Map<String, Object> params = ctx.getParameters();
+		
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
 		String overrides = props.getProperty(pn_query_customPaths);
@@ -677,6 +694,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						logger.warn("getDocumentIds.error; can't read paths overrides, skipping");
 					}
 				}
+				logger.debug("getDocumentIds; overriden query is: {}", query);
 					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
@@ -793,7 +811,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			
 			QueryExecContext ctx = thContext.get();
-			ctx.reset(props);
+			ctx.reset(props, params);
 				
 			if (params != null) {
 				for (Map.Entry<String, Object> var: params.entrySet()) {
@@ -949,10 +967,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		private Properties props;
 		private Map<Long, String> docKeys;
+		private Map<String, Object> params;
 		
 		void clear() {
 			this.docKeys = null;
 			this.props = null;
+			this.params = null;
 		}
 		
 		Map<Long, String> getDocKeys() {
@@ -962,24 +982,36 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return docKeys;
 		}
 		
-		Properties getQueryProperties() {
+		Properties getProperties() {
 			if (props == null) {
 				return new Properties();
 			}
 			return props;
 		}
 		
+		Map<String, Object> getParameters() {
+			if (params == null) {
+				return Collections.emptyMap();
+			}
+			return params;
+		}
+		
 		void setDocKeys(Map<Long, String> docKeys) {
 			this.docKeys = docKeys;
 		}
 		
-		void setQueryProperties(Properties props) {
+		void setProperties(Properties props) {
 			this.props = props;
 		}
 		
-		void reset(Properties props) {
+		void setParameters(Map<String, Object> params) {
+			this.params = params;
+		}
+		
+		void reset(Properties props, Map<String, Object> params) {
 			this.docKeys = null;
 			this.props = props;
+			this.params = params;
 		}
 	}
 

@@ -58,7 +58,8 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_schema_format_default, "JSON");
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "securities", "/{http://tpox-benchmark.com/security}Security", "all securities", true);
+					//1, "securities", "/{http://tpox-benchmark.com/security}Security", "all securities", true);
+					1, "securities", "/Security", "all securities", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());
@@ -93,8 +94,9 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void convertJsonDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection()\n" + 
-				"let $props := entry('method', 'json')\n" +
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"for $map in fn:collection()\n" + 
+				"let $props := m:entry('method', 'json')\n" +
 				"let $json := fn:serialize($map, $props)\n" +
 				"return fn:json-to-xml($json)";
 		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
@@ -130,11 +132,12 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void getJsonDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection(\"securities\")\n" + 
-				"let $sec := get($map, 'Security')\n" +
-				"where get($sec, 'Symbol') = 'IBM'\n" +
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"for $map in fn:collection(\"securities\")\n" + 
+				"let $sec := m:get($map, 'Security')\n" +
+				"where m:get($sec, 'Symbol') = 'IBM'\n" +
 				//"return $sec?('Name')";
-				"return get($sec, 'Name')";
+				"return m:get($sec, 'Name')";
 				//"where get(get($map, 'Security'), 'Symbol') = 'IBM'\n" +
 				//"return get(get($map, 'Security'), 'Name')";
 		try (ResultCursor<XQItemAccessor> results = query(query, null, null)) {
@@ -151,9 +154,10 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void queryJsonDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection(\"securities\")\n" +
-				"let $sec := get($map, 'Security')\n" +
-				"where get($sec, 'id') = 5621\n" +
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"for $map in fn:collection(\"securities\")\n" +
+				"let $sec := m:get($map, 'Security')\n" +
+				"where m:get($sec, 'id') = 5621\n" +
 				"return fn:serialize($map, map{'method': 'json'})";
 		
 		Properties props = new Properties();
@@ -170,11 +174,12 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void queryStartsWithDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection(\"securities\")\n" +
-				"let $sec := get($map, 'Security')\n" +
-				"let $price := get($sec, 'Price')\n" +
-				"let $p52 := get($price, 'Price52week')\n" +
-				"let $phd := get($p52, 'Price52week-high-date')\n" +
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"for $map in fn:collection(\"securities\")\n" +
+				"let $sec := m:get($map, 'Security')\n" +
+				"let $price := m:get($sec, 'Price')\n" +
+				"let $p52 := m:get($price, 'Price52week')\n" +
+				"let $phd := m:get($p52, 'Price52week-high-date')\n" +
 				"where fn:starts-with($phd, '2002')\n" +
 				"return $phd"; 
 				//"where fn:starts-with(get(get(get(get($map, 'Security'), 'Price'), 'Price52week'), 'Price52week-high-date'), '2002')\n" +
@@ -195,11 +200,12 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void queryEndsWithDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection(\"securities\")\n" +
-				"let $sec := get($map, 'Security')\n" +
-				"let $price := get($sec, 'Price')\n" +
-				"let $p52 := get($price, 'Price52week')\n" +
-				"let $pld := get($p52, 'Price52week-low-date')\n" +
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"for $map in fn:collection(\"securities\")\n" +
+				"let $sec := m:get($map, 'Security')\n" +
+				"let $price := m:get($sec, 'Price')\n" +
+				"let $p52 := m:get($price, 'Price52week')\n" +
+				"let $pld := m:get($p52, 'Price52week-low-date')\n" +
 				"where fn:ends-with($pld, '05-12')\n" +
 				"return $pld"; 
 		
@@ -218,11 +224,12 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 	@Test
 	public void queryContainsDocumentsTest() throws Exception {
 	
-		String query = "for $map in fn:collection(\"securities\")\n" +
-				"let $sec := get($map, 'Security')\n" +
-				"let $price := get($sec, 'Price')\n" +
-				"let $p52 := get($price, 'Price52week')\n" +
-				"let $pld := get($p52, 'Price52week-low-date')\n" +
+		String query = "declare namespace m=\"http://www.w3.org/2005/xpath-functions/map\";\n" +
+				"for $map in fn:collection(\"securities\")\n" +
+				"let $sec := m:get($map, 'Security')\n" +
+				"let $price := m:get($sec, 'Price')\n" +
+				"let $p52 := m:get($price, 'Price52week')\n" +
+				"let $pld := m:get($p52, 'Price52week-low-date')\n" +
 				"where fn:contains($pld, '04-03')\n" +
 				"return $pld"; 
 

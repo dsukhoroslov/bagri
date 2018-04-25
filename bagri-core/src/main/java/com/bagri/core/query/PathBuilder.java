@@ -1,6 +1,7 @@
 package com.bagri.core.query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,12 +35,15 @@ public class PathBuilder {
 	 * @param source the source path 
 	 */
 	public PathBuilder(String source) {
+		this();
 		String[] parts = source.split("/");
 		for (String part: parts) {
-			AxisType axis = AxisType.fromString(part);
-			int shift = axis.getAxisLength();
-			// think about namespace?
-			addPathSegment(axis, null, part.substring(shift));
+			if (part.length() > 0) {
+				AxisType axis = AxisType.fromString(part);
+				int shift = axis.getAxisLength();
+				// think about namespace?
+				addPathSegment(axis, null, part.substring(shift));
+			}
 		}
 	}
 	
