@@ -42,4 +42,29 @@ public enum AxisType {
 		return "";
 	}
 
+	public int getAxisLength() {
+		switch (this) {
+			case CHILD: return 0;
+			case ATTRIBUTE: 
+			case DESCENDANT: 
+			case NAMESPACE: 
+			case SELF: return 1;
+			case PARENT: return 2;
+			default: return 0;
+		}
+	}
+
+	public static AxisType fromString(String value) {
+		switch (value.charAt(0)) {
+			case '@': return ATTRIBUTE;
+			case '/': return DESCENDANT;
+			case '#': return NAMESPACE;
+			case '.': if (value.length() > 1 && '.' == value.charAt(1)) {
+					return PARENT;
+				} else {
+					return SELF;
+				}
+			default: return CHILD;
+		}
+	}
 }

@@ -30,6 +30,20 @@ public class PathBuilder {
 	}
 	
 	/**
+	 * 
+	 * @param source the source path 
+	 */
+	public PathBuilder(String source) {
+		String[] parts = source.split("/");
+		for (String part: parts) {
+			AxisType axis = AxisType.fromString(part);
+			int shift = axis.getAxisLength();
+			// think about namespace?
+			addPathSegment(axis, null, part.substring(shift));
+		}
+	}
+	
+	/**
 	 * Creates a new path segment and adds it to internal segments list.
 	 * 
 	 * @param axis the path axis

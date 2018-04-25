@@ -48,6 +48,7 @@ import com.bagri.core.query.Comparison;
 import com.bagri.core.query.Expression;
 import com.bagri.core.query.ExpressionBuilder;
 import com.bagri.core.query.ExpressionContainer;
+import com.bagri.core.query.PathBuilder;
 import com.bagri.core.query.PathExpression;
 import com.bagri.core.query.QueriedPath;
 import com.bagri.core.query.QueryBuilder;
@@ -654,21 +655,29 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Properties props = ctx.getQueryProperties();
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
+		String overrides = props.getProperty(pn_query_customPaths);
+		logger.debug("getDocumentIds; got override paths: {}", overrides);
 		
 		if (query != null) {
-			String overrides = props.getProperty(pn_query_customPaths);
-			if (overrides != null) {
-				logger.debug("getDocumentIds; got override paths: {}", overrides);
-				try {
-					Properties ops = PropUtils.propsFromString(overrides);
-					// override paths in expression container with ops..
-				} catch (IOException ex) {
-					logger.warn("getDocumentIds.error; can't read paths overries, skipping");
-				}
-			}
-					
 			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
+				if (overrides != null) {
+					try {
+						Properties ops = PropUtils.propsFromString(overrides);
+						// override paths in expression container with ops..
+						int idx = 0;
+						for (Expression ex: query.getBuilder().getExpressions()) {
+							String op = ops.getProperty(String.valueOf(idx));
+							if (op != null) {
+								ex.setPath(new PathBuilder(op));
+							}
+							idx++;
+						}
+					} catch (IOException ex) {
+						logger.warn("getDocumentIds.error; can't read paths overrides, skipping");
+					}
+				}
+					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
 				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot());
@@ -678,8 +687,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				return result.keySet();
 			}
 		}
+
 		logger.info("getDocumentIds; got rootless path: {}", query); 
-		
 		// fallback to full IDs set: default collection over all documents. not too good...
 		List<Long> result;
 		if (localOnly) {
