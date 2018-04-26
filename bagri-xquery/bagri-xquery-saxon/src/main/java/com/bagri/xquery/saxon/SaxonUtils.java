@@ -63,7 +63,6 @@ import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
 import net.sf.saxon.ma.arrays.ArrayItem;
-import net.sf.saxon.ma.arrays.SimpleArrayItem;
 import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
@@ -173,8 +172,10 @@ public class SaxonUtils {
         		//return ((XQItem) value).getObject();
         		return value;
         	}
-        //} else if (item instanceof ArrayItem) {
-        	// TODO: handle ArrayItem..
+        } else if (item instanceof ArrayItemImpl) {
+        	return ((ArrayItemImpl) item).getSource();
+        } else if (item instanceof ArrayItem) {
+        	return itemToList((ArrayItem) item);
         } else if (item instanceof MapItemImpl) {
         	return ((MapItemImpl) item).getSource();
         } else if (item instanceof MapItem) {
@@ -183,6 +184,7 @@ public class SaxonUtils {
         return item;
     }
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Item objectToItem(Object value, Configuration config) throws XPathException {
         if (value == null) {
             return null;
@@ -253,14 +255,10 @@ public class SaxonUtils {
             return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
         } else if (value instanceof URI) {
           	return new AnyURIValue(value.toString());
+        } else if (value instanceof List) {
+           	return new ArrayItemImpl((List) value, config);
         } else if (value instanceof Collection) {
-        	Collection values = (Collection) value;
-        	List<Sequence> list = new ArrayList<>(values.size());
-        	for (Object o: values) {
-        		list.add(new ObjectValue(o));
-        		//list.add(new Int64Value(((Integer) o).intValue(), BuiltInAtomicType.INT, false));
-        	}
-           	return new SimpleArrayItem(list);
+           	return new ArrayItemImpl(new ArrayList<>((Collection) value), config);
         } else if (value instanceof Map) {
            	return new MapItemImpl((Map) value, config);
         } else {
@@ -268,6 +266,7 @@ public class SaxonUtils {
         }
     }
     
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Item convertToItem(Object value, Configuration config, BuiltInAtomicType type) throws XPathException {
         if (value == null) {
             return null;
@@ -338,14 +337,11 @@ public class SaxonUtils {
             return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type);
         } else if (value instanceof URI) {
           	return new AnyURIValue(value.toString());
+        } else if (value instanceof List) {
+        	// use type somehow?
+           	return new ArrayItemImpl((List) value, config);
         } else if (value instanceof Collection) {
-        	Collection values = (Collection) value;
-        	List<Sequence> list = new ArrayList<>(values.size());
-        	for (Object o: values) {
-        		list.add(new ObjectValue(o));
-        		//list.add(new Int64Value(((Integer) o).intValue(), BuiltInAtomicType.INT, false));
-        	}
-           	return new SimpleArrayItem(list);
+           	return new ArrayItemImpl(new ArrayList<>((Collection) value), config);
         } else if (value instanceof Map) {
            	return new MapItemImpl((Map) value, config);
         } else {
@@ -482,10 +478,18 @@ public class SaxonUtils {
 		return null;
 	}
 	
+	public static List<Object> itemToList(ArrayItem ai) throws XPathException {
+		List<Object> result = new ArrayList<>(ai.size());
+    	for (Sequence sq: ai) {
+    		result.add(itemToObject(sq.head().atomize().head()));
+    	}
+    	return result;
+	}
+		
 	public static Map<String, Object> itemToMap(MapItem mi) throws XPathException {
     	AtomicValue key;
     	AtomicIterator itr = mi.keys();
-		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> result = new HashMap<>(mi.size());
     	while ((key = itr.next()) != null) {
     		Sequence value = mi.get(key);
     		result.put(key.getStringValue(), itemToObject(value.head().atomize().head()));
@@ -781,8 +785,6 @@ public class SaxonUtils {
             	XQItemType xqt = XQUtils.getTypeForObject(xqFactory, value);
             	return xqFactory.createItemFromObject(value, xqt);
         	}
-        //} else if (item instanceof ArrayItem) {
-        	// TODO: handle it properly..
         } else if (item instanceof MapItem) {
         	// TODO: we'll need a new XQ type for maps, probably..
         	AtomicValue key;
@@ -802,6 +804,7 @@ public class SaxonUtils {
         	}
         	return xqFactory.createSequence(pairs.iterator());
         } else if (item instanceof Sequence) {
+        	// ArrayItem is also handled here
         	return xqFactory.createSequence(new XQIterator(xqFactory, ((Sequence) item).iterate()));
         }
         return null; 

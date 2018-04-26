@@ -243,13 +243,11 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	if (values.size() > 1) {
     		for (String value: values) {
     			list.add(getAtomicValue(type, value));
-    			//list.add(value);
     		}
     	} else if (values.size() > 0){
     		String[] vals = values.get(0).split(",");
     		for (String value: vals) {
     			list.add(getAtomicValue(type, value));
-    			//list.add(value);
     		}
     	}
     	return list;

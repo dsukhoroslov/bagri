@@ -686,7 +686,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						for (Expression ex: query.getBuilder().getExpressions()) {
 							String op = ops.getProperty(String.valueOf(idx));
 							if (op != null) {
-								ex.setPath(new PathBuilder(op));
+								String[] parts = op.split(" "); 
+								ex.setPath(new PathBuilder(parts[0]));
+								if (parts.length > 1) {
+									ex.setCompType(Comparison.valueOf(parts[1]));
+									if (parts.length > 2) {
+										((PathExpression) ex).setParamName(parts[2]);
+										if (params.containsKey(parts[2])) {
+											query.getParams().put(parts[2], params.get(parts[2]));
+										}
+									}
+								}
 							}
 							idx++;
 						}

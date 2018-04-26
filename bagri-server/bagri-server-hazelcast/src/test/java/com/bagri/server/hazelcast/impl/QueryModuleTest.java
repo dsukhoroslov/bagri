@@ -108,18 +108,41 @@ public class QueryModuleTest extends BagriManagementTest {
 					   "inv:get-products-by-category($pcat, $rid, $psize, $pnum)\n";
 
 		Map<String, Object> params = new HashMap<>();
-		params.put("pcat", "04090");
-		params.put("rid", 12345);
+		params.put("pcat", "091210");
+		params.put("rid", null); //12345);
 		params.put("psize", 100);
 		params.put("pnum", 1);
 		Properties props = new Properties();
-		props.setProperty(pn_query_customPaths, "1=/inventory/product-category;2=/inventory/virtual-stores/status;3=/inventory/virtual-stores/region-id");
+		props.setProperty(pn_query_customPaths, "0=/inventory/product-category"); //;2=/inventory/virtual-stores/status;3=/inventory/virtual-stores/region-id");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
 				cnt++;
 			}  
-			assertEquals(0, cnt);
+			assertEquals(2, cnt);
+		}
+	}
+	
+	@Test
+	public void queryProductByIdTest() throws Exception {
+	
+		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
+	        		   "declare variable $pid external;\n" +
+	        		   "declare variable $rid external;\n" +
+					   "\n" +
+					   "inv:get-product-by-pid($pid, $rid)\n";
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("pid", 7525L);
+		params.put("rid", null); //235
+		Properties props = new Properties();
+		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				cnt++;
+			}  
+			assertEquals(4, cnt);
 		}
 	}
 	
@@ -133,22 +156,21 @@ public class QueryModuleTest extends BagriManagementTest {
 					   "inv:get-products-by-pid($pids, $rid)\n";
 
 		Map<String, Object> params = new HashMap<>();
-		List<Integer> pids = new ArrayList<>();
-		pids.add(5977);
-		pids.add(7525);
-		pids.add(11386);
+		//List<Integer> pids = new ArrayList<>();
+		List<String> pids = new ArrayList<>();
+		pids.add("5977");
+		pids.add("7525");
+		pids.add("11386");
 		params.put("pids", pids);
 		params.put("rid", null); //235
 		Properties props = new Properties();
 		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
-		//props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
 				cnt++;
 			}  
-			assertEquals(0, cnt);
+			assertEquals(10, cnt);
 		}
 	}
-	
 }

@@ -68,6 +68,14 @@ public abstract class Expression {
 	
 	/**
 	 * 
+	 * @param compType the Comparison value
+	 */
+	public void setCompType(Comparison compType) {
+		this.compType = compType;
+	}
+	
+	/**
+	 * 
 	 * @param path the new path for expression
 	 */
 	public void setPath(PathBuilder path) {

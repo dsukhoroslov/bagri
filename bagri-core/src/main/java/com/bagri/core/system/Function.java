@@ -188,10 +188,10 @@ public class Function {
 			if (idx > 0) {
 				buff.append(", ");
 			}
-			buff.append(xp.getName()).append(" ").append(xp.getType());
+			buff.append(xp.getName()).append(" ").append(xp.getType()).append(xp.getCardinality().shortPresentation());
 			idx++;
 		}
-		buff.append("): ").append(result.getType()); //.append(";");
+		buff.append("): ").append(result.getType()).append(result.getCardinality().shortPresentation()); //.append(";");
 		return buff.toString();
 		
 	}
