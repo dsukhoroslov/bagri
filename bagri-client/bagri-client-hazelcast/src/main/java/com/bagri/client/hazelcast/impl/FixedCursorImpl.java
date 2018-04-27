@@ -16,7 +16,7 @@ import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class FixedCursorImpl<T> extends ResultCursorBase<T> implements IdentifiedDataSerializable {
 
-	protected List<T> results;
+    protected List<T> results;
 	
 	public FixedCursorImpl() {
 		//
@@ -41,7 +41,6 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 	public void close() throws Exception {
 		//logger.trace("close; results: {}", results);
 		results.clear();
-		results = null;
 	}
 
 	@Override
@@ -89,9 +88,6 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 		int size = in.readInt();
 		this.results = new ArrayList<>(size);
 		readResults(in, size);
-		//for (int i=0; i < size; i++) {
-		//	results.add((T) in.readObject());
-		//}
 	}
 	
 	protected void readResults(ObjectDataInput in, int size) throws IOException {
@@ -104,9 +100,6 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeInt(results.size());
 		writeResults(out);
-		//for (Object result: results) {
-		//	out.writeObject(result);
-		//}
 	}
 	
 	protected void writeResults(ObjectDataOutput out) throws IOException {

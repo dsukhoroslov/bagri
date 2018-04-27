@@ -283,6 +283,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	}
     	return false;
     }
+
+	@Override
+	public void clearLocalCache() {
+		logger.debug("clearLocalCache.enter; cache size before clear: {}", queries.size());
+		queries.clear();
+	}
     
 }
 

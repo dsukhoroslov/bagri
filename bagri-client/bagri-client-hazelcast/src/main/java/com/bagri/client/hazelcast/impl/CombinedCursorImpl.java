@@ -5,12 +5,16 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bagri.core.api.ResultCursor;
 
 public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	
-	private int limit;
+    private int limit;
 	private Collection<ResultCursor<T>> results = new ArrayList<>();
 	
 	public CombinedCursorImpl() {
@@ -23,8 +27,8 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 
 	@Override
 	public void close() throws Exception {
-		for (ResultCursor<T> cln: results) {
-			cln.close();
+		for (ResultCursor<T> rc: results) {
+			rc.close();
 		}
 		//index = 0;
 		// close iterators?
@@ -66,11 +70,11 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 		private int index = 0;
 		private Iterator<T> curIter = null;
 		private ResultCursor<T> curResult = null;
-		private Deque<ResultCursor<T>> results = null;
+		private Deque<ResultCursor<T>> cursors = null;
 		
 		CombinedCursorIterator(int limit, Collection<ResultCursor<T>> results) {
 			this.limit = limit;
-			this.results = new LinkedList<>(results);
+			this.cursors = new LinkedList<>(results);
 		}
 
 		@Override
@@ -78,11 +82,11 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 			if (limit > 0 && index >= limit) {
 				return false;
 			}
-			if (results.isEmpty() && curResult == null) {
+			if (cursors.isEmpty() && curResult == null) {
 				return false;
 			}
 			if (curResult == null) {
-				curResult = results.pop();
+				curResult = cursors.pop();
 				curIter = curResult.iterator();
 			}
 			if (curIter.hasNext()) {
@@ -100,6 +104,11 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	
 		@Override
 		public T next() {
+			if (curIter == null) {
+				if (!hasNext()) {
+					throw new NoSuchElementException("No more elements in the cursor");
+				}
+			}
 			index++;
 			return (T) curIter.next();
 		}

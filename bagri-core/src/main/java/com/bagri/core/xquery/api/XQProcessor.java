@@ -213,4 +213,8 @@ public interface XQProcessor {
 	 */
 	void setTimeZone(TimeZone timeZone) throws XQException;
 	
+	/**
+	 * clears local query cache
+	 */
+	void clearLocalCache();
 }

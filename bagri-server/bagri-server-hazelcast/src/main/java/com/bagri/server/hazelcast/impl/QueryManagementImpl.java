@@ -344,6 +344,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public void clearCache() {
 		xqCache.clear(); //evictAll();
 		xrCache.evictAll();
+		repo.clearXQProcessors();
 	}
 	
 	private void updateStats(String name, boolean success, int count) {

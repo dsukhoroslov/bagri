@@ -36,6 +36,7 @@ import com.bagri.core.model.QueryResult;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.core.ReplicatedMap;
 
 public class QueryManagementImpl extends QueryManagementBase implements QueryManagement {
@@ -150,7 +151,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
 			// run query on all nodes in cluster
-			futures = execService.submitToAllMembers(task);
+			//futures = 
+			CursorExecutionCallback<T> cb = new CursorExecutionCallback<>(50);
+			execService.submitToAllMembers(task, cb);
+			while (!cb.hasResults) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException ex) {
+					logger.warn("executeQueryTask.interrupted");
+				}
+			}
+			return cb.getResults();
 		} else {
 			Object runKey = null;
 			futures = new HashMap<>(1);
@@ -159,11 +170,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
 				String param = props.getProperty(pn_client_ownerParam);
 				if (param == null) {
-					logger.debug("executeQuery; the routing parameter not provided: {}", props);
+					logger.debug("executeQueryTask; the routing parameter not provided: {}", props);
 				} else {
 					runKey = params.get(param);
 					if (runKey == null) {
-						logger.debug("executeQuery; the routing parameter '{}' not found: {}", param, params);
+						logger.debug("executeQueryTask; the routing parameter '{}' not found: {}", param, params);
 					} else {
 						if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
 							runKey = runKey.toString().hashCode();
@@ -185,6 +196,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();
 				}
+				logger.info("executeQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
 				futures.put(owner, execService.submitToMember(task, owner));
 				runIdx++;
 			} else {
@@ -202,7 +214,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			((QueuedCursorImpl<T>) cursor).init(repo.getHazelcastClient());
 		}
 		
-		logger.debug("executeQuery.exit; returning: {}", cursor);
+		logger.debug("executeQueryTask.exit; returning: {}", cursor);
 		return cursor; 
 	}
 
@@ -222,7 +234,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			result = getResult(future, timeout);
 			((QueuedCursorImpl<ResultCursor<T>>) result).init(repo.getHazelcastClient());
 		} else {
-			if (repo.getHazelcastClient().getCluster().getMembers().size() > 1) { 
+			if (futures.size() > 1) { 
 				int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 				CombinedCursorImpl<T> comb = new CombinedCursorImpl<>(fetchSize);
 				for (Map.Entry<Member, Future<ResultCursor<T>>> entry: futures.entrySet()) {
@@ -248,17 +260,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 			return result;
 		} catch (TimeoutException ex) {
-			logger.warn("getResults.timeout; request timed out after {}; cancelled: {}", timeout, future.isCancelled());
+			logger.warn("getResult.timeout; request timed out after {}; cancelled: {}", timeout, future.isCancelled());
 			future.cancel(true);
 			throw new BagriException(ex, BagriException.ecQueryTimeout);
 		} catch (InterruptedException | ExecutionException ex) {
 			int errorCode = BagriException.ecQuery;
 			if (ex.getCause() != null && ex.getCause() instanceof CancellationException) {
 				errorCode = BagriException.ecQueryCancel;
-				logger.warn("getResults.interrupted; request cancelled: {}", future.isCancelled());
+				logger.warn("getResult.interrupted; request cancelled: {}", future.isCancelled());
 			} else {
 				future.cancel(false); 
-				logger.error("getResults.error; error getting result", ex);
+				logger.error("getResult.error; error getting result", ex);
 				Throwable err = ex;
 				while (err.getCause() != null) {
 					err = err.getCause();
@@ -287,5 +299,40 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("prepareQuery.exit; returning: {}", result);
 		return result;
 	}
-	
+
+	private class CursorExecutionCallback<T> implements MultiExecutionCallback {
+		
+		private boolean isComplete = false;
+		private boolean hasResults = false;
+		private CombinedCursorImpl<T> results;
+		
+		CursorExecutionCallback(int limit) {
+			this.results = new CombinedCursorImpl<>(limit);
+		}
+		
+		ResultCursor<T> getResults() {
+			return results;
+		}
+		
+		boolean hasResults() {
+			return hasResults;
+		}
+		
+		boolean isComplete() {
+			return isComplete;
+		}
+
+		@Override
+		public void onResponse(Member member, Object value) {
+			hasResults = true;
+			results.addResults((ResultCursor<T>) value);
+		}
+
+		@Override
+		public void onComplete(Map<Member, Object> values) {
+			isComplete = true;
+		}
+		
+		
+	}
 }
