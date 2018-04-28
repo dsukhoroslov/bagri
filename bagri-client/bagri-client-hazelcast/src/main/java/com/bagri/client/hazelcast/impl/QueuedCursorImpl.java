@@ -84,6 +84,11 @@ public class QueuedCursorImpl<T> extends ResultCursorBase<T> implements Identifi
 	}
 	
 	@Override
+	public boolean isComplete() {
+		return false;
+	}
+	
+	@Override
 	public int getFactoryId() {
 		return cli_factory_id;
 	}

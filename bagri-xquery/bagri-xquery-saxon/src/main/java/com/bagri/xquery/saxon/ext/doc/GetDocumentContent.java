@@ -46,7 +46,7 @@ public class GetDocumentContent extends DocumentFunctionExtension {
 	
 	@Override
 	public SequenceType getResultType(SequenceType[] suppliedArgumentTypes) {
-		return SequenceType.OPTIONAL_STRING;
+		return SequenceType.OPTIONAL_ITEM;
 	}
 
 	@Override

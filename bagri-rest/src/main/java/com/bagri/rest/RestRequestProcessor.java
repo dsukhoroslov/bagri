@@ -1,7 +1,8 @@
 package com.bagri.rest;
 
 import static com.bagri.rest.RestConstants.*;
-import static com.bagri.support.util.XQUtils.getAtomicValue;
+import static com.bagri.support.util.XQUtils.*;
+import static com.bagri.support.util.XMLUtils.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Function;
 import com.bagri.core.system.Parameter;
+import com.hazelcast.com.eclipsesource.json.Json;
 
 public class RestRequestProcessor implements Inflector<ContainerRequestContext, Response> {
 	 
@@ -85,15 +87,15 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	    
     	Response.ResponseBuilder response;
     	if (empty) {
-	        response = Response.ok();	    	
+	        response = Response.noContent();	    	
     	} else {
-    		response = Response.noContent();
+    		response = Response.ok();
 	    	try {
-	    		empty = fillResponse(cursor, response);
-		    	if (!empty) {
+	    		//empty = fillResponse(cursor, response);
+		    	//if (!empty) {
 		    		response.entity(getResultStream(cursor));
-		    	}
-		    } catch (BagriException ex) {
+		    	//}
+		    } catch (Exception ex) { //BagriException
 				logger.error("apply.error: error processing response ", ex);
 				response = Response.serverError().entity(ex.getMessage());
 		    }
@@ -141,7 +143,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     					case apn_form: {
             				// content type must be application/x-www-form-urlencoded
         					String body = getBody(context);
-        					if (body != null) {
+        					if (body != null) { // it'll be null because of the getBody implementation!?
                 				//logger.info("apply; form body: {}; ", body);
         						String val = getParamValue(body, "&", pm.getName());
         						if (val != null) {
@@ -213,6 +215,16 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return null;
     }
 
+    private String getBody(ContainerRequestContext context) {
+		if (context.hasEntity() && (POST.equals(context.getMethod()) || PUT.equals(context.getMethod()))) {
+		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
+		    String result = s.next();
+		    s.close();
+	    	return result;
+		}
+    	return null;
+    }
+    
     private String getParamValue(String s, String d, String p) {
 		String[] parts = s.split(d);
 		for (String part: parts) {
@@ -223,17 +235,6 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	    			return part.substring(pos + 1);
 				}
 			}
-		}
-    	return null;
-    }
-    
-    private String getBody(ContainerRequestContext context) {
-		if (context.hasEntity() && (POST.equals(context.getMethod()) || PUT.equals(context.getMethod()))) {
-		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
-		    String result = s.next();
-		    s.close();
-	    	return result;
-		    
 		}
     	return null;
     }
@@ -251,6 +252,24 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     		}
     	}
     	return list;
+    }
+    
+    private Object extractBodyValue(Parameter pm, String content) throws IOException {
+    	if (isBaseType(pm.getType())) {
+			//if (pm.getCardinality().isMultiple()) {
+				//params.put(pm.getName(), getSequenceValue(pm.getType(), vals));
+			//} else {
+				return getAtomicValue(pm.getType(), content);
+			//}
+    	} else if (pm.getType().startsWith("map(")) {
+    		// expect JSON content
+    		// add JSON conversion utils..
+    	} else if (pm.getType().startsWith("document-node(")) {
+    		return textToDocument(content);
+    	} else { // if ("item()".equals(pm.getType())) {
+    		//XQUtils.
+    	}
+    	return null;
     }
     
     private void setNotFoundParam(Map<String, Object> params, String pType, Parameter pm) {
@@ -340,6 +359,42 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	}
 
     private StreamingOutput getResultStream(final ResultCursor<XQItem> result) {
+    	if (result.isAsynch()) {
+
+    	    return new StreamingOutput() {
+    	        @Override
+    	        public void write(OutputStream os) throws IOException, WebApplicationException {
+    	        	while (!result.isComplete()) {
+    	        		try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							break;
+						}
+    	        	}
+    	        	
+    	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
+    		            for (XQItem item: result) {
+    		            	String chunk = item.getAtomicValue(); // get as string ?
+    		                logger.trace("write; out: {}", chunk);
+    		                writer.write(chunk + "\n");
+    			            writer.flush();
+    		            } 
+    	            } catch (Exception ex) {
+    	            	logger.error("write.error: error getting result from cursor ", ex);
+            			// how to handle it properly?? throw WebAppEx?
+                    } finally {
+                    	try {
+    						result.close();
+    					} catch (Exception ex) {
+    		            	logger.error("write.error: error closing cursor ", ex);
+    					}
+                    }
+    	            
+                }
+            };
+    		
+    	}
+    	
 	    return new StreamingOutput() {
 	        @Override
 	        public void write(OutputStream os) throws IOException, WebApplicationException {

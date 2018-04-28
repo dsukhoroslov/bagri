@@ -59,6 +59,11 @@ public class FixedCursorImpl<T> extends ResultCursorBase<T> implements Identifie
 	}
 	
 	@Override
+	public boolean isComplete() {
+		return true;
+	}
+	
+	@Override
 	public boolean isEmpty() {
 		return results.isEmpty(); 
 	}

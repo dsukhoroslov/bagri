@@ -8,11 +8,12 @@ import java.util.Properties;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.model.Document;
+import com.bagri.xquery.saxon.SaxonUtils;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.ma.map.MapType;
+import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AnyURIValue;
@@ -33,7 +34,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM}; 
+		return new SequenceType[] {SequenceType.SINGLE_ANY_URI, SequenceType.SINGLE_ITEM, MapType.OPTIONAL_MAP_ITEM}; 
 	}
 	
 	@Override
@@ -60,7 +61,8 @@ public class StoreDocument extends DocumentFunctionExtension {
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
 				
 				String uri = arguments[0].head().getStringValue();
-				String content = arguments[1].head().getStringValue();
+				Item item = arguments[1].head();
+				Object content = SaxonUtils.itemToObject(item);
 				Properties props = null; 
 				if (arguments.length > 2) {
 					props = sequence2Properties(arguments[2]);

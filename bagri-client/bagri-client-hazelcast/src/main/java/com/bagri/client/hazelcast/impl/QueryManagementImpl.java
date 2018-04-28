@@ -151,17 +151,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
 			// run query on all nodes in cluster
-			//futures = 
-			CursorExecutionCallback<T> cb = new CursorExecutionCallback<>(50);
-			execService.submitToAllMembers(task, cb);
-			while (!cb.hasResults) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException ex) {
-					logger.warn("executeQueryTask.interrupted");
-				}
-			}
-			return cb.getResults();
+			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+			AsynchCursorImpl<T> aci = new AsynchCursorImpl<>(fetchSize);
+			execService.submitToAllMembers(task, aci);
+			return aci;
 		} else {
 			Object runKey = null;
 			futures = new HashMap<>(1);
@@ -299,7 +292,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("prepareQuery.exit; returning: {}", result);
 		return result;
 	}
-
+/*
 	private class CursorExecutionCallback<T> implements MultiExecutionCallback {
 		
 		private boolean isComplete = false;
@@ -335,4 +328,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		
 	}
+*/
+	
 }

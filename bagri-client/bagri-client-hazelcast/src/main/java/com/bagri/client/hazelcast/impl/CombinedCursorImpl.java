@@ -44,6 +44,16 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	}
 
 	@Override
+	public boolean isComplete() {
+		for (ResultCursor<T> cursor: results) {
+			if (!cursor.isComplete()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
 	public boolean isEmpty() {
 		for (ResultCursor<T> cursor: results) {
 			if (!cursor.isEmpty()) {
