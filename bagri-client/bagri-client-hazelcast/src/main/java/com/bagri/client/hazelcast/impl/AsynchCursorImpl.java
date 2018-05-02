@@ -1,21 +1,21 @@
 package com.bagri.client.hazelcast.impl;
 
-import java.util.Map;
-
 import com.bagri.core.api.ResultCursor;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MultiExecutionCallback;
+import com.hazelcast.core.ExecutionCallback;
 
-public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements MultiExecutionCallback {
-	
-	private boolean complete = false;
+public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements ExecutionCallback<ResultCursor<T>> {
+
+	private int failures = 0;
+	private int received = 0;
+	private int expected = 1;
 	
 	public AsynchCursorImpl() {
 		super();
 	}
 	
-	public AsynchCursorImpl(int limit) {
+	public AsynchCursorImpl(int limit, int expected) {
 		super(limit);
+		this.expected = expected;
 	}
 	
 	@Override
@@ -25,25 +25,26 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements MultiE
 
 	@Override
 	public boolean isComplete() {
-		return complete;
+		return expected == received + failures;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		if (complete) {
+		if (isComplete()) {
 			return super.isEmpty();
 		}
 		return false;
 	}
 
 	@Override
-	public void onResponse(Member member, Object value) {
-		addResults((ResultCursor<T>) value); 
+	public void onResponse(ResultCursor<T> response) {
+		addResults(response);
+		received++;
 	}
 
 	@Override
-	public void onComplete(Map<Member, Object> values) {
-		complete = true;
+	public void onFailure(Throwable t) {
+		failures++;
 	}
 
 }

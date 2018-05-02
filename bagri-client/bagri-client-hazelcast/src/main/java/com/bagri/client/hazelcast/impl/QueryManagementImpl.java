@@ -1,14 +1,15 @@
 package com.bagri.client.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
-import static com.bagri.core.api.BagriException.ecDocument;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_QUERY;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
 import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -17,8 +18,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import javax.xml.xquery.XQItemAccessor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +28,14 @@ import com.bagri.client.hazelcast.task.query.QueryProcessor;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.model.Query;
 import com.bagri.core.model.QueryResult;
+import com.hazelcast.client.proxy.IExecutorDelegatingFuture;
+import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
-import com.hazelcast.core.MultiExecutionCallback;
 import com.hazelcast.core.ReplicatedMap;
 
 public class QueryManagementImpl extends QueryManagementBase implements QueryManagement {
@@ -123,7 +122,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
-		logger.trace("executeQuery.enter; query: {}; bindings: {}; context: {}", query, params, props);
+		logger.trace("executeQuery.enter; query: {}; params: {}; context: {}", query, params, props);
 		props = checkQueryProperties(props);
 		boolean useCache = this.queryCache; 
 		String qCache = props.getProperty(pn_client_queryCache);
@@ -131,18 +130,63 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			useCache = Boolean.parseBoolean(qCache); 
 		}
 		long qKey = getResultsKey(query, params);
+		String splitBy = props.getProperty(pn_client_splitBy);
+
+		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_asynch);
+		props.setProperty(pn_client_fetchAsynch, String.valueOf(pv_client_fetchType_queued.equals(fetchType)));
+		
 		if (useCache) {
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("executeQuery; got cached results: {}", res);
 				return new FixedCursorImpl(res.getResults());
 			}
+
+			if (splitBy != null) {
+				ResultCursor<T> cursor = executeSplitQuery(query, params, props, splitBy);
+				if (cursor !=  null) {
+					logger.debug("executeQuery.exit; returning: {}", cursor);
+					return cursor;
+				}
+			}
 		}
 		
 		Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		ResultCursor cursor = executeQueryTask(task, params, props, qKey);
+		ResultCursor<T> cursor = executeQueryTask(task, params, props, qKey);
 		logger.debug("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, Properties props, String splitBy) throws BagriException {
+		Object param = params.get(splitBy);
+		if (param != null && param instanceof Collection) {
+			Collection collect = (Collection) param;
+			if (collect.size() > 1) {
+				// split...
+				int limit = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+				CombinedCursorImpl<T> cci = new CombinedCursorImpl<>(limit); 
+				Map<String, Object> splitParams = new HashMap<>(params);
+				splitParams.remove(splitBy);
+				Iterator<Object> itr = collect.iterator();
+				while (itr.hasNext()) {
+					List<Object> splitSeq = new ArrayList<>(1);
+					splitSeq.add(itr.next());
+					splitParams.put(splitBy, splitSeq);
+					long splitQKey = getResultsKey(query, splitParams);
+					QueryResult splitRes = resCache.get(splitQKey);
+					if (splitRes != null) {
+						logger.trace("executeSplitQuery; got cached split results: {}", splitRes);
+						cci.addResults(new FixedCursorImpl(splitRes.getResults()));
+					} else {
+						Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, splitParams, props);
+						cci.addResults(executeQueryTask(task, params, props, splitQKey));
+					}
+				}
+				return cci; 
+			}
+		}
+		return null;
 	}
 	
 	private <T> ResultCursor<T> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
@@ -151,10 +195,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
 			// run query on all nodes in cluster
-			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-			AsynchCursorImpl<T> aci = new AsynchCursorImpl<>(fetchSize);
-			execService.submitToAllMembers(task, aci);
-			return aci;
+			futures = execService.submitToAllMembers(task);
 		} else {
 			Object runKey = null;
 			futures = new HashMap<>(1);
@@ -174,7 +215,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						}
 					}
 				}
-			} else {
+			//} else {
 				// just for future investigation..
 				// runKey = new Long(runOn.hashCode());
 			}
@@ -189,7 +230,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();
 				}
-				logger.info("executeQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
+				logger.debug("executeQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
 				futures.put(owner, execService.submitToMember(task, owner));
 				runIdx++;
 			} else {
@@ -198,6 +239,22 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 	
+		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_asynch);
+		if (pv_client_fetchType_asynch.equals(fetchType)) {
+			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
+			AsynchCursorImpl<T> cursor = new AsynchCursorImpl<>(fetchSize, futures.size());
+			for (Future<ResultCursor<T>> f: futures.values()) {
+				if (f instanceof ICompletableFuture) {
+					ICompletableFuture<ResultCursor<T>> icf = (ICompletableFuture<ResultCursor<T>>) f;
+					icf.andThen(cursor);
+				} else {
+					logger.info("executeQueryTask; got unexpected future: {}", f);
+				}
+			}
+			logger.debug("executeQueryTask.exit; returning: {}", cursor);
+			return cursor;
+		}
+
 		//if (cursor != null && cursor instanceof QueuedCursorImpl) {
 		//  purge queue, fetch/close current cursor..?
 		//}

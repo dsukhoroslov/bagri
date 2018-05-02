@@ -42,18 +42,19 @@ set java_opts=%java_opts% -Dbdb.schema.password=password
 
 rem possible values are: all, any, query-key-owner, param-hash-owner, param-value-owner, partition key value
 rem set java_opts=%java_opts% -Dbdb.client.submitTo=query-key-owner
+set java_opts=%java_opts% -Dbdb.client.bufferSize=32
+set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
+set java_opts=%java_opts% -Dbdb.client.customAuth=true
+set java_opts=%java_opts% -Dbdb.client.fetchAsynch=false
+set java_opts=%java_opts% -Dbdb.client.fetchSize=1
+set java_opts=%java_opts% -Dbdb.client.fetchType=asynch
+set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
+set java_opts=%java_opts% -Dbdb.client.loginTimeout=30
+set java_opts=%java_opts% -Dbdb.client.poolSize=10
+set java_opts=%java_opts% -Dbdb.client.queryCache=true
+set java_opts=%java_opts% -Dbdb.client.smart=true
 set java_opts=%java_opts% -Dbdb.client.submitTo=param-hash-owner
 set java_opts=%java_opts% -Dbdb.client.ownerParam=uri
-set java_opts=%java_opts% -Dbdb.client.bufferSize=32
-set java_opts=%java_opts% -Dbdb.client.fetchSize=10
-set java_opts=%java_opts% -Dbdb.client.connectAttempts=3
-set java_opts=%java_opts% -Dbdb.client.loginTimeout=30
-set java_opts=%java_opts% -Dbdb.client.smart=true
-set java_opts=%java_opts% -Dbdb.client.poolSize=10
-set java_opts=%java_opts% -Dbdb.client.healthCheck=skip
-set java_opts=%java_opts% -Dbdb.client.customAuth=true
-set java_opts=%java_opts% -Dbdb.client.queryCache=true
-set java_opts=%java_opts% -Dbdb.client.fetchAsynch=true
 
 rem set java_opts=%java_opts% -Dbdb.client.storeMode=merge
 rem set java_opts=%java_opts% -Dbdb.client.txTimeout=100
@@ -66,5 +67,3 @@ set java_opts=%java_opts% -Dbdb.document.compress=false
 set java_opts=%java_opts% -Duser.country=US -Duser.language=en
 
 exit /b
-
-

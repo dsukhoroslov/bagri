@@ -239,7 +239,7 @@ public class XQUtils {
     		case "untypedAtomic": return XQBASETYPE_UNTYPEDATOMIC;
     		case "yearMonthDuration": return XQBASETYPE_YEARMONTHDURATION;
 		}
-		return 0; //XQBASETYPE_STRING;
+		return XQBASETYPE_STRING;
 	}
 	
 	/**
@@ -259,7 +259,7 @@ public class XQUtils {
 	 * @return true if the {@code type} corresponds to XQJ atomic type, false otherwise
 	 */
     public static boolean isBaseType(String typeName) {
-    	return getBaseTypeForTypeName(typeName) > 0;
+    	return !typeName.equals("item") && getBaseTypeForTypeName(typeName) > 0;
     }
 
     /**

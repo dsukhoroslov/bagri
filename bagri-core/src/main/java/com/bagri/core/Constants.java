@@ -34,6 +34,12 @@ public class Constants {
 
 	public static final String pn_client_fetchAsynch = "bdb.client.fetchAsynch";
 	public static final String pn_client_fetchSize = "bdb.client.fetchSize";
+	public static final String pn_client_fetchType = "bdb.client.fetchType";
+
+	public static final String pv_client_fetchType_asynch = "asynch";
+	public static final String pv_client_fetchType_fixed = "fixed";
+	public static final String pv_client_fetchType_queued = "queued";
+	
 	public static final String pn_client_healthCheck = "bdb.client.healthCheck";
 	public static final String pn_client_loginTimeout = "bdb.client.loginTimeout";
 	public static final String pn_client_dataFactory = "bdb.client.dataFactory";
@@ -54,6 +60,8 @@ public class Constants {
 	public static final String pv_client_submitTo_query_key_owner = "query-key-owner";
 	public static final String pv_client_submitTo_param_hash_owner = "param-hash-owner";
 	public static final String pv_client_submitTo_param_value_owner = "param-value-owner";
+
+	public static final String pn_client_splitBy = "bdb.client.splitBy";
 
 	public static final String pn_client_contentSerializer = "bdb.client.contentSerializer";
 	public static final String pn_client_contentSerializers = "bdb.client.contentSerializers";
@@ -220,16 +228,18 @@ public class Constants {
 			case pn_client_memberId: return 16; 
 			case pn_client_fetchAsynch: return 17;
 			case pn_client_fetchSize: return 18;
-			case pn_client_healthCheck: return 19;
-			case pn_client_loginTimeout: return 20;
-			case pn_client_dataFactory: return 21;
-			case pn_client_pageSize: return 22;
-			case pn_client_customAuth: return 23;
-			case pn_client_queryCache: return 24;
-			case pn_client_storeMode: return 25;
-			case pn_client_submitTo: return 26;
-			case pn_client_ownerParam: return 27;
-			case pn_client_sharedConnection: return 28;
+			case pn_client_fetchType: return 19;
+			case pn_client_healthCheck: return 20;
+			case pn_client_loginTimeout: return 21;
+			case pn_client_dataFactory: return 22;
+			case pn_client_pageSize: return 23;
+			case pn_client_customAuth: return 24;
+			case pn_client_queryCache: return 25;
+			case pn_client_storeMode: return 26;
+			case pn_client_submitTo: return 27;
+			case pn_client_ownerParam: return 28;
+			case pn_client_sharedConnection: return 29;
+			case pn_client_splitBy: return 30;
 			
 			case pn_query_command: return 40;
 			case pn_query_customPaths: return 41;
@@ -283,16 +293,18 @@ public class Constants {
 			case 16: return pn_client_memberId; 
 			case 17: return pn_client_fetchAsynch;
 			case 18: return pn_client_fetchSize;
-			case 19: return pn_client_healthCheck;
-			case 20: return pn_client_loginTimeout;
-			case 21: return pn_client_dataFactory;
-			case 22: return pn_client_pageSize;
-			case 23: return pn_client_customAuth;
-			case 24: return pn_client_queryCache;
-			case 25: return pn_client_storeMode;
-			case 26: return pn_client_submitTo;
-			case 27: return pn_client_ownerParam;
-			case 28: return pn_client_sharedConnection;
+			case 19: return pn_client_fetchType;
+			case 20: return pn_client_healthCheck;
+			case 21: return pn_client_loginTimeout;
+			case 22: return pn_client_dataFactory;
+			case 23: return pn_client_pageSize;
+			case 24: return pn_client_customAuth;
+			case 25: return pn_client_queryCache;
+			case 26: return pn_client_storeMode;
+			case 27: return pn_client_submitTo;
+			case 28: return pn_client_ownerParam;
+			case 29: return pn_client_sharedConnection;
+			case 30: return pn_client_splitBy;
 
 			case 40: return pn_query_command;
 			case 41: return pn_query_customPaths;

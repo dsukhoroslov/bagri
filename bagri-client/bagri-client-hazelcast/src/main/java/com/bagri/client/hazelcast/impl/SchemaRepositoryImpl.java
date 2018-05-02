@@ -126,8 +126,9 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 
 		//setProperty(original, props, pn_client_submitTo, null);
 		//setProperty(original, props, pn_client_ownerParam, null);
-		setProperty(original, props, pn_client_fetchSize, null);
 		setProperty(original, props, pn_client_fetchAsynch, null);
+		setProperty(original, props, pn_client_fetchSize, null);
+		setProperty(original, props, pn_client_fetchType, null);
 		setProperty(original, props, pn_client_storeMode, null);
 		
 		setProperty(props, pn_client_contentSerializers, pv_client_defaultSerializers);

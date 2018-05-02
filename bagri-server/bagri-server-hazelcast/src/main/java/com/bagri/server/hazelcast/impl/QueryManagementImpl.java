@@ -61,7 +61,6 @@ import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
-import com.bagri.support.util.CollectionUtils;
 import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.PartitionService;
@@ -244,46 +243,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return false;
 	}
 
-	private void addQueryResults(final String query, final Map<String, Object> params, final Properties props, 
-			final ResultCursor cursor, final Iterator<Object> results) {
-
-		final QueryExecContext ctx = thContext.get();
-
-		final List<Object> resList;
-		if (cursor == null || cursor.isAsynch()) {
-			resList = new ArrayList<>();
-		} else {
-			resList = ((ResultCursorBase) cursor).getList();
-		}
-		
-		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-		//execService.execute(new Runnable() {
-		//new Thread(new Runnable() {
-		//	@Override
-		//	public void run() {
-				long qpKey = getResultsKey(query, params);
-				if (cursor != null) {
-					if (cursor.isAsynch()) {
-						CollectionUtils.copyIterator(results, resList);
-					}
-				} else {
-					CollectionUtils.copyIterator(results, resList);
-				}
-
-				if (resList.size() > 0 && ctx.getDocKeys().size() == 0) {
-					logger.warn("addQueryResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
-							params, ctx.getDocKeys(), resList);
-				} else {
-					QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-					// what is better to use here: putAsync or set ?
-					xrCache.set(qpKey, xqr);
-					updateStats(query, 1, resList.size());
-					logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
-				}
-		//	}
-		//}).start();
-	}
-	
 	List<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
@@ -514,7 +473,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		Object newVal = adjustSearchValue(value, dataType);
 		if (newVal == null) {
-			logger.info("queryPathKeys; got query on empty value sequence: {}", value); 
+			logger.info("queryPathKeys; got query on empty value sequence, path: {}", pex); 
 			return result;
 		}
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
@@ -578,8 +537,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			String uri = docMgr.checkDocumentCommited(docKey, clnId); 
 			if (uri != null) {
 				result.put(docKey, uri);
-			//} else {
-			//	itr.remove();
 			}
 		}
 		return result;
@@ -606,24 +563,24 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		List<Object> resList = null;
+		List<T> resList = null;
 		int qKey = 0;
 		if (cacheResults) {
 			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 			qKey = getQueryKey(query);
 			if (isQuery) {
 				if (xqCache.containsKey(qKey)) {
-					resList = getQueryResults(query, params, props);
+					resList = (List<T>) getQueryResults(query, params, props);
 				}
 			}
 		}
 		
-		ResultCursor cursor;
+		ResultCursor<T> cursor;
 		String clientId = props.getProperty(pn_client_id);
 		XQProcessor xqp = repo.getXQProcessor(clientId);
 		if (resList == null) {
 			try {
-				Iterator<Object> iter = runQuery(query, params, props);
+				Iterator<T> iter = runQuery(query, params, props);
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
@@ -769,7 +726,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						cursor = createCachedCursor(query, params, props, iter, true);
 					} else {
 						// TODO: fix it!
-						logger.debug("executeQuery; query is not cached after processing: {}", query);
+						logger.info("executeQuery; query is not cached after processing: {}", query);
 						cursor = createCursor(thContext.get().getDocKeys().values().iterator(), props);
 					}
 				} else {
@@ -809,13 +766,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+	private <T> Iterator<T> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
 
-		Iterator<Object> iter = null;
+		Iterator<T> iter = null;
 		try {
 			String clientId = props.getProperty(pn_client_id);
 			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
@@ -831,9 +788,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 					
 			if (isQuery) {
-				iter = xqp.executeXQuery(query, props);
+				iter = (Iterator<T>) xqp.executeXQuery(query, props);
 			} else {
-				iter = xqp.executeXCommand(query, params, props);
+				iter = (Iterator<T>) xqp.executeXCommand(query, params, props);
 			}
 					
 			if (params != null) {
@@ -894,8 +851,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return cursor;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void fetchResults(Iterator results, Properties props, ResultCursorBase cursor) {
+	private <T> void fetchResults(Iterator<T> results, Properties props, ResultCursorBase<T> cursor) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		if (fetchSize > 0) {
 			int cnt = 0;
@@ -910,25 +866,22 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 
-	private void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator results, Properties props, ResultCursorBase cursor, boolean returnUris) {
+	private <T> void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator<T> results, Properties props, 
+			ResultCursorBase<T> cursor, boolean returnUris) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		List<Object> resList;
-		Iterator uris = ctx.getDocKeys().values().iterator();
-		if (fetchSize > 0) {
-			resList = new ArrayList<>(fetchSize);
-			int cnt = 0;
-			while (results.hasNext() && cnt < fetchSize) {
-				Object o = results.next();
-				resList.add(o);
-				cursor.add(returnUris ? uris.next() : o);
-				cnt++;
+		if (returnUris) {
+			Iterator<String> uris = ctx.getDocKeys().values().iterator();
+			if (fetchSize > 0) {
+				resList = collectResults(results, uris, cursor, fetchSize);
+			} else {
+				resList = collectResults(results, uris, cursor);
 			}
 		} else {
-			resList = new ArrayList<>();
-			while (results.hasNext()) {
-				Object o = results.next();
-				resList.add(o);
-				cursor.add(returnUris ? uris.next() : o);
+			if (fetchSize > 0) {
+				resList = collectResults(results, cursor, fetchSize);
+			} else {
+				resList = collectResults(results, cursor);
 			}
 		}
 		
@@ -943,6 +896,51 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			updateStats(query, 1, resList.size());
 			logger.trace("fetchAndCacheResults.exit; stored results: {} for key: {}", xqr, qpKey);
 		}
+	}
+	
+	private <T> List<Object> collectResults(Iterator<T> results, ResultCursorBase<T> cursor) {
+		List<Object> resList = new ArrayList<>();
+		while (results.hasNext()) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add(o);
+		}
+		return resList;
+	}
+
+	private <T> List<Object> collectResults(Iterator<T> results, ResultCursorBase<T> cursor, int fetchSize) {
+		List<Object> resList = new ArrayList<>(fetchSize);
+		int cnt = 0;
+		while (results.hasNext() && cnt < fetchSize) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add(o);
+			cnt++;
+		}
+		return resList;
+	}
+
+	// not sure uries are in synch with results.. can bet NoSuchElementException here and below..
+	private <T> List<Object> collectResults(Iterator<T> results, Iterator<String> uris, ResultCursorBase<T> cursor) {
+		List<Object> resList = new ArrayList<>();
+		while (results.hasNext()) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add((T) uris.next());
+		}
+		return resList;
+	}
+
+	private <T> List<Object> collectResults(Iterator<T> results, Iterator<String> uris, ResultCursorBase<T> cursor, int fetchSize) {
+		List<Object> resList = new ArrayList<>(fetchSize);
+		int cnt = 0;
+		while (results.hasNext() && cnt < fetchSize) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add((T) uris.next());
+			cnt++;
+		}
+		return resList;
 	}
 
 	private <T> ResultCursorBase<T> getResultCursor(Properties props) {

@@ -157,7 +157,7 @@ public class Function {
 	 * adds new annotation
 	 * 
 	 * @param name the annotation name
-	 * @param value the annotation value
+	 * @param values the annotation value
 	 */
 	public void addAnnotation(String name, List<String> values) {
 		List<List<String>> vList = annotations.get(name);
