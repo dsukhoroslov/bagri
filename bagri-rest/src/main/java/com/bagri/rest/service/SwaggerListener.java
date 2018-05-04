@@ -68,9 +68,9 @@ public class SwaggerListener implements ReaderListener {
 			Function fn = rm.getFunction();
 			logger.debug("afterScan; processing function: {}", fn);
 			Map<String, List<List<String>>> annotations = fn.getAnnotations();
-			List<String> consumes = fn.getFlatList(an_consumes); 
-	    	List<String> produces = fn.getFlatList(an_produces);
-			List<String> paths = fn.getFlatList(an_path);
+			List<String> consumes = fn.getFlatAnnotations(an_consumes); 
+	    	List<String> produces = fn.getFlatAnnotations(an_produces);
+			List<String> paths = fn.getFlatAnnotations(an_path);
 			String fullPath = base;
 			if (!paths.isEmpty()) {
 	        	fullPath += paths.get(0);

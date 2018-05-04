@@ -399,6 +399,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         
         RestRequestProcessor pro = new RestRequestProcessor(fn, query, rePro);
         methodBuilder.handledBy(pro);
+        // we don't need this?
+        //methodBuilder.build();
+        //methodBuilder.routingResponseType(java response class: String etc..)
         //SwaggerListener.addRequestProcessor(pro);
     }
     

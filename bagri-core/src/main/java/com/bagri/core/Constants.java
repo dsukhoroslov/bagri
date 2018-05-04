@@ -61,8 +61,6 @@ public class Constants {
 	public static final String pv_client_submitTo_param_hash_owner = "param-hash-owner";
 	public static final String pv_client_submitTo_param_value_owner = "param-value-owner";
 
-	public static final String pn_client_splitBy = "bdb.client.splitBy";
-
 	public static final String pn_client_contentSerializer = "bdb.client.contentSerializer";
 	public static final String pn_client_contentSerializers = "bdb.client.contentSerializers";
 	public static final String pv_client_defaultSerializers = "MAP BMAP SMAP JSON XML";
@@ -83,6 +81,10 @@ public class Constants {
 
 	public static final String pn_query_command = "bdb.query.command";
 	public static final String pn_query_customPaths = "bdb.query.customPaths";
+	public static final String pn_query_splitBy = "bdb.query.splitBy";
+	
+	//  %bgdb:property("bdb.rest.chunkAs", "json")
+	//  %bgdb:property("bdb.query.splitBy", "pids")
 	
 	// XDM Server configuration constants
 	public static final String pn_cluster_login = "bdb.cluster.login";
@@ -239,10 +241,10 @@ public class Constants {
 			case pn_client_submitTo: return 27;
 			case pn_client_ownerParam: return 28;
 			case pn_client_sharedConnection: return 29;
-			case pn_client_splitBy: return 30;
 			
 			case pn_query_command: return 40;
 			case pn_query_customPaths: return 41;
+			case pn_query_splitBy: return 42;
 
 			case pn_document_collections: return 50;
 			case pn_document_data_format: return 51;
@@ -252,7 +254,7 @@ public class Constants {
 			case pn_document_compress: return 55;
 			case pn_document_cache_content: return 56;
 			case pn_document_cache_elements: return 57;
-
+			
 			case pn_xqj_baseURI: return 100;
 			case pn_xqj_constructionMode: return 101;
 			case pn_xqj_defaultCollationUri: return 102;
@@ -304,10 +306,10 @@ public class Constants {
 			case 27: return pn_client_submitTo;
 			case 28: return pn_client_ownerParam;
 			case 29: return pn_client_sharedConnection;
-			case 30: return pn_client_splitBy;
 
 			case 40: return pn_query_command;
 			case 41: return pn_query_customPaths;
+			case 42: return pn_query_splitBy;
 			
 			case 50: return pn_document_collections;
 			case 51: return pn_document_data_format;

@@ -130,9 +130,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			useCache = Boolean.parseBoolean(qCache); 
 		}
 		long qKey = getResultsKey(query, params);
-		String splitBy = props.getProperty(pn_client_splitBy);
+		String splitBy = props.getProperty(pn_query_splitBy);
 
-		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_asynch);
+		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
 		props.setProperty(pn_client_fetchAsynch, String.valueOf(pv_client_fetchType_queued.equals(fetchType)));
 		
 		if (useCache) {
@@ -239,7 +239,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 	
-		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_asynch);
+		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
 		if (pv_client_fetchType_asynch.equals(fetchType)) {
 			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 			AsynchCursorImpl<T> cursor = new AsynchCursorImpl<>(fetchSize, futures.size());

@@ -139,7 +139,7 @@ public class Function {
 	 * @param aName the annotation name
 	 * @return the combined list of all annotation values
 	 */
-	public List<String> getFlatList(String aName) {
+	public List<String> getFlatAnnotations(String aName) {
 		List<List<String>> values = annotations.get(aName);
 		if (values != null && values.size() > 0) {
 			List<String> flat = new ArrayList<>(values.size());

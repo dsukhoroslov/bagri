@@ -72,7 +72,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 				context.getUriInfo().getPathParameters(), context.getUriInfo().getQueryParameters());
 
 		Map<String, Object> params = getParameters(context);
-		logger.debug("apply; got params: {}", params); 
+		logger.debug("apply; got params: {} for method: {}", params, fn); 
 
     	boolean empty = false;
 		ResultCursor<XQItem> cursor = null;
@@ -109,7 +109,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         return response.build();
 	}
     
-    private Map<String, Object> getParameters(ContainerRequestContext context) { //throws IOException {
+    private Map<String, Object> getParameters(ContainerRequestContext context) {
     	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
     	for (Parameter pm: fn.getParameters()) {
     		logger.trace("getParameters; processing param: {}", pm);
@@ -195,10 +195,10 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
 
     public static boolean isPathParameter(Function fn, String pName) {
-    	List<List<String>> pa = fn.getAnnotations().get(an_path);
+    	List<String> pa = fn.getFlatAnnotations(an_path);
     	if (pa != null && pa.size() == 1) {
-    		List<String> pb = pa.get(0);
-    		return (pb != null && pb.size() == 1 && pb.get(0).indexOf("{" + pName + "}") > 0);
+    		String pb = pa.get(0);
+    		return (pb.indexOf("{" + pName + "}") > 0);
     	}
     	return false; 
     }
@@ -208,7 +208,8 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	for (Map.Entry<String, List<List<String>>> ant: fn.getAnnotations().entrySet()) {
     		for (List<String> values: ant.getValue()) {
     			for (String val: values) {
-	    			if (pName.equals(val) || xpName.equals(val)) {
+	    			//if (pName.equals(val) || xpName.equals(val)) {
+	    			if (xpName.equals(val)) {
 	    				return ant.getKey();
 	    			}
     			}
@@ -247,7 +248,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     		for (String value: values) {
     			list.add(getAtomicValue(type, value));
     		}
-    	} else if (values.size() > 0) {
+    	} else if (values.size() > 0){
     		String[] vals = values.get(0).split(",");
     		for (String value: vals) {
     			list.add(getAtomicValue(type, value));
@@ -257,6 +258,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
     
     private Object extractBodyValue(ContainerRequestContext context, Parameter pm, String content) { //throws IOException {
+		logger.info("extractBodyValue.enter; got param: {}; content: {}; mediaType: {}", pm, content, context.getMediaType());
     	if (isBaseType(pm.getType())) {
 			if (pm.getCardinality().isMultiple()) {
 				List<String> values = new ArrayList<>(1);
@@ -362,7 +364,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
 
 	private void applyRestRules(boolean empty, Response.ResponseBuilder response) {
-    	List<String> ra = fn.getFlatList(apn_rest_rules);
+    	List<String> ra = fn.getFlatAnnotations(apn_rest_rules);
     	if (ra != null && !ra.isEmpty()) {
     		logger.debug("applyRestRules; got rules annotations: {}", ra);
     		String rType = ra.get(0);
@@ -376,6 +378,24 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	}
 
     private StreamingOutput getResultStream(final ResultCursor<XQItem> result) {
+    	String start = "";
+    	String delim = "\n";
+    	String end = "";
+    	List<String> ra = fn.getFlatAnnotations(apn_rest_chunk_type);
+    	// must be zero or one!
+    	if (!ra.isEmpty()) {
+    		String type = ra.get(0);
+    		if ("json".equalsIgnoreCase(type)) {
+    			start = "[";
+    			delim = ",\n";
+    			end = "]";
+    		}
+    		// think about other types/delims..
+    	}
+    	final String first = start;
+    	final String delimiter = delim;
+    	final String last = end;
+    	
     	if (result.isAsynch()) {
 
     	    return new StreamingOutput() {
@@ -390,12 +410,20 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	        	}
     	        	
     	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
+    	            	int idx = 0;
+    	            	writer.write(first);
     		            for (XQItem item: result) {
+    		            	if (idx > 0) {
+    		            		writer.write(delimiter);
+    		            	}
     		            	String chunk = item.getAtomicValue(); // get as string ?
     		                logger.trace("write; out: {}", chunk);
-    		                writer.write(chunk + "\n");
+    		                writer.write(chunk);
     			            writer.flush();
+    			            idx++;
     		            } 
+    	            	writer.write(last);
+    	            	writer.flush();
     	            } catch (Exception ex) {
     	            	logger.error("write.error: error getting result from cursor ", ex);
             			// how to handle it properly?? throw WebAppEx?
@@ -416,12 +444,20 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 	        @Override
 	        public void write(OutputStream os) throws IOException, WebApplicationException {
 	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
+	            	int idx = 0;
+	            	writer.write(first);
 		            for (XQItem item: result) {
+		            	if (idx > 0) {
+		            		writer.write(delimiter);
+		            	}
 		            	String chunk = item.getAtomicValue(); // get as string ?
 		                logger.trace("write; out: {}", chunk);
-		                writer.write(chunk + "\n");
+		                writer.write(chunk);
 			            writer.flush();
+			            idx++;
 		            } 
+	            	writer.write(last);
+	            	writer.flush();
 	            } catch (Exception ex) {
 	            	logger.error("write.error: error getting result from cursor ", ex);
         			// how to handle it properly?? throw WebAppEx?

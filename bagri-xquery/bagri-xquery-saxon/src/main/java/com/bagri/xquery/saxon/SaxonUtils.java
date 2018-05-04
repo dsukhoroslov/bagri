@@ -588,9 +588,7 @@ public class SaxonUtils {
     	if (type.isAtomicType()) {
     		return type.getAtomizedItemType().getTypeName().getLocalPart();
     	}
-    	String result = type.toString();
-    	// delete () at the end
-    	return result.substring(0, result.length() - 2);
+    	return type.toString(); 
     }
 
     @SuppressWarnings({ "rawtypes" })
