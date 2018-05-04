@@ -1,6 +1,7 @@
 package com.bagri.rest;
 
 import static com.bagri.rest.RestConstants.*;
+import static com.bagri.support.util.JSONUtils.*;
 import static com.bagri.support.util.XQUtils.*;
 import static com.bagri.support.util.XMLUtils.*;
 
@@ -108,7 +109,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
         return response.build();
 	}
     
-    private Map<String, Object> getParameters(ContainerRequestContext context) {
+    private Map<String, Object> getParameters(ContainerRequestContext context) { //throws IOException {
     	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
     	for (Parameter pm: fn.getParameters()) {
     		logger.trace("getParameters; processing param: {}", pm);
@@ -126,7 +127,8 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     				if (POST.equals(context.getMethod()) || PUT.equals(context.getMethod())) {
     					String body = getBody(context);
     					if (body != null) {
-    						params.put(pm.getName(), getAtomicValue(pm.getType(), body));
+    						//params.put(pm.getName(), getAtomicValue(pm.getType(), body));
+    						params.put(pm.getName(), extractBodyValue(context, pm, body));
     					}
     				}
     			} else {
@@ -245,7 +247,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     		for (String value: values) {
     			list.add(getAtomicValue(type, value));
     		}
-    	} else if (values.size() > 0){
+    	} else if (values.size() > 0) {
     		String[] vals = values.get(0).split(",");
     		for (String value: vals) {
     			list.add(getAtomicValue(type, value));
@@ -254,22 +256,37 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return list;
     }
     
-    private Object extractBodyValue(Parameter pm, String content) throws IOException {
+    private Object extractBodyValue(ContainerRequestContext context, Parameter pm, String content) { //throws IOException {
     	if (isBaseType(pm.getType())) {
-			//if (pm.getCardinality().isMultiple()) {
-				//params.put(pm.getName(), getSequenceValue(pm.getType(), vals));
-			//} else {
+			if (pm.getCardinality().isMultiple()) {
+				List<String> values = new ArrayList<>(1);
+				values.add(content);
+				return getSequenceValue(pm.getType(), values);
+			} else {
 				return getAtomicValue(pm.getType(), content);
-			//}
+			}
     	} else if (pm.getType().startsWith("map(")) {
-    		// expect JSON content
-    		// add JSON conversion utils..
+    		if (isSubtypeOf(context, "json")) {
+    			return mapFromJSON(content);
+    		}
+    		if (isSubtypeOf(context, "xml")) {
+    			return mapFromXML(content);
+    		}
     	} else if (pm.getType().startsWith("document-node(")) {
-    		return textToDocument(content);
-    	} else { // if ("item()".equals(pm.getType())) {
-    		//XQUtils.
+    		try {
+    			return textToDocument(content);
+    		} catch (IOException ex) {
+    			logger.error("", ex);
+    			return null;
+    		}
+    	} else if (pm.getType().startsWith("item(")) {
+    		return content; 
     	}
-    	return null;
+    	return content;
+    }
+    
+    private boolean isSubtypeOf(ContainerRequestContext context, String subtype) {
+    	return context.getMediaType().getSubtype().endsWith(subtype);
     }
     
     private void setNotFoundParam(Map<String, Object> params, String pType, Parameter pm) {
