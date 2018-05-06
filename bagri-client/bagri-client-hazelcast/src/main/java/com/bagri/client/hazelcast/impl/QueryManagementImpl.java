@@ -158,7 +158,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, Properties props, String splitBy) throws BagriException {
+	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, final Properties props, String splitBy) throws BagriException {
 		Object param = params.get(splitBy);
 		if (param != null && param instanceof Collection) {
 			Collection collect = (Collection) param;

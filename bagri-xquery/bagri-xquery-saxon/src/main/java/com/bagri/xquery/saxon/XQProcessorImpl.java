@@ -379,8 +379,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 				//value = SequenceTool.convertToJava((Item) value);
     		}
     		bindings.put(name.getClarkName(), value);
-    		logger.trace("getParams; name: {}; value: {}", name, value);
     	}
+		logger.trace("getObjectParams; returning: {}", bindings);
     	return bindings;
     }
     

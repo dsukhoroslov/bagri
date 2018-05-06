@@ -35,8 +35,8 @@ public class QueryExecutor<T> extends com.bagri.client.hazelcast.task.query.Quer
     @Override
 	public ResultCursor<T> call() throws Exception {
     	
-    	//logger.info("call.enter; context: {}; params: {}", context, params);
-
+    	//logger.info("call.enter; clientId: {}; repo id: {}; context: {}", clientId, repo.getClientId(), context);
+		
     	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
     	boolean readOnly = queryMgr.isQueryReadOnly(query, context);
     	if (readOnly) {

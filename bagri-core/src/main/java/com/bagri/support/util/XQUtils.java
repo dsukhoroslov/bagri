@@ -255,8 +255,8 @@ public class XQUtils {
 	/**
 	 * checks if the provided type name constant corresponds to any XQJ base types or not 
 	 * 
-	 * @param type one of XQJ type names 
-	 * @return true if the {@code type} corresponds to XQJ base type, false otherwise
+	 * @param typeName one of XQJ type names 
+	 * @return true if the {@code typeName} corresponds to XQJ base type, false otherwise
 	 */
     public static boolean isBaseType(String typeName) {
     	return !isComplexType(typeName) && getBaseTypeForTypeName(typeName) > 0;
@@ -265,8 +265,8 @@ public class XQUtils {
 	/**
 	 * checks if the provided type name constant corresponds to XQJ complex type or not 
 	 * 
-	 * @param type one of XQJ type names 
-	 * @return true if the {@code type} corresponds to XQJ complex type, false otherwise
+	 * @param typeName one of XQJ type names 
+	 * @return true if the {@code typeName} corresponds to XQJ complex type, false otherwise
 	 */
     public static boolean isComplexType(String typeName) {
     	// this is for item(), map(*), node(), element(), document-node(*)

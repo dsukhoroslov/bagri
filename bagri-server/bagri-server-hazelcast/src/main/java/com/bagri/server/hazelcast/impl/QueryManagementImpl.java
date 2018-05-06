@@ -585,10 +585,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
 						addQuery(xQuery);
-						//addQueryResults(query, params, props, cursor, iter);
 						cursor = createCachedCursor(query, params, props, iter, false);
 					} else {
-						// TODO: fix it!
+						// TODO: fix it!?
 						logger.debug("executeQuery; query is not cached after processing: {}", query);
 						cursor = createCursor(iter, props);
 					}
@@ -636,33 +635,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
-				if (overrides != null) {
-					try {
-						Properties ops = PropUtils.propsFromString(overrides);
-						// override paths in expression container with ops..
-						int idx = 0;
-						for (Expression ex: query.getBuilder().getExpressions()) {
-							String op = ops.getProperty(String.valueOf(idx));
-							if (op != null) {
-								String[] parts = op.split(" "); 
-								ex.setPath(new PathBuilder(parts[0]));
-								if (parts.length > 1) {
-									ex.setCompType(Comparison.valueOf(parts[1]));
-									if (parts.length > 2) {
-										((PathExpression) ex).setParamName(parts[2]);
-										if (params.containsKey(parts[2])) {
-											query.getParams().put(parts[2], params.get(parts[2]));
-										}
-									}
-								}
-							}
-							idx++;
-						}
-					} catch (IOException ex) {
-						logger.warn("getDocumentIds.error; can't read paths overrides, skipping");
-					}
-				}
-				logger.debug("getDocumentIds; overriden query is: {}", query);
+				overrideQuery(query, params, overrides);
 					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
@@ -695,6 +668,36 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		// We don't want to cache all docIds here in result? 
 		return result;
+	}
+	
+	private void overrideQuery(ExpressionContainer query, Map<String, Object> params, String overrides) {
+		if (overrides != null) {
+			try {
+				Properties ops = PropUtils.propsFromString(overrides);
+				// override paths in expression container with ops..
+				int idx = 0;
+				for (Expression ex: query.getBuilder().getExpressions()) {
+					String op = ops.getProperty(String.valueOf(idx));
+					if (op != null) {
+						String[] parts = op.split(" "); 
+						ex.setPath(new PathBuilder(parts[0]));
+						if (parts.length > 1) {
+							ex.setCompType(Comparison.valueOf(parts[1]));
+							if (parts.length > 2) {
+								((PathExpression) ex).setParamName(parts[2]);
+								if (params.containsKey(parts[2])) {
+									query.getParams().put(parts[2], params.get(parts[2]));
+								}
+							}
+						}
+					}
+					idx++;
+				}
+			} catch (IOException ex) {
+				logger.warn("overrideQuery.error; can't read paths overrides, skipping");
+			}
+			logger.debug("overrideQuery; overriden query is: {}", query);
+		}
 	}
 
 	@Override
@@ -749,7 +752,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Integer qKey = getQueryKey(query);
 		Query xQuery = xqCache.get(qKey);
 		if (xQuery == null) {
-			XQProcessor xqp = repo.getXQProcessor();
+			XQProcessor xqp;
+			String clientId = props.getProperty(pn_client_id);
+			if (clientId == null) {
+				logger.warn("isQueryReadOnly; got no clientId");
+				xqp = repo.getXQProcessor();
+			} else {
+				xqp = repo.getXQProcessor(clientId);
+			}
 			try {
 				return xqp.isQueryReadOnly(query, props);
 			} catch (XQException ex) {
@@ -967,7 +977,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			}
 		}
-		logger.trace("getResultCursor.exit; returning {} for props {}", cursor, props);
+		logger.trace("getResultCursor.exit; created {} for props {}", cursor, props);
 		return cursor;
 	}
 

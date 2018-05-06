@@ -382,7 +382,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				throw new BagriException("No converter found from " + srcFormat + " to " + dataFormat, BagriException.ecDocument);
 			}
 		}
-		logger.trace("getConverter; returning {} for data format: {}, source format: {}, content type: {}", dataFormat, srcFormat, contentType);
+		logger.trace("getConverter; returning {} for data format: {}, source format: {}, content type: {}", cc, dataFormat, srcFormat, contentType);
 		return cc;
 	}
 	

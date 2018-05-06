@@ -4,6 +4,8 @@ import static com.bagri.core.Constants.bg_version;
 import static com.bagri.core.Constants.pn_rest_auth_port;
 import static com.bagri.core.Constants.pn_rest_jmx;
 import static com.bagri.core.Constants.pn_rest_port;
+import static com.bagri.core.Constants.pn_rest_accept_pool;
+import static com.bagri.core.Constants.pn_rest_thread_pool;
 import static com.bagri.rest.RestConstants.*;
 
 import java.lang.management.ManagementFactory;
@@ -28,6 +30,7 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -66,6 +69,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private int port = 3030;
     private int sport = 3443;
     private boolean jmx = true;
+    private int accept_count = 5;
+    private int thread_count = 100;
     
     private Server jettyServer;
     private XQCompiler xqComp;
@@ -93,6 +98,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     	this.jmx = Boolean.parseBoolean(props.getProperty(pn_rest_jmx, "true"));
     	this.port = Integer.parseInt(props.getProperty(pn_rest_port, "3030"));
     	this.sport = Integer.parseInt(props.getProperty(pn_rest_auth_port, "3443"));
+    	this.accept_count = Integer.parseInt(props.getProperty(pn_rest_accept_pool, "4"));
+    	this.thread_count = Integer.parseInt(props.getProperty(pn_rest_thread_pool, "100"));
     }
     
     public int getPort() {
@@ -233,7 +240,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // The first server connector we create is the one for http, passing in the http configuration we configured
         // above so it can get things like the output buffer size, etc. We also set the port (8080) and configure an
         // idle timeout.
-        ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));        
+        ServerConnector http = new ServerConnector(server, accept_count, accept_count, new HttpConnectionFactory(http_config));        
         http.setPort(port); 
         
         // Now configure the SslContextFactory with your keystore information
@@ -277,6 +284,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 
         // Set the connectors
         server.setConnectors(new Connector[] { http, https });
+        QueuedThreadPool tp = (QueuedThreadPool) server.getThreadPool();
+        tp.setMaxThreads(thread_count);
         
         // Setup JMX
         if (jmx) {

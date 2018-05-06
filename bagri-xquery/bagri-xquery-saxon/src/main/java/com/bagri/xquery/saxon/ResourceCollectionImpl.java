@@ -92,7 +92,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 
 	@Override
 	public boolean isStable(XPathContext context) {
-		return false; //true;
+		return false; // true;
 	}
 
 	@Override

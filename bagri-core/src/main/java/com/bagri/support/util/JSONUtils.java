@@ -29,6 +29,8 @@ public class JSONUtils {
 	 * Deserialize POJO from JSON string
 	 * 
 	 * @param json the JSON to deserialize
+	 * @param cls the class of bean to return
+	 * @param <T> the class parameter of bean to return
 	 * @return the deserialization result
 	 */
 	public static <T> Object beanFromJSON(String json, Class<T> cls) {
@@ -58,7 +60,7 @@ public class JSONUtils {
 	/**
 	 * Deserialize Map from JSON string
 	 * 
-	 * @param xml the JSON to deserialize
+	 * @param json the JSON to deserialize
 	 * @return the deserialization result
 	 */
 	public static Map<String, Object> mapFromJSON(String json) {

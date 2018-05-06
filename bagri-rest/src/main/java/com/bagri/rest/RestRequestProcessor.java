@@ -25,6 +25,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItem;
 
+import org.eclipse.jetty.io.EofException;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,13 +55,11 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     private Function fn;
 	private String query;
 	private RepositoryProvider rePro;
-	private Properties qProps;
 	
 	public RestRequestProcessor(Function fn, String query, RepositoryProvider rePro) {
 		this.fn = fn;
 		this.query = query;
 		this.rePro = rePro;
-		qProps = getQueryProperties();
 	}
 
     @Override
@@ -76,9 +75,11 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 
     	boolean empty = false;
 		ResultCursor<XQItem> cursor = null;
-		logger.trace("apply; going to execute query: {}\n with params: {} and props: {}", query, params, qProps); 
+		// props must be local variable!
+		Properties props = getQueryProperties();
+		logger.trace("apply; going to execute query: {}\n with params: {} and props: {}", query, params, props); 
 		try {
-			cursor = repo.getQueryManagement().executeQuery(query, params, qProps);
+			cursor = repo.getQueryManagement().executeQuery(query, params, props);
 	    	empty = cursor.isEmpty();
 		} catch (BagriException ex) {
 			logger.error("apply.error: ", ex);
@@ -258,7 +259,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     }
     
     private Object extractBodyValue(ContainerRequestContext context, Parameter pm, String content) { //throws IOException {
-		logger.info("extractBodyValue.enter; got param: {}; content: {}; mediaType: {}", pm, content, context.getMediaType());
+		logger.trace("extractBodyValue.enter; got param: {}; content: {}; mediaType: {}", pm, content, context.getMediaType());
     	if (isBaseType(pm.getType())) {
 			if (pm.getCardinality().isMultiple()) {
 				List<String> values = new ArrayList<>(1);
@@ -396,81 +397,51 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	final String delimiter = delim;
     	final String last = end;
     	
-    	if (result.isAsynch()) {
-
-    	    return new StreamingOutput() {
-    	        @Override
-    	        public void write(OutputStream os) throws IOException, WebApplicationException {
-    	        	while (!result.isComplete()) {
-    	        		try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-							break;
-						}
-    	        	}
-    	        	
-    	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
-    	            	int idx = 0;
-    	            	writer.write(first);
-    		            for (XQItem item: result) {
-    		            	if (idx > 0) {
-    		            		writer.write(delimiter);
-    		            	}
-    		            	String chunk = item.getAtomicValue(); // get as string ?
-    		                logger.trace("write; out: {}", chunk);
-    		                writer.write(chunk);
-    			            writer.flush();
-    			            idx++;
-    		            } 
-    	            	writer.write(last);
-    	            	writer.flush();
-    	            } catch (Exception ex) {
-    	            	logger.error("write.error: error getting result from cursor ", ex);
-            			// how to handle it properly?? throw WebAppEx?
-                    } finally {
-                    	try {
-    						result.close();
-    					} catch (Exception ex) {
-    		            	logger.error("write.error: error closing cursor ", ex);
-    					}
-                    }
-    	            
-                }
-            };
-    		
-    	}
-    	
-	    return new StreamingOutput() {
-	        @Override
-	        public void write(OutputStream os) throws IOException, WebApplicationException {
-	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
-	            	int idx = 0;
-	            	writer.write(first);
-		            for (XQItem item: result) {
-		            	if (idx > 0) {
-		            		writer.write(delimiter);
-		            	}
-		            	String chunk = item.getAtomicValue(); // get as string ?
-		                logger.trace("write; out: {}", chunk);
-		                writer.write(chunk);
-			            writer.flush();
-			            idx++;
-		            } 
-	            	writer.write(last);
-	            	writer.flush();
-	            } catch (Exception ex) {
-	            	logger.error("write.error: error getting result from cursor ", ex);
-        			// how to handle it properly?? throw WebAppEx?
-                } finally {
-                	try {
-						result.close();
-					} catch (Exception ex) {
-		            	logger.error("write.error: error closing cursor ", ex);
+   	    return new StreamingOutput() {
+   	        @Override
+   	        public void write(OutputStream os) throws IOException, WebApplicationException {
+   	        	// fixed cursor will be complete from the very beginning
+   	        	while (!result.isComplete()) {
+   	        		try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						break;
 					}
+   	        	}
+    	        	
+            	int idx = 0;
+   	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
+   	            	writer.write(first);
+   		            for (XQItem item: result) {
+   		            	if (idx > 0) {
+   		            		writer.write(delimiter);
+   		            	}
+   		            	String chunk = item.getAtomicValue(); // get as string ?
+   		                logger.trace("write; out: {}", chunk);
+   		                writer.write(chunk);
+   			            writer.flush();
+   			            idx++;
+   		            } 
+   	            	writer.write(last);
+   	            	writer.flush();
+   	            } catch (EofException ex) {
+   	            	logger.info("write; client has terminated connection at {} chunk, out of {} total chunks", idx, result.size());
+   	            } catch (Exception ex) {
+   	            	logger.error("write.error: error getting result from cursor ", ex);
+           			// how to handle it properly?? throw WebAppEx?
+                } finally {
+                   	try {
+   						result.close();
+   					} catch (Exception ex) {
+   		            	logger.error("write.error: error closing cursor ", ex);
+   					}
                 }
-	            
             }
         };
+    }
+    
+    private void writeResult() {
+    	
     }
     
     private Properties getQueryProperties() {

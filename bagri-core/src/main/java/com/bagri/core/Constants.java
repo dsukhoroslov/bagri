@@ -99,6 +99,8 @@ public class Constants {
     public static final String pn_rest_jmx = "bdb.rest.jmx";
     public static final String pn_rest_port = "bdb.rest.port";
     public static final String pn_rest_auth_port = "bdb.rest.auth.port";
+    public static final String pn_rest_accept_pool = "bdb.rest.accept.pool";
+    public static final String pn_rest_thread_pool = "bdb.rest.thread.pool";
     
     public static final String pn_access_filename = "bdb.access.filename";
     public static final String pn_config_filename = "bdb.config.filename";
