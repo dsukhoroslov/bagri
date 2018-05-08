@@ -225,7 +225,7 @@
                                 <configuration>
                                     <tasks if="run-server">
                                         <java fork="true" classname="com.bagri.server.hazelcast.BagriCacheServer">
-                                            <jvmarg line="-Xms2g -Xmx4g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}" />
+                                            <jvmarg line="-Xms2g -Xmx8g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}" />
                                             <sysproperty key="node.logdir" value="./logs" />
                                             <sysproperty key="node.name" value="first" />
                                             <sysproperty key="bdb.node.instance" value="${node.instance}" />
