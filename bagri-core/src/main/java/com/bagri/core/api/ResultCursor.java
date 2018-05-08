@@ -21,6 +21,12 @@ public interface ResultCursor<T> extends AutoCloseable, Iterable<T> {
 	
 	/**
 	 * 
+	 * @return true if asynch cursor is fetched completely, false otherwise
+	 */
+	boolean isComplete();
+
+	/**
+	 * 
 	 * @return true if cursor is empty, false otherwise
 	 */
 	boolean isEmpty();

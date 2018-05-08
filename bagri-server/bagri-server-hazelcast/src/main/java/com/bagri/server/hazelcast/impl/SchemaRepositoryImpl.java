@@ -197,6 +197,12 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		return getXQProcessor(clientId);
 	}
 	
+	public void clearXQProcessors() {
+		for (XQProcessor xqp: processors.values()) {
+			xqp.clearLocalCache();
+		}
+	}
+
 	public XQProcessor getXQProcessor(String clientId) {
 		XQProcessor result;
 		if (clientId == null) {
@@ -410,6 +416,18 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		}
 	}
 	
+	public void updateModule(Module module) {
+		if (xdmModules != null) {
+			ArrayList<Module> list = (ArrayList<Module>) xdmModules;
+			int idx = list.indexOf(module);
+			if (idx < 0) {
+				list.add(module);
+			} else {
+				list.set(idx, module);
+			}
+		}
+	}
+	
 	public void afterInit() {
 		Set<Index> indexes = xdmSchema.getIndexes();
 		if (indexes.size() > 0) {
@@ -532,6 +550,12 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		return false;
 	}
 
+	@Override
+	public Object getCacheEngine() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	
 }
 

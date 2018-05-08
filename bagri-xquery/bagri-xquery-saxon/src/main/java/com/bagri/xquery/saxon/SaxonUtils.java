@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +44,6 @@ import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocuments;
 import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
 import com.bagri.xquery.saxon.ext.doc.StoreDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
 import com.bagri.xquery.saxon.ext.http.HttpGet;
 import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
 import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
@@ -59,6 +59,7 @@ import net.sf.saxon.event.Sender;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.JPConverter;
 import net.sf.saxon.expr.StaticProperty;
+import net.sf.saxon.ma.arrays.ArrayItem;
 import net.sf.saxon.ma.map.MapItem;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.NodeInfo;
@@ -169,6 +170,10 @@ public class SaxonUtils {
         		//return ((XQItem) value).getObject();
         		return value;
         	}
+        } else if (item instanceof ArrayItemImpl) {
+        	return ((ArrayItemImpl) item).getSource();
+        } else if (item instanceof ArrayItem) {
+        	return itemToList((ArrayItem) item);
         } else if (item instanceof MapItemImpl) {
         	return ((MapItemImpl) item).getSource();
         } else if (item instanceof MapItem) {
@@ -177,6 +182,7 @@ public class SaxonUtils {
         return item;
     }
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Item objectToItem(Object value, Configuration config) throws XPathException {
         if (value == null) {
             return null;
@@ -247,13 +253,18 @@ public class SaxonUtils {
             return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart()); //BuiltInAtomicType.QNAME, null);
         } else if (value instanceof URI) {
           	return new AnyURIValue(value.toString());
+        } else if (value instanceof List) {
+           	return new ArrayItemImpl((List) value, config);
+        } else if (value instanceof Collection) {
+           	return new ArrayItemImpl(new ArrayList<>((Collection) value), config);
         } else if (value instanceof Map) {
            	return new MapItemImpl((Map) value, config);
         } else {
            	return new ObjectValue(value);
         }
     }
-
+    
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Item convertToItem(Object value, Configuration config, BuiltInAtomicType type) throws XPathException {
         if (value == null) {
             return null;
@@ -324,6 +335,11 @@ public class SaxonUtils {
             return new QNameValue(q.getPrefix(), q.getNamespaceURI(), q.getLocalPart(), type);
         } else if (value instanceof URI) {
           	return new AnyURIValue(value.toString());
+        } else if (value instanceof List) {
+        	// use type somehow?
+           	return new ArrayItemImpl((List) value, config);
+        } else if (value instanceof Collection) {
+           	return new ArrayItemImpl(new ArrayList<>((Collection) value), config);
         } else if (value instanceof Map) {
            	return new MapItemImpl((Map) value, config);
         } else {
@@ -456,10 +472,18 @@ public class SaxonUtils {
 		return null;
 	}
 	
+	public static List<Object> itemToList(ArrayItem ai) throws XPathException {
+		List<Object> result = new ArrayList<>(ai.arrayLength());
+    	for (Sequence sq: ai) {
+    		result.add(itemToObject(sq.head().atomize().head()));
+    	}
+    	return result;
+	}
+		
 	public static Map<String, Object> itemToMap(MapItem mi) throws XPathException {
     	AtomicValue key;
     	AtomicIterator itr = mi.keys();
-		Map<String, Object> result = new HashMap<>();
+		Map<String, Object> result = new HashMap<>(mi.size());
     	while ((key = itr.next()) != null) {
     		Sequence value = mi.get(key);
     		result.put(key.getStringValue(), itemToObject(value.head().atomize().head()));
@@ -559,9 +583,7 @@ public class SaxonUtils {
     	if (type.isAtomicType()) {
     		return type.getAtomizedItemType().getTypeName().getLocalPart();
     	}
-    	String result = type.toString();
-    	// delete () at the end
-    	return result.substring(0, result.length() - 2);
+    	return type.toString(); 
     }
 
     @SuppressWarnings({ "rawtypes" })
@@ -774,6 +796,7 @@ public class SaxonUtils {
         	}
         	return xqFactory.createSequence(pairs.iterator());
         } else if (item instanceof Sequence) {
+        	// ArrayItem is also handled here
         	return xqFactory.createSequence(new XQIterator(xqFactory, ((Sequence) item).iterate()));
         }
         return null; 
@@ -811,7 +834,6 @@ public class SaxonUtils {
             config.registerExtensionFunction(new GetDocumentUris(null));
             config.registerExtensionFunction(new RemoveDocument(null));
             config.registerExtensionFunction(new StoreDocument(null));
-            config.registerExtensionFunction(new StoreDocumentFromMap(null));
             config.registerExtensionFunction(new RemoveDocuments(null));
             config.registerExtensionFunction(new QueryDocumentUris(null));
             config.registerExtensionFunction(new BeginTransaction(null));
@@ -822,7 +844,6 @@ public class SaxonUtils {
             config.registerExtensionFunction(new GetDocumentUris(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new RemoveDocument(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new StoreDocument(xRepo.getDocumentManagement()));
-            config.registerExtensionFunction(new StoreDocumentFromMap(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new RemoveDocuments(xRepo.getDocumentManagement()));
             config.registerExtensionFunction(new QueryDocumentUris(xRepo.getQueryManagement()));
             config.registerExtensionFunction(new BeginTransaction(xRepo.getTxManagement()));
@@ -831,62 +852,4 @@ public class SaxonUtils {
         }
 	}
     
-	/*    
-    public static int getBaseType(AtomicValue value) {
-        int type = value.getItemType().getPrimitiveType();
-        switch (type) {
-        	case StandardNames.XS_ANY_URI: return XQItemType.XQBASETYPE_ANYURI;
-            case StandardNames.XS_BASE64_BINARY: return XQItemType.XQBASETYPE_BASE64BINARY;
-            case StandardNames.XS_BOOLEAN: return XQItemType.XQBASETYPE_BOOLEAN;
-            case StandardNames.XS_DATE: return XQItemType.XQBASETYPE_DATE;
-            case StandardNames.XS_TIME: return XQItemType.XQBASETYPE_TIME;
-            case StandardNames.XS_DATE_TIME: return XQItemType.XQBASETYPE_DATETIME;
-            case StandardNames.XS_DECIMAL: return XQItemType.XQBASETYPE_DECIMAL;
-            case StandardNames.XS_DOUBLE: return XQItemType.XQBASETYPE_DOUBLE;
-            case StandardNames.XS_DURATION: return XQItemType.XQBASETYPE_DURATION;
-            case StandardNames.XS_FLOAT: return XQItemType.XQBASETYPE_FLOAT;
-            case StandardNames.XS_G_DAY: return XQItemType.XQBASETYPE_GDAY;
-            case StandardNames.XS_G_MONTH: return XQItemType.XQBASETYPE_GMONTH;
-            case StandardNames.XS_G_MONTH_DAY: return XQItemType.XQBASETYPE_GMONTHDAY;
-            case StandardNames.XS_G_YEAR: return XQItemType.XQBASETYPE_GYEAR;
-            case StandardNames.XS_G_YEAR_MONTH: return XQItemType.XQBASETYPE_GYEARMONTH;
-            case StandardNames.XS_HEX_BINARY: return XQItemType.XQBASETYPE_HEXBINARY;
-            case StandardNames.XS_INTEGER: {
-                int sub = value.getItemType().getFingerprint();
-                switch (sub) {
-                	//case StandardNames.XS_INTEGER: return XQItemType.XQBASETYPE_INTEGER;
-                    case StandardNames.XS_NEGATIVE_INTEGER: return XQItemType.XQBASETYPE_NEGATIVE_INTEGER;
-                    case StandardNames.XS_NON_NEGATIVE_INTEGER: return XQItemType.XQBASETYPE_NONNEGATIVE_INTEGER;
-                    case StandardNames.XS_NON_POSITIVE_INTEGER: return XQItemType.XQBASETYPE_NONPOSITIVE_INTEGER;
-                    case StandardNames.XS_POSITIVE_INTEGER: return XQItemType.XQBASETYPE_POSITIVE_INTEGER;
-                    case StandardNames.XS_UNSIGNED_LONG: return XQItemType.XQBASETYPE_UNSIGNED_LONG;
-                    case StandardNames.XS_BYTE: return XQItemType.XQBASETYPE_BYTE;
-                    case StandardNames.XS_INT: return XQItemType.XQBASETYPE_INT;
-                    case StandardNames.XS_UNSIGNED_SHORT: return XQItemType.XQBASETYPE_UNSIGNED_SHORT;
-                    case StandardNames.XS_LONG: return XQItemType.XQBASETYPE_LONG;
-                    case StandardNames.XS_UNSIGNED_INT: return XQItemType.XQBASETYPE_UNSIGNED_INT;
-                    case StandardNames.XS_SHORT: return XQItemType.XQBASETYPE_SHORT;
-                    case StandardNames.XS_UNSIGNED_BYTE: return XQItemType.XQBASETYPE_UNSIGNED_BYTE;
-                    default: return XQItemType.XQBASETYPE_INTEGER;
-                }
-            }
-            case StandardNames.XS_STRING: {
-                int sub = value.getItemType().getFingerprint();
-                switch (sub) {
-	                case StandardNames.XS_NAME: return XQItemType.XQBASETYPE_NAME;
-	                case StandardNames.XS_NCNAME: return XQItemType.XQBASETYPE_NCNAME;
-	                case StandardNames.XS_NMTOKEN: return XQItemType.XQBASETYPE_NMTOKEN;
-                    default: return XQItemType.XQBASETYPE_STRING;
-                }
-            }
-            case StandardNames.XS_QNAME: return XQItemType.XQBASETYPE_QNAME;
-            case StandardNames.XS_UNTYPED_ATOMIC: return XQItemType.XQBASETYPE_UNTYPEDATOMIC;
-            case StandardNames.XS_DAY_TIME_DURATION: return XQItemType.XQBASETYPE_DAYTIMEDURATION;
-            case StandardNames.XS_YEAR_MONTH_DURATION: return XQItemType.XQBASETYPE_YEARMONTHDURATION;
-            default:
-                    //throw new XPathException("unsupported type");
-        }
-    	return XQItemType.XQBASETYPE_UNTYPEDATOMIC;
-    }
-*/    
 }

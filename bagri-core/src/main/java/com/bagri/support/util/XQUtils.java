@@ -252,6 +252,28 @@ public class XQUtils {
     	return type >= XQBASETYPE_ANYATOMICTYPE && type <= XQBASETYPE_ENTITY; 
     }
 
+	/**
+	 * checks if the provided type name constant corresponds to any XQJ base types or not 
+	 * 
+	 * @param typeName one of XQJ type names 
+	 * @return true if the {@code typeName} corresponds to XQJ base type, false otherwise
+	 */
+    public static boolean isBaseType(String typeName) {
+    	return !isComplexType(typeName) && getBaseTypeForTypeName(typeName) > 0;
+    }
+
+	/**
+	 * checks if the provided type name constant corresponds to XQJ complex type or not 
+	 * 
+	 * @param typeName one of XQJ type names 
+	 * @return true if the {@code typeName} corresponds to XQJ complex type, false otherwise
+	 */
+    public static boolean isComplexType(String typeName) {
+    	// this is for item(), map(*), node(), element(), document-node(*)
+    	// and may be something else..
+    	return typeName.endsWith(")"); 
+    }
+
     /**
      * checks if XQJ base type feature is supported by the data kind provided 
      * 

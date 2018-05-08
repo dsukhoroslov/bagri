@@ -17,6 +17,7 @@ public interface QueryManagement {
 	 * @param query the query specified as a plain text.  
 	 * @param params the map of parameter name/value pairs. Parameters are bound in query by names 
 	 * @param props the query processing instructions. Supported values are: ...
+	 * @param <T> the type of ResultCursor content
 	 * @return wrapping cursor over resulting data sequence 
 	 * @throws BagriException in case of any query processing error
 	 */

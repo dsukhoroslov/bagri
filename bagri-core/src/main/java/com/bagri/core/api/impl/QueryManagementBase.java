@@ -1,8 +1,9 @@
 package com.bagri.core.api.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 /**
  * Base implementation for XDM Query Management interface. Several basic methods implemented  
@@ -33,7 +34,28 @@ public abstract class QueryManagementBase {
 		if (params == null) {
 			return 0;
 		}
-		int result = params.toString().hashCode();
+		String hash; // = params.toString();
+		
+		if (params.size() > 1) {
+			List<String> keys = new ArrayList<>(params.keySet());
+			Collections.sort(keys);
+			StringBuilder sb = new StringBuilder("{");
+			int idx = 0;
+			for (String key: keys) {
+				if (idx > 0) {
+					sb.append(",");
+				}
+				Object value = params.get(key);
+				sb.append(key).append("=").append(value == null ? "null" : value.toString());
+				idx++;
+			}
+			sb.append("}");
+			hash = sb.toString();
+		} else {
+			hash = params.toString();
+		}
+		
+		int result = hash.hashCode();
 		return result;
 	}
 

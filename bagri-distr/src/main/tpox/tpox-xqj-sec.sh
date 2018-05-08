@@ -23,7 +23,7 @@ apphome="`cd \`dirname $0\`/.. && pwd && cd - >/dev/null`"
 
 
 CLASSPATH="${apphome}/config/*"
-CLASSPATH="${CLASSPATH}:${apphome}/lib/bagri-test-tpox-1.2.0.jar"
+CLASSPATH="${CLASSPATH}:${apphome}/lib/bagri-test-tpox-1.2.1.jar"
 CLASSPATH="${CLASSPATH}:${apphome}/lib/*"
 export CLASSPATH
 

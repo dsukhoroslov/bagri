@@ -49,6 +49,7 @@ public class BagriXQJPlugin extends BagriTPoXPlugin {
     		try {
 	    		XQConnection xqc = xqds.getConnection();
 	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_fetchSize, null); 
+	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_fetchType, null); 
 	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_submitTo, null); 
 	    		setProperty(((BagriXQDataFactory) xqc).getProcessor().getProperties(), pn_client_ownerParam, null); 
 	    		logger.info("initialValue.exit; XQC: {}", xqc);

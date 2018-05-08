@@ -128,6 +128,15 @@ public class Elements {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private boolean compareValue(Comparison comp, Object value1, Object value2) {
 
+		if (comp.isStringComparison()) {
+			switch (comp) {
+				case SW: return ((String) value2).startsWith((String) value1);
+				case EW: return ((String) value2).endsWith((String) value1);
+				case CNT: return ((String) value2).contains((String) value1);
+				default: return false;
+			}
+		}
+
 		int result = ((Comparable) value2).compareTo((Comparable) value1);
 		switch (comp) {
 			case EQ: return result == 0;

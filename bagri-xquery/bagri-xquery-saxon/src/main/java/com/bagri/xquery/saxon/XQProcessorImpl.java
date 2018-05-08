@@ -40,19 +40,6 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessorBase;
 import com.bagri.support.util.XMLUtils;
 import com.bagri.support.util.XQUtils;
-import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
-import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.RemoveDocuments;
-import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
-import com.bagri.xquery.saxon.ext.http.HttpGet;
-import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
-import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
-import com.bagri.xquery.saxon.ext.tx.RollbackTransaction;
-import com.bagri.xquery.saxon.ext.util.GetUuid;
-import com.bagri.xquery.saxon.ext.util.LogOutput;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.dom.DocumentOverNodeInfo;
@@ -65,7 +52,6 @@ import net.sf.saxon.lib.Validation;
 import net.sf.saxon.om.DocumentInfo;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.SequenceIterator;
-import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.QueryResult;
@@ -95,6 +81,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
         //JPConverter.allocate(XQItem.class, null, config);
+        //config.setConfigurationProperty(FeatureKeys.LAZY_CONSTRUCTION_MODE, true);
     }
     
     public String getProperty(String propName) {
@@ -392,8 +379,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 				//value = SequenceTool.convertToJava((Item) value);
     		}
     		bindings.put(name.getClarkName(), value);
-    		logger.trace("getParams; name: {}; value: {}", name, value);
     	}
+		logger.trace("getObjectParams; returning: {}", bindings);
     	return bindings;
     }
     

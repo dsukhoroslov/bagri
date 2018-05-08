@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 import com.bagri.client.hazelcast.task.QueryAwareTask;
 import com.bagri.core.api.ResultCursor;
 
-public class QueryExecutor extends QueryAwareTask implements Callable<ResultCursor> {
+public class QueryExecutor<T> extends QueryAwareTask implements Callable<ResultCursor<T>> {
 
 	public QueryExecutor() {
 		super();
@@ -20,7 +20,7 @@ public class QueryExecutor extends QueryAwareTask implements Callable<ResultCurs
 	}
 
 	@Override
-	public ResultCursor call() throws Exception {
+	public ResultCursor<T> call() throws Exception {
 		return null;
 	}
 	

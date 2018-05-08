@@ -24,4 +24,15 @@ public class RestConstants {
 	public static final String apn_matrix = "rest:matrix-param";
 	public static final String apn_query = "rest:query-param";
 
+	public static final String apn_property = "bgdb:property";
+	public static final String apn_properties = "bgdb:properties";
+	
+	public static final String apn_rest_rules = "bgdb:follow-rules";
+	
+	public static final String arv_create = "create";
+	public static final String arv_update = "update";
+	public static final String arv_delete = "delete";
+	
+	public static final String apn_rest_chunk_type = "bgdb:chunk-type"; //("json")
+
 }

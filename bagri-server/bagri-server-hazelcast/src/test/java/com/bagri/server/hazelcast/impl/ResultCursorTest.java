@@ -36,6 +36,7 @@ import static com.bagri.core.test.TestUtils.*;
 import static com.bagri.support.util.XQUtils.mapFromSequence;
 import static org.junit.Assert.*;
 
+
 public class ResultCursorTest extends BagriManagementTest {
 	
     private static ClassPathXmlApplicationContext context;

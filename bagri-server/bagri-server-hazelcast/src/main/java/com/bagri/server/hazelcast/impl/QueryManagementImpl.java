@@ -1,16 +1,11 @@
 package com.bagri.server.hazelcast.impl;
 
-import static com.bagri.core.Constants.pn_client_fetchAsynch;
-import static com.bagri.core.Constants.pn_client_fetchSize;
-import static com.bagri.core.Constants.pn_client_id;
-import static com.bagri.core.Constants.pn_document_compress;
-import static com.bagri.core.Constants.pn_query_command;
-import static com.bagri.core.Constants.pn_xqj_scrollability;
-import static com.bagri.core.Constants.pn_schema_fetch_size;
+import static com.bagri.core.Constants.*;
 import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.support.util.XQUtils.getAtomicValue;
 import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,6 +48,7 @@ import com.bagri.core.query.Comparison;
 import com.bagri.core.query.Expression;
 import com.bagri.core.query.ExpressionBuilder;
 import com.bagri.core.query.ExpressionContainer;
+import com.bagri.core.query.PathBuilder;
 import com.bagri.core.query.PathExpression;
 import com.bagri.core.query.QueriedPath;
 import com.bagri.core.query.QueryBuilder;
@@ -65,8 +61,9 @@ import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
-import com.bagri.support.util.CollectionUtils;
+import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -246,46 +243,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return false;
 	}
 
-	private void addQueryResults(final String query, final Map<String, Object> params, final Properties props, 
-			final ResultCursor cursor, final Iterator<Object> results) {
-
-		final QueryExecContext ctx = thContext.get();
-
-		final List<Object> resList;
-		if (cursor == null || cursor.isAsynch()) {
-			resList = new ArrayList<>();
-		} else {
-			resList = ((ResultCursorBase) cursor).getList();
-		}
-		
-		//IExecutorService execService = hzInstance.getExecutorService(PN_XDM_SCHEMA_POOL);
-		//execService.execute(new Runnable() {
-		//new Thread(new Runnable() {
-		//	@Override
-		//	public void run() {
-				long qpKey = getResultsKey(query, params);
-				if (cursor != null) {
-					if (cursor.isAsynch()) {
-						CollectionUtils.copyIterator(results, resList);
-					}
-				} else {
-					CollectionUtils.copyIterator(results, resList);
-				}
-
-				if (resList.size() > 0 && ctx.getDocKeys().size() == 0) {
-					logger.warn("addQueryResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
-							params, ctx.getDocKeys(), resList);
-				} else {
-					QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-					// what is better to use here: putAsync or set ?
-					xrCache.set(qpKey, xqr);
-					updateStats(query, 1, resList.size());
-					logger.trace("addQueryResults.exit; stored results: {} for key: {}", xqr, qpKey);
-				}
-		//	}
-		//}).start();
-	}
-	
 	List<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
 		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
@@ -346,6 +303,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public void clearCache() {
 		xqCache.clear(); //evictAll();
 		xrCache.evictAll();
+		repo.clearXQProcessors();
 	}
 	
 	private void updateStats(String name, boolean success, int count) {
@@ -365,7 +323,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	private Set<Long> queryKeys(Set<Long> found, ExpressionContainer ec, Expression ex) throws BagriException {
+	private Set<Long> queryKeys(boolean local, Set<Long> found, ExpressionContainer ec, Expression ex) throws BagriException {
 		if (ex == null) {
 			logger.debug("queryKeys; got null expression in container: {}, skipping..", ec);
 			return found;
@@ -377,15 +335,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
-			Set<Long> leftKeys = queryKeys(found, ec, be.getLeft());
+			Set<Long> leftKeys = queryKeys(local, found, ec, be.getLeft());
 			if (Comparison.AND == be.getCompType()) {
 				if (leftKeys != null && leftKeys.isEmpty()) {
 					return leftKeys;
 				}
-				Set<Long> rightKeys = queryKeys(leftKeys, ec, be.getRight());
+				Set<Long> rightKeys = queryKeys(local, leftKeys, ec, be.getRight());
 				return rightKeys;
 			} else if (Comparison.OR == be.getCompType()) {
-				Set<Long> rightKeys = queryKeys(found, ec, be.getRight());
+				Set<Long> rightKeys = queryKeys(local, found, ec, be.getRight());
 				if (leftKeys != null) {
 					if (rightKeys != null) {
 						leftKeys.addAll(rightKeys);
@@ -400,7 +358,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		PathExpression pex = (PathExpression) ex;
-		return queryPathKeys(found, pex, ec.getParam(pex));
+		return queryPathKeys(local, found, pex, ec.getParam(pex));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -408,14 +366,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (value == null) {
 			return null;
 		}
+		logger.trace("adjustSearchValue.enter; adjusting {}:{}; expected type is {}", value.getClass().getName(), value, pathType);
 		int valType = XQItemType.XQBASETYPE_ANYTYPE;
-		if (value instanceof Collection) {
+		while (value instanceof Collection) {
 			Collection values = (Collection) value;
 			if (values.size() == 0) {
 				return null;
 			}
 			if (values.size() == 1) {
 				value = values.iterator().next();
+				if (value == null) {
+					return null;
+				}
 			} else {
 				// CompType must be IN !
 				List newVals = new ArrayList(values.size());
@@ -425,6 +387,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				return newVals;
 			}
 		} 
+		logger.trace("adjustSearchValue; after reduction value is {}:{}", value.getClass().getName(), value);
 		if (value instanceof XQItem) {
 			try {
 				valType = ((XQItem) value).getItemType().getBaseType();
@@ -441,13 +404,23 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				value = value.toString();
 			} else {				
 				// conversion from value type to path type
-				value = getAtomicValue(pathType, value.toString());
+				String strVal = value.toString();
+				if (strVal.startsWith("[") && strVal.endsWith("]")) {
+					String[] values = strVal.substring(1, strVal.length() - 1).split(", ");
+					List newVals = new ArrayList(values.length);
+					for (String val: values) {
+						newVals.add(adjustSearchValue(val, pathType));
+					}
+					return newVals;
+				} else {
+					value = getAtomicValue(pathType, value.toString());
+				}
 			}
 		}
 		return value;
 	}
 
-	protected Set<Long> queryPathKeys(Set<Long> found, PathExpression pex, Object value) throws BagriException {
+	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value) throws BagriException {
 
 		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
@@ -500,7 +473,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		Object newVal = adjustSearchValue(value, dataType);
 		if (newVal == null) {
-			logger.info("queryPathKeys; got query on empty value sequence: {}", value); 
+			logger.info("queryPathKeys; got query on empty value sequence, path: {}", pex); 
 			return result;
 		}
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
@@ -510,6 +483,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);
 				logger.trace("queryPathKeys; search for index - got keys: {}", docKeys == null ? null : docKeys.size()); 
 				if (docKeys != null) {
+					if (local && !docKeys.isEmpty()) {
+						docKeys = checkDocumentsLocal(docKeys);
+					}
 					if (found == null) {
 						result.addAll(docKeys);
 					} else {
@@ -540,7 +516,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			qp = new DocsAwarePredicate(pex, newVal, found);
 		}			
 		Predicate<DataKey, Elements> f = Predicates.and(pp, qp);
-	   	Set<DataKey> xdmKeys = xdmCache.keySet(f);
+	   	Set<DataKey> xdmKeys = local ? xdmCache.localKeySet(f) : xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		result = new HashSet<>(xdmKeys.size());
 		for (DataKey key: xdmKeys) {
@@ -561,11 +537,21 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			String uri = docMgr.checkDocumentCommited(docKey, clnId); 
 			if (uri != null) {
 				result.put(docKey, uri);
-			//} else {
-			//	itr.remove();
 			}
 		}
 		return result;
+	}
+	
+	private Set<Long> checkDocumentsLocal(Collection<Long> docKeys) {
+		// filter out external docKeys; size should be docKeys.size / cluster size
+		Set<Long> localKeys = new HashSet<>();
+		PartitionService ps = repo.getHzInstance().getPartitionService();
+		for (Long key: docKeys) {
+			if (ps.getPartition(key).getOwner().localMember()) {
+				localKeys.add(key);
+			}
+		}
+		return localKeys;
 	}
 
 	@Override
@@ -577,32 +563,31 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	public <T> ResultCursor<T> executeQuery(String query, Map<String, Object> params, Properties props) throws BagriException {
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
-		List<Object> resList = null;
+		List<T> resList = null;
 		int qKey = 0;
 		if (cacheResults) {
 			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 			qKey = getQueryKey(query);
 			if (isQuery) {
 				if (xqCache.containsKey(qKey)) {
-					resList = getQueryResults(query, params, props);
+					resList = (List<T>) getQueryResults(query, params, props);
 				}
 			}
 		}
 		
-		ResultCursor cursor;
+		ResultCursor<T> cursor;
 		String clientId = props.getProperty(pn_client_id);
 		XQProcessor xqp = repo.getXQProcessor(clientId);
 		if (resList == null) {
 			try {
-				Iterator<Object> iter = runQuery(query, params, props);
+				Iterator<T> iter = runQuery(query, params, props);
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
 						addQuery(xQuery);
-						//addQueryResults(query, params, props, cursor, iter);
 						cursor = createCachedCursor(query, params, props, iter, false);
 					} else {
-						// TODO: fix it!
+						// TODO: fix it!?
 						logger.debug("executeQuery; query is not cached after processing: {}", query);
 						cursor = createCursor(iter, props);
 					}
@@ -638,31 +623,81 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	@Override
 	public Collection<Long> getDocumentIds(ExpressionContainer query) throws BagriException {
+		QueryExecContext ctx = thContext.get();
+		Properties props = ctx.getProperties();
+		Map<String, Object> params = ctx.getParameters();
+		
+		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
+		String overrides = props.getProperty(pn_query_customPaths);
+		logger.debug("getDocumentIds; got override paths: {}", overrides);
+		
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
+				overrideQuery(query, params, overrides);
+					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
-				Set<Long> ids = queryKeys(null, query, exp.getRoot());
+				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot());
 				// otherwise filter out documents with wrong collectionIds here
 				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
-				thContext.get().setDocKeys(result);
+				ctx.setDocKeys(result);
 				return result.keySet();
 			}
 		}
+
 		logger.info("getDocumentIds; got rootless path: {}", query); 
-		
 		// fallback to full IDs set: default collection over all documents. not too good...
-		// TODO: how could we distribute it over cache nodes? can we use local keySet only !?
-		List<Long> result = new ArrayList<Long>(xddCache.keySet().size());
-		for (DocumentKey docKey: xddCache.keySet()) {
-			// we must provide only visible docIds!
-			if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
-				result.add(docKey.getKey());
+		List<Long> result;
+		if (localOnly) {
+			result = new ArrayList<Long>(xddCache.localKeySet().size());
+			for (DocumentKey docKey: xddCache.localKeySet()) {
+				if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
+					result.add(docKey.getKey());
+				}
+			}
+		} else {
+			result = new ArrayList<Long>(xddCache.keySet().size());
+			for (DocumentKey docKey: xddCache.keySet()) {
+				// we must provide only visible docIds!
+				if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
+					result.add(docKey.getKey());
+				}
 			}
 		}
-		// I don't want to cache all docIds here in result
+		// We don't want to cache all docIds here in result? 
 		return result;
+	}
+	
+	private void overrideQuery(ExpressionContainer query, Map<String, Object> params, String overrides) {
+		if (overrides != null) {
+			try {
+				Properties ops = PropUtils.propsFromString(overrides);
+				// override paths in expression container with ops..
+				int idx = 0;
+				for (Expression ex: query.getBuilder().getExpressions()) {
+					String op = ops.getProperty(String.valueOf(idx));
+					if (op != null) {
+						String[] parts = op.split(" "); 
+						ex.setPath(new PathBuilder(parts[0]));
+						if (parts.length > 1) {
+							ex.setCompType(Comparison.valueOf(parts[1]));
+							if (parts.length > 2) {
+								((PathExpression) ex).setParamName(parts[2]);
+								if (params.containsKey(parts[2])) {
+									query.getParams().put(parts[2], params.get(parts[2]));
+								}
+							}
+						}
+					}
+					idx++;
+				}
+			} catch (IOException ex) {
+				logger.warn("overrideQuery.error; can't read paths overrides, skipping");
+			}
+			logger.debug("overrideQuery; overriden query is: {}", query);
+		}
 	}
 
 	@Override
@@ -694,7 +729,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						cursor = createCachedCursor(query, params, props, iter, true);
 					} else {
 						// TODO: fix it!
-						logger.debug("executeQuery; query is not cached after processing: {}", query);
+						logger.info("executeQuery; query is not cached after processing: {}", query);
 						cursor = createCursor(thContext.get().getDocKeys().values().iterator(), props);
 					}
 				} else {
@@ -717,7 +752,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Integer qKey = getQueryKey(query);
 		Query xQuery = xqCache.get(qKey);
 		if (xQuery == null) {
-			XQProcessor xqp = repo.getXQProcessor();
+			XQProcessor xqp;
+			String clientId = props.getProperty(pn_client_id);
+			if (clientId == null) {
+				logger.warn("isQueryReadOnly; got no clientId");
+				xqp = repo.getXQProcessor();
+			} else {
+				xqp = repo.getXQProcessor(clientId);
+			}
 			try {
 				return xqp.isQueryReadOnly(query, props);
 			} catch (XQException ex) {
@@ -734,20 +776,20 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private Iterator<Object> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+	private <T> Iterator<T> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
         stopWatch.start();
 
-		Iterator<Object> iter = null;
+		Iterator<T> iter = null;
 		try {
 			String clientId = props.getProperty(pn_client_id);
 			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			
 			QueryExecContext ctx = thContext.get();
-			ctx.clear();
+			ctx.reset(props, params);
 				
 			if (params != null) {
 				for (Map.Entry<String, Object> var: params.entrySet()) {
@@ -756,9 +798,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 					
 			if (isQuery) {
-				iter = xqp.executeXQuery(query, props);
+				iter = (Iterator<T>) xqp.executeXQuery(query, props);
 			} else {
-				iter = xqp.executeXCommand(query, params, props);
+				iter = (Iterator<T>) xqp.executeXCommand(query, params, props);
 			}
 					
 			if (params != null) {
@@ -789,11 +831,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			execPool.execute(new Runnable() {
 				@Override
 				public void run() {
-					//try {
 					fetchResults(iter, props, cursor);
-					//} catch (BagriException ex) {
-					//	throw new RuntimeException(ex);
-					//}
 					cursor.finish();
 				}
 			});
@@ -812,11 +850,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			execPool.execute(new Runnable() {
 				@Override
 				public void run() {
-					//try {
 					fetchAndCacheResults(ctx, query, params, iter, props, cursor, returnUris);
-					//} catch (BagriException ex) {
-					//	throw new RuntimeException(ex);
-					//}
 					cursor.finish();
 				}
 			});
@@ -827,8 +861,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return cursor;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void fetchResults(Iterator results, Properties props, ResultCursorBase cursor) {
+	private <T> void fetchResults(Iterator<T> results, Properties props, ResultCursorBase<T> cursor) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		if (fetchSize > 0) {
 			int cnt = 0;
@@ -843,25 +876,22 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 
-	private void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator results, Properties props, ResultCursorBase cursor, boolean returnUris) {
+	private <T> void fetchAndCacheResults(QueryExecContext ctx, String query, Map<String, Object> params, Iterator<T> results, Properties props, 
+			ResultCursorBase<T> cursor, boolean returnUris) {
 		int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 		List<Object> resList;
-		Iterator uris = ctx.getDocKeys().values().iterator();
-		if (fetchSize > 0) {
-			resList = new ArrayList<>(fetchSize);
-			int cnt = 0;
-			while (results.hasNext() && cnt < fetchSize) {
-				Object o = results.next();
-				resList.add(o);
-				cursor.add(returnUris ? uris.next() : o);
-				cnt++;
+		if (returnUris) {
+			Iterator<String> uris = ctx.getDocKeys().values().iterator();
+			if (fetchSize > 0) {
+				resList = collectResults(results, uris, cursor, fetchSize);
+			} else {
+				resList = collectResults(results, uris, cursor);
 			}
 		} else {
-			resList = new ArrayList<>();
-			while (results.hasNext()) {
-				Object o = results.next();
-				resList.add(o);
-				cursor.add(returnUris ? uris.next() : o);
+			if (fetchSize > 0) {
+				resList = collectResults(results, cursor, fetchSize);
+			} else {
+				resList = collectResults(results, cursor);
 			}
 		}
 		
@@ -876,6 +906,51 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			updateStats(query, 1, resList.size());
 			logger.trace("fetchAndCacheResults.exit; stored results: {} for key: {}", xqr, qpKey);
 		}
+	}
+	
+	private <T> List<Object> collectResults(Iterator<T> results, ResultCursorBase<T> cursor) {
+		List<Object> resList = new ArrayList<>();
+		while (results.hasNext()) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add(o);
+		}
+		return resList;
+	}
+
+	private <T> List<Object> collectResults(Iterator<T> results, ResultCursorBase<T> cursor, int fetchSize) {
+		List<Object> resList = new ArrayList<>(fetchSize);
+		int cnt = 0;
+		while (results.hasNext() && cnt < fetchSize) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add(o);
+			cnt++;
+		}
+		return resList;
+	}
+
+	// not sure uries are in synch with results.. can bet NoSuchElementException here and below..
+	private <T> List<Object> collectResults(Iterator<T> results, Iterator<String> uris, ResultCursorBase<T> cursor) {
+		List<Object> resList = new ArrayList<>();
+		while (results.hasNext()) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add((T) uris.next());
+		}
+		return resList;
+	}
+
+	private <T> List<Object> collectResults(Iterator<T> results, Iterator<String> uris, ResultCursorBase<T> cursor, int fetchSize) {
+		List<Object> resList = new ArrayList<>(fetchSize);
+		int cnt = 0;
+		while (results.hasNext() && cnt < fetchSize) {
+			T o = results.next();
+			resList.add(o);
+			cursor.add((T) uris.next());
+			cnt++;
+		}
+		return resList;
 	}
 
 	private <T> ResultCursorBase<T> getResultCursor(Properties props) {
@@ -902,17 +977,21 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			}
 		}
-		logger.trace("getResultCursor.exit; returning {} for props {}", cursor, props);
+		logger.trace("getResultCursor.exit; created {} for props {}", cursor, props);
 		return cursor;
 	}
 
 	
 	private class QueryExecContext {
 		
+		private Properties props;
 		private Map<Long, String> docKeys;
+		private Map<String, Object> params;
 		
 		void clear() {
 			this.docKeys = null;
+			this.props = null;
+			this.params = null;
 		}
 		
 		Map<Long, String> getDocKeys() {
@@ -922,10 +1001,37 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return docKeys;
 		}
 		
+		Properties getProperties() {
+			if (props == null) {
+				return new Properties();
+			}
+			return props;
+		}
+		
+		Map<String, Object> getParameters() {
+			if (params == null) {
+				return Collections.emptyMap();
+			}
+			return params;
+		}
+		
 		void setDocKeys(Map<Long, String> docKeys) {
 			this.docKeys = docKeys;
 		}
 		
+		void setProperties(Properties props) {
+			this.props = props;
+		}
+		
+		void setParameters(Map<String, Object> params) {
+			this.params = params;
+		}
+		
+		void reset(Properties props, Map<String, Object> params) {
+			this.docKeys = null;
+			this.props = props;
+			this.params = params;
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.core.Constants.bg_prefix;
 import static com.bagri.xquery.saxon.SaxonUtils.*; 
 
 import java.io.Reader;
@@ -42,19 +43,6 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Parameter;
 import com.bagri.core.system.XQueryTrigger;
 import com.bagri.core.xquery.api.XQCompiler;
-import com.bagri.xquery.saxon.ext.doc.GetDocumentContent;
-import com.bagri.xquery.saxon.ext.doc.GetDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.QueryDocumentUris;
-import com.bagri.xquery.saxon.ext.doc.RemoveDocuments;
-import com.bagri.xquery.saxon.ext.doc.RemoveDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocument;
-import com.bagri.xquery.saxon.ext.doc.StoreDocumentFromMap;
-import com.bagri.xquery.saxon.ext.http.HttpGet;
-import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
-import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
-import com.bagri.xquery.saxon.ext.tx.RollbackTransaction;
-import com.bagri.xquery.saxon.ext.util.GetUuid;
-import com.bagri.xquery.saxon.ext.util.LogOutput;
 import com.bagri.xquery.saxon.ext.util.StaticFunctionExtension;
 
 public class XQCompilerImpl implements XQCompiler {
@@ -352,13 +340,15 @@ public class XQCompilerImpl implements XQCompiler {
 
 				for (Annotation atn: atns) {
 					String aName = atn.getAnnotationQName().getDisplayName();
-					if (aName.startsWith("rest:")) {
-						result.addAnnotation(aName, null);
+					if (aName.startsWith(bg_prefix) || aName.startsWith("rest:")) {
+						List<String> values = null;
 						if (atn.getAnnotationParameters() != null) {
+							values = new ArrayList<>(atn.getAnnotationParameters().size()); 
 							for (AtomicValue av: atn.getAnnotationParameters()) {
-								result.addAnnotation(aName, av.getStringValue());
-							}								
+								values.add(av.getStringValue());
+							}				
 						}
+						result.addAnnotation(aName, values);
 					}
 				}
 				

@@ -80,6 +80,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.core.server.api.SchemaRepository) xRepo);
         config.setModuleURIResolver(mResolver);
         dqc.setUnparsedTextURIResolver(sResolver);
+    	//config.setCompileWithTracing(logger.isDebugEnabled());
         //sqc.setCodeInjector(new CodeInjectorImpl());
     }
 
@@ -143,7 +144,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         	clnFinder.setExpression(xqExp);
 
 	        stamp = System.currentTimeMillis() - stamp;
-		    logger.trace("execQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params, stamp);
+		    logger.debug("execQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params, stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
@@ -282,6 +283,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	}
     	return false;
     }
+
+	@Override
+	public void clearLocalCache() {
+		logger.debug("clearLocalCache.enter; cache size before clear: {}", queries.size());
+		queries.clear();
+	}
     
 }
 

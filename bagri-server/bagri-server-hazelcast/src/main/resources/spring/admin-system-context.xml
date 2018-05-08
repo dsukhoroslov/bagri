@@ -259,6 +259,8 @@
                 <prop key="bdb.rest.jmx">${bdb.rest.jmx:true}</prop>
                 <prop key="bdb.rest.port">${bdb.rest.port:3030}</prop>
                 <prop key="bdb.rest.auth.port">${bdb.rest.auth.port:3443}</prop>
+                <prop key="bdb.rest.accept.pool">${bdb.rest.accept.pool:4}</prop>
+                <prop key="bdb.rest.thread.pool">${bdb.rest.thread.pool:100}</prop>
             </props>
 		</constructor-arg>
 	</bean>

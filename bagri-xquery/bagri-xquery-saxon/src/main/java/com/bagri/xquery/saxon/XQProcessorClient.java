@@ -178,4 +178,9 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		return isQueryReadOnly(query);
 	}
 
+	@Override
+	public void clearLocalCache() {
+		// no-op on client side
+	}
+
 }

@@ -5,13 +5,10 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_CLIENT;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.xml.xquery.XQItem;
@@ -21,11 +18,9 @@ import javax.xml.xquery.XQSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.client.hazelcast.serialize.SystemSerializationFactory;
 import com.bagri.client.hazelcast.serialize.XQItemSerializer;
 import com.bagri.client.hazelcast.serialize.XQItemTypeSerializer;
 import com.bagri.client.hazelcast.serialize.XQSequenceSerializer;
-import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.xqj.BagriXQDataFactory;
 import com.hazelcast.client.HazelcastClient;
@@ -41,7 +36,8 @@ public class ClientManagementImpl {
     private final static Logger logger = LoggerFactory.getLogger(ClientManagementImpl.class);
     private final static String key_separator = "::"; 
 	
-    private final static Map<String, ClientContainer> clients = new HashMap<>();
+    private final static Map<String, String> ids = new ConcurrentHashMap<>();
+    private final static Map<String, ClientContainer> clients = new ConcurrentHashMap<>();
     
     public HazelcastInstance connect(final String clientId, Properties props) {
 		ClientContainer cc = null;
@@ -49,15 +45,16 @@ public class ClientManagementImpl {
     	boolean shareConnect = Boolean.parseBoolean(props.getProperty(pn_client_sharedConnection, "true"));
 		synchronized (clients) {
 			// register ShutdownHook
-			//if (clients.isEmpty()) {
-			//	Runtime.getRuntime().addShutdownHook(new ClientTerminationHook());
-			//}
+			if (clients.isEmpty()) {
+				Runtime.getRuntime().addShutdownHook(new ClientTerminationHook());
+			}
 			
 			if (shareConnect) {
 				cc = clients.get(cKey);
 			} else {
-				cKey += clientId;
+				cKey += key_separator + clientId;
 			}
+			ids.put(clientId, cKey);
    			if (cc == null) {
    				HazelcastInstance hzClient = initializeHazelcast(props);
    				cc = new ClientContainer(cKey, hzClient);
@@ -73,18 +70,17 @@ public class ClientManagementImpl {
     }
 
     public void connect(final String clientId, HazelcastClientProxy hzProxy) {
-    	ClientContainer cc = null;
     	String cKey = getConnectKey(hzProxy);
-		synchronized (clients) {
-			cc = clients.get(cKey);
-   			if (cc == null) {
-   				cc = new ClientContainer(cKey, hzProxy);
-   				clients.put(cKey, cc);
-				logger.info("connect; new container created for clientId: {}", clientId);
-   			} else {
-   				// check password -> authenticate(); ??
-   			}
+    	ClientContainer cNew = new ClientContainer(cKey, hzProxy);
+    	//ClientContainer cOld = clients.putIfAbsent(cKey, cNew);
+    	ClientContainer cOld = clients.put(cKey, cNew);
+    	if (cOld == null) {
+			logger.info("connect; new container created for clientId: {}", clientId);
+		} else {
+			// check password -> authenticate(); ??
+			cNew = cOld;
 		}
+    	ids.put(clientId, cKey);
 		Properties props = new Properties();
     	ClientConfig config = hzProxy.getClientConfig(); 
 		props.setProperty(pn_schema_name, config.getGroupConfig().getName());
@@ -92,7 +88,7 @@ public class ClientManagementImpl {
 		props.setProperty(pn_schema_user, config.getCredentials().getPrincipal());
 		props.setProperty(pn_client_smart, String.valueOf(config.getNetworkConfig().isSmartRouting()));
 		props.setProperty(pn_client_bufferSize, String.valueOf(config.getNetworkConfig().getSocketOptions().getBufferSize()));
-		addClient(cc, clientId, props);
+		addClient(cNew, clientId, props);
     }
     
     private void addClient(final ClientContainer cc, final String clientId, Properties props) {
@@ -102,8 +98,6 @@ public class ClientManagementImpl {
     		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
     		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
     		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString());
-    		//clientId = proxy.getLocalEndpoint().getUuid();
-
     		clientProps.put(clientId, props);
 			logger.debug("addClient; got new connection for clientId: {}", clientId);
     	} else {
@@ -112,44 +106,44 @@ public class ClientManagementImpl {
     }
     
     public static void disconnect(final String clientId) {
-    	ClientContainer found = null;
-    	synchronized (clients) {
-        	Iterator<ClientContainer> itr = clients.values().iterator();
-        	while (itr.hasNext()) {
-        		ClientContainer cc = itr.next();
-	    		if (cc.removeClient(clientId)) {
-	    			found = cc;
-	        		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, found.getSize());
-					try {
-						ReplicatedMap<String, Properties> clientProps = cc.hzInstance.getReplicatedMap(CN_XDM_CLIENT);
-						clientProps.remove(clientId);
-					} catch (Exception ex) {
-						logger.info("disconnect; it seems the server has been stopped already");
-					}
-	        		break;
-	    		}
-	    	}
-    	}	
-
-    	if (found != null) {
-    		if (found.isEmpty()) {
-    			if (clients.remove(found.clientKey) != null) {
+   		logger.debug("disconnect; disconnecting client: {}", clientId);
+    	String cKey = ids.remove(clientId);
+    	boolean hzShutdown = false;
+    	ClientContainer cc = clients.get(cKey);
+    	if (cc != null) { 
+    		cc.removeClient(clientId);
+       		logger.trace("disconnect; client: {}; clients left in container: {}", clientId, cc.getSize());
+       		
+			if (cc.isEmpty()) {
+        		if (clients.remove(cc.clientKey) != null) {
 					logger.debug("disconnect; client container is empty, disposed");
+					hzShutdown = true;
     			} else {
-					logger.info("disconnect; can't remove container for found key: {}", found.clientKey);
-    			}
-    			if (found.hzInstance.getLifecycleService().isRunning()) {
-					logger.info("disconnect; shuting down HZ instance: {}", found.hzInstance);
-					// probably, should do something like this:
-					//execService.awaitTermination(100, TimeUnit.SECONDS);
-					found.hzInstance.shutdown();
-					logger.trace("disconnect; instance disconnected");
-				} else {
-					logger.info("disconnect; attempted to shutdown not-running client!");
-				}
+					logger.info("disconnect; concurrently removing container for found key: {}", cc.clientKey);
+	    		}
     		} else  {
-				logger.debug("disconnect; disconnected  client: {}; remaining clients: {}", clientId, found.getSize());
+				logger.debug("disconnect; disconnected  client: {}; remaining clients: {}", clientId, cc.getSize());
 			}
+
+			final boolean shutdown = hzShutdown;
+			final HazelcastInstance hzClient = cc.hzInstance;
+			new Thread() {
+				@Override
+				public void run() {
+					if (hzClient.getLifecycleService().isRunning()) {
+						ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
+						clientProps.remove(clientId);
+						if (shutdown) {
+							logger.info("disconnect; shutting down HZ instance: {}", hzClient.getLocalEndpoint().getUuid());
+							long stamp = System.currentTimeMillis();
+							hzClient.getLifecycleService().shutdown();
+							logger.info("disconnect; instance shutdown, time taken: {}", System.currentTimeMillis() - stamp);
+						}
+					} else {
+						logger.info("disconnect; attempted to shutdown not-running client!");
+					}
+				}
+			}.start();
     	} else {
     		logger.info("disconnect; can't find container for client: {}; clients: {}", clientId, clients);
     	}
@@ -299,10 +293,6 @@ public class ClientManagementImpl {
 			return clientIds.add(clientId);
 		}
 		
-		Set<String> getClients() {
-			return clientIds;
-		}
-		
 		int getSize() {
 			return clientIds.size();
 		}
@@ -330,15 +320,23 @@ public class ClientManagementImpl {
 		
 		@Override
 		public void run() {
-			synchronized (clients) {
-	        	Iterator<ClientContainer> itr = clients.values().iterator();
-	        	while (itr.hasNext()) {
-	        		ClientContainer cc = itr.next();
-	        		for (String clientId: cc.getClients()) {
-	        			disconnect(clientId);
-	        		}
-	        	}
-			}			
+			String[] cids = ids.keySet().toArray(new String[ids.size()]);
+			for (String clientId: cids) {
+       				disconnect(clientId);
+			}
+			// causes NPEs on the server side!
+			//ids.clear();
+			//for (ClientContainer cc: clients.values()) {
+			//	HazelcastInstance hzClient = cc.hzInstance;
+			//	if (hzClient.getLifecycleService().isRunning()) {
+			//		ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
+			//		clientProps.clear();
+			//		logger.info("terminate; shutting down HZ instance: {}", hzClient.getLocalEndpoint().getUuid());
+			//		hzClient.getLifecycleService().shutdown();
+			//		logger.info("terminate; instance shutdown");
+			//	}
+			//}
+			//clients.clear();
 		}
 		
 	}

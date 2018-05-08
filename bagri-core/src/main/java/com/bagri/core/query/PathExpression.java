@@ -94,6 +94,14 @@ public class PathExpression extends Expression {
 	}
 	
 	/**
+	 * 
+	 * @param paramName the parameter name value
+	 */
+	public void setParamName(String paramName) {
+		this.paramName = paramName;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

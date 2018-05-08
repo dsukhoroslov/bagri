@@ -42,4 +42,17 @@ public enum Cardinality {
     	return this.ordinal() == zero_or_one.ordinal() || this.ordinal() == zero_or_more.ordinal(); 
     }
 
+    public boolean isMultiple() {
+    	return this.ordinal() == one_or_more.ordinal() || this.ordinal() == zero_or_more.ordinal(); 
+    }
+    
+    public String shortPresentation() {
+    	switch (this) {
+    		case one_or_more: return "+";
+    		case zero_or_one: return "?";
+    		case zero_or_more: return "*";
+    	}
+    	return "";
+    }
+
 }

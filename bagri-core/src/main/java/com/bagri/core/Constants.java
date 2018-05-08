@@ -34,6 +34,12 @@ public class Constants {
 
 	public static final String pn_client_fetchAsynch = "bdb.client.fetchAsynch";
 	public static final String pn_client_fetchSize = "bdb.client.fetchSize";
+	public static final String pn_client_fetchType = "bdb.client.fetchType";
+
+	public static final String pv_client_fetchType_asynch = "asynch";
+	public static final String pv_client_fetchType_fixed = "fixed";
+	public static final String pv_client_fetchType_queued = "queued";
+	
 	public static final String pn_client_healthCheck = "bdb.client.healthCheck";
 	public static final String pn_client_loginTimeout = "bdb.client.loginTimeout";
 	public static final String pn_client_dataFactory = "bdb.client.dataFactory";
@@ -74,6 +80,11 @@ public class Constants {
     public static final String pv_document_data_source_xml = "XML"; 
 
 	public static final String pn_query_command = "bdb.query.command";
+	public static final String pn_query_customPaths = "bdb.query.customPaths";
+	public static final String pn_query_splitBy = "bdb.query.splitBy";
+	
+	//  %bgdb:property("bdb.rest.chunkAs", "json")
+	//  %bgdb:property("bdb.query.splitBy", "pids")
 	
 	// XDM Server configuration constants
 	public static final String pn_cluster_login = "bdb.cluster.login";
@@ -88,6 +99,8 @@ public class Constants {
     public static final String pn_rest_jmx = "bdb.rest.jmx";
     public static final String pn_rest_port = "bdb.rest.port";
     public static final String pn_rest_auth_port = "bdb.rest.auth.port";
+    public static final String pn_rest_accept_pool = "bdb.rest.accept.pool";
+    public static final String pn_rest_thread_pool = "bdb.rest.thread.pool";
     
     public static final String pn_access_filename = "bdb.access.filename";
     public static final String pn_config_filename = "bdb.config.filename";
@@ -111,6 +124,7 @@ public class Constants {
     public static final String pn_schema_population_size = "bdb.schema.population.size";
     public static final String pn_schema_population_buffer_size = "bdb.schema.population.buffer.size";
     public static final String pn_schema_fetch_size = "bdb.schema.fetch.size";
+    public static final String pn_schema_publish_counters = "bdb.schema.publish.counters";
     public static final String pn_schema_query_cache = "bdb.schema.query.cache";
     public static final String pn_schema_tx_level = "bdb.schema.transaction.level";
     public static final String pn_schema_tx_timeout = "bdb.schema.transaction.timeout";
@@ -142,9 +156,10 @@ public class Constants {
 	public static final String xs_ns = "http://www.w3.org/2001/XMLSchema";
 
 	public static final String bg_schema = "bgdb";
+	public static final String bg_prefix = bg_schema + ":";
 	public static final String bg_ns = "http://bagridb.com/bdb";
 
-	public static final String bg_version = "1.2.0";
+	public static final String bg_version = "1.2.1";
 	
 	public static final String dc_ns = "http://www.w3.org/2005/xpath-functions/collation/codepoint";
 	public static final String df_ns = "http://www.w3.org/2005/xpath-functions";
@@ -191,12 +206,11 @@ public class Constants {
 	public static final String cmd_remove_document = "remove-document";
 	public static final String cmd_remove_cln_documents = "remove-collection-documents";
 	public static final String cmd_store_document = "store-document";
-	public static final String cmd_store_document_map = "store-document-map";
 	
 	// updating functions
-	public static final String bg_remove_document = bg_schema + ":" + cmd_remove_document;
-	public static final String bg_remove_cln_documents = bg_schema + ":" + cmd_remove_cln_documents;
-	public static final String bg_store_document = bg_schema + ":" + cmd_store_document;
+	public static final String bg_remove_document = bg_prefix + cmd_remove_document;
+	public static final String bg_remove_cln_documents = bg_prefix + cmd_remove_cln_documents;
+	public static final String bg_store_document = bg_prefix + cmd_store_document;
 	
 	public static int propToInt(String property) {
 		switch (property) {
@@ -218,18 +232,21 @@ public class Constants {
 			case pn_client_memberId: return 16; 
 			case pn_client_fetchAsynch: return 17;
 			case pn_client_fetchSize: return 18;
-			case pn_client_healthCheck: return 19;
-			case pn_client_loginTimeout: return 20;
-			case pn_client_dataFactory: return 21;
-			case pn_client_pageSize: return 22;
-			case pn_client_customAuth: return 23;
-			case pn_client_queryCache: return 24;
-			case pn_client_storeMode: return 25;
-			case pn_client_submitTo: return 26;
-			case pn_client_ownerParam: return 27;
-			case pn_client_sharedConnection: return 28;
+			case pn_client_fetchType: return 19;
+			case pn_client_healthCheck: return 20;
+			case pn_client_loginTimeout: return 21;
+			case pn_client_dataFactory: return 22;
+			case pn_client_pageSize: return 23;
+			case pn_client_customAuth: return 24;
+			case pn_client_queryCache: return 25;
+			case pn_client_storeMode: return 26;
+			case pn_client_submitTo: return 27;
+			case pn_client_ownerParam: return 28;
+			case pn_client_sharedConnection: return 29;
 			
 			case pn_query_command: return 40;
+			case pn_query_customPaths: return 41;
+			case pn_query_splitBy: return 42;
 
 			case pn_document_collections: return 50;
 			case pn_document_data_format: return 51;
@@ -239,7 +256,7 @@ public class Constants {
 			case pn_document_compress: return 55;
 			case pn_document_cache_content: return 56;
 			case pn_document_cache_elements: return 57;
-
+			
 			case pn_xqj_baseURI: return 100;
 			case pn_xqj_constructionMode: return 101;
 			case pn_xqj_defaultCollationUri: return 102;
@@ -280,18 +297,21 @@ public class Constants {
 			case 16: return pn_client_memberId; 
 			case 17: return pn_client_fetchAsynch;
 			case 18: return pn_client_fetchSize;
-			case 19: return pn_client_healthCheck;
-			case 20: return pn_client_loginTimeout;
-			case 21: return pn_client_dataFactory;
-			case 22: return pn_client_pageSize;
-			case 23: return pn_client_customAuth;
-			case 24: return pn_client_queryCache;
-			case 25: return pn_client_storeMode;
-			case 26: return pn_client_submitTo;
-			case 27: return pn_client_ownerParam;
-			case 28: return pn_client_sharedConnection;
+			case 19: return pn_client_fetchType;
+			case 20: return pn_client_healthCheck;
+			case 21: return pn_client_loginTimeout;
+			case 22: return pn_client_dataFactory;
+			case 23: return pn_client_pageSize;
+			case 24: return pn_client_customAuth;
+			case 25: return pn_client_queryCache;
+			case 26: return pn_client_storeMode;
+			case 27: return pn_client_submitTo;
+			case 28: return pn_client_ownerParam;
+			case 29: return pn_client_sharedConnection;
 
 			case 40: return pn_query_command;
+			case 41: return pn_query_customPaths;
+			case 42: return pn_query_splitBy;
 			
 			case 50: return pn_document_collections;
 			case 51: return pn_document_data_format;

@@ -120,6 +120,8 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 		assertEquals(2, docs.size());
 		docs = dMgr.getDocuments("createdBy = guest, txFinish = 0", props);
 		assertEquals(6, uris.size());
+		docs = dMgr.getDocuments("uri > security16, txFinish = 0", props);
+		assertEquals(3, docs.size());
 	}
 	
 	@Test

@@ -23,6 +23,7 @@ import com.bagri.server.hazelcast.task.library.LibraryCreator;
 import com.bagri.server.hazelcast.task.library.LibraryRemover;
 import com.bagri.server.hazelcast.task.model.ModelRegistrator;
 import com.bagri.server.hazelcast.task.module.ModuleCreator;
+import com.bagri.server.hazelcast.task.module.ModuleReloader;
 import com.bagri.server.hazelcast.task.module.ModuleRemover;
 import com.bagri.server.hazelcast.task.node.NodeCreator;
 import com.bagri.server.hazelcast.task.node.NodeDistributionProvider;
@@ -100,6 +101,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	
 	public static final int cli_CreateModuleTask = 230;
 	public static final int cli_DeleteModuleTask = 231;
+	public static final int cli_ReloadModuleTask = 232;
 
 	public static final int cli_CreateNodeTask = 235;
 	public static final int cli_UpdateNodeTask = 236;
@@ -193,6 +195,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_DeleteLibraryTask: return new LibraryRemover();
 			case cli_CreateModuleTask: return new ModuleCreator();
 			case cli_DeleteModuleTask: return new ModuleRemover();
+			case cli_ReloadModuleTask: return new ModuleReloader();
 			case cli_CreateNodeTask: return new NodeCreator();
 			case cli_UpdateNodeTask: return new NodeUpdater();
 			case cli_DeleteNodeTask: return new NodeRemover();

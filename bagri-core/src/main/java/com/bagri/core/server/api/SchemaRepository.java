@@ -67,6 +67,12 @@ public interface SchemaRepository extends com.bagri.core.api.SchemaRepository {
 	
 	/**
 	 * 
+	 * @return the underlying cache server entry point;
+	 */
+	Object getCacheEngine();
+	
+	/**
+	 * 
 	 * @return key factory to generate various cache keys
 	 */
 	KeyFactory getFactory();

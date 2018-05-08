@@ -47,11 +47,13 @@ import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
+import com.hazelcast.query.TruePredicate;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.api.BagriException.*;
@@ -252,8 +254,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	Document getDocument(String uri) {
 		Document doc = ddSvc.getLastDocumentForUri(uri);
    		if (doc != null) {
-   			if (doc.getTxFinish() != TX_NO) { // || !txManager.isTxVisible(lastDoc.getTxFinish())) {
-   				logger.debug("getDocument; the latest document version is finished already: {}", doc);
+   			if (doc.getTxFinish() != TX_NO) { // && txManager.isTxVisible(doc.getTxFinish())) {
+   				logger.info("getDocument; the latest document version is finished already: {}", doc);
    				doc = null;
    			}
     	}
@@ -315,19 +317,21 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		long headMask = Long.parseLong(headers);
 		logger.trace("getDocumentInternal; returning document: {} for props: {}", doc, props);
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			// getConverter set dataFormat in props
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
-			logger.trace("getDocumentInternal; got content: {}", content);
+			//logger.trace("getDocumentInternal; got content: {}", content);
 			if (content == null) {
-				String dataFormat = props.getProperty(pn_document_data_format);
 				// build it and store in cache
 				// if docId is not local then buildDocument returns null!
 				// query docId owner node for the XML instead
 				if (ddSvc.isLocalKey(docKey)) {
+					// do this asynchronously!?
+					String dataFormat = props.getProperty(pn_document_data_format);
 					Map<String, Object> params = new HashMap<>();
 					params.put(":doc", doc.getTypeRoot());
 					java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
-					if (results.isEmpty()) {
+					if (!results.isEmpty()) {
 						content = results.iterator().next();
 						cntCache.set(docKey, content);
 					}
@@ -378,7 +382,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				throw new BagriException("No converter found from " + srcFormat + " to " + dataFormat, BagriException.ecDocument);
 			}
 		}
-		logger.trace("getConverter; returning {} for data format: {}, source format: {}, content type: {}", dataFormat, srcFormat, contentType);
+		logger.trace("getConverter; returning {} for data format: {}, source format: {}, content type: {}", cc, dataFormat, srcFormat, contentType);
 		return cc;
 	}
 	
@@ -433,6 +437,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Predicate<DocumentKey, Document> query;
 		if (pattern == null) {
 			query = Predicates.equal(fnTxFinish, TX_NO);
+			//query = new TruePredicate<>();
 		} else {
 			query = DocumentPredicateBuilder.getQuery(repo, pattern);
 		}
@@ -446,14 +451,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			fetchSize = 0;
 			headers = DocumentAccessor.HDR_URI_WITH_CONTENT;
 		}
-		if (fetchSize > 0) {
-			query = new LimitPredicate<>(fetchSize, query);
-		}
+		//if (fetchSize > 0) {
+		//	query = new LimitPredicate<>(fetchSize, query);
+		//}
 
 		int cnt = 0;
 		if (query != null) {
 			DocumentAccessorImpl dai;
-			java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+			java.util.Collection<Document> docs;
+			if (fetchSize == 0) {
+				docs = ddSvc.getLastDocumentsForQuery(query);
+			} else {
+				docs = ddSvc.getLastDocumentsForQuery(query, fetchSize);
+			}
 			if ((headers & DocumentAccessor.HDR_CONTENT) > 0) {
 				// doc & content
 				for (Document doc: docs) {
@@ -650,7 +660,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		// update statistics
 		for (String cln: clns) {
 			updateStats(cln, true, data.size(), doc.getFragments().length);
-			//updateStats(cln, true, paths.size(), doc.getFragments().length);
 		}
 		updateStats(null, true, data.size(), doc.getFragments().length);
 		return doc;
@@ -808,19 +817,24 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		updateStats(null, true, newDoc.getElements(), newDoc.getFragments().length);
 
+		boolean revisioned = docKey.getRevision() > 0;
 		Scope scope;
 		if (old.getValue() == null) {
 			scope = Scope.insert;
-	    	old.setValue(newDoc);
+			if (revisioned) {
+				docCache.set(docKey, newDoc);
+			} else {
+				old.setValue(newDoc);
+			}
 		} else {
 			scope = Scope.update;
-			if (txId == TX_NO) {
+			if (txId == TX_NO && !revisioned) {
 				old.setValue(newDoc);
 			} else {
 				docCache.set(docKey, newDoc);
-				//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 			}
 		}
+		//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 		cntCache.set(docKey, content);
 		
@@ -881,15 +895,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		return result;
 	}
+	
+	private AtomicInteger counter = new AtomicInteger(0);
+	
+	private int checkDocCount(int zo) {
+		int size = docCache.size();
+		int delta = counter.addAndGet(zo) - size;
+		if (delta != 0) {
+			counter.set(size);
+		}
+		return delta;
+	}
 
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
 		logger.trace("storeDocumentInternal.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
 			throw new BagriException("Empty URI passed", ecDocument);
 		}
-
+		
 		boolean update = false;
-		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri); //Revision
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
@@ -1230,7 +1255,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		Predicate<DocumentKey, Document> query = DocumentPredicateBuilder.getQuery(repo, pattern);
 
 		// remove local documents only?! yes!
-		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query, 0);
+		java.util.Collection<Document> docs = ddSvc.getLastDocumentsForQuery(query);
 
 		for (Document doc: docs) {
 			DocumentKey docKey = factory.newDocumentKey(doc.getDocumentKey());

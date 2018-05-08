@@ -1,6 +1,7 @@
 package com.bagri.core.query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +28,23 @@ public class PathBuilder {
 	 */
 	public PathBuilder(PathBuilder source) {
 		setPath(source);
+	}
+	
+	/**
+	 * 
+	 * @param source the source path 
+	 */
+	public PathBuilder(String source) {
+		this();
+		String[] parts = source.split("/");
+		for (String part: parts) {
+			if (part.length() > 0) {
+				AxisType axis = AxisType.fromString(part);
+				int shift = axis.getAxisLength();
+				// think about namespace?
+				addPathSegment(axis, null, part.substring(shift));
+			}
+		}
 	}
 	
 	/**
@@ -64,7 +82,7 @@ public class PathBuilder {
 	
 	/**
 	 * 
-	 * @return the last stored path segment is any
+	 * @return the last stored path segment if any
 	 */
 	public PathSegment getLastSegment() {
 		if (segments.size() > 0) {
@@ -75,7 +93,7 @@ public class PathBuilder {
 	
 	/**
 	 * 
-	 * @return tru if any internal path segment contains wildcard, false otherwise
+	 * @return true if any internal path segment contains wildcard, false otherwise
 	 */
 	public boolean hasRegex() {
 		for (PathSegment segment: segments) {
@@ -84,6 +102,15 @@ public class PathBuilder {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * removes the last stored path segment if any
+	 */
+	public void removeLastSegment() {
+		if (segments.size() > 0) {
+			segments.remove(segments.size() - 1);
+		}
 	}
 	
 	/**

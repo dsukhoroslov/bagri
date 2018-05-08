@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -68,7 +67,6 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 	private AtomicLong cntRolled = new AtomicLong(0);
     
 	private SchemaRepositoryImpl repo;
-    private HazelcastInstance hzInstance;
 	private Cluster cluster;
 	private IdGenerator<Long> txGen;
 	private ITopic<Counter> cTopic;
@@ -79,6 +77,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 
 	private TransactionIsolation txLevel = TransactionIsolation.readCommited;
 	private long txTimeout = 0;
+	private boolean publishCounters = true;
 	
     public void setRepository(SchemaRepositoryImpl repo) {
     	this.repo = repo;
@@ -87,7 +86,6 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
     }
 	
 	public void setHzInstance(HazelcastInstance hzInstance) {
-		this.hzInstance = hzInstance;
 		cluster = hzInstance.getCluster();
 		txCache = hzInstance.getMap(CN_XDM_TRANSACTION);
 		txGen = new IdGeneratorImpl(hzInstance.getAtomicLong(SQN_TRANSACTION));
@@ -98,14 +96,18 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		execService = hzInstance.getExecutorService(PN_XDM_TRANS_POOL);
 	}
 	
-	public TransactionIsolation getTransactionLevel() {
-		return txLevel;
-	}
-	
     public void setExecPool(ExecutorService execSvc) {
     	this.execPool = execSvc;
     }
     
+    public void setPublishCounters(boolean publishCounters) {
+    	this.publishCounters = publishCounters;
+    }
+    
+	public TransactionIsolation getTransactionLevel() {
+		return txLevel;
+	}
+	
 	public void setTransactionLevel(String txLevel) throws BagriException {
 		logger.debug("setTransactionLevel.enter; got tx level: {}", txLevel);
 		if (txLevel == null || txLevel.isEmpty() || txLevel.equals(pv_client_txLevel_skip)) {
@@ -177,7 +179,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		thTx.set(TX_NO);
 		cntCommited.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Order.after, Scope.commit); 
-		cTopic.publish(new Counter(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		publishCounters(true, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted());
 		cleanAffectedDocuments(xTx);
 		logger.trace("commitTransaction.exit; tx: {}", xTx); 
 	}
@@ -197,7 +199,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		thTx.set(TX_NO);
 		cntRolled.incrementAndGet();
 		triggerManager.applyTrigger(xTx, Order.after, Scope.rollback); 
-		cTopic.publish(new Counter(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted()));
+		publishCounters(false, xTx.getDocsCreated(), xTx.getDocsUpdated(), xTx.getDocsDeleted());
 		cleanAffectedDocuments(xTx);
 		logger.trace("rollbackTransaction.exit; tx: {}", xTx); 
 	}
@@ -239,7 +241,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		
         Transaction txClean = null;
 		DocumentCleaner cleaner = new DocumentCleaner(xTx);
-		if (hzInstance.getCluster().getMembers().size() > 1) {
+		if (cluster.getMembers().size() > 1) {
 			// synchronous cleaning.. causes a deadlock if used from the common schema exec-pool. 
 			// that is why we use separate exec-pool for transaction tasks
 			Map<Member, Future<Transaction>> values = execService.submitToAllMembers(cleaner);
@@ -322,7 +324,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 		return commited; 
 	}
 	
-	void updateCounters(final int created, final int updated, final int deleted) throws BagriException {
+	void updateCounters(int created, int updated, int deleted) throws BagriException {
 		long txId = getCurrentTxId();
 		if (txId > TX_NO) {
 			Transaction xTx = txCache.get(txId);
@@ -333,14 +335,7 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 				throw new BagriException("no transaction found for TXID: " + txId, ecTransNotFound);
 			}
 		} else {
-			//throw new BagriException("not in transaction", ecTransWrongState);
-			//cTopic.publish(new Counter(true, created, updated, deleted));
-			execPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					cTopic.publish(new Counter(true, created, updated, deleted));
-				}
-			});
+			publishCounters(true, created, updated, deleted);
 		}
 	}
 	
@@ -464,5 +459,16 @@ public class TransactionManagementImpl implements TransactionManagement, Statist
 			logger.info("completeTransaction; got complete response for unknown tx: {}", txClean);
 		}
 	}
-
+	
+	private void publishCounters(final boolean commit, final int created, final int updated, final int deleted) {
+		//cTopic.publish(new Counter(commit, created, updated, deleted));
+		if (publishCounters) {
+			execPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					cTopic.publish(new Counter(commit, created, updated, deleted));
+				}
+			});
+		}
+	}
 }

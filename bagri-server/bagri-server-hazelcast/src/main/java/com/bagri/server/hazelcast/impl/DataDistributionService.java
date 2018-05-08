@@ -6,15 +6,14 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_ELEMENT;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_INDEX;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_KEY;
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_RESULT;
+import static com.bagri.core.model.Document.dvFirst;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -24,25 +23,19 @@ import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
+import com.bagri.core.KeyFactory;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Elements;
-import com.hazelcast.aggregation.Aggregators;
-import com.hazelcast.core.IMap;
 import com.hazelcast.internal.serialization.InternalSerializationService;
-import com.hazelcast.map.impl.MapEntries;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
 import com.hazelcast.map.impl.mapstore.MapDataStore;
-import com.hazelcast.map.impl.query.AggregationResult;
 import com.hazelcast.map.impl.query.Query;
-import com.hazelcast.map.impl.query.QueryPartitionOperation;
 import com.hazelcast.map.impl.query.QueryResult;
 import com.hazelcast.map.impl.query.QueryResultRow;
-import com.hazelcast.map.impl.query.Result;
+import com.hazelcast.map.impl.query.ResultSegment;
 import com.hazelcast.map.impl.recordstore.RecordStore;
-import com.hazelcast.mapreduce.aggregation.Aggregations;
 import com.hazelcast.nio.serialization.Data;
-import com.hazelcast.query.PartitionPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import com.hazelcast.spi.ManagedService;
@@ -53,8 +46,13 @@ public class DataDistributionService implements ManagedService {
 
     private static final transient Logger logger = LoggerFactory.getLogger(DataDistributionService.class);
 
+	private KeyFactory factory;
     private NodeEngine nodeEngine;
     
+    public void setFactory(KeyFactory factory) {
+    	this.factory = factory;
+    }
+
 	@Override
 	public void init(NodeEngine nodeEngine, Properties properties) {
 		logger.info("init; properties: {}", properties);
@@ -194,29 +192,45 @@ public class DataDistributionService implements ManagedService {
 		return mapCtx.getExistingRecordStore(partitionId, storeName);
 	}
 	
-	public DocumentKey getLastPartKeyForUri(String uri) {
-		IMap<DocumentKey, Document> xdd = nodeEngine.getHazelcastInstance().getMap(CN_XDM_DOCUMENT);
-		Predicate<DocumentKey, Document> pp = new PartitionPredicate(uri.hashCode(), Predicates.equal("uri", uri));
-		Set<DocumentKey> keys = xdd.keySet(pp);
+	public DocumentKey getLastRevisionKeyForUri(String uri) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Integer hash = uri.hashCode();
+		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("__key#hash", hash), IterationType.ENTRY, null, null); 
 		DocumentKey last = null;
-		for (DocumentKey key: keys) {
-			if (last == null) {
-				last = key;
-			} else {
-				if (key.getVersion() > last.getVersion()) {
+		boolean foundUri = false;
+
+		// this one just scans partition, it does not use index
+		//QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runPartitionIndexOrPartitionScanQueryOnGivenOwnedPartition(query, partId);
+		QueryResult rs;
+		try {
+			rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastKeyForUri.error: ", ex);
+			return null;
+		}
+		
+		for (QueryResultRow row: rs.getRows()) {
+			DocumentKey key = nodeEngine.toObject(row.getKey());
+			Document doc = nodeEngine.toObject(row.getValue());
+			if (uri.equals(doc.getUri())) {
+				if (!foundUri || key.getVersion() > last.getVersion()) {
 					last = key;
-				}
+				} 
+				foundUri = true;
+				continue;
+			}
+
+			if (!foundUri && (last == null || key.getRevision() > last.getRevision())) {
+				last = key;
 			}
 		}
-		// alternatively, can run it on partition via QueryPartitionOperation:
-		//QueryPartitionOperation op = new QueryPartitionOperation(query);
-		//op.setMapService(svc);
-		//int partId = nodeEngine.getPartitionService().getPartitionId(uri.hashCode());
-		//op.setPartitionId(partId);
-		//op.beforeRun();
-		//op.run();
-		//QueryResult rs = (QueryResult) op.getResponse();
-		logger.trace("getLastPartKeyForUri; uri: {}; returning: {}", uri, last);
+
+		if (!foundUri && last != null) {
+			last = factory.newDocumentKey(uri, last.getRevision() + 1, dvFirst);
+		}
+
+		logger.trace("getLastRevisionKeyForUri; uri: {}; returning: {}", uri, last);
 		return last;
 	}
 
@@ -224,25 +238,20 @@ public class DataDistributionService implements ManagedService {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("uri", uri), IterationType.KEY, null, null);
+		DocumentKey last = null;
 		try {
-			DocumentKey last = null;
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
 			for (QueryResultRow row: rs.getRows()) {
 				DocumentKey key = nodeEngine.toObject(row.getKey());
-				if (last == null) {
+				if (last == null || key.getVersion() > last.getVersion()) {
 					last = key;
-				} else {
-					if (key.getVersion() > last.getVersion()) {
-						last = key;
-					}
 				}
 			}
-			logger.trace("getLastKeyForUri; uri: {}; returning: {}", uri, last);
-			return last;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("getLastKeyForUri.error: ", ex);
 		}
-		return null;
+		logger.trace("getLastKeyForUri; uri: {}; returning: {}", uri, last);
+		return last;
 		//List<DocumentKey> keys = getCachedObject(CN_XDM_KEY, new UrlHashKey(uri), true);
 		//if (keys != null) {
 		//	return keys.get(keys.size() - 1);
@@ -250,80 +259,147 @@ public class DataDistributionService implements ManagedService {
 		//return null;
 	}
 
+	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.KEY, null, null);
+		List<DocumentKey> results = new ArrayList<>();
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			// TODO: we must take latest keys only..
+			for (QueryResultRow row: rs.getRows()) {
+				DocumentKey key = nodeEngine.toObject(row.getKey());
+				results.add(key);
+			}
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastDocumentsForQuery.error: ", ex);
+		}
+		logger.trace("getLastKeysForQuery; query: {}; returning: {}", query, results.size());
+		return results;
+	}
+
 	public Collection<DocumentKey> getLastKeysForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.KEY, null, null);
-		List<DocumentKey> results;
-		try {
-			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
-			results = new ArrayList<>(fetchSize);
-			for (QueryResultRow row: rs.getRows()) {
-				DocumentKey key = nodeEngine.toObject(row.getKey());
-				results.add(key);
-				if (fetchSize > 0 && results.size() == fetchSize) {
-					break;
+		List<DocumentKey> results = new ArrayList<>();
+		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
+		for (Integer partId: parts) {
+			int shift = 0;
+			do {
+				ResultSegment rs = mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runPartitionScanQueryOnPartitionChunk(q, partId, shift, fetchSize);
+				QueryResult qr = (QueryResult) rs.getResult();
+				for (QueryResultRow row: qr.getRows()) {
+					DocumentKey key = nodeEngine.toObject(row.getKey());
+					results.add(key);
+					if (results.size() == fetchSize) {
+						break;
+					}
 				}
-			}
-			logger.trace("getLastKeysForQuery; query: {}; returning: {}", query, results.size());
-			return results;
-		} catch (ExecutionException | InterruptedException ex) {
-			logger.error("getLastDocumentsForQuery.error: ", ex);
+				shift = rs.getNextTableIndexToReadFrom();
+			} while (shift > 0);
 		}
-		return null;
+
+		//try {
+		//	QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			// TODO: we must take latest keys only..
+		//	for (QueryResultRow row: rs.getRows()) {
+		//		DocumentKey key = nodeEngine.toObject(row.getKey());
+		//		results.add(key);
+		//		if (results.size() == fetchSize) {
+		//			break;
+		//		}
+		//	}
+		//} catch (ExecutionException | InterruptedException ex) {
+		//	logger.error("getLastDocumentsForQuery.error: ", ex);
+		//}
+
+		logger.trace("getLastKeysForQuery; query: {}; fSize: {}; returning: {}", query, fetchSize, results.size());
+		return results;
 	}
 
 	public Document getLastDocumentForUri(String uri) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("uri", uri), IterationType.VALUE, null, null);
+		Document last = null;
 		try {
-			Document last = null;
 			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(query);
 			for (QueryResultRow row: rs.getRows()) {
 				Document doc = nodeEngine.toObject(row.getValue());
-				if (last == null) {
+				if (last == null || doc.getVersion() > last.getVersion()) {
 					last = doc;
-				} else {
-					if (doc.getVersion() > last.getVersion()) {
-						last = doc;
-					}
 				}
 			}
-			logger.trace("getLastDocumentForUri; uri: {}; returning: {}", uri, last);
-			return last;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("getLastDocumentForUri.error: ", ex);
 		}
-		return null;
+		logger.trace("getLastDocumentForUri; returning: {} for uri: {}", last, uri);
+		return last;
+	}
+
+	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query) {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapServiceContext mapCtx = svc.getMapServiceContext();
+		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.VALUE, null, null);
+		Map<String, Document> results = new HashMap<>();
+		try {
+			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+			for (QueryResultRow row: rs.getRows()) {
+				Document doc = nodeEngine.toObject(row.getValue());
+				//Document last = results.get(doc.getUri());
+				//if (last == null || doc.getVersion() > last.getVersion()) {
+					results.put(doc.getUri(), doc);
+				//}
+			}
+		} catch (ExecutionException | InterruptedException ex) {
+			logger.error("getLastDocumentsForQuery.error: ", ex);
+		}
+		logger.trace("getLastDocumentsForQuery; returning: {}", results.size());
+		return results.values();
 	}
 
 	public Collection<Document> getLastDocumentsForQuery(Predicate<DocumentKey, Document> query, int fetchSize) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
 		Query q = new Query(CN_XDM_DOCUMENT, query, IterationType.VALUE, null, null);
-		Map<String, Document> results;
-		try {
-			QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
-			results = new HashMap<>(fetchSize);
-			for (QueryResultRow row: rs.getRows()) {
-				Document doc = nodeEngine.toObject(row.getValue());
-				//Document last = results.get(doc.getUri());
-				//if (last == null || last.getVersion() < doc.getVersion()) {
-					results.put(doc.getUri(), doc);
-				//}
-				if (fetchSize > 0 && results.size() == fetchSize) {
-					break;
+		List<Document> results = new ArrayList<>(fetchSize);
+		List<Integer> parts = nodeEngine.getPartitionService().getMemberPartitions(nodeEngine.getThisAddress());
+		for (Integer partId: parts) {
+			int shift = 0;
+			do {
+				ResultSegment rs = mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runPartitionScanQueryOnPartitionChunk(q, partId, shift, fetchSize);
+				QueryResult qr = (QueryResult) rs.getResult();
+				for (QueryResultRow row: qr.getRows()) {
+					Document doc = nodeEngine.toObject(row.getValue());
+					results.add(doc);
+					if (results.size() == fetchSize) {
+						break;
+					}
 				}
-			}
-			logger.trace("getLastDocumentsForQuery; query: {}; returning: {}", query, results.size());
-			return results.values();
-		} catch (ExecutionException | InterruptedException ex) {
-			logger.error("getLastDocumentsForQuery.error: ", ex);
+				shift = rs.getNextTableIndexToReadFrom();
+			} while (shift > 0);
 		}
-		return null;
+		
+		//try {
+		//	QueryResult rs = (QueryResult) mapCtx.getMapQueryRunner(CN_XDM_DOCUMENT).runIndexOrPartitionScanQueryOnOwnedPartitions(q);
+		//	for (QueryResultRow row: rs.getRows()) {
+		//		Document doc = nodeEngine.toObject(row.getValue());
+				//Document last = results.get(doc.getUri());
+				//if (last == null || doc.getVersion() > last.getVersion()) {
+		//			results.add(doc);
+				//}
+		//		if (results.size() == fetchSize) {
+		//			break;
+		//		}
+		//	}
+		//} catch (ExecutionException | InterruptedException ex) {
+		//	logger.error("getLastDocumentsForQuery.error: ", ex);
+		//}
+		
+		return results;
 	}
-
+	
 	public Collection<DataKey> getElementKeys(long docId) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
@@ -335,7 +411,6 @@ public class DataDistributionService implements ManagedService {
 			for (QueryResultRow row: rs.getRows()) {
 				result.add((DataKey) nodeEngine.toObject(row.getKey()));
 			}
-			return result;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("getElementKeys.error", ex);
 		}
@@ -353,7 +428,6 @@ public class DataDistributionService implements ManagedService {
 			for (QueryResultRow row: rs.getRows()) {
 				result.put((DataKey) nodeEngine.toObject(row.getKey()), (Elements) nodeEngine.toObject(row.getValue()));
 			}
-			return result;
 		} catch (ExecutionException | InterruptedException ex) {
 			logger.error("getElementKeys.error", ex);
 		}

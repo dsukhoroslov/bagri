@@ -4,6 +4,8 @@ import static com.bagri.core.Constants.bg_version;
 import static com.bagri.core.Constants.pn_rest_auth_port;
 import static com.bagri.core.Constants.pn_rest_jmx;
 import static com.bagri.core.Constants.pn_rest_port;
+import static com.bagri.core.Constants.pn_rest_accept_pool;
+import static com.bagri.core.Constants.pn_rest_thread_pool;
 import static com.bagri.rest.RestConstants.*;
 
 import java.lang.management.ManagementFactory;
@@ -28,6 +30,7 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -66,6 +69,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private int port = 3030;
     private int sport = 3443;
     private boolean jmx = true;
+    private int accept_count = 5;
+    private int thread_count = 100;
     
     private Server jettyServer;
     private XQCompiler xqComp;
@@ -93,6 +98,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     	this.jmx = Boolean.parseBoolean(props.getProperty(pn_rest_jmx, "true"));
     	this.port = Integer.parseInt(props.getProperty(pn_rest_port, "3030"));
     	this.sport = Integer.parseInt(props.getProperty(pn_rest_auth_port, "3443"));
+    	this.accept_count = Integer.parseInt(props.getProperty(pn_rest_accept_pool, "4"));
+    	this.thread_count = Integer.parseInt(props.getProperty(pn_rest_thread_pool, "100"));
     }
     
     public int getPort() {
@@ -139,7 +146,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    					newList.add(schema);
 	    				}
 	    			}
-	    	        logger.debug("reload.run; going to reload context for schemas: {}", newList);
+	    	        logger.debug("reload; going to reload context for schemas: {}", newList);
 	    	        if (newList.size() > 0) {
 	    	        	reloader.reload(config);
 	    	        	// rebuild Swagger definitions
@@ -147,6 +154,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    	        	activeSchemas = newList;
 	    	        	// what about current clients?
 	    	        	// should we disconnect all of them?
+	    	        } else {
+		    	        logger.info("reload; no reload required for schema: {}", schemaName);
 	    	        }
 	    		}
 	    	}.start();
@@ -231,7 +240,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // The first server connector we create is the one for http, passing in the http configuration we configured
         // above so it can get things like the output buffer size, etc. We also set the port (8080) and configure an
         // idle timeout.
-        ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(http_config));        
+        ServerConnector http = new ServerConnector(server, accept_count, accept_count, new HttpConnectionFactory(http_config));        
         http.setPort(port); 
         
         // Now configure the SslContextFactory with your keystore information
@@ -275,6 +284,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 
         // Set the connectors
         server.setConnectors(new Connector[] { http, https });
+        QueuedThreadPool tp = (QueuedThreadPool) server.getThreadPool();
+        tp.setMaxThreads(thread_count);
         
         // Setup JMX
         if (jmx) {
@@ -297,7 +308,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	    		try {
 	    			buildDynamicResources(config, res.getPath(), module);
 	    			cnt++;
-	    		} catch (BagriException ex) {
+	    		} catch (Exception ex) {
 	    			logger.error("buildSchemaConfig; error processing module: " + res.getModule(), ex);
 	    			// skip it..
 	    		}
@@ -327,11 +338,13 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     
     private void buildMethod(Resource.Builder builder, Module module, Function fn) {
 		logger.debug("buildMethod; got fn: {}", fn.getSignature());
-		Map<String, List<String>> annotations = fn.getAnnotations();
-        List<String> values = annotations.get(an_path);
-        if (values != null) {
-        	String subPath = values.get(0);
-        	builder = builder.addChildResource(subPath);
+		Map<String, List<List<String>>> annotations = fn.getAnnotations();
+        List<List<String>> values = annotations.get(an_path);
+        if (values != null && values.size() == 1) {
+        	List<String> subPath = values.get(0);
+        	if (subPath != null) {
+        		builder = builder.addChildResource(subPath.get(0));
+        	}
         }
 
 		//import module namespace tpox="http://tpox-benchmark.com/rest" at "../../etc/samples/tpox/rest_module.xq";
@@ -367,30 +380,37 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     
     private void buildMethodHandler(Resource.Builder builder, String method, String query, Function fn) {
 
-		Map<String, List<String>> annotations = fn.getAnnotations();
-    	List<String> consumes = annotations.get(an_consumes); 
-    	List<String> produces = annotations.get(an_produces);
+		Map<String, List<List<String>>> annotations = fn.getAnnotations();
+    	List<List<String>> consumes = annotations.get(an_consumes); 
+    	List<List<String>> produces = annotations.get(an_produces);
     	
     	ResourceMethod.Builder methodBuilder = builder.addMethod(method);
         List<MediaType> types;
         if (consumes != null) {
             types = new ArrayList<>(consumes.size());
-        	for (String value: consumes) {
-        		types.add(MediaType.valueOf(value));
+        	for (List<String> values: consumes) {
+	        	for (String value: values) {
+	        		types.add(MediaType.valueOf(value));
+	        	}
         	}
             methodBuilder = methodBuilder.consumes(types);
         }
         
         if (produces != null) {
             types = new ArrayList<>(produces.size());
-        	for (String value: produces) {
-        		types.add(MediaType.valueOf(value));
+        	for (List<String> values: produces) {
+	        	for (String value: values) {
+	        		types.add(MediaType.valueOf(value));
+	        	}
         	}
             methodBuilder = methodBuilder.produces(types);
         }
         
         RestRequestProcessor pro = new RestRequestProcessor(fn, query, rePro);
         methodBuilder.handledBy(pro);
+        // we don't need this?
+        //methodBuilder.build();
+        //methodBuilder.routingResponseType(java response class: String etc..)
         //SwaggerListener.addRequestProcessor(pro);
     }
     

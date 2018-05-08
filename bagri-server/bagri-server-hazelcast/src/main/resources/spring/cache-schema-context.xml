@@ -83,6 +83,7 @@
 					</hz:properties>
 				</hz:map-store>
 				<hz:indexes>
+					<hz:index attribute="__key#hash"/>
 					<hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
 					<hz:index attribute="typeRoot"/>
@@ -428,6 +429,7 @@
 	<bean id="txManager" class="com.bagri.server.hazelcast.impl.TransactionManagementImpl">
 		<!--property name="hzInstance" ref="hzInstance"/-->
 		<property name="execPool" ref="execService"/>
+		<property name="publishCounters" value="${bdb.schema.publish.counters:true}"/>
 		<property name="transactionLevel" value="${bdb.schema.transaction.level}"/>
 		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/>
 	</bean>
@@ -448,6 +450,7 @@
 
 	<bean id="distrService" class="com.bagri.server.hazelcast.impl.DataDistributionService">
 		<!--property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/-->
+   		<property name="factory" ref="xdmFactory" />
 	</bean>
 
 	<bean id="sysFactory" class="com.bagri.server.hazelcast.serialize.SystemSerializationFactory"/>

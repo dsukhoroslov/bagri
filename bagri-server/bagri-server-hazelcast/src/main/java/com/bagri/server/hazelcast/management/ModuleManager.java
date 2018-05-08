@@ -1,8 +1,14 @@
 package com.bagri.server.hazelcast.management;
 
+import static com.bagri.core.Constants.pn_cluster_node_role;
+import static com.bagri.core.server.api.CacheConstants.PN_XDM_SYSTEM_POOL;
+
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -11,13 +17,17 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Module;
 import com.bagri.core.xquery.api.XQCompiler;
+import com.bagri.server.hazelcast.task.module.ModuleReloader;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberSelector;
 
 @ManagedResource(description="XQuery Module Manager MBean")
 public class ModuleManager extends EntityManager<Module> { 
 
 	private XQCompiler xqComp;
-	//private IExecutorService execService;
+	private IExecutorService execService;
 
 	public ModuleManager() {
 		super();
@@ -25,6 +35,7 @@ public class ModuleManager extends EntityManager<Module> {
     
 	public ModuleManager(HazelcastInstance hzInstance, String moduleName) {
 		super(hzInstance, moduleName);
+		this.execService = hzInstance.getExecutorService(PN_XDM_SYSTEM_POOL);
 	}
 
 	public void setXQCompiler(XQCompiler xqComp) {
@@ -35,8 +46,26 @@ public class ModuleManager extends EntityManager<Module> {
 	public boolean compileModule() {
 		Module module = getEntity();
 		try {
+			boolean result = true;
 			xqComp.compileModule(module);
-			return true;
+			ModuleReloader task = new ModuleReloader(module);
+			Map<Member, Future<Boolean>> futures = execService.submitToMembers(task, new MemberSelector() {
+				@Override
+				public boolean select(Member member) {
+					return !"admin".equalsIgnoreCase(member.getStringAttribute(pn_cluster_node_role));
+				}
+			});
+			try {
+				for (Map.Entry<Member, Future<Boolean>> e: futures.entrySet()) {
+					if (!e.getValue().get()) {
+						result = false;
+					}
+				}
+			} catch (InterruptedException | ExecutionException ex) {
+				logger.error("compileModule.error; {}", ex); 
+				result = false;
+			}
+			return result;
 		} catch (BagriException ex) {
 			throw new RuntimeException(ex.getMessage());
 		}

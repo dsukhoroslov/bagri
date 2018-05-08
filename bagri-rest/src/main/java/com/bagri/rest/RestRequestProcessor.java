@@ -1,13 +1,16 @@
 package com.bagri.rest;
 
 import static com.bagri.rest.RestConstants.*;
-import static com.bagri.support.util.XQUtils.getAtomicValue;
+import static com.bagri.support.util.JSONUtils.*;
+import static com.bagri.support.util.XQUtils.*;
+import static com.bagri.support.util.XMLUtils.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +22,10 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.xquery.XQException;
+import javax.xml.xquery.XQItem;
 
+import org.eclipse.jetty.io.EofException;
 import org.glassfish.jersey.process.Inflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +38,7 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Function;
 import com.bagri.core.system.Parameter;
+import com.hazelcast.com.eclipsesource.json.Json;
 
 public class RestRequestProcessor implements Inflector<ContainerRequestContext, Response> {
 	 
@@ -64,11 +71,13 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 				context.getUriInfo().getPathParameters(), context.getUriInfo().getQueryParameters());
 
 		Map<String, Object> params = getParameters(context);
-		logger.debug("apply; got params: {}", params); 
+		logger.debug("apply; got params: {} for method: {}", params, fn); 
 
     	boolean empty = false;
-    	Properties props = new Properties();
-		ResultCursor<String> cursor = null;
+		ResultCursor<XQItem> cursor = null;
+		// props must be local variable!
+		Properties props = getQueryProperties();
+		logger.trace("apply; going to execute query: {}\n with params: {} and props: {}", query, params, props); 
 		try {
 			cursor = repo.getQueryManagement().executeQuery(query, params, props);
 	    	empty = cursor.isEmpty();
@@ -78,48 +87,53 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
 		}
 	    logger.debug("apply; got cursor: {}", cursor);
 	    
+    	Response.ResponseBuilder response;
     	if (empty) {
-    		// send response right away
-	        return Response.ok().build();	    	
+	        response = Response.noContent();	    	
+    	} else {
+    		response = Response.ok();
+	    	try {
+	    		//empty = fillResponse(cursor, response);
+		    	//if (!empty) {
+		    		response.entity(getResultStream(cursor));
+		    	//}
+		    } catch (Exception ex) { //BagriException
+				logger.error("apply.error: error processing response ", ex);
+				response = Response.serverError().entity(ex.getMessage());
+		    }
     	}
+		logger.debug("apply; got response: {}", response);
+
+		// check and process here bgdb:follow-rules("create/update/delete/..") annotations
+		applyRestRules(empty, response);
 	    
-    	Response.ResponseBuilder response = Response.noContent();
-    	try {
-    		empty = fillResponse(cursor, response);
-	    } catch (BagriException ex) {
-			logger.error("apply.error: error processing response ", ex);
-			return Response.serverError().entity(ex.getMessage()).build();
-	    }
-		logger.debug("apply: got response: {}", response);
-    	
-    	if (!empty) {
-    		response.entity(getResultStream(cursor));
-    	}
         return response.build();
 	}
     
     private Map<String, Object> getParameters(ContainerRequestContext context) {
     	Map<String, Object> params = new HashMap<>(fn.getParameters().size());
     	for (Parameter pm: fn.getParameters()) {
+    		logger.trace("getParameters; processing param: {}", pm);
 			// TODO: resolve cardinality properly!
-    		if (isPathParameter(pm.getName())) {
+    		if (isPathParameter(fn, pm.getName())) {
         		List<String> vals = context.getUriInfo().getPathParameters().get(pm.getName());
         		if (vals != null) {
         			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
         		}    			
     		} else {
-    			String aType = getParamAnnotationType(pm.getName());
+    			String aType = getParamAnnotationType(fn, pm.getName());
+        		logger.trace("getParameters; param annotation: {}", aType);
     			if (aType == null) {
     				// this is for POST/PUT only!
     				if (POST.equals(context.getMethod()) || PUT.equals(context.getMethod())) {
     					String body = getBody(context);
     					if (body != null) {
-    						params.put(pm.getName(), getAtomicValue(pm.getType(), body));
+    						//params.put(pm.getName(), getAtomicValue(pm.getType(), body));
+    						params.put(pm.getName(), extractBodyValue(context, pm, body));
     					}
     				}
     			} else {
         			boolean found = false;
-        			List<String> atns = Collections.emptyList();
     				switch (aType) {
     					case apn_cookie: {
             	    		Cookie val = context.getCookies().get(pm.getType());
@@ -132,7 +146,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     					case apn_form: {
             				// content type must be application/x-www-form-urlencoded
         					String body = getBody(context);
-        					if (body != null) {
+        					if (body != null) { // it'll be null because of the getBody implementation!?
                 				//logger.info("apply; form body: {}; ", body);
         						String val = getParamValue(body, "&", pm.getName());
         						if (val != null) {
@@ -162,14 +176,18 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     					case apn_query: {
     	    	    		List<String> vals = context.getUriInfo().getQueryParameters().get(pm.getName());
     	    	    		if (vals != null) {
-    	    	    			params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+    	    	    			if (pm.getCardinality().isMultiple()) {
+    	    	    				params.put(pm.getName(), getSequenceValue(pm.getType(), vals));
+    	    	    			} else {
+    	    	    				params.put(pm.getName(), getAtomicValue(pm.getType(), vals.get(0)));
+    	    	    			}
     	    	    			found = true;
     	    	    		}
     	    	    		break;
     					}
     				}
     				if (!found) {
-    	    			setNotFoundParameter(params, atns, pm);
+    	    			setNotFoundParam(params, aType, pm);
     				}
     			}
     		}
@@ -177,23 +195,40 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return params;
     }
 
-    private boolean isPathParameter(String pName) {
-    	List<String> pa = fn.getAnnotations().get(an_path);
-    	return (pa != null && pa.size() == 1 && pa.get(0).indexOf("{" + pName + "}") > 0);
+    public static boolean isPathParameter(Function fn, String pName) {
+    	List<String> pa = fn.getFlatAnnotations(an_path);
+    	if (pa != null && pa.size() == 1) {
+    		String pb = pa.get(0);
+    		return (pb.indexOf("{" + pName + "}") > 0);
+    	}
+    	return false; 
     }
     
-    private String getParamAnnotationType(String pName) {
+    public static String getParamAnnotationType(Function fn, String pName) {
 		String xpName = "{$" + pName + "}";
-    	for (Map.Entry<String, List<String>> ant: fn.getAnnotations().entrySet()) {
-    		for (String val: ant.getValue()) {
-    			if (pName.equals(val) || xpName.equals(val)) {
-    				return ant.getKey();
+    	for (Map.Entry<String, List<List<String>>> ant: fn.getAnnotations().entrySet()) {
+    		for (List<String> values: ant.getValue()) {
+    			for (String val: values) {
+	    			//if (pName.equals(val) || xpName.equals(val)) {
+	    			if (xpName.equals(val)) {
+	    				return ant.getKey();
+	    			}
     			}
     		}
     	}
     	return null;
     }
 
+    private String getBody(ContainerRequestContext context) {
+		if (context.hasEntity() && (POST.equals(context.getMethod()) || PUT.equals(context.getMethod()))) {
+		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
+		    String result = s.next();
+		    s.close();
+	    	return result;
+		}
+    	return null;
+    }
+    
     private String getParamValue(String s, String d, String p) {
 		String[] parts = s.split(d);
 		for (String part: parts) {
@@ -208,39 +243,91 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	return null;
     }
     
-    private String getBody(ContainerRequestContext context) {
-		if (context.hasEntity() && (POST.equals(context.getMethod()) || PUT.equals(context.getMethod()))) {
-		    java.util.Scanner s = new java.util.Scanner(context.getEntityStream()).useDelimiter("\\A");
-		    String result = s.next();
-		    s.close();
-	    	return result;
-		    
-		}
-    	return null;
+    private List<Object> getSequenceValue(String type, List<String> values) {
+    	List<Object> list = new ArrayList<>();
+    	if (values.size() > 1) {
+    		for (String value: values) {
+    			list.add(getAtomicValue(type, value));
+    		}
+    	} else if (values.size() > 0){
+    		String[] vals = values.get(0).split(",");
+    		for (String value: vals) {
+    			list.add(getAtomicValue(type, value));
+    		}
+    	}
+    	return list;
     }
     
-    private void setNotFoundParameter(Map<String, Object> params, List<String> atns, Parameter pm) {
+    private Object extractBodyValue(ContainerRequestContext context, Parameter pm, String content) { //throws IOException {
+		logger.trace("extractBodyValue.enter; got param: {}; content: {}; mediaType: {}", pm, content, context.getMediaType());
+    	if (isBaseType(pm.getType())) {
+			if (pm.getCardinality().isMultiple()) {
+				List<String> values = new ArrayList<>(1);
+				values.add(content);
+				return getSequenceValue(pm.getType(), values);
+			} else {
+				return getAtomicValue(pm.getType(), content);
+			}
+    	} else if (pm.getType().startsWith("map(")) {
+    		if (isSubtypeOf(context, "json")) {
+    			return mapFromJSON(content);
+    		}
+    		if (isSubtypeOf(context, "xml")) {
+    			return mapFromXML(content);
+    		}
+    	} else if (pm.getType().startsWith("document-node(")) {
+    		try {
+    			return textToDocument(content);
+    		} catch (IOException ex) {
+    			logger.error("", ex);
+    			return null;
+    		}
+    	} else if (pm.getType().startsWith("item(")) {
+    		return content; 
+    	}
+    	return content;
+    }
+    
+    private boolean isSubtypeOf(ContainerRequestContext context, String subtype) {
+    	return context.getMediaType().getSubtype().endsWith(subtype);
+    }
+    
+    private void setNotFoundParam(Map<String, Object> params, String pType, Parameter pm) {
 		// handle default values
-		if (atns.size() > 2) {
-			params.put(pm.getName(), getAtomicValue(pm.getType(), atns.get(2)));
-		} else if (pm.getCardinality().isOptional()) {
+    	List<List<String>> atns = fn.getAnnotations().get(pType);
+    	if (atns != null) {
+    		String pName = pm.getName();
+    		String xpName = "{$" + pm.getName() + "}";
+       		for (List<String> values: atns) {
+       			if (values.size() > 2) {
+       				if (pName.equals(values.get(0)) || xpName.equals(values.get(1))) {
+       					params.put(pm.getName(), getAtomicValue(pm.getType(), values.get(2)));
+       		    		return;
+       				}
+        		}
+        	}
+    	}
+		
+    	if (pm.getCardinality().isOptional()) {
 			// pass empty value..
 			params.put(pm.getName(), null);
 		}
     }
     
-    private boolean fillResponse(ResultCursor<String> cursor, Response.ResponseBuilder response) throws BagriException {
-    	int status = Response.Status.OK.getStatusCode(); 
-    	String message = null;
-    	boolean empty = false;
+    private boolean fillResponse(ResultCursor<XQItem> cursor, Response.ResponseBuilder response) throws BagriException {
     	Node node = null;
-    	// TODO: fix this!
-    	//try {
-    		//node = cursor.getNode();
-       	//	logger.debug("fillResponse; got node: {}", node);
-    	//} catch (BagriException ex) {
-       	//	logger.debug("fillResponse; got non-xml content, skipping");
-    	//}
+    	String message = null;
+    	int status = Response.Status.OK.getStatusCode(); 
+    	boolean empty = cursor.isEmpty();
+    	if (!empty) {
+    		XQItem item = cursor.iterator().next();
+	    	try {
+	    		node = item.getNode();
+	       		logger.debug("fillResponse; got node: {}", node);
+	    	} catch (XQException ex) {
+	       		logger.debug("fillResponse; got non-xml content, skipping");
+	    	}
+    	}
 
     	if (node != null) {
     		logger.trace("fillResponse; uri: {}; name: {}; type: {}", node.getNamespaceURI(), node.getNodeName(), node.getNodeType());
@@ -276,30 +363,111 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
     	}
     	return empty;
     }
-    
-    private StreamingOutput getResultStream(final ResultCursor<String> result) {
-	    return new StreamingOutput() {
-	        @Override
-	        public void write(OutputStream os) throws IOException, WebApplicationException {
-	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
-		            for (String chunk: result) {
-		                logger.trace("write; out: {}", chunk);
-		                writer.write(chunk + "\n");
-			            writer.flush();
-		            } 
-	            } catch (Exception ex) {
-	            	logger.error("write.error: error getting result from cursor ", ex);
-        			// how to handle it properly?? throw WebAppEx?
-                } finally {
-                	try {
-						result.close();
-					} catch (Exception ex) {
-		            	logger.error("write.error: error closing cursor ", ex);
+
+	private void applyRestRules(boolean empty, Response.ResponseBuilder response) {
+    	List<String> ra = fn.getFlatAnnotations(apn_rest_rules);
+    	if (ra != null && !ra.isEmpty()) {
+    		logger.debug("applyRestRules; got rules annotations: {}", ra);
+    		String rType = ra.get(0);
+    		switch (rType) {
+    			case arv_create:
+    			case arv_update:
+    			case arv_delete:
+    	    		// TODO: implement it..
+    		}
+    	}
+	}
+
+    private StreamingOutput getResultStream(final ResultCursor<XQItem> result) {
+    	String start = "";
+    	String delim = "\n";
+    	String end = "";
+    	List<String> ra = fn.getFlatAnnotations(apn_rest_chunk_type);
+    	// must be zero or one!
+    	if (!ra.isEmpty()) {
+    		String type = ra.get(0);
+    		if ("json".equalsIgnoreCase(type)) {
+    			start = "[";
+    			delim = ",\n";
+    			end = "]";
+    		}
+    		// think about other types/delims..
+    	}
+    	final String first = start;
+    	final String delimiter = delim;
+    	final String last = end;
+    	
+   	    return new StreamingOutput() {
+   	        @Override
+   	        public void write(OutputStream os) throws IOException, WebApplicationException {
+   	        	// fixed cursor will be complete from the very beginning
+   	        	while (!result.isComplete()) {
+   	        		try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						break;
 					}
+   	        	}
+    	        	
+            	int idx = 0;
+   	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
+   	            	writer.write(first);
+   		            for (XQItem item: result) {
+   		            	if (idx > 0) {
+   		            		writer.write(delimiter);
+   		            	}
+   		            	String chunk = item.getAtomicValue(); // get as string ?
+   		                logger.trace("write; out: {}", chunk);
+   		                writer.write(chunk);
+   			            writer.flush();
+   			            idx++;
+   		            } 
+   	            	writer.write(last);
+   	            	writer.flush();
+   	            } catch (EofException ex) {
+   	            	logger.info("write; client has terminated connection at {} chunk, out of {} total chunks", idx, result.size());
+   	            } catch (Exception ex) {
+   	            	logger.error("write.error: error getting result from cursor ", ex);
+           			// how to handle it properly?? throw WebAppEx?
+                } finally {
+                   	try {
+   						result.close();
+   					} catch (Exception ex) {
+   		            	logger.error("write.error: error closing cursor ", ex);
+   					}
                 }
-	            
             }
         };
+    }
+    
+    private void writeResult() {
+    	
+    }
+    
+    private Properties getQueryProperties() {
+    	Properties props = new Properties();
+    	List<List<String>> paa = fn.getAnnotations().get(apn_properties);
+    	if (paa != null) {
+    		for (List<String> properties: paa) {
+    			for (String property: properties) {
+    				int pos = property.indexOf("=");
+    				if (pos > 0) {
+    					props.setProperty(property.substring(0, pos), property.substring(pos + 1));
+    				}
+    			}
+    		}
+    	}
+    	
+    	paa = fn.getAnnotations().get(apn_property);
+    	if (paa != null) {
+    		for (List<String> properties: paa) {
+    			if (properties.size() == 2) {
+					props.setProperty(properties.get(0), properties.get(1));
+    			}
+    		}
+    	}
+		logger.debug("getQueryProperties; resolved props: {}", props);
+    	return props;
     }
     
 }

@@ -1,6 +1,6 @@
 FROM java:openjdk-8-jre
 
-ENV BG_VERSION 1.2.0-SNAPSHOT
+ENV BG_VERSION 1.2.1
 ENV BG_HOME bagri-$BG_VERSION
 
 LABEL maintainer "Bagri Project Team: support@bagridb.com"
