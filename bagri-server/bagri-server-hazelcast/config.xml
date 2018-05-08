@@ -704,11 +704,12 @@
                 <entry name="bdb.schema.ports.last">10800</entry>
                 <entry name="bdb.schema.members">127.0.0.1</entry>
                 <entry name="bdb.schema.population.size">1</entry>
-                <entry name="bdb.schema.store.data.path">/home/dsukhoroslov/data/mp</entry>
+                <!--entry name="bdb.schema.store.data.path">/home/dsukhoroslov/data/mp</entry-->
+                <entry name="bdb.schema.store.data.path">../../etc/samples/mp/mp2</entry>
                 <entry name="bdb.schema.buffer.size">128</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
-		<entry name="bdb.schema.transaction.level"></entry>
-		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.level"></entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
@@ -828,8 +829,8 @@
                 <entry name="bdb.schema.store.data.path">/home/dsukhoroslov/data/mp2</entry>
                 <entry name="bdb.schema.buffer.size">128</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
-		<entry name="bdb.schema.transaction.level"></entry>
-		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.level"></entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
