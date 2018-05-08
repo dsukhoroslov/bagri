@@ -209,8 +209,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
         						doc.getCollections(), true);
         			}
        				return newDoc;
-				} catch (IOException | BagriException ex) {
-					logger.error("loadDocument.error", ex);
+				} catch (Exception ex) {
+					logger.error("loadDocument.error; error loading document: {}", fullUri, ex);
 					// TODO: notify popManager about this?!
 				}
 	    	}
@@ -265,7 +265,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 				logger.trace("storeDocument.exit; stored as: {}; length: {}", fullUri, content.length());
 			}
 			return null;
-		} catch (IOException | BagriException ex) {
+		} catch (Exception ex) {
+			logger.error("storeDocument.error; error storing document: {}", fullUri, ex);
 			return ex;
 		}
 	}
@@ -277,7 +278,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		DocumentManagement docManager = (DocumentManagement) xdmRepo.getDocumentManagement();
 		Exception ex = storeDocument(docManager, key, value);
 		if (ex != null) {
-			logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
+			//logger.error("store.error; exception on store document: " + ex.getMessage(), ex);
 			throw new RuntimeException(ex);
 		} else {
 			logger.trace("store.exit");

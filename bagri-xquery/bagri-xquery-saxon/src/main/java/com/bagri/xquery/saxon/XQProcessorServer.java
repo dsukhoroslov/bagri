@@ -144,7 +144,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         	clnFinder.setExpression(xqExp);
 
 	        stamp = System.currentTimeMillis() - stamp;
-		    logger.debug("execQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params, stamp);
+		    logger.debug("execQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params.keySet(), stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
