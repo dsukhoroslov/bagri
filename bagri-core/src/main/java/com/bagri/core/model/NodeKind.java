@@ -14,14 +14,19 @@ public enum NodeKind {
 	document,
 	
 	/**
-	 * namespace node
-	 */
-	namespace,
-	
-	/**
 	 * element node
 	 */
 	element,
+	
+	/**
+	 * array node
+	 */
+	array,
+
+	/**
+	 * namespace node
+	 */
+	namespace,
 	
 	/**
 	 * attribute node
@@ -41,13 +46,12 @@ public enum NodeKind {
 	/**
 	 * text node
 	 */
-	text,
+	text;
 	
-	/**
-	 * array node
-	 */
-	array;
-
+	public boolean isComplex() {
+		return this == document || this == element || this == array;
+	}
+	
 	/**
 	 * 
 	 * @param kind the node kind
@@ -94,4 +98,5 @@ public enum NodeKind {
 		
 		return NodeKind.element;
 	}
+
 }
