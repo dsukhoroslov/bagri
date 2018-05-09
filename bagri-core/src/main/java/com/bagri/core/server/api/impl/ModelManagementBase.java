@@ -2,14 +2,10 @@ package com.bagri.core.server.api.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.namespace.QName;
-import javax.xml.xquery.XQItemType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,20 +134,31 @@ public abstract class ModelManagementBase implements ModelManagement {
 
 	protected Path addDictionaryPath(String root, String path, NodeKind kind, int parentId, int dataType, Occurrence occurrence) throws BagriException {
 
+		boolean update = false;
 		String pathKey = getPathKey(root, path);
 		Path xpath = getPathCache().get(pathKey);
 		if (xpath == null) {
 			int pathId = getPathGen().next().intValue();
 			int postId = 0;
-			if (kind == NodeKind.attribute || kind == NodeKind.comment || kind == NodeKind.namespace ||
-					kind == NodeKind.pi || kind == NodeKind.text) {
+			if (!kind.isComplex()) {
 				postId = pathId;
 			}
 			xpath = new Path(path, root, kind, pathId, parentId, postId, dataType, occurrence); 
 			xpath = putIfAbsent(getPathCache(), pathKey, xpath);
+		} 
+		if (xpath.getNodeKind() == NodeKind.attribute && kind.ordinal() < xpath.getNodeKind().ordinal()) {
+			xpath.setNodeKind(kind);
+			update = true;
+		}
+		if (xpath.getDataType() < dataType) {
+			xpath.setDataType(dataType);
+			update = true;
 		}
 		if (parentId > 0 && xpath.getParentId() != parentId) {
 			xpath.setParentId(parentId);
+			update = true;
+		}
+		if (update) {
 			updatePath(xpath);
 		}
 		return xpath;
@@ -204,13 +211,4 @@ public abstract class ModelManagementBase implements ModelManagement {
 		return result;
 	}
 	
-	//protected int[] fromCollection(Collection<Integer> from) {
-	//	int idx = 0;
-	//	int[] result = new int[from.size()];
-	//	for (Integer i: from) {
-	//		result[idx++] = i;
-	//	}
-	//	return result;
-	//}
-
 }

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
@@ -32,8 +33,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.jmx.MBeanContainer;
-import org.glassfish.hk2.api.Factory;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+//import org.glassfish.hk2.api.Factory;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.model.Resource;
@@ -62,7 +63,7 @@ import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 @Provider
-public class BagriRestServer implements ContextResolver<BagriRestServer>, Factory<RepositoryProvider> {
+public class BagriRestServer implements ContextResolver<BagriRestServer>, Supplier<RepositoryProvider> {
 
     private static final transient Logger logger = LoggerFactory.getLogger(BagriRestServer.class);
     
@@ -71,6 +72,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
     private boolean jmx = true;
     private int accept_count = 5;
     private int thread_count = 100;
+    private int out_buff_size = 32768;
+    private int ssl_idle_tout = 500000;
     
     private Server jettyServer;
     private XQCompiler xqComp;
@@ -201,16 +204,16 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
 	}
     
 	@Override
-	public RepositoryProvider provide() {
-		logger.trace("provide");
+	public RepositoryProvider get() {
+		logger.trace("get");
 		return rePro;
 	}
 
-	@Override
-	public void dispose(RepositoryProvider instance) {
-		logger.trace("dispose");
-		this.rePro = null;
-	}
+	//@Override
+	//public void dispose(RepositoryProvider instance) {
+	//	logger.trace("dispose");
+	//	this.rePro = null;
+	//}
 
 	private Server createServer() {
 		
@@ -232,7 +235,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         HttpConfiguration http_config = new HttpConfiguration();
         http_config.setSecureScheme("https");
         http_config.setSecurePort(sport);
-        http_config.setOutputBufferSize(32768);
+        http_config.setOutputBufferSize(out_buff_size);
 
         // Now define the ServerConnector for handling just http
 
@@ -254,6 +257,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         sslContextFactory.setKeyStorePath(BagriRestServer.class.getResource("/keystore.jks").toExternalForm());
         sslContextFactory.setKeyStorePassword(keyStorePwd);
         sslContextFactory.setKeyManagerPassword(keyStorePwd);
+        
+        // a tmp workaround for old SSL/TLS versions
+        sslContextFactory.setExcludeCipherSuites("^.*_(MD5|SHA|SHA1)$");
 
         // Now setup your HTTPS configuration.
         // Note: the SecureRequestCustomizer, sets up various servlet api request attributes and certificate information to satisfy the requirements of the servlet spec.
@@ -272,9 +278,9 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // HTTPS connector
         // We create a second ServerConnector, passing in the http configuration we just made along with the
         // previously created ssl context factory. Next we set the port and a longer idle timeout.
-        ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory,"http/1.1"), new HttpConnectionFactory(https_config));
+        ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"), new HttpConnectionFactory(https_config));
         https.setPort(sport);
-        https.setIdleTimeout(500000);
+        https.setIdleTimeout(ssl_idle_tout);
 
         // Finally, add the connectors to the server
 
@@ -283,7 +289,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // handler is also registered with the server so the example has something to pass requests off to.
 
         // Set the connectors
-        server.setConnectors(new Connector[] { http, https });
+        server.setConnectors(new Connector[] {http, https});
         QueuedThreadPool tp = (QueuedThreadPool) server.getThreadPool();
         tp.setMaxThreads(thread_count);
         
@@ -433,7 +439,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Factor
         // custom ReaderListener from that package
         beanConfig.setScan(true);
     }
-    
+
     //private int contextId = 1;
 
 }

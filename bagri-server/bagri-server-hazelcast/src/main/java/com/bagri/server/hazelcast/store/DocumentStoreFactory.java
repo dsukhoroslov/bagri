@@ -1,11 +1,11 @@
 package com.bagri.server.hazelcast.store;
 
 import static com.bagri.core.Constants.*;
+import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.*;
 import static com.bagri.support.util.PropUtils.substituteProperties;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MapLoader;
 import com.hazelcast.core.MapStore;
-//import com.hazelcast.core.MapStore;
+
 import com.hazelcast.core.MapStoreFactory;
 
 public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Document> { 
@@ -54,7 +54,7 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
     
     @SuppressWarnings("unchecked")
 	private DataStore getDataStore(String storeType) {
-    	Collection<DataStore> stores = (Collection<DataStore>) getConfigEntities(DataStore.class, "stores");
+    	Collection<DataStore> stores = (Collection<DataStore>) getConfigEntities(DataStore.class, CN_SYS_STORES);
     	if (stores != null) {
 			for (DataStore store: stores) {
 				if (store.getName().equals(storeType)) {
@@ -67,7 +67,7 @@ public class DocumentStoreFactory implements MapStoreFactory<DocumentKey, Docume
 
     @SuppressWarnings("unchecked")
 	private Schema getSchema(String schemaName) {
-    	Collection<Schema> schemas = (Collection<Schema>) getConfigEntities(Schema.class, "schemas");
+    	Collection<Schema> schemas = (Collection<Schema>) getConfigEntities(Schema.class, CN_SYS_SCHEMAS);
     	if (schemas != null) {
 			for (Schema schema: schemas) {
 				if (schema.getName().equals(schemaName)) {

@@ -104,7 +104,7 @@ public abstract class ContentParserBase {
 	
 		public void addValue() throws BagriException {
 			// set special null value..
-			setData(Null._null, XQBASETYPE_ANYATOMICTYPE);
+			setData(Null._null, XQBASETYPE_ANYTYPE);
 		}
 
 		public void addValue(boolean value) throws BagriException {

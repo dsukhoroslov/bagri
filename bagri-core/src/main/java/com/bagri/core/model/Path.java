@@ -124,6 +124,20 @@ public class Path implements Comparable<Path> {
 	}
 	
 	/**
+	 * @param dataType the data type to set
+	 */
+	public void setDataType(int dataType) {
+		this.dataType = dataType;
+	}
+	
+	/**
+	 * @param kind the node kind to set
+	 */
+	public void setNodeKind(NodeKind kind) {
+		this.kind = kind;
+	}
+	
+	/**
 	 * @param parentId the parent id to set
 	 */
 	public void setParentId(int parentId) {
