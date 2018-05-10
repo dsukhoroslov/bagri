@@ -972,6 +972,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			}
 
+			// TODO: check props for cache invalidation..
 			// invalidate cached query results.
 			((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 		}

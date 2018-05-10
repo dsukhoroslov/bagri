@@ -587,8 +587,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						addQuery(xQuery);
 						cursor = createCachedCursor(query, params, props, iter, false);
 					} else {
-						// TODO: fix it!?
-						logger.debug("executeQuery; query is not cached after processing: {}", query);
+						// thus, it is updating query
+						logger.debug("executeQuery; query is not cached after processing\n: {}", query);
 						cursor = createCursor(iter, props);
 					}
 				} else {

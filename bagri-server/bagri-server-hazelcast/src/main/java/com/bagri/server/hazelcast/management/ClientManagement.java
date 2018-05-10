@@ -23,6 +23,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
 import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ReplicatedMap;
 
 /**
  * @author Denis Sukhoroslov
@@ -31,7 +32,7 @@ import com.hazelcast.core.IMap;
 @ManagedResource(description="Clients Management MBean")
 public class ClientManagement extends SchemaFeatureManagement {
 
-	private IMap<String, Properties> clientCache;
+	private ReplicatedMap<String, Properties> clientCache;
 	
 	public ClientManagement(String schemaName) {
 		super(schemaName);
@@ -40,7 +41,7 @@ public class ClientManagement extends SchemaFeatureManagement {
 	@Override
 	public void setSchemaManager(SchemaManager schemaManager) {
 		super.setSchemaManager(schemaManager);
-		clientCache = schemaManager.getHazelcastClient().getMap(CN_XDM_CLIENT);
+		clientCache = schemaManager.getHazelcastClient().getReplicatedMap(CN_XDM_CLIENT);
 	}	
 
 	@Override
@@ -56,7 +57,7 @@ public class ClientManagement extends SchemaFeatureManagement {
 	@ManagedAttribute(description="Return client connection properties, per client")
 	public TabularData getClientProperties() {
 		TabularData result = null;
-   		HazelcastClientProxy hzProxy = (com.hazelcast.client.impl.HazelcastClientProxy) schemaManager.getHazelcastClient();
+   		//HazelcastClientProxy hzProxy = (com.hazelcast.client.impl.HazelcastClientProxy) schemaManager.getHazelcastClient();
 		try {
 			for (Map.Entry<String, Properties> e: clientCache.entrySet()) {
 				Properties props = e.getValue();
