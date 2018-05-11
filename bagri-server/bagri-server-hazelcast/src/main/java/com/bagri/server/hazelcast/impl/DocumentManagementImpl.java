@@ -896,17 +896,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return result;
 	}
 	
-	private AtomicInteger counter = new AtomicInteger(0);
-	
-	private int checkDocCount(int zo) {
-		int size = docCache.size();
-		int delta = counter.addAndGet(zo) - size;
-		if (delta != 0) {
-			counter.set(size);
-		}
-		return delta;
-	}
-
 	private Document storeDocumentInternal(String uri, Object content, Properties props) throws BagriException {
 		logger.trace("storeDocumentInternal.enter; uri: {}; content: {}; props: {}", uri, content.getClass().getName(), props);
 		if (uri == null) {
@@ -954,6 +943,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			txManager.updateCounters(1, 0, 0);
 		}
 
+		String invScope = props.getProperty(pn_query_invalidate, pv_query_invalidate_all);
 		if (pRes.getResultSize() > 0) {
 	    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
 	    	Set<Integer> pathIds = new HashSet<>(paths.size());
@@ -972,9 +962,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			}
 
-			// TODO: check props for cache invalidation..
-			// invalidate cached query results.
-			((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
+			if (pv_query_invalidate_all.equals(invScope) || pv_query_invalidate_paths.equals(invScope)) {
+				// invalidate cached query results.
+				((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
+			} 
+			// otherwise may be we don't need to collect pathIds at all?!
+		}
+		if (update && tx == null && pv_query_invalidate_docs.equals(invScope)) {
+	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		}
 
 		logger.trace("storeDocumentInternal.exit; returning: {}", newDoc);

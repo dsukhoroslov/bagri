@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.task.query;
 
+import static com.bagri.core.Constants.pn_query_updateable;
 import static com.bagri.core.api.TransactionManagement.TX_NO;
 
 import java.util.concurrent.Callable;
@@ -37,8 +38,13 @@ public class QueryExecutor<T> extends com.bagri.client.hazelcast.task.query.Quer
     	
     	//logger.info("call.enter; clientId: {}; repo id: {}; context: {}", clientId, repo.getClientId(), context);
 		
-    	//((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-    	boolean readOnly = queryMgr.isQueryReadOnly(query, context);
+    	boolean readOnly;
+		String update = context.getProperty(pn_query_updateable);
+		if (update != null) {
+			readOnly = !Boolean.parseBoolean(update);
+		} else {
+    		readOnly = queryMgr.isQueryReadOnly(query, context);
+		}
     	if (readOnly) {
     		checkPermission(Permission.Value.read);
     	} else {
