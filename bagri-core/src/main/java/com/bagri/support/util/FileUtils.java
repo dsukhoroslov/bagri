@@ -78,6 +78,7 @@ public class FileUtils {
 		byte[] bytes = content.getBytes();
 		MappedByteBuffer buff = null;
 		try (RandomAccessFile raw = new RandomAccessFile(fileName, "rw")) {
+			raw.setLength(bytes.length);
 			FileChannel ch = raw.getChannel();
 			buff = ch.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length); 
 			buff.put(bytes);
