@@ -2,7 +2,6 @@ package com.bagri.core.query;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -145,75 +144,110 @@ public class ExpressionBuilder {
 	}
 	
 	
-	public boolean buildExpression(String query) {
-		Parser p = new Parser(this, 1);
-		p.parse(query);
-		return expressions.size() > 0;
+	public boolean buildExpression(String query, int clnId) {
+		Parser p = new Parser(this, clnId);
+		if (p.parse(query)) {
+			return expressions.size() > 0;
+		}
+		return false;
 	}
 	
 	private class Parser {
 		
+		private int brCount = 0;
 		private int collectId;
-		private ExpressionBuilder builder;
-		
+		private Frame root;
 		private ArrayList<Token> tokens = new ArrayList<>();
 		
 		Parser(ExpressionBuilder builder, int collectId) {
-			this.builder = builder;
 			this.collectId  = collectId;
 		}
 	
-		void parse(String query) {
+		boolean parse(String query) {
 			Lexer lx = new Lexer(query);
 			String tkn;
 			while ((tkn = lx.nextToken()) != null) {
 				Token token = new Token(tkn);
-				logger.info("parse; token: {}", token);
+				logger.trace("parse; token: {}", token);
 				switch (token.getType()) {
 					case open: handleOpen(); break;
 					case close: handleClose(); break;
 					case comp: handleComparison(token); break;
 					case path: handlePath(token); break;
 					case param: handleParam(token); break;
-					default: // what is this??
-						//return false;
+					default: 
+					  // unexpected token..
+					  return false;
 				}
 			}
-			//return true;
+			
+			if (brCount == 0) {
+				if (root == null) {
+					if (tokens.size() == 3) {
+						Token param = tokens.get(tokens.size() - 1);
+						Token comp = tokens.get(tokens.size() - 2);
+						Token path = tokens.get(tokens.size() - 3);
+						if (path.getType() == TokenType.path && comp.getType() == TokenType.comp && param.getType() == TokenType.param) {
+							Expression ex = new PathExpression(collectId, comp.getComparison(), new PathBuilder(path.getToken()), param.getToken());
+							buildExpressions(ex);
+							return true;
+						}
+					}
+				} else {
+					buildExpressions(root.top);
+					return true;
+				}
+			}
+			return false;
 		}
 
 		private void handleOpen() {
+			brCount++;
 			// check state..
 			Token last = getLastToken();
-			if (last != null && last.getType() == TokenType.comp) {
+			if (last == null) {
+				Frame frame = new Frame();
+				frame.top = new BinaryExpression(collectId, Comparison.AND);
+				if (root == null) {
+					root = frame;
+				} else {
+					Frame end = getLastFrame();
+					end.next = frame;
+					frame.parent = end;
+				}
+			} else if (last.getType() == TokenType.comp) {
 				Comparison comp = last.getComparison();
 				if (Comparison.isBinary(comp)) {
-					builder.addExpression(collectId, comp, null, null);
-				}
+					Frame end = getLastFrame();
+					end.top.setCompType(comp);
+				} // what else?
 			}
 			tokens.clear();
 		}
 		
-		private Token getLastToken() {
-			if (tokens.size() > 0) {
-				return tokens.get(tokens.size() - 1);
-			}
-			return null;
-		}
-		
 		private void handleClose() {
-			//
-			Token param = getLastToken();
-			if (param != null && param.getType() == TokenType.param) {
+			brCount--;
+			Token last = getLastToken();
+			if (last == null) {
+				Frame end = getLastFrame();
+				end.parent.next = null;
+				((BinaryExpression) end.parent.top).setRight(end.top);
+			} else if (last.getType() == TokenType.param) {
 				Token comp = tokens.get(tokens.size() - 2);
 				if (comp.getType() == TokenType.comp) {
 					Token path = tokens.get(tokens.size() - 3);
-					if (path.getType() == TokenType.path) {
-						builder.addExpression(collectId, comp.getComparison(), new PathBuilder(path.getToken()), param.getToken());
-						tokens.clear();
+					if (path.getType() == TokenType.path || path.getType() == TokenType.param) {
+						Frame end = getLastFrame();
+						Expression ex = new PathExpression(collectId, comp.getComparison(), new PathBuilder(path.getToken()), last.getToken());
+						if (((BinaryExpression) end.top).getLeft() == null) {
+							((BinaryExpression) end.top).setLeft(ex);
+						} else {
+							((BinaryExpression) end.top).setRight(ex);
+						}
 					}
 				}
 			}
+			tokens.clear();
 		}
 	
 		private void handleComparison(Token token) {
@@ -232,9 +266,49 @@ public class ExpressionBuilder {
 			//
 			tokens.add(token);
 		}
+		
+		private Frame getLastFrame() {
+			Frame last = root;
+			while (last.next != null) {
+				last = last.next;
+			}
+			return last;
+		}
+		
+		private Token getLastToken() {
+			if (tokens.size() > 0) {
+				return tokens.get(tokens.size() - 1);
+			}
+			return null;
+		}
+		
+		private void buildExpressions(Expression top) {
+			if (top instanceof BinaryExpression) {
+				BinaryExpression be = (BinaryExpression) top;
+				if (be.isComplete()) {
+					addExpression(top);
+					buildExpressions(be.getLeft());
+					buildExpressions(be.getRight());
+				} else {
+					// expect only left set
+					buildExpressions(be.getLeft());
+				}
+			} else {
+				addExpression(top);
+			}
+		}
+		
 	}
 	
-	private class Lexer {
+	private static class Frame {
+		
+		private Expression top;
+
+		private Frame next;
+		private Frame parent;
+	}
+	
+	private static class Lexer {
 		
 		private String input;
 		private int pos;
@@ -248,6 +322,11 @@ public class ExpressionBuilder {
 		
 		String nextToken() {
 			if (pos >= input.length()) {
+				if (token.length() > 0) {
+					String result = token;
+					token = "";
+					return result;
+				}
 				return null;
 			}
 			char c = input.charAt(pos);
@@ -289,7 +368,7 @@ public class ExpressionBuilder {
 		param;
 	}
 	
-	private class Token {
+	private static class Token {
 		
 		private String token;
 		private TokenType type;

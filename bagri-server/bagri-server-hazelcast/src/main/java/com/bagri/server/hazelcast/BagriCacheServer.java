@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast;
 
 import static com.bagri.core.Constants.*;
-import static com.bagri.core.server.api.CacheConstants.PN_XDM_SYSTEM_POOL;
+import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.core.server.api.SchemaRepository.bean_id;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
@@ -183,6 +183,7 @@ public class BagriCacheServer {
 	       		cFormats = (Collection<DataFormat>) cfg.getEntities(DataFormat.class);
 	       	}
         }
+    	// else it's ok, correct case..
 
         String[] aSchemas = getMemberSchemas(local);
         
@@ -212,8 +213,14 @@ public class BagriCacheServer {
             			xRepo.afterInit();
             			//xRepo.getHzInstance().getCluster().changeClusterState(ClusterState.ACTIVE);
             			logger.info("initServerNode; schema {} initialization complete", schemaName);
+            		} else {
+            			logger.info("initServerNode; schema {} initialization skipped", schemaName);
             		}
-            	}            	
+            	} else {
+        			logger.info("initServerNode; NO schema found for name {}", schemaName);
+            	}
+           	} else {
+    			logger.info("initServerNode; NO schema cache found");
            	}
        		// notify admin node about new schema Member
        		if (admins.size() > 0) {

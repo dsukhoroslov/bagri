@@ -81,6 +81,7 @@ public class Constants {
 
 	public static final String pn_query_command = "bdb.query.command";
 	public static final String pn_query_customPaths = "bdb.query.customPaths";
+	public static final String pn_query_customQuery = "bdb.query.customQuery";
 	public static final String pn_query_splitBy = "bdb.query.splitBy";
 	public static final String pn_query_invalidate = "bdb.query.invalidate";
 	public static final String pn_query_updateable = "bdb.query.updateable";
@@ -253,9 +254,10 @@ public class Constants {
 			
 			case pn_query_command: return 40;
 			case pn_query_customPaths: return 41;
-			case pn_query_splitBy: return 42;
-			case pn_query_invalidate: return 43;
-			case pn_query_updateable: return 44;
+			case pn_query_customQuery: return 42;
+			case pn_query_splitBy: return 43;
+			case pn_query_invalidate: return 44;
+			case pn_query_updateable: return 45;
 
 			case pn_document_collections: return 50;
 			case pn_document_data_format: return 51;
@@ -320,9 +322,10 @@ public class Constants {
 
 			case 40: return pn_query_command;
 			case 41: return pn_query_customPaths;
-			case 42: return pn_query_splitBy;
-			case 43: return pn_query_invalidate;
-			case 44: return pn_query_updateable;
+			case 42: return pn_query_customQuery;
+			case 43: return pn_query_splitBy;
+			case 44: return pn_query_invalidate;
+			case 45: return pn_query_updateable;
 			
 			case 50: return pn_document_collections;
 			case 51: return pn_document_data_format;

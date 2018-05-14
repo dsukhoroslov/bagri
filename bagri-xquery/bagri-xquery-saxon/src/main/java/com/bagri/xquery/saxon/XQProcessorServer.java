@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -149,15 +150,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		// this can be done twice in getXQuery
 		setStaticContext(sqc, props);
    	    
-		String overrides = props.getProperty(pn_query_customPaths);
-    	QueryBuilder xdmQuery = null; //parseOverride(overrides, params);
-		
    	    QueryManagement qMgr = (QueryManagement) getQueryManagement();
    	    Query xQuery = qMgr.getQuery(query);
 	    Integer qKey = qMgr.getQueryKey(query);
    	    try {
-   	    	
-			//if (params != null) {
+   			String overrides = props.getProperty(pn_query_customQuery);
+   	    	QueryBuilder xdmQuery = parseOverride(overrides);
+
+   	    	//if (params != null) {
 			//	for (Map.Entry<String, Object> var: params.entrySet()) {
 			//		bindVariable(var.getKey(), var.getValue());
 			//	}
@@ -165,13 +165,11 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 					
    	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
         	clnFinder.setExpression(xqExp);
-    	    if (xdmQuery == null) {
-	   	   	    if (xQuery != null) {
-	    	    	xdmQuery = xQuery.getXdmQuery();
-    	    		if (params != null && !params.isEmpty()) {
-        	    		xdmQuery.resetParams(params);
-    	    		}
-    	    	}
+    	    if (xdmQuery == null && xQuery != null) {
+	    	    xdmQuery = xQuery.getXdmQuery();
+    	    }
+    	    if (params != null && xdmQuery != null) {
+    	    	xdmQuery.resetParams(params);
     	    }
     		clnFinder.setQuery(xdmQuery);
 
@@ -192,6 +190,9 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			//}
 			
 		    return new XQIterator(getXQDataFactory(), itr); 
+        } catch (IOException ioe) {
+        	//
+        	throw new XQException(ioe.getMessage());
         } catch (XPathException xpe) {
         	logger.error("executeXQuery.error: ", xpe);
         	throw convertXPathException(xpe);
@@ -324,66 +325,20 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	return false;
     }
 
-	private QueryBuilder parseOverride(String overrides, Map<String, Object> params) {
+	private QueryBuilder parseOverride(String overrides) throws IOException {
 		QueryBuilder result = null;
 		if (overrides != null) {
 			result = new QueryBuilder();
-			ExpressionContainer ec = new ExpressionContainer();
-			result.addContainer(ec);
-
-		    // (/inventory/product-id EQ $pids) AND ((/inventory/virtual-stores/status EQ 'active') AND ((/inventory/virtual-stores/region-id EQ rid) OR (rid EQ null)))
-			ec.getBuilder().addExpression(1, Comparison.AND, null, null);
-			ec.getBuilder().addExpression(1, Comparison.EQ, new PathBuilder("/inventory/product-id"), "pids");
-			ec.getBuilder().addExpression(1, Comparison.AND, null, null);
-			ec.getBuilder().addExpression(1, Comparison.EQ, new PathBuilder("/inventory/virtual-stores/status"), "var0");
-			ec.getBuilder().addExpression(1, Comparison.AND, null, null);
-			ec.getBuilder().addExpression(1, Comparison.OR, null, null);
-			ec.getBuilder().addExpression(1, Comparison.EQ, new PathBuilder("/inventory/virtual-stores/region-id"), "rid");
-			ec.getBuilder().addExpression(1, Comparison.EQ, null, "rid");
-		
-			// override paths in expression container with ops..
-			//int idx = 0;
-			//for (Expression ex: query.getBuilder().getExpressions()) {
-			//	String op = ops.getProperty(String.valueOf(idx));
-			//	if (op != null) {
-			//		String[] parts = op.split(" "); 
-			//		ex.setPath(new PathBuilder(parts[0]));
-			//		if (parts.length > 1) {
-			//			ex.setCompType(Comparison.valueOf(parts[1]));
-			//			if (parts.length > 2) {
-			//				((PathExpression) ex).setParamName(parts[2]);
-			//				if (params.containsKey(parts[2])) {
-			//					query.getParams().put(parts[2], params.get(parts[2]));
-			//				}
-			//			}
-			//		}
-			//	}
-			//	idx++;
-			//}
-			
-			//PathBuilder path = new PathBuilder().
-			//		addPathSegment(AxisType.CHILD, prefix, "Security");
-			//ExpressionContainer ec = new ExpressionContainer();
-			//ec.addExpression(docType, Comparison.AND, path);
-			//ec.addExpression(docType, Comparison.AND, path); 
-			//path.addPathSegment(AxisType.CHILD, prefix, "SecurityInformation").
-			//		addPathSegment(AxisType.CHILD, null, "*").
-			//		addPathSegment(AxisType.CHILD, prefix, "Sector").
-			//		addPathSegment(AxisType.CHILD, null, "text()");
-			//ec.addExpression(docType, Comparison.EQ, path, "$sec", sector);
-			//path = new PathBuilder().
-			//		addPathSegment(AxisType.CHILD, prefix, "Security").
-			//		addPathSegment(AxisType.CHILD, prefix, "PE");
-			//ec.addExpression(docType, Comparison.AND, path);
-			//path.addPathSegment(AxisType.CHILD, null, "text()");
-			//ec.addExpression(docType, Comparison.GE, path, "$peMin", new BigDecimal(peMin));
-			//ec.addExpression(docType, Comparison.LT, path, "$peMax", new BigDecimal(peMax));
-			//path = new PathBuilder().
-			//		addPathSegment(AxisType.CHILD, prefix, "Security").
-			//		addPathSegment(AxisType.CHILD, prefix, "Yield").
-			//		addPathSegment(AxisType.CHILD, null, "text()");
-			//ec.addExpression(docType, Comparison.GT, path, "$yMin", new BigDecimal(yieldMin));
-			
+			Properties conts = PropUtils.propsFromString(overrides);
+			Enumeration<String> en = (Enumeration<String>) conts.propertyNames();
+			while (en.hasMoreElements()) {
+				String clnId = en.nextElement();
+				int clnIdx = Integer.parseInt(clnId);
+				ExpressionContainer ec = new ExpressionContainer();
+				result.addContainer(clnIdx, ec);
+			    // (/inventory/product-id EQ $pids) AND ((/inventory/virtual-stores/status EQ 'active') AND ((/inventory/virtual-stores/region-id EQ rid) OR (rid EQ null)))
+				ec.getBuilder().buildExpression(conts.getProperty(clnId), clnIdx);
+			}
 		}
 		logger.debug("parseOverride; returning: {}", result);
 		return result;

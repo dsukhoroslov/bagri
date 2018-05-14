@@ -130,7 +130,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 			query = new QueryBuilder();
 			PathBuilder currentPath = new PathBuilder();
 			// query.addContainer(currentType, new ExpressionContainer());
-			//exp.getExpression().
 			iterate(exp.getExpression(), context, query, currentType, currentPath);
 		} else if (query.hasEmptyParams()) {
 			iterateParams(exp.getExpression(), context, query);
@@ -278,20 +277,21 @@ public class CollectionFinderImpl implements CollectionFinder {
 			} catch (NullPointerException ee) {
 				result[1] = null;
 			}
-			logger.trace("resolveComparison; got reference: {}, value: {}", result[0], result[1]);
-		} else if (var instanceof StringLiteral) {
-			result[1] = ((StringLiteral) var).getStringValue();
 		} else if (var instanceof Literal) {
+			result[0] = "literal_" + var.getLocation().getLineNumber() + "_" + var.getLocation().getColumnNumber();
 			result[1] = getValues(((Literal) var).getValue());
 		}
+		logger.trace("resolveComparison; returning param: {}, value: {}", result[0], result[1]);
 		return result;
 	}
 	
 	private void iterateParams(Expression ex, XPathContext ctx, QueryBuilder query) throws XPathException {
 
-		// if (ex instanceof Block) {
-		// return;
-		// }
+		if (ex instanceof UserFunctionCall) {
+			UserFunctionCall ufc = (UserFunctionCall) ex;
+			logger.trace("iterateParams; switching to UDF: {}", ufc.getFunctionName());
+			ex = ufc.getFunction().getBody();
+		}
 
 		Iterator<Operand> itr = ex.operands().iterator();
 		while (itr.hasNext()) {
@@ -299,70 +299,61 @@ public class CollectionFinderImpl implements CollectionFinder {
 			iterateParams(e, ctx, query);
 		}
 
-		if (ex instanceof GeneralComparison20 || ex instanceof ValueComparison) {
-		//if (ex instanceof GeneralComparison10 || ex instanceof ComparisonExpression) { // GeneralComparison20
+		if (ex instanceof ComparisonExpression) { // GeneralComparison20 || ex instanceof ValueComparison) {
 			BinaryExpression be = (BinaryExpression) ex;
-			Object value = null;
-			String pName = null;
 			Expression le = be.getLhsExpression();
 
 			Comparison compType = getComparison(be.getOperator());
 			if (compType == null) {
-				logger.debug("iterate; can't get comparison from {}", be);
+				logger.debug("iterateParams; can't get comparison from {}", be);
 				throw new XPathException("Unknown comparison type for expression: " + be);
 			}
 
 			Expression var;
 			if (le instanceof VariableReference || le instanceof Literal) {
-				compType = Comparison.negate(compType);
+				compType = Comparison.revert(compType);
 				var = le;
 			} else {
 				var = be.getRhsExpression();
 			}
 
-			if (var instanceof VariableReference) {
-				Binding bind = ((VariableReference) var).getBinding();
-				if (bind instanceof LetExpression) {
-					Expression e2 = ((LetExpression) bind).getSequence();
-					if (e2 instanceof Atomizer) {
-						e2 = ((Atomizer) e2).getBaseExpression();
-						if (e2 instanceof VariableReference) {
-							// paired ref to the e
-							pName = ((VariableReference) e2).getBinding().getVariableQName().getLocalPart();
-						}
-					}
-				}
+			Object[] refs = resolveComparison(var, ctx);
+			String pName = (String) refs[0];
+			Object value = refs[1];
 
-				if (pName == null) {
-					pName = bind.getVariableQName().getClarkName();
-				}
-
-				try {
-					value = getValues(bind.evaluateVariable(ctx));
-				} catch (NullPointerException ee) {
-					value = null;
-				}
-				// } else if (var instanceof StringLiteral) {
-				// value = ((StringLiteral) var).getStringValue();
-				// } else if (var instanceof Literal) {
-				// value = getValues(((Literal) var).getValue());
-			}
-
-			logger.trace("iterateParams; got reference: {}, value: {}", pName, value);
-			if (pName != null && value != null) {
+			if (value != null) {
 				query.setEmptyParam(pName, value);
 			}
 		}
+	
+		if (ex instanceof SystemFunctionCall) {
+			Comparison compType = null;
+			SystemFunctionCall sfc = (SystemFunctionCall) ex;
+			if ("starts-with".equals(sfc.getDisplayName())) {
+				compType = Comparison.SW;
+			} else if ("ends-with".equals(sfc.getDisplayName())) {
+				compType = Comparison.EW;
+			} else if ("contains".equals(sfc.getDisplayName())) {
+				compType = Comparison.CNT;
+			} else {
+				//
+			}
+				
+			if (compType != null) {
+				Object[] refs = resolveComparison(sfc.getOperanda().getOperand(1).getChildExpression(), ctx);
+				String pName = (String) refs[0];
+				Object value = refs[1];
+				logger.trace("iterateParams; got operand: {}, value: {}", pName, value);
+				if (value != null) {
+					query.setEmptyParam(pName, value);
+				}
+			}
+		}
+	
 	}
 	
 	private void iterate(Expression ex, XPathContext ctx, QueryBuilder query, int currentType, PathBuilder path) throws XPathException {
 		logger.trace("iterate.start: {}; expression: {}", ex.getClass().getName(), ex);
-
-		// if (ex instanceof Block) {
-		// logger.trace("end: {}; path: {}", ex.getClass().getName(),
-		// path.getFullPath());
-		// return;
-		// }
 
 		if (ex instanceof SystemFunctionCall) {
 			SystemFunctionCall clx = (SystemFunctionCall) ex;
@@ -498,32 +489,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 			ExpressionContainer exCont = getCurrentContainer(query, currentType);
 			setParentPath(exCont.getBuilder(), exIdx, path);
 		}
-/*
-		if (ex instanceof SystemFunctionCall) {
-			SystemFunctionCall sfc = (SystemFunctionCall) ex;
-			if ("map:get".equals(sfc.getDisplayName())) {
-				if (isParentComparison(ex)) {
-					Expression arg = sfc.getArg(1);
-					if (arg instanceof StringLiteral) {
-						String namespace = null;
-						String segment = ((StringLiteral) arg).getStringValue();
-						AxisType axis = AxisType.CHILD;
-						if (segment.startsWith("@")) {
-							axis = AxisType.ATTRIBUTE;
-							segment = segment.substring(1);
-						} else if (segment.startsWith("#")) {
-							axis = AxisType.NAMESPACE;
-							segment = segment.substring(1);
-						}
-						path.addPathSegment(axis, namespace, segment);
-						logger.trace("iterate; added path segment {}:{} for axis: {} in IFC {}", namespace, segment, axis, ifc.getDisplayName());
-					} else {
-						// the arg can be instanceof VariableReference pointing to array of literals. Can it be used in comparison condition..?
-					}
-				}
-			}
-		}
-*/		
+		
 		if (ex instanceof SystemFunctionCall) {
 			// add FunctionExpression..?
 			Comparison compType = null;
@@ -553,8 +519,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 					//setParentPath(exCont.getBuilder(), exIndex, path);
 				}
 			}
-			//logger.trace("iterate; removing last segment after string comparison call; current path: {}", path.getFullPath());
-			//path.removeLastSegment();
 		}
 
 		if (ex instanceof Atomizer) {
@@ -573,14 +537,6 @@ public class CollectionFinderImpl implements CollectionFinder {
 			}
 		}
 		
-		//if (ex instanceof FLWORExpression) {
-		//	FLWORExpression flwor = (FLWORExpression) ex;
-		//	ExpressionContainer exCont = getCurrentContainer();
-		//	for (com.bagri.core.query.Expression e: exCont.getBuilder().getExpressions()) {
-		//		checkExpressionPath(e, flwor);
-		//	}
-		//}
-
 		logger.trace("iterate.end: {}; path: {}", ex.getClass().getName(), path.getFullPath());
 	}
 	
@@ -703,6 +659,39 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 
 /*
+		if (ex instanceof SystemFunctionCall) {
+			SystemFunctionCall sfc = (SystemFunctionCall) ex;
+			if ("map:get".equals(sfc.getDisplayName())) {
+				if (isParentComparison(ex)) {
+					Expression arg = sfc.getArg(1);
+					if (arg instanceof StringLiteral) {
+						String namespace = null;
+						String segment = ((StringLiteral) arg).getStringValue();
+						AxisType axis = AxisType.CHILD;
+						if (segment.startsWith("@")) {
+							axis = AxisType.ATTRIBUTE;
+							segment = segment.substring(1);
+						} else if (segment.startsWith("#")) {
+							axis = AxisType.NAMESPACE;
+							segment = segment.substring(1);
+						}
+						path.addPathSegment(axis, namespace, segment);
+						logger.trace("iterate; added path segment {}:{} for axis: {} in IFC {}", namespace, segment, axis, ifc.getDisplayName());
+					} else {
+						// the arg can be instanceof VariableReference pointing to array of literals. Can it be used in comparison condition..?
+					}
+				}
+			}
+		}
+		
+		if (ex instanceof FLWORExpression) {
+			FLWORExpression flwor = (FLWORExpression) ex;
+			ExpressionContainer exCont = getCurrentContainer();
+			for (com.bagri.core.query.Expression e: exCont.getBuilder().getExpressions()) {
+				checkExpressionPath(e, flwor);
+			}
+		}
+
 
 	private boolean isParentComparison(Expression ex) {
 		while (ex != null) {

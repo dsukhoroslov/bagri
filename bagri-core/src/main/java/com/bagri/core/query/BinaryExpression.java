@@ -15,10 +15,27 @@ public class BinaryExpression extends Expression {
 	 * 
 	 * @param clnId the collection identifier
 	 * @param compType the comparison type
+	 */
+	public BinaryExpression(int clnId, Comparison compType) {
+		super(clnId, compType, null);
+	}
+	
+	/**
+	 * 
+	 * @param clnId the collection identifier
+	 * @param compType the comparison type
 	 * @param path the expression path
 	 */
 	public BinaryExpression(int clnId, Comparison compType, PathBuilder path) {
 		super(clnId, compType, path);
+	}
+	
+	/**
+	 * 
+	 * @return true if left and right parts set, false otherwise
+	 */
+	public boolean isComplete() {
+		return left != null && right != null;
 	}
 	
 	/**

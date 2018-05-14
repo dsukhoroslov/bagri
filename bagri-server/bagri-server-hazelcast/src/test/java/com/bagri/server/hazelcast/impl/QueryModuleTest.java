@@ -163,8 +163,10 @@ public class QueryModuleTest extends BagriManagementTest {
 		pids.add("11386");
 		params.put("pids", pids);
 		params.put("rid", null); //235
+		//params.put("var2", "active"); 
 		Properties props = new Properties();
-		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
+		//props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
+		props.setProperty(pn_query_customQuery, "1=(/inventory/product-id = pids) and (/inventory/virtual-stores/status = literal_24_40)"); // and ((/inventory/virtual-stores/region-id = rid) or (rid = null)))");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {

@@ -143,7 +143,7 @@ public class QueryBuilder implements Cloneable {
 	/**
 	 * Bind parameter if it has no value yet
 	 * 
-	 * @param pName th parameter name
+	 * @param pName the parameter name
 	 * @param value the parameter value
 	 */
 	public void setEmptyParam(String pName, Object value) {
@@ -160,10 +160,11 @@ public class QueryBuilder implements Cloneable {
 	 * @param params the parameters to use
 	 */
 	public void resetParams(Map<String, Object> params) {
-		logger.trace("resetParams; this: {}; got params: {}", this, params);
+		logger.trace("resetParams.enter; this: {}; got params: {}", this, params);
 		for (ExpressionContainer exCont: containers.values()) {
 			exCont.resetParams(params);
 		}
+		logger.trace("resetParams.exit; this: {}", this);
 	}
 
 	/**
