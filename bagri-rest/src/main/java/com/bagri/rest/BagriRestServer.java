@@ -259,7 +259,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
         sslContextFactory.setKeyManagerPassword(keyStorePwd);
         
         // a tmp workaround for old SSL/TLS versions
-        sslContextFactory.setExcludeCipherSuites("^.*_(MD5|SHA|SHA1)$");
+        //sslContextFactory.setExcludeCipherSuites("^.*_(MD5|SHA|SHA1)$");
 
         // Now setup your HTTPS configuration.
         // Note: the SecureRequestCustomizer, sets up various servlet api request attributes and certificate information to satisfy the requirements of the servlet spec.

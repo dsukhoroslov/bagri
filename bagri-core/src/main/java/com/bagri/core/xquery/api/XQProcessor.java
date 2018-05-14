@@ -77,10 +77,11 @@ public interface XQProcessor {
      * @throws XQException in case of query preparation error
      */
     Collection<String> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
+
+    Iterator<Object> executeXQuery(String query, Properties props) throws XQException;
     
     /**
-     * executes XQuery provided. If query contains variables it must be prepared via <code>prepareXQuery</code> and variables 
-     * must be bound via <code>bindVariable</code> first. 
+     * executes XQuery provided. Query parameters are passed via params Map. 
      * Returns back {@link Iterator} over query results.
      * 
      * NOTE: implemented on the server side only
@@ -90,7 +91,7 @@ public interface XQProcessor {
      * @return an Iterator over query results
      * @throws XQException in case of query processing error
      */
-    Iterator<Object> executeXQuery(String query, Properties props) throws XQException;
+    Iterator<Object> executeXQuery(String query, Map<String, Object> params, Properties props) throws XQException;
 
     /**
      * executes XQuery provided. If query contains variables it must be prepared via <code>prepareXQuery</code> and variables 

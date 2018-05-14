@@ -82,6 +82,11 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 	}
 
 	@Override
+    public Iterator<Object> executeXQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+		return executeXQuery(query, props);
+	}
+	
+	@Override
 	public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
 		// implement it? what for..?
    		throw new XQException("Not implemented on the client side. Use another executeXQuery method taking XQStaticContext as a parameter instead");

@@ -565,8 +565,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		List<T> resList = null;
 		int qKey = 0;
+		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 		if (cacheResults) {
-			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 			qKey = getQueryKey(query);
 			if (isQuery) {
 				if (xqCache.containsKey(qKey)) {
@@ -580,7 +580,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		XQProcessor xqp = repo.getXQProcessor(clientId);
 		if (resList == null) {
 			try {
-				Iterator<T> iter = runQuery(query, params, props);
+				Iterator<T> iter = runQuery(xqp, query, params, props, isQuery);
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
@@ -630,7 +630,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
 		String overrides = props.getProperty(pn_query_customPaths);
-		logger.debug("getDocumentIds; got override paths: {}", overrides);
+		//logger.debug("getDocumentIds; got override paths: {}", overrides);
 		
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
@@ -721,7 +721,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			String clientId = props.getProperty(pn_client_id);
 			XQProcessor xqp = repo.getXQProcessor(clientId);
 			try {
-				Iterator<Object> iter = runQuery(query, params, props);
+				Iterator<Object> iter = runQuery(xqp, query, params, props, true);
 				if (cacheResults) {
 					Query xQuery = xqp.getCurrentQuery(query);
 					if (xQuery != null) {
@@ -776,7 +776,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 
-	private <T> Iterator<T> runQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+	private <T> Iterator<T> runQuery(XQProcessor xqp, String query, Map<String, Object> params, Properties props, boolean isQuery) throws XQException {
 		
         Throwable ex = null;
         boolean failed = false;
@@ -784,10 +784,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		Iterator<T> iter = null;
 		try {
-			String clientId = props.getProperty(pn_client_id);
-			boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
-			XQProcessor xqp = repo.getXQProcessor(clientId);
-			
 			QueryExecContext ctx = thContext.get();
 			ctx.reset(props, params);
 				
@@ -796,19 +792,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					xqp.bindVariable(var.getKey(), var.getValue());
 				}
 			}
-					
+			
 			if (isQuery) {
 				iter = (Iterator<T>) xqp.executeXQuery(query, props);
 			} else {
 				iter = (Iterator<T>) xqp.executeXCommand(query, params, props);
 			}
-					
+
 			if (params != null) {
 				for (Map.Entry<String, Object> var: params.entrySet()) {
 					xqp.unbindVariable(var.getKey());
 				}
 			}
-        } catch (Throwable t) {
+		} catch (Throwable t) {
             failed = true;
             ex = t;
         }

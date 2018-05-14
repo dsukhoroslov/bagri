@@ -199,7 +199,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, prefix, "Security");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.AND, path);
-		ec.addExpression(docType, Comparison.AND, path);
+		ec.addExpression(docType, Comparison.AND, path); //why this one?
 		path.addPathSegment(AxisType.CHILD, prefix, "SecurityInformation").
 				addPathSegment(AxisType.CHILD, null, "*").
 				addPathSegment(AxisType.CHILD, prefix, "Sector").

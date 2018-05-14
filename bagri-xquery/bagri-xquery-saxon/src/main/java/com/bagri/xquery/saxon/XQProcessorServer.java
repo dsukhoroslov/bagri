@@ -2,6 +2,8 @@ package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.*;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,9 +26,16 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Query;
+import com.bagri.core.query.AxisType;
+import com.bagri.core.query.Comparison;
+import com.bagri.core.query.ExpressionBuilder;
+import com.bagri.core.query.ExpressionContainer;
+import com.bagri.core.query.PathBuilder;
+import com.bagri.core.query.PathExpression;
 import com.bagri.core.query.QueryBuilder;
 import com.bagri.core.server.api.QueryManagement;
 import com.bagri.core.xquery.api.XQProcessor;
+import com.bagri.support.util.PropUtils;
 
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.Operand;
@@ -85,10 +94,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     }
 
     @Override
-	public Iterator<Object> executeXCommand(String command, Map<String, Object> bindings, XQStaticContext ctx) throws XQException {
+	public Iterator<Object> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException {
 		
         //setStaticContext(sqc, ctx);
-		return executeXCommand(command, bindings, (Properties) null);
+		return executeXCommand(command, params, (Properties) null);
 	}
     
 	@Override
@@ -122,46 +131,71 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	    }
 	}
 	
-	private Iterator<Object> execQuery(final String query) throws XQException {
-	    logger.trace("execQuery.enter; this: {}", this);
+	@Override
+    public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
+		try {
+			Map<String, Object> params = getObjectParams();
+	        return executeXQuery(query, params, props);
+        } catch (XPathException xpe) {
+        	logger.error("executeXQuery.error: ", xpe);
+        	throw convertXPathException(xpe);
+        }
+	}
+	
+	@Override
+    public Iterator<Object> executeXQuery(String query, Map<String, Object> params, Properties props) throws XQException {
+	    logger.trace("executeQuery.enter; this: {}", this);
 		long stamp = System.currentTimeMillis();
+		// this can be done twice in getXQuery
+		setStaticContext(sqc, props);
    	    
+		String overrides = props.getProperty(pn_query_customPaths);
+    	QueryBuilder xdmQuery = null; //parseOverride(overrides, params);
+		
    	    QueryManagement qMgr = (QueryManagement) getQueryManagement();
    	    Query xQuery = qMgr.getQuery(query);
 	    Integer qKey = qMgr.getQueryKey(query);
    	    try {
+   	    	
+			//if (params != null) {
+			//	for (Map.Entry<String, Object> var: params.entrySet()) {
+			//		bindVariable(var.getKey(), var.getValue());
+			//	}
+			//}
+					
    	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
-        	Map<String, Object> params = getObjectParams();
-    	    if (xQuery == null) {
-	        	clnFinder.setQuery(null);
-	        } else {
-    	    	QueryBuilder xdmQuery = xQuery.getXdmQuery();
-    	    	if (!(params == null || params.isEmpty())) {
-        	    	xdmQuery.resetParams(params);
-    	    	}
-	    		clnFinder.setQuery(xdmQuery);
-    	    }
         	clnFinder.setExpression(xqExp);
+    	    if (xdmQuery == null) {
+	   	   	    if (xQuery != null) {
+	    	    	xdmQuery = xQuery.getXdmQuery();
+    	    		if (params != null && !params.isEmpty()) {
+        	    		xdmQuery.resetParams(params);
+    	    		}
+    	    	}
+    	    }
+    		clnFinder.setQuery(xdmQuery);
 
 	        stamp = System.currentTimeMillis() - stamp;
-		    logger.debug("execQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params.keySet(), stamp);
+		    logger.debug("executeXQuery; xQuery: {}; params: {}; time taken: {}", xQuery, params == null ? null : params.keySet(), stamp);
 		    stamp = System.currentTimeMillis();
 	        SequenceIterator itr = xqExp.iterator(dqc);
 	        //Result r = new StreamResult();
 	        //xqExp.run(dqc, r, null);
 	        stamp = System.currentTimeMillis() - stamp;
-		    logger.trace("execQuery.exit; time taken: {}", stamp);
-	        return new XQIterator(getXQDataFactory(), itr); 
+		    logger.trace("executeXQuery.exit; time taken: {}", stamp);
+
+		    // not sure we can do this here!
+			//if (params != null) {
+			//	for (Map.Entry<String, Object> var: params.entrySet()) {
+			//		unbindVariable(var.getKey());
+			//	}
+			//}
+			
+		    return new XQIterator(getXQDataFactory(), itr); 
         } catch (XPathException xpe) {
-        	logger.error("execQuery.error: ", xpe);
+        	logger.error("executeXQuery.error: ", xpe);
         	throw convertXPathException(xpe);
         }
-	}
-    
-	@Override
-    public Iterator<Object> executeXQuery(String query, Properties props) throws XQException {
-		setStaticContext(sqc, props);
-        return execQuery(query);
 	}
 	
 	@Override
@@ -206,7 +240,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    }
    	    return result;
 	}
-	
+    
+	@Override
+	public void clearLocalCache() {
+		logger.debug("clearLocalCache.enter; cache size before clear: {}", queries.size());
+		queries.clear();
+	}
+
 	@Override
 	public String toString() {
 		SchemaRepository repo = getRepository();
@@ -284,11 +324,71 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	return false;
     }
 
-	@Override
-	public void clearLocalCache() {
-		logger.debug("clearLocalCache.enter; cache size before clear: {}", queries.size());
-		queries.clear();
+	private QueryBuilder parseOverride(String overrides, Map<String, Object> params) {
+		QueryBuilder result = null;
+		if (overrides != null) {
+			result = new QueryBuilder();
+			ExpressionContainer ec = new ExpressionContainer();
+			result.addContainer(ec);
+
+		    // (/inventory/product-id EQ $pids) AND ((/inventory/virtual-stores/status EQ 'active') AND ((/inventory/virtual-stores/region-id EQ rid) OR (rid EQ null)))
+			ec.getBuilder().addExpression(1, Comparison.AND, null, null);
+			ec.getBuilder().addExpression(1, Comparison.EQ, new PathBuilder("/inventory/product-id"), "pids");
+			ec.getBuilder().addExpression(1, Comparison.AND, null, null);
+			ec.getBuilder().addExpression(1, Comparison.EQ, new PathBuilder("/inventory/virtual-stores/status"), "var0");
+			ec.getBuilder().addExpression(1, Comparison.AND, null, null);
+			ec.getBuilder().addExpression(1, Comparison.OR, null, null);
+			ec.getBuilder().addExpression(1, Comparison.EQ, new PathBuilder("/inventory/virtual-stores/region-id"), "rid");
+			ec.getBuilder().addExpression(1, Comparison.EQ, null, "rid");
+		
+			// override paths in expression container with ops..
+			//int idx = 0;
+			//for (Expression ex: query.getBuilder().getExpressions()) {
+			//	String op = ops.getProperty(String.valueOf(idx));
+			//	if (op != null) {
+			//		String[] parts = op.split(" "); 
+			//		ex.setPath(new PathBuilder(parts[0]));
+			//		if (parts.length > 1) {
+			//			ex.setCompType(Comparison.valueOf(parts[1]));
+			//			if (parts.length > 2) {
+			//				((PathExpression) ex).setParamName(parts[2]);
+			//				if (params.containsKey(parts[2])) {
+			//					query.getParams().put(parts[2], params.get(parts[2]));
+			//				}
+			//			}
+			//		}
+			//	}
+			//	idx++;
+			//}
+			
+			//PathBuilder path = new PathBuilder().
+			//		addPathSegment(AxisType.CHILD, prefix, "Security");
+			//ExpressionContainer ec = new ExpressionContainer();
+			//ec.addExpression(docType, Comparison.AND, path);
+			//ec.addExpression(docType, Comparison.AND, path); 
+			//path.addPathSegment(AxisType.CHILD, prefix, "SecurityInformation").
+			//		addPathSegment(AxisType.CHILD, null, "*").
+			//		addPathSegment(AxisType.CHILD, prefix, "Sector").
+			//		addPathSegment(AxisType.CHILD, null, "text()");
+			//ec.addExpression(docType, Comparison.EQ, path, "$sec", sector);
+			//path = new PathBuilder().
+			//		addPathSegment(AxisType.CHILD, prefix, "Security").
+			//		addPathSegment(AxisType.CHILD, prefix, "PE");
+			//ec.addExpression(docType, Comparison.AND, path);
+			//path.addPathSegment(AxisType.CHILD, null, "text()");
+			//ec.addExpression(docType, Comparison.GE, path, "$peMin", new BigDecimal(peMin));
+			//ec.addExpression(docType, Comparison.LT, path, "$peMax", new BigDecimal(peMax));
+			//path = new PathBuilder().
+			//		addPathSegment(AxisType.CHILD, prefix, "Security").
+			//		addPathSegment(AxisType.CHILD, prefix, "Yield").
+			//		addPathSegment(AxisType.CHILD, null, "text()");
+			//ec.addExpression(docType, Comparison.GT, path, "$yMin", new BigDecimal(yieldMin));
+			
+		}
+		logger.debug("parseOverride; returning: {}", result);
+		return result;
 	}
+
     
 }
 
