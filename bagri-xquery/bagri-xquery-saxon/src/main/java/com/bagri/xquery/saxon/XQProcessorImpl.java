@@ -66,7 +66,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 
     protected Configuration config;
     protected StaticQueryContext sqc;
-    protected DynamicQueryContext dqc;
+    //protected DynamicQueryContext dqc;
     
     protected Properties properties = new Properties();
     
@@ -77,12 +77,14 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
         sqc = config.newStaticQueryContext();
         // supported in Saxon-EE only
         //sqc.setUpdatingEnabled(true);
-	    dqc = new DynamicQueryContext(config);
-        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+	    //dqc = new DynamicQueryContext(config);
+        //dqc.setApplyFunctionConversionRulesToExternalVariables(false);
         //sqc. cvr = new StandardObjectConverter();
         //JPConverter.allocate(XQItem.class, null, config);
         //config.setConfigurationProperty(FeatureKeys.LAZY_CONSTRUCTION_MODE, true);
     }
+    
+    protected abstract DynamicQueryContext getDynamicContext();
     
     public String getProperty(String propName) {
     	return properties.getProperty(propName);
@@ -337,6 +339,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 	//@Override
     public void bindVariable(String varName, Object var) throws XQException {
     	try {
+    		DynamicQueryContext dqc = getDynamicContext();
     		if (var == null) {
         		dqc.setParameter(getStructuredQName(varName), EmptySequence.getInstance());
     		} else {
@@ -355,6 +358,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     
 	//@Override
     public void unbindVariable(String varName) throws XQException {
+		DynamicQueryContext dqc = getDynamicContext();
         dqc.setParameter(getStructuredQName(varName), null);
     }
 
@@ -366,6 +370,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     // why it is not <QName, Object> ??
     // because it is used in QueryBuilder where params identified by plain Strings
     protected Map<String, Object> getObjectParams() throws XPathException {
+		DynamicQueryContext dqc = getDynamicContext();
     	GlobalParameterSet params = dqc.getParameters();
     	// got params.getNumberOfKeys() = -1 at one test!
     	//Map<String, Object> bindings = new HashMap<>(params.getNumberOfKeys());
@@ -402,7 +407,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
 
     // this is for test only?
     public void parseXQuery(String query) throws XQException {
-
+		DynamicQueryContext dqc = getDynamicContext();
         try {
 	        final XQueryExpression exp = sqc.compileQuery(query);
 	        // why do we do this? to populate dqc with params??
@@ -441,6 +446,7 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
     public void setTimeZone(TimeZone timeZone) throws XQException {
     	
         GregorianCalendar now = new GregorianCalendar(timeZone);
+		DynamicQueryContext dqc = getDynamicContext();
         try {
             dqc.setCurrentDateTime(new DateTimeValue(now, true));
         } catch (XPathException ex) {

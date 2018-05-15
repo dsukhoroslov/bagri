@@ -35,7 +35,7 @@ public class StoreDocument extends DocumentFunctionExtension {
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), SequenceType.SINGLE_STRING, MapType.OPTIONAL_MAP_ITEM}; 
+		return new SequenceType[] {BuiltInAtomicType.ANY_URI.one(), SequenceType.SINGLE_ITEM, MapType.OPTIONAL_MAP_ITEM}; 
 	}
 	
 	@Override

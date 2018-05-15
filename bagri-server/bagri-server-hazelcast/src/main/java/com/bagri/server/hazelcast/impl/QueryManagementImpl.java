@@ -466,18 +466,24 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
+		Set<Long> result = new HashSet<>();
 		if (paths == null || paths.isEmpty()) {
-			logger.debug("queryPathKeys; got query on unknown path: {}", pex); 
-			return found; //result;
+			logger.debug("queryPathKeys; got query on unknown path: {}", pex);
+			if (found != null) {
+				result.addAll(found);
+			}
+			return result;
 		}
 		Object newVal = adjustSearchValue(value, dataType);
 		if (newVal == null) {
-			logger.debug("queryPathKeys; got query on empty value, path: {}", pex); 
-			return found; //result;
+			logger.debug("queryPathKeys; got query on empty value, path: {}", pex);
+			if (found != null) {
+				result.addAll(found);
+			}
+			return result;
 		}
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
 		
-		Set<Long> result = new HashSet<>();
 		if (indexed) {
 			for (Integer pathId: paths) {
 				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);

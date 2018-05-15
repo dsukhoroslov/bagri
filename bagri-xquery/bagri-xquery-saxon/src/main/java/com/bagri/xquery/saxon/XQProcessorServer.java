@@ -45,6 +45,7 @@ import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
+import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.util.DocumentNumberAllocator;
@@ -59,6 +60,18 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     
     private static NamePool defNamePool = new NamePool();
     private static DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
+    
+	private ThreadLocal<DynamicQueryContext> thDContext = new ThreadLocal<DynamicQueryContext>() {
+		
+		@Override
+		protected DynamicQueryContext initialValue() {
+			DynamicQueryContext dqc = new DynamicQueryContext(config);
+	        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+	        SourceResolverImpl sResolver = (SourceResolverImpl) config.getSourceResolver();
+	        dqc.setUnparsedTextURIResolver(sResolver);
+			return dqc;
+ 		}
+	};
     
     public XQProcessorServer() {
     	super();
@@ -89,10 +102,16 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         config.setURIResolver(sResolver);
         ModuleURIResolver mResolver = new ModuleURIResolverImpl((com.bagri.core.server.api.SchemaRepository) xRepo);
         config.setModuleURIResolver(mResolver);
-        dqc.setUnparsedTextURIResolver(sResolver);
+        //dqc.setUnparsedTextURIResolver(sResolver);
     	//config.setCompileWithTracing(logger.isDebugEnabled());
         //sqc.setCodeInjector(new CodeInjectorImpl());
     }
+	
+	@Override
+	protected DynamicQueryContext getDynamicContext() {
+		return thDContext.get();
+	}
+	
 
     @Override
 	public Iterator<Object> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException {
@@ -162,6 +181,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			//		bindVariable(var.getKey(), var.getValue());
 			//	}
 			//}
+   	    	DynamicQueryContext dqc = getDynamicContext();
 					
    	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
         	clnFinder.setExpression(xqExp);

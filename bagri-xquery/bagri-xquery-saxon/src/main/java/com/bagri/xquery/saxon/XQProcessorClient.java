@@ -30,9 +30,23 @@ import com.bagri.core.xquery.api.XQProcessor;
 import net.sf.saxon.expr.instruct.GlobalParameterSet;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.StructuredQName;
+import net.sf.saxon.query.DynamicQueryContext;
 import net.sf.saxon.trans.XPathException;
 
 public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
+	
+    private DynamicQueryContext dqc;
+	
+	public XQProcessorClient() {
+		super();
+	    dqc = new DynamicQueryContext(config);
+        dqc.setApplyFunctionConversionRulesToExternalVariables(false);
+    }
+    
+	@Override
+    protected DynamicQueryContext getDynamicContext() {
+		return dqc;
+	}
 	
 	@Override
     public void cancelExecution() throws XQException {
