@@ -37,6 +37,7 @@ import org.glassfish.jersey.internal.inject.AbstractBinder;
 //import org.glassfish.hk2.api.Factory;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
 import org.glassfish.jersey.server.wadl.WadlFeature;
@@ -130,6 +131,11 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
         // adding Swagger support
         config.register(ApiListingResource.class);
         config.register(SwaggerSerializers.class);
+        if (jmx) {
+        	config.property(ServerProperties.MONITORING_ENABLED, true);
+        	config.property(ServerProperties.MONITORING_STATISTICS_ENABLED, true);
+        	config.property(ServerProperties.MONITORING_STATISTICS_MBEANS_ENABLED, true);
+        }
         return config;
     }
     

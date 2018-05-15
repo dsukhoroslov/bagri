@@ -7,15 +7,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bagri.core.api.ResultCursor;
 
 public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	
     private int limit;
-	private Collection<ResultCursor<T>> results = new ArrayList<>();
+	protected Collection<ResultCursor<T>> results = new ArrayList<>();
 	
 	public CombinedCursorImpl() {
 		this(0);

@@ -165,6 +165,8 @@ public class QueryModuleTest extends BagriManagementTest {
 		params.put("rid", null); //235
 		//params.put("var2", "active"); 
 		Properties props = new Properties();
+		// %bgdb:property("bdb.query.customQuery", "(/inventory/product-id = pids) AND ((/inventory/virtual-stores/status = var2) AND ((/inventory/virtual-stores/region-id = rid) OR (rid = null)))") :)
+		// %bgdb:property("bdb.query.customQuery", "1=(/inventory/product-id = pids) AND (/inventory/virtual-stores/status = literal_24_40)") :)		
 		//props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
 		props.setProperty(pn_query_customQuery, "1=(/inventory/product-id = pids) and (/inventory/virtual-stores/status = literal_24_40)"); // and ((/inventory/virtual-stores/region-id = rid) or (rid = null)))");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {

@@ -74,17 +74,12 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 	private SchemaRepository repo;
 	private XQueryExpression exp;
-	//private QueryBuilder query;
-
-	//private PathBuilder currentPath;
-	// private int collectType;
-	//private int currentType;
 	
-	private ThreadLocal<QueryBuilder> thQuery = new ThreadLocal<QueryBuilder>() {
+	private ThreadLocal<QueryBuilderContext> thContext = new ThreadLocal<QueryBuilderContext>() {
 		
 		@Override
-		protected QueryBuilder initialValue() {
-			return new QueryBuilder();
+		protected QueryBuilderContext initialValue() {
+			return new QueryBuilderContext();
  		}
 	};
 	
@@ -96,13 +91,12 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 	QueryBuilder getQuery() {
 		// should return Container's copy!?
-		return thQuery.get(); //query;
+		return thContext.get().query;
 	}
 
 	void setQuery(QueryBuilder query) {
-		// copy it! already copied, actually
 		logger.trace("setQuery. got: {}; this: {}", query, this);
-		this.thQuery.set(query); // query = query;
+		this.thContext.get().query = query;
 	}
 
 	void setExpression(XQueryExpression exp) {
@@ -122,25 +116,26 @@ public class CollectionFinderImpl implements CollectionFinder {
 		} else {
 			collectId = getCollectionId(collectionURI, exp.getExpression().getStaticBaseURIString());
 		}
-		int currentType = collectId; 
+		thContext.get().collectionId = collectId; 
 		logger.trace("findCollection. got collection type: {} for uri: {}", collectId, collectionURI);
 
 		QueryBuilder query = getQuery();
 		if (query == null) {
 			query = new QueryBuilder();
-			PathBuilder currentPath = new PathBuilder();
 			// query.addContainer(currentType, new ExpressionContainer());
-			iterate(exp.getExpression(), context, query, currentType, currentPath);
+			iterate(exp.getExpression(), context, query);
+			setQuery(query);
 		} else if (query.hasEmptyParams()) {
 			iterateParams(exp.getExpression(), context, query);
 		}
 		stamp = System.currentTimeMillis() - stamp;
 		logger.debug("findCollection; time taken: {}; query: {}; this: {}", stamp, query, this);
 
-		ExpressionContainer exCont = getCurrentContainer(query, currentType);
+		int currentId = thContext.get().collectionId; 
+		ExpressionContainer exCont = getCurrentContainer(query, currentId);
 		if (exCont.getBuilder().getRoot() == null) {
-			exCont.addExpression(currentType);
-			logger.trace("findCollection; added always expression for type: {}", currentType);
+			exCont.addExpression(currentId);
+			logger.trace("findCollection; added always expression for collection: {}", currentId);
 		}
 
 		// provide builder's copy here.
@@ -352,8 +347,11 @@ public class CollectionFinderImpl implements CollectionFinder {
 	
 	}
 	
-	private void iterate(Expression ex, XPathContext ctx, QueryBuilder query, int currentType, PathBuilder path) throws XPathException {
+	private void iterate(Expression ex, XPathContext ctx, QueryBuilder query) throws XPathException {
 		logger.trace("iterate.start: {}; expression: {}", ex.getClass().getName(), ex);
+		
+		PathBuilder path = thContext.get().path;
+		int collectId = thContext.get().collectionId;
 
 		if (ex instanceof SystemFunctionCall) {
 			SystemFunctionCall clx = (SystemFunctionCall) ex;
@@ -369,15 +367,16 @@ public class CollectionFinderImpl implements CollectionFinder {
 					}
 				}
 
-				int clnId = getCollectionId(collectUri, ex.getStaticBaseURIString());
-				if (clnId < 0) {
-					clnId = -1 * (query.getContainers().size() + 1);
+				collectId = getCollectionId(collectUri, ex.getStaticBaseURIString());
+				if (collectId < 0) {
+					collectId = -1 * (query.getContainers().size() + 1);
 				}
-				currentType = clnId;
-				logger.trace("iterate; set collectionId: {} for uri: {}", currentType, collectUri);
+				logger.trace("iterate; set collectionId: {} for uri: {}", collectId, collectUri);
 				path = new PathBuilder();
+				thContext.get().path = path;
+				thContext.get().collectionId = collectId;
 				ExpressionContainer exCont = new ExpressionContainer();
-				query.addContainer(currentType, exCont);
+				query.addContainer(collectId, exCont);
 			}
 		}
 
@@ -416,9 +415,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 		if (ex instanceof BooleanExpression) {
 			Comparison compType = getComparison(((BooleanExpression) ex).getOperator());
 			if (compType != null) {
-				// if (currentType == collectType) {
-				ExpressionContainer exCont = getCurrentContainer(query, currentType);
-				exIdx = exCont.addExpression(currentType, compType, path);
+				ExpressionContainer exCont = getCurrentContainer(query, collectId);
+				exIdx = exCont.addExpression(collectId, compType, path);
 				logger.trace("iterate; added {} expression {} at index: {}", compType, exCont, exIdx);
 				// }
 			} else {
@@ -427,9 +425,9 @@ public class CollectionFinderImpl implements CollectionFinder {
 		}
 
 		if (ex instanceof GeneralComparison20) {
-			ExpressionContainer exCont = getCurrentContainer(query, currentType);
+			ExpressionContainer exCont = getCurrentContainer(query, collectId);
 			//if (exCont.getBuilder().getRoot() != null) {
-				int exIndex = exCont.addExpression(currentType, Comparison.AND, path);
+				int exIndex = exCont.addExpression(collectId, Comparison.AND, path);
 				logger.trace("iterate; added explicit AND expression {} at index: {}", exCont, exIndex);
 			//}
 		}
@@ -442,7 +440,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 		}
 
 		for (Operand op: ex.operands()) {
-			iterate(op.getChildExpression(), ctx, query, currentType, path);
+			iterate(op.getChildExpression(), ctx, query);
 		}
 
 		if (ex instanceof ComparisonExpression) { // GeneralComparison20 || ex instanceof ValueComparison) {
@@ -471,14 +469,15 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 			if (path.getSegments().size() == 0) {
 				PathBuilder p = resolveCurrentPath(ex, true);
-				ExpressionContainer exCont = getCurrentContainer(query, currentType);
-				int exIndex = exCont.addExpression(currentType, compType, p, pName, value);
+				ExpressionContainer exCont = getCurrentContainer(query, collectId);
+				int exIndex = exCont.addExpression(collectId, compType, p, pName, value);
 				logger.trace("iterate; resolved path: {}", p);
-			}
+			} else {
+				PathBuilder p = resolveCurrentPath(ex, true);
+				logger.trace("iterate; resolved path: {}", p);
 
-			if (path.getSegments().size() > 0) {
-				ExpressionContainer exCont = getCurrentContainer(query, currentType);
-				exIdx = exCont.addExpression(currentType, compType, path, pName, value);
+				ExpressionContainer exCont = getCurrentContainer(query, collectId);
+				exIdx = exCont.addExpression(collectId, compType, path, pName, value);
 				logger.trace("iterate; added path expression at index: {}", exIdx);
 				setParentPath(exCont.getBuilder(), exIdx, path);
 				//path.removeLastSegment();
@@ -486,7 +485,7 @@ public class CollectionFinderImpl implements CollectionFinder {
 		}
 
 		if (ex instanceof BooleanExpression) {
-			ExpressionContainer exCont = getCurrentContainer(query, currentType);
+			ExpressionContainer exCont = getCurrentContainer(query, collectId);
 			setParentPath(exCont.getBuilder(), exIdx, path);
 		}
 		
@@ -505,16 +504,16 @@ public class CollectionFinderImpl implements CollectionFinder {
 			}
 				
 			if (compType != null) {
-				ExpressionContainer exCont = getCurrentContainer(query, currentType);
+				ExpressionContainer exCont = getCurrentContainer(query, collectId);
 				Object[] refs = resolveComparison(sfc.getOperanda().getOperand(1).getChildExpression(), ctx);
 				String pName = (String) refs[0];
 				Object value = refs[1];
 				if (path.getSegments().size() == 0) {
 					PathBuilder p = resolveCurrentPath(ex, true);
-					int exIndex = exCont.addExpression(currentType, compType, p, pName, value);
+					int exIndex = exCont.addExpression(collectId, compType, p, pName, value);
 					logger.trace("iterate; resolved path: {}", p);
 				} else {
-					int exIndex = exCont.addExpression(currentType, compType, path, pName, value);
+					int exIndex = exCont.addExpression(collectId, compType, path, pName, value);
 					logger.trace("iterate; added functional path expression at index: {}", exIndex);
 					//setParentPath(exCont.getBuilder(), exIndex, path);
 				}
@@ -653,6 +652,15 @@ public class CollectionFinderImpl implements CollectionFinder {
 			logger.trace("getCurrentContainer; added new container {} for cType: {}", exCont, currentType);
 		}
 		return exCont;
+	}
+	
+	
+	private class QueryBuilderContext {
+
+		private int collectionId;
+		private QueryBuilder query;
+		private PathBuilder path = new PathBuilder();
+		
 	}
 
 }

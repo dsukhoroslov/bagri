@@ -284,11 +284,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	void removeQueryResults(long docId) {
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
-		int size = logger.isTraceEnabled() ? xrCache.size() : 0; 
+		//int size = logger.isTraceEnabled() ? xrCache.size() : 0;
+		int size = xrCache.size();
 		xrCache.removeAll(new ResultsDocPredicate(docId));
 		//xrCache.removeAll(Predicates.equal("docId", docId));
-		size -= logger.isTraceEnabled() ? xrCache.size() : 0; 
-		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", size, docId);
+		//size -= logger.isTraceEnabled() ? xrCache.size() : 0;
+		size -= xrCache.size();
+		logger.info("removeQueryResults.exit; deleted {} results for docId: {}", size, docId);
 	}
 
 	void removeQueryResults(Collection<Integer> queryIds) {
@@ -636,12 +638,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
 		String overrides = props.getProperty(pn_query_customPaths);
-		//logger.debug("getDocumentIds; got override paths: {}", overrides);
+		logger.debug("getDocumentIds; got override paths: {}", overrides);
 		
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
 			if (exp != null && exp.getRoot() != null) {
-				overrideQuery(query, params, overrides);
+				overridePaths(query, params, overrides);
 					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
@@ -676,7 +678,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return result;
 	}
 	
-	private void overrideQuery(ExpressionContainer query, Map<String, Object> params, String overrides) {
+	private void overridePaths(ExpressionContainer query, Map<String, Object> params, String overrides) {
 		if (overrides != null) {
 			try {
 				Properties ops = PropUtils.propsFromString(overrides);

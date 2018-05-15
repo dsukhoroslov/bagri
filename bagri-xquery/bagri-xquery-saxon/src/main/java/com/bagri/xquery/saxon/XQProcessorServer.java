@@ -227,12 +227,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	@Override
 	public Query getCurrentQuery(final String query) throws XQException {
-		if (clnFinder.getQuery() == null) {
+		QueryBuilder qb = clnFinder.getQuery();
+		if (qb == null) {
 			// not 'collection' query?
 			// TODO: yes, fix it for updating query!
 			return null;
 		}
-		return new Query(query, isQueryReadOnly(query), clnFinder.getQuery());
+		return new Query(query, isQueryReadOnly(query), qb);
 	}
     
 	@Override

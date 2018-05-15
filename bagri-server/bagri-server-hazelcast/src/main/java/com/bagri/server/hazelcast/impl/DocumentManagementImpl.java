@@ -964,6 +964,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 			if (pv_query_invalidate_all.equals(invScope) || pv_query_invalidate_paths.equals(invScope)) {
 				// invalidate cached query results.
+				logger.info("storeDocumentInternal; going to invalidate {} paths for document {}", pathIds.size(), uri); 
 				((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 			} 
 			// otherwise may be we don't need to collect pathIds at all?!

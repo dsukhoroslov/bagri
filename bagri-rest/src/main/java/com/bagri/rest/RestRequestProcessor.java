@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -401,27 +402,37 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
    	        @Override
    	        public void write(OutputStream os) throws IOException, WebApplicationException {
    	        	// fixed cursor will be complete from the very beginning
-   	        	while (!result.isComplete()) {
-   	        		try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						break;
-					}
-   	        	}
-    	        	
             	int idx = 0;
+   	        	Iterator<XQItem> iter = result.iterator();
    	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
    	            	writer.write(first);
-   		            for (XQItem item: result) {
-   		            	if (idx > 0) {
-   		            		writer.write(delimiter);
-   		            	}
-   		            	String chunk = item.getAtomicValue(); // get as string ?
-   		                logger.trace("write; out: {}", chunk);
-   		                writer.write(chunk);
-   			            writer.flush();
-   			            idx++;
-   		            } 
+   	   	        	while (true) {
+   	   	        		if (iter.hasNext()) {
+   	   	        			XQItem item = iter.next();
+   	   		            	if (idx > 0) {
+   	   		            		writer.write(delimiter);
+   	   		            	}
+   	   		            	String chunk = item.getAtomicValue(); // get as string ?
+   	   		                logger.trace("write; out: {}", chunk);
+   	   		                writer.write(chunk);
+   	   			            writer.flush();
+   	   			            idx++;
+   	   	        		} else {
+   	   	        			if (result.isComplete()) {
+	   	   	        			// doublecheck to avoid concurrent update in asynch cursor
+	   	   	        			if (!iter.hasNext()) {
+	   	   	        				break;
+	   	   	        			}
+	   	   	        		} else {
+	   	    	        		try {
+	   	    	        			Thread.sleep(10);
+	   	    	        		} catch (InterruptedException e) {
+	   	   	   		                logger.info("write; interrupted at {} chunk", idx);
+	   	    	        			break;
+	   	    	        		}
+	   	   	        		}
+   	   	        		}
+   	   	        	}
    	            	writer.write(last);
    	            	writer.flush();
    	            } catch (EofException ex) {
@@ -433,7 +444,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
                    	try {
    						result.close();
    					} catch (Exception ex) {
-   		            	logger.error("write.error: error closing cursor ", ex);
+   		            	logger.error("write.error: closing cursor ", ex);
    					}
                 }
             }
