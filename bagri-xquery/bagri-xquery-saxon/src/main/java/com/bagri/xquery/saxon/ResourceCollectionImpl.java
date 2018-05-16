@@ -144,6 +144,8 @@ public class ResourceCollectionImpl implements ResourceCollection {
 				try {
 					DocumentManagement docMgr = (DocumentManagement) repo.getDocumentManagement(); 
 					String type = docMgr.getDocumentContentType(docKey);
+					
+					// we can check isDocVisible here, thus don't do this at loadData phase.. 
 					if ("MAP".equals(type)) {
 						logger.trace("ResourceIterator.next; returning new MapResource for docKey {}", docKey);
 				        return new MapResourceImpl(docMgr, docKey);

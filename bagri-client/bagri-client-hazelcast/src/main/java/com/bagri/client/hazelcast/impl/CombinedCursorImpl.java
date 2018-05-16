@@ -1,10 +1,8 @@
 package com.bagri.client.hazelcast.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.bagri.core.api.ResultCursor;
@@ -12,7 +10,7 @@ import com.bagri.core.api.ResultCursor;
 public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	
     private int limit;
-	protected Collection<ResultCursor<T>> results = new ArrayList<>();
+	protected List<ResultCursor<T>> results = new ArrayList<>();
 	
 	public CombinedCursorImpl() {
 		this(0);
@@ -37,6 +35,11 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 
 	@Override
 	public boolean isAsynch() {
+		for (ResultCursor<T> cursor: results) {
+			if (cursor.isAsynch()) {
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -62,7 +65,7 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		return new CombinedCursorIterator<>(limit, results);
+		return new CombinedCursorIterator<>();
 	}
 	
 	@Override
@@ -71,41 +74,45 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	}
 
 	
-	private static class CombinedCursorIterator<T> implements Iterator<T> {
+	private class CombinedCursorIterator<T> implements Iterator<T> {
 
-		private int limit = 0;
-		private int index = 0;
+		private int resIndex = 0;
+		private int curIndex = -1;
 		private Iterator<T> curIter = null;
 		private ResultCursor<T> curResult = null;
-		private Deque<ResultCursor<T>> cursors = null;
 		
-		CombinedCursorIterator(int limit, Collection<ResultCursor<T>> results) {
-			this.limit = limit;
-			this.cursors = new LinkedList<>(results);
-		}
-
 		@Override
 		public boolean hasNext() {
-			if (limit > 0 && index >= limit) {
-				return false;
-			}
-			if (cursors.isEmpty() && curResult == null) {
+			if (limit > 0 && resIndex >= limit) {
 				return false;
 			}
 			if (curResult == null) {
-				curResult = cursors.pop();
-				curIter = curResult.iterator();
+				if (results.isEmpty()) {
+					return false;
+				}
+				curIndex++;
+				if (curIndex < results.size()) {
+					curResult = (ResultCursor<T>) results.get(curIndex);
+					curIter = curResult.iterator();
+				} else {
+					return false;
+				}
 			}
 			if (curIter.hasNext()) {
 				return true;
 			} else {
-				try {
-					curResult.close();
-				} catch (Exception ex) {
-					// unexpected..
+				if (curResult.isComplete()) {
+					try {
+						curResult.close();
+					} catch (Exception ex) {
+						// unexpected..
+					}
+					curResult = null;
+					return hasNext();
+				} else {
+					// could get asynch results..
+					return curIter.hasNext();
 				}
-				curResult = null;
-				return hasNext();
 			}
 		}
 	
@@ -116,7 +123,7 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 					throw new NoSuchElementException("No more elements in the cursor");
 				}
 			}
-			index++;
+			resIndex++;
 			return (T) curIter.next();
 		}
 

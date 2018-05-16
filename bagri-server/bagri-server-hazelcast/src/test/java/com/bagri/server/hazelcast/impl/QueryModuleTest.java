@@ -177,4 +177,30 @@ public class QueryModuleTest extends BagriManagementTest {
 			assertEquals(10, cnt);
 		}
 	}
+
+	@Test
+	public void checkProductsCacheTest() throws Exception {
+	
+		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
+	        		   "declare variable $pids external;\n" +
+	        		   "declare variable $rid external;\n" +
+					   "\n" +
+					   "inv:get-products-by-pid($pids, $rid)\n";
+
+		Map<String, Object> params = new HashMap<>();
+		//List<Integer> pids = new ArrayList<>();
+		List<String> pids = new ArrayList<>();
+		pids.add("11386");
+		params.put("pids", pids);
+		params.put("rid", null); //235
+		Properties props = new Properties();
+		props.setProperty(pn_query_customPaths, "1=/inventory/product-id EQ pids");
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				cnt++;
+			}  
+			assertEquals(2, cnt);
+		}
+	}
 }

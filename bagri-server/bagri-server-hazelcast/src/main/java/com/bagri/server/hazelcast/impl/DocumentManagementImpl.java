@@ -970,6 +970,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			// otherwise may be we don't need to collect pathIds at all?!
 		}
 		if (update && tx == null && pv_query_invalidate_docs.equals(invScope)) {
+			logger.info("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 
 	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		}
 

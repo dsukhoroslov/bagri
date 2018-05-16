@@ -16,7 +16,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.impl.Index;
 import com.hazelcast.query.impl.QueryContext;
 
-public class ResultsDocPredicate implements IndexAwarePredicate<Long, QueryResult>, IdentifiedDataSerializable { 
+public class ResultsDocPredicate implements Predicate<Long, QueryResult>, IdentifiedDataSerializable { //IndexAwarePredicate<Long, QueryResult> 
 	
 	/**
 	 * 
@@ -49,16 +49,16 @@ public class ResultsDocPredicate implements IndexAwarePredicate<Long, QueryResul
 		return resEntry.getValue().getDocIds().contains(docId);
 	}
 	
-	@Override
-	public Set filter(QueryContext queryContext) {
-		Index idx = queryContext.getIndex("docId");
-		return idx.getRecords(docId);
-	}
+	//@Override
+	//public Set filter(QueryContext queryContext) {
+	//	Index idx = queryContext.getIndex("docId");
+	//	return idx.getRecords(docId);
+	//}
 
-	@Override
-	public boolean isIndexed(QueryContext queryContext) {
-		return true;
-	}
+	//@Override
+	//public boolean isIndexed(QueryContext queryContext) {
+	//	return true;
+	//}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {

@@ -404,6 +404,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
    	        	// fixed cursor will be complete from the very beginning
             	int idx = 0;
    	        	Iterator<XQItem> iter = result.iterator();
+                logger.trace("write; got result: {} with iter: {}", result, iter);
    	            try (Writer writer = new BufferedWriter(new OutputStreamWriter(os))) {
    	            	writer.write(first);
    	   	        	while (true) {
@@ -413,14 +414,17 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
    	   		            		writer.write(delimiter);
    	   		            	}
    	   		            	String chunk = item.getAtomicValue(); // get as string ?
-   	   		                logger.trace("write; out: {}", chunk);
+   	   		                logger.trace("write; idx: {}; chunk: {}", idx, chunk);
    	   		                writer.write(chunk);
    	   			            writer.flush();
    	   			            idx++;
    	   	        		} else {
+   	   		                logger.trace("write; no next; idx: {}", idx);
    	   	        			if (result.isComplete()) {
+   	   	   		                logger.trace("write; no next, got complete; {}", idx);
 	   	   	        			// doublecheck to avoid concurrent update in asynch cursor
 	   	   	        			if (!iter.hasNext()) {
+	   	   	   		                logger.trace("write; complete, but no next; {}", idx);
 	   	   	        				break;
 	   	   	        			}
 	   	   	        		} else {
@@ -435,6 +439,7 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
    	   	        	}
    	            	writer.write(last);
    	            	writer.flush();
+	                logger.debug("write; written {} chunks", idx);
    	            } catch (EofException ex) {
    	            	logger.info("write; client has terminated connection at {} chunk, out of {} total chunks", idx, result.size());
    	            } catch (Exception ex) {
@@ -449,10 +454,6 @@ public class RestRequestProcessor implements Inflector<ContainerRequestContext, 
                 }
             }
         };
-    }
-    
-    private void writeResult() {
-    	
     }
     
     private Properties getQueryProperties() {
