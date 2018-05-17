@@ -94,6 +94,16 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
 	}
 
 	@Override
+	public int getFactoryId() {
+		return cli_factory_id;
+	}
+
+	@Override
+	public int getId() {
+		return cli_DocumentProcessor;
+	}
+
+	@Override
 	public Object process(Entry<DocumentKey, Document> entry) {
 		DocumentKey lastKey = ddSvc.getLastRevisionKeyForUri(uri);
 		long txStart = tx == null ? TX_NO : tx.getTxId();
@@ -132,16 +142,6 @@ public class DocumentProcessor implements EntryProcessor<DocumentKey, Document>,
     	} catch (BagriException ex) {
     		return ex;
     	}
-	}
-
-	@Override
-	public int getFactoryId() {
-		return cli_factory_id;
-	}
-
-	@Override
-	public int getId() {
-		return cli_DocumentProcessor;
 	}
 
 	@Override

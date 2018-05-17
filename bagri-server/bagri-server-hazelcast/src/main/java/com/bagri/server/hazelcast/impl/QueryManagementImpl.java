@@ -33,6 +33,7 @@ import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
+import com.bagri.core.KeyFactory;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.impl.QueryManagementBase;
@@ -59,6 +60,7 @@ import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.server.hazelcast.predicate.QueryPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
+import com.bagri.server.hazelcast.task.query.QueryResultProcessor;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
 import com.bagri.support.util.PropUtils;
@@ -283,27 +285,20 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	void removeQueryResults(long docId) {
-		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, xrCache.size());
-		//int size = logger.isTraceEnabled() ? xrCache.size() : 0;
-		int size = xrCache.size();
+		int oSize = logger.isTraceEnabled() ? xrCache.size() : 0;
+		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, oSize);
 		xrCache.removeAll(new ResultsDocPredicate(docId));
 		//xrCache.removeAll(Predicates.equal("docId", docId));
-		//size -= logger.isTraceEnabled() ? xrCache.size() : 0;
-		int nsize = xrCache.size();
-		size -= nsize;
-		if (size > 50) {
-			logger.info("removeQueryResults.exit; deleted {} results for docId: {}; new size is: {}", size, docId, nsize);
-		} else {
-			logger.trace("removeQueryResults.exit; deleted {} results for docId: {}", size, docId);
-		}
+		int nSize = logger.isTraceEnabled() ? xrCache.size() : 0;
+		logger.trace("removeQueryResults.exit; deleted {} results for docId: {}; new size is: {}", oSize - nSize, docId, nSize);
 	}
 
 	void removeQueryResults(Collection<Integer> queryIds) {
+		int oSize = logger.isTraceEnabled() ? xrCache.size() : 0;
 		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, xrCache.size());
-		int size = logger.isTraceEnabled() ? xrCache.size() : 0; 
 		xrCache.removeAll(new ResultsQueryPredicate(queryIds));
-		size -= logger.isTraceEnabled() ? xrCache.size() : 0; 
-		logger.trace("removeQueryResults.exit; deleted {} results", size);
+		int nSize = logger.isTraceEnabled() ? xrCache.size() : 0;
+		logger.trace("removeQueryResults.exit; deleted {} results; new size is: {}", oSize - nSize, nSize);
 	}
 	
 	@Override
@@ -507,6 +502,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					}
 				} else {
 					//fallback to full scan below..
+					// what if 'found' has been already changed above? actually, this 'break will not help ..
 					result = null;
 					break;
 				}
@@ -557,10 +553,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private Set<Long> checkDocumentsLocal(Collection<Long> docKeys) {
 		// filter out external docKeys; size should be docKeys.size / cluster size
+		KeyFactory factory = repo.getFactory();
 		Set<Long> localKeys = new HashSet<>();
 		PartitionService ps = repo.getHzInstance().getPartitionService();
 		for (Long key: docKeys) {
-			if (ps.getPartition(key).getOwner().localMember()) {
+			DocumentKey docKey = factory.newDocumentKey(key);
+			if (ps.getPartition(docKey).getOwner().localMember()) {
 				localKeys.add(key);
 			}
 		}
@@ -908,12 +906,22 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			logger.warn("fetchAndCacheResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
 					params, ctx.getDocKeys(), resList);
 		} else {
-			long qpKey = getResultsKey(query, params);
-			QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-			// what is better to use here: putAsync or set ?
-			xrCache.set(qpKey, xqr);
+			long qrKey = getResultsKey(query, params);
+			String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+			Object qResult;
+			if (pv_client_submitTo_all.equals(runOn)) {
+				QueryResultProcessor xqp = new QueryResultProcessor(params, ctx.getDocKeys(), resList);
+				// or, use xrCache.executeOnKey(..) ?
+				xrCache.submitToKey(qrKey, xqp);
+				qResult = xqp;
+			} else {
+				QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+				// what is better to use here: putAsync or set ?
+				xrCache.set(qrKey, xqr);
+				qResult = xqr;
+			}
 			updateStats(query, 1, resList.size());
-			logger.trace("fetchAndCacheResults.exit; stored results: {} for key: {}", xqr, qpKey);
+			logger.trace("fetchAndCacheResults.exit; stored results: {} for key: {}", qResult, qrKey);
 		}
 	}
 	

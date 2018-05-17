@@ -336,7 +336,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						cntCache.set(docKey, content);
 					}
 				} else {
-					// can cause distributed deadlock! call to EP from the same EP!?
+					// shouldn't cause a deadlock as getDoc from client should be routed properly
+					logger.trace("getDocumentInternal; docKey is not local, requesting owner node..");
 					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
 					return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
 				}
@@ -964,13 +965,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 			if (pv_query_invalidate_all.equals(invScope) || pv_query_invalidate_paths.equals(invScope)) {
 				// invalidate cached query results.
-				logger.info("storeDocumentInternal; going to invalidate {} paths for document {}", pathIds.size(), uri); 
+				logger.debug("storeDocumentInternal; going to invalidate {} paths for document {}", pathIds.size(), uri); 
 				((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 			} 
 			// otherwise may be we don't need to collect pathIds at all?!
 		}
 		if (update && tx == null && pv_query_invalidate_docs.equals(invScope)) {
-			logger.info("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 
+			logger.debug("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 
 	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 		}
 

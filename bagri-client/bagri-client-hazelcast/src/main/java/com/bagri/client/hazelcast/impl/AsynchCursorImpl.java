@@ -1,10 +1,15 @@
 package com.bagri.client.hazelcast.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.core.api.ResultCursor;
 import com.hazelcast.core.ExecutionCallback;
 
 public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements ExecutionCallback<ResultCursor<T>> {
 
+    private final static Logger logger = LoggerFactory.getLogger(AsynchCursorImpl.class);
+	
 	private int expected = 1;
 	private volatile int failures = 0;
 	private volatile int received = 0;
@@ -23,6 +28,7 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements Execut
 		synchronized (results) {
 			results.add(result);
 		}
+		logger.trace("addResults; results: {}", results);
 	}
 
 	@Override
@@ -32,6 +38,7 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements Execut
 
 	@Override
 	public boolean isComplete() {
+		logger.trace("isComplete; expected: {}, received: {}, failures: {}", expected, received, failures);
 		return expected == received + failures;
 	}
 

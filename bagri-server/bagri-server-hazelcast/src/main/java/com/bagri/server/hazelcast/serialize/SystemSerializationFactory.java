@@ -15,6 +15,7 @@ import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentBackupProcessor;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
+import com.bagri.server.hazelcast.task.query.QueryResultProcessor;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class SystemSerializationFactory extends com.bagri.client.hazelcast.serialize.SystemSerializationFactory {
@@ -31,6 +32,8 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	
 	public static final int cli_DocumentProcessor = 250;
 	public static final int cli_DocumentBackupProcessor = 251;
+
+	public static final int cli_QueryResultProcessor = 260;
 	
 	private SchemaRepository repo;
 
@@ -52,6 +55,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_LimitAggregator: return new LimitAggregator<>();
 			case cli_DocumentProcessor: return new DocumentProcessor();
 			case cli_DocumentBackupProcessor: return new DocumentBackupProcessor();
+			case cli_QueryResultProcessor: return new QueryResultProcessor();
 		}
 		return super.create(typeId);
 	}

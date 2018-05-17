@@ -5,9 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.core.api.ResultCursor;
 
 public class CombinedCursorImpl<T> implements ResultCursor<T> {
+	
+    private final static Logger logger = LoggerFactory.getLogger(CombinedCursorImpl.class);
 	
     private int limit;
 	protected List<ResultCursor<T>> results = new ArrayList<>();
@@ -77,37 +82,35 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	private class CombinedCursorIterator<T> implements Iterator<T> {
 
 		private int resIndex = 0;
-		private int curIndex = -1;
+		private int curIndex = 0; //-1;
 		private Iterator<T> curIter = null;
 		private ResultCursor<T> curResult = null;
 		
 		@Override
 		public boolean hasNext() {
 			if (limit > 0 && resIndex >= limit) {
+				logger.trace("hasNext; limit: {}, index: {}", limit, resIndex);
 				return false;
 			}
 			if (curResult == null) {
 				if (results.isEmpty()) {
 					return false;
 				}
-				curIndex++;
 				if (curIndex < results.size()) {
 					curResult = (ResultCursor<T>) results.get(curIndex);
 					curIter = curResult.iterator();
 				} else {
 					return false;
 				}
+				logger.trace("hasNext; got index: {}; results: {}", curIndex, curResult);
 			}
 			if (curIter.hasNext()) {
 				return true;
 			} else {
 				if (curResult.isComplete()) {
-					try {
-						curResult.close();
-					} catch (Exception ex) {
-						// unexpected..
-					}
+					logger.trace("hasNext; complete");
 					curResult = null;
+					curIndex++;
 					return hasNext();
 				} else {
 					// could get asynch results..

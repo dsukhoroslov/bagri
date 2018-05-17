@@ -75,6 +75,15 @@ public class QueryResult {
 	public List<Object> getResults() {
 		return results;
 	}
+	
+	public void merge(QueryResult otherQR) {
+		//if (otherQR.params != null) {
+			// they should have the same params, actually..
+		//	params.putAll(otherQR.params);
+		//}
+		this.docKeys.putAll(otherQR.docKeys);
+		this.results.addAll(otherQR.results);
+	}
 
 	/**
 	 * {@inheritDoc}
