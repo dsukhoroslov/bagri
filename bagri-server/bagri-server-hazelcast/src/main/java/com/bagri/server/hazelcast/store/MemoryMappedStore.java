@@ -66,6 +66,37 @@ public abstract class MemoryMappedStore<K, E> {
     	return pointers.keySet();
     }
     
+	public boolean clearEntry(K key, E entry, boolean expectExists) {
+		Integer pointer = pointers.get(key);
+		if (pointer != null) {
+			if (!expectExists) {
+				// already exists, but not expected
+				logger.info("clearEntry; entry already exists, but not expected; key: {}", key);
+				return false;
+			}
+
+			int sect = toSection(pointer);
+			int pos = toPosition(pointer);
+			FileBuffer fb = buffers.get(sect);
+			fb.lock();
+			try {
+				fb.buff.position(pos);
+				//mark entry as inactive..
+				deactivateEntry(fb.buff, entry);
+				cntActive.decrementAndGet();
+			} finally {
+				fb.unlock();
+			}
+		} else {
+			if (expectExists) {
+				// not exists, but expected
+				logger.info("clearEntry; entry not found, but expected; key: {}", key);
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public E getEntry(K key) {
 		E result = null;
 		Integer pointer = pointers.get(key);
@@ -112,35 +143,24 @@ public abstract class MemoryMappedStore<K, E> {
 		return true;
 	}
 	
-	public boolean clearEntry(K key, E entry, boolean expectExists) {
+	public boolean updateEntry(K key, E entry) {
 		Integer pointer = pointers.get(key);
 		if (pointer != null) {
-			if (!expectExists) {
-				// already exists, but not expected
-				logger.debug("clearEntry; entry already exists, but not expected; key: {}", key);
-				return false;
-			}
-
 			int sect = toSection(pointer);
 			int pos = toPosition(pointer);
 			FileBuffer fb = buffers.get(sect);
 			fb.lock();
 			try {
 				fb.buff.position(pos);
-				//mark entry as inactive..
-				deactivateEntry(fb.buff, entry);
-				cntActive.decrementAndGet();
+				writeEntry(fb.buff, entry);
+				return true;
 			} finally {
 				fb.unlock();
 			}
 		} else {
-			if (expectExists) {
-				// not exists, but expected
-				logger.debug("clearEntry; entry not found, but expected; key: {}", key);
-				return false;
-			}
+			logger.debug("updateEntry; cann't find entry for key: {}, putting it as a new one..", key);
+			return putEntry(key, entry, false);
 		}
-		return true;
 	}
 	
 	protected int getSection(String fileName) {
@@ -169,9 +189,10 @@ public abstract class MemoryMappedStore<K, E> {
 		int docCount = fb.buff.getInt();
 		while (idx < docCount) {
 			int pos = fb.buff.position();
-			pos = toPointer(pos, sect);
+			int ptr = toPointer(pos, sect);
+			logger.info("readEntries; reading entry from pos: {}:{} at index: {}; active count:{} from total: {}", pos, ptr, idx, actCount, docCount);
 			E entry = readEntry(fb.buff);
-			pointers.put(getEntryKey(entry), pos);
+			pointers.put(getEntryKey(entry), ptr);
 			idx++;
 			if (isEntryActive(entry)) {
 				actCount++;
@@ -267,9 +288,9 @@ public abstract class MemoryMappedStore<K, E> {
 	
 	protected String getString(MappedByteBuffer buff) {
 		int len = buff.getInt();
-		//if (len > 100) {
-		//	logger.info("getString; too long: {}", len);
-		//}
+		if (len > 100) {
+			logger.info("getString; too long: {}", len);
+		}
 		byte[] str = new byte[len];
 		buff.get(str);
 		return new String(str);
@@ -331,6 +352,10 @@ public abstract class MemoryMappedStore<K, E> {
         	this.lock.unlock();
         }
     	
+        @Override
+        public String toString() {
+        	return "FileBuffer [section: " + section + "; tail: " + tail +"; position: " + buff.position() + "]";
+        }
     }
 
 }

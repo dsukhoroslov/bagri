@@ -113,7 +113,7 @@ public class QueryModuleTest extends BagriManagementTest {
 		params.put("psize", 100);
 		params.put("pnum", 1);
 		Properties props = new Properties();
-		props.setProperty(pn_query_customPaths, "0=/inventory/product-category"); //;2=/inventory/virtual-stores/status;3=/inventory/virtual-stores/region-id");
+		props.setProperty(pn_query_customQuery, "1=(/inventory/product-category starts-with pcat) and (((/inventory/virtual-stores/region-id = rid) or (rid = null)) and (/inventory/virtual-stores/status = literal_103_39))");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
@@ -130,13 +130,13 @@ public class QueryModuleTest extends BagriManagementTest {
 	        		   "declare variable $pid external;\n" +
 	        		   "declare variable $rid external;\n" +
 					   "\n" +
-					   "inv:get-product-by-pid($pid, $rid)\n";
+					   "inv:get-product-by-id($pid, $rid)\n";
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("pid", 7525L);
 		params.put("rid", null); //235
 		Properties props = new Properties();
-		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
+		props.setProperty(pn_query_customQuery, "1=(/inventory/product-id = pid) and ((/inventory/virtual-stores/status = literal_80_40) and ((/inventory/virtual-stores/region-id = rid) or (rid = null)))");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
@@ -147,13 +147,12 @@ public class QueryModuleTest extends BagriManagementTest {
 	}
 	
 	@Test
-	public void queryProductsByIdTest() throws Exception {
+	public void queryProductsByIdsTest() throws Exception {
 	
 		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
 	        		   "declare variable $pids external;\n" +
-	        		   "declare variable $rid external;\n" +
 					   "\n" +
-					   "inv:get-products-by-pid($pids, $rid)\n";
+					   "inv:get-products-by-ids($pids)\n";
 
 		Map<String, Object> params = new HashMap<>();
 		//List<Integer> pids = new ArrayList<>();
@@ -162,13 +161,9 @@ public class QueryModuleTest extends BagriManagementTest {
 		pids.add("7525");
 		pids.add("11386");
 		params.put("pids", pids);
-		params.put("rid", null); //235
 		//params.put("var2", "active"); 
 		Properties props = new Properties();
-		// %bgdb:property("bdb.query.customQuery", "(/inventory/product-id = pids) AND ((/inventory/virtual-stores/status = var2) AND ((/inventory/virtual-stores/region-id = rid) OR (rid = null)))") :)
-		// %bgdb:property("bdb.query.customQuery", "1=(/inventory/product-id = pids) AND (/inventory/virtual-stores/status = literal_24_40)") :)		
-		//props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status;6=/inventory/virtual-stores/region-id");
-		props.setProperty(pn_query_customQuery, "1=(/inventory/product-id = pids) and (/inventory/virtual-stores/status = literal_24_40)"); // and ((/inventory/virtual-stores/region-id = rid) or (rid = null)))");
+		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/status");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
 			int cnt = 0;
 			for (XQItemAccessor item: results) {
@@ -179,20 +174,48 @@ public class QueryModuleTest extends BagriManagementTest {
 	}
 
 	@Test
-	public void checkProductsCacheTest() throws Exception {
+	public void queryProductsByIdsAndRegionTest() throws Exception {
 	
 		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
 	        		   "declare variable $pids external;\n" +
 	        		   "declare variable $rid external;\n" +
 					   "\n" +
-					   "inv:get-products-by-pid($pids, $rid)\n";
+					   "inv:get-products-by-ids-and-region($pids, $rid)\n";
+
+		Map<String, Object> params = new HashMap<>();
+		//List<Integer> pids = new ArrayList<>();
+		List<String> pids = new ArrayList<>();
+		pids.add("5977");
+		pids.add("7525");
+		pids.add("11386");
+		params.put("pids", pids);
+		//params.put("var2", "active"); 
+		params.put("rid", 235);
+		Properties props = new Properties();
+		props.setProperty(pn_query_customPaths, "3=/inventory/virtual-stores/region-id;5=/inventory/virtual-stores/status");
+		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {
+			int cnt = 0;
+			for (XQItemAccessor item: results) {
+				cnt++;
+			}  
+			assertEquals(3, cnt);
+		}
+	}
+
+	@Test
+	public void checkProductsCacheTest() throws Exception {
+	
+		String query = "import module namespace inv=\"http://mpoffice.ru/inv\" at \"inventory_service.xq\";\n" +
+	        		   "declare variable $pids external;\n" +
+					   "\n" +
+					   "inv:get-products-by-ids($pids)\n";
 
 		Map<String, Object> params = new HashMap<>();
 		//List<Integer> pids = new ArrayList<>();
 		List<String> pids = new ArrayList<>();
 		pids.add("11386");
 		params.put("pids", pids);
-		params.put("rid", null); //235
+		//params.put("rid", null); //235
 		Properties props = new Properties();
 		props.setProperty(pn_query_customPaths, "1=/inventory/product-id EQ pids");
 		try (ResultCursor<XQItemAccessor> results = query(query, params, props)) {

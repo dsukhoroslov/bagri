@@ -136,6 +136,14 @@ public class QueryBuilder implements Cloneable {
 					return true;
 				}
 			}
+			for (Expression ex: exCont.getBuilder().getExpressions()) {
+				if (ex instanceof PathExpression) {
+					PathExpression pex = (PathExpression) ex;
+					if (exCont.getParam(pex.getParamName()) == null) {
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
@@ -150,6 +158,14 @@ public class QueryBuilder implements Cloneable {
 		for (ExpressionContainer exCont: containers.values()) {
 			if (exCont.getParams().containsKey(pName) && exCont.getParam(pName) == null) {
 				exCont.getParams().put(pName, value);
+			}
+			for (Expression ex: exCont.getBuilder().getExpressions()) {
+				if (ex instanceof PathExpression) {
+					PathExpression pex = (PathExpression) ex;
+					if (exCont.getParam(pex.getParamName()) == null) {
+						exCont.getParams().put(pName, value);
+					}
+				}
 			}
 		}		
 	}

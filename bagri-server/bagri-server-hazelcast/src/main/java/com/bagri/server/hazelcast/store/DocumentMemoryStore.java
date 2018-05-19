@@ -116,6 +116,10 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 
 	@Override
 	protected Document readEntry(MappedByteBuffer buff) {
+		//if (buff.remaining() < getEntrySize(entry)) {
+			logger.info("readDocument; remaining: {}, capacity: {}, limit: {}; position: {}", 
+				buff.remaining(), buff.capacity(), buff.limit(), buff.position());
+		//}
 		long txFinish = buff.getLong();
 		long docKey = buff.getLong();
 		String uri = getString(buff);
@@ -138,10 +142,11 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 
 	@Override
 	protected void writeEntry(MappedByteBuffer buff, Document entry) {
-		//if (buff.remaining() < getEntrySize(entry)) {
-			//logger.info("writeDocument; remaining: {}, capacity: {}, limit: {}", buff.remaining(), buff.capacity(), buff.limit());
-			//buff.
-		//}
+		int sz = getEntrySize(entry);
+		if (buff.remaining() < sz) {
+			logger.info("writeDocument; remaining: {}, capacity: {}, limit: {}; position: {}; entry size: {}", 
+					buff.remaining(), buff.capacity(), buff.limit(), buff.position(), sz);
+		}
 		buff.putLong(entry.getTxFinish());
 		buff.putLong(entry.getDocumentKey());
 		putString(buff, entry.getUri());
@@ -162,6 +167,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 		} else if (entry.getTxFinish() > TX_NO) {
 			buff.putLong(entry.getTxFinish());
 		} else {
+			// forgot it, what does it mean? 
 			buff.putLong(-1); // make some const for this..
 		}
 	}

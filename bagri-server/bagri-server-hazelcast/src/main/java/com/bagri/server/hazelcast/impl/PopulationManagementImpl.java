@@ -323,7 +323,13 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	@Override
 	public void entryUpdated(EntryEvent<DocumentKey, Document> event) {
 		logger.trace("entryUpdated.enter; event: {}", event);
-		boolean updated = docStore.putEntry(event.getKey().getKey(), event.getValue(), true);
+		boolean updated;
+		if (event.getValue().getVersion() > event.getOldValue().getVersion()) {
+			updated = docStore.putEntry(event.getKey().getKey(), event.getValue(), true);
+		} else {
+			// update it inplace as the entry size shouldn't be changed
+			updated = docStore.updateEntry(event.getKey().getKey(), event.getValue());
+		}
 		logger.trace("entryUpdated.exit; updated: {}", updated);
 	}
 
