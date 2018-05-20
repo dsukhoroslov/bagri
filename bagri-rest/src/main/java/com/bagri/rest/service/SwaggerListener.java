@@ -16,8 +16,6 @@ import com.bagri.rest.RestRequestProcessor;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.jaxrs.Reader;
 import io.swagger.jaxrs.config.ReaderListener;
-import io.swagger.jaxrs.config.SwaggerConfigLocator;
-import io.swagger.jaxrs.config.SwaggerContextService;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
@@ -30,9 +28,7 @@ import io.swagger.models.parameters.FormParameter;
 import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
-import io.swagger.models.parameters.RefParameter;
 import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.PropertyBuilder;
 import io.swagger.models.properties.StringProperty;
 //import io.swagger.util.
 

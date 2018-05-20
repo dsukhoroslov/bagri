@@ -904,7 +904,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		
 		boolean update = false;
-		DocumentKey docKey = ddSvc.getLastKeyForUri(uri); //Revision
+		DocumentKey docKey = ddSvc.getLastKeyForUri(uri);
 		String storeMode = props.getProperty(pn_client_storeMode, pv_client_storeMode_merge);
 		if (docKey == null) {
 			if (pv_client_storeMode_update.equals(storeMode)) {
@@ -938,11 +938,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		Document newDoc = (Document) result;
-		if (newDoc.getVersion() > dvFirst) {
-			txManager.updateCounters(0, 1, 0);
-		} else {
-			txManager.updateCounters(1, 0, 0);
+		if (tx != null) {
+			if (newDoc.getVersion() > dvFirst) {
+				txManager.updateCounters(0, 1, 0);
+			} else {
+				txManager.updateCounters(1, 0, 0);
+			}
 		}
+		// otherwise counters did not change
 
 		String invScope = props.getProperty(pn_query_invalidate, pv_query_invalidate_all);
 		if (pRes.getResultSize() > 0) {
@@ -1067,7 +1070,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (props == null) {
 			props = new Properties();
 		}
-		Object result = docCache.executeOnKey(docKey, new DocumentRemoveProcessor(txManager.getCurrentTransaction(), props));
+		Transaction tx = txManager.getCurrentTransaction();
+		Object result = docCache.executeOnKey(docKey, new DocumentRemoveProcessor(tx, props));
 		if (result instanceof Exception) {
 			logger.error("removeDocumentInternal.error; uri: {}", doc.getUri(), result);
 			if (result instanceof BagriException) {
@@ -1078,7 +1082,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		DocumentAccessorImpl docAccessor = (DocumentAccessorImpl) result;
 
+		// even if tx is null??
 		txManager.updateCounters(0, 0, 1);
+		
 		((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
 
 		return docAccessor;

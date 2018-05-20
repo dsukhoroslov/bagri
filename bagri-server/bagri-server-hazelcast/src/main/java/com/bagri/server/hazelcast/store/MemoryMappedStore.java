@@ -70,8 +70,8 @@ public abstract class MemoryMappedStore<K, E> {
 		Integer pointer = pointers.get(key);
 		if (pointer != null) {
 			if (!expectExists) {
-				// already exists, but not expected
-				logger.info("clearEntry; entry already exists, but not expected; key: {}", key);
+				// already exists, but not expected; happens at cache population..
+				logger.debug("clearEntry; entry already exists, but not expected; key: {}", key);
 				return false;
 			}
 
@@ -112,7 +112,7 @@ public abstract class MemoryMappedStore<K, E> {
 				fb.unlock();
 			}
 		} else {
-			logger.debug("getEntry; cann't find entry for key: {}", key);
+			logger.info("getEntry; cann't find entry for key: {}", key);
 		}
 		return result;
 	}
@@ -125,7 +125,6 @@ public abstract class MemoryMappedStore<K, E> {
 		
 		FileBuffer fb = getLockedBuffer(entry);
 		try {
-			fb.reset();
 			int pos = fb.buff.position();
 			int point = toPointer(pos, fb.section);
 			pointers.put(key, point);
@@ -143,25 +142,25 @@ public abstract class MemoryMappedStore<K, E> {
 		return true;
 	}
 	
-	public boolean updateEntry(K key, E entry) {
-		Integer pointer = pointers.get(key);
-		if (pointer != null) {
-			int sect = toSection(pointer);
-			int pos = toPosition(pointer);
-			FileBuffer fb = buffers.get(sect);
-			fb.lock();
-			try {
-				fb.buff.position(pos);
-				writeEntry(fb.buff, entry);
-				return true;
-			} finally {
-				fb.unlock();
-			}
-		} else {
-			logger.debug("updateEntry; cann't find entry for key: {}, putting it as a new one..", key);
-			return putEntry(key, entry, false);
-		}
-	}
+	//public boolean updateEntry(K key, E entry) {
+	//	Integer pointer = pointers.get(key);
+	//	if (pointer != null) {
+	//		int sect = toSection(pointer);
+	//		int pos = toPosition(pointer);
+	//		FileBuffer fb = buffers.get(sect);
+	//		fb.lock();
+	//		try {
+	//			fb.buff.position(pos);
+	//			writeEntry(fb.buff, entry);
+	//			return true;
+	//		} finally {
+	//			fb.unlock();
+	//		}
+	//	} else {
+	//		logger.debug("updateEntry; cann't find entry for key: {}, putting it as a new one..", key);
+	//		return putEntry(key, entry, false);
+	//	}
+	//}
 	
 	protected int getSection(String fileName) {
 		int pos1 = fileName.indexOf("_") + 1;
@@ -190,7 +189,7 @@ public abstract class MemoryMappedStore<K, E> {
 		while (idx < docCount) {
 			int pos = fb.buff.position();
 			int ptr = toPointer(pos, sect);
-			logger.info("readEntries; reading entry from pos: {}:{} at index: {}; active count:{} from total: {}", pos, ptr, idx, actCount, docCount);
+			logger.trace("readEntries; reading entry from pos: {}:{} at index: {}; active count:{} from total: {}", pos, ptr, idx, actCount, docCount);
 			E entry = readEntry(fb.buff);
 			pointers.put(getEntryKey(entry), ptr);
 			idx++;
@@ -205,7 +204,7 @@ public abstract class MemoryMappedStore<K, E> {
 	}
 	
 	protected int loadEntries(IMap<K, E> cache) {
-		logger.trace("loadEntries.enter; entry count: {}", cache.size());
+		logger.info("loadEntries.enter; entry count: {}", cache.size());
 		int actCount = 0;
 		int sect = 0;
 		int cnt = 0;
@@ -215,14 +214,17 @@ public abstract class MemoryMappedStore<K, E> {
 				fb = getLockedBuffer(entry);
 			}
 			int pos = fb.buff.position();
-			pos = toPointer(pos, sect);
-			pointers.put(getEntryKey(entry), pos);
+			int ptr = toPointer(pos, sect);
+			logger.trace("loadEntries; writing entry to pos: {}:{} at index: {}; remaining: {}", pos, ptr, cnt, fb.buff.remaining());
+			pointers.put(getEntryKey(entry), ptr);
 			writeEntry(fb.buff, entry);
 			if (isEntryActive(entry)) {
 				actCount++;
 			}
 			cnt++;
-			if (fb.buff.remaining() < getEntrySize(entry)) {
+			int sz = getEntrySize(entry);
+			logger.trace("loadEntries; remaining after write: {}; size: {}", fb.buff.remaining(), sz);
+			if (fb.buff.remaining() < sz) {
 				fb.setTail();
 				fb.buff.putInt(0, cnt);
 				fb.unlock();
@@ -235,24 +237,29 @@ public abstract class MemoryMappedStore<K, E> {
 			fb.buff.putInt(0, cnt);
 			fb.unlock();
 		}
-		logger.trace("loadEntries.exit; active entries: {}; pointers: {}", actCount, pointers.size());
+		logger.info("loadEntries.exit; active entries: {}; pointers: {}", actCount, pointers.size());
 		cntActive.addAndGet(actCount);
 		return actCount;
 	}
 
-	private synchronized FileBuffer getLockedBuffer(E entry) {
+	private /*synchronized*/ FileBuffer getLockedBuffer(E entry) {
 		FileBuffer fb = buffers.get(buffers.size() - 1);
-		if (fb.buff.remaining() < getEntrySize(entry)) {
+		fb.lock();
+        fb.reset();
+		int sz = getEntrySize(entry);
+		logger.trace("getLockedBuffer; remaining: {}; entry: {}; pos: {}; tail: {}", fb.buff.remaining(), sz, fb.buff.position(), fb.tail);
+		if (fb.buff.remaining() < sz) {
 			int sect = fb.section + 1;
 			String fName = getBufferName(sect);
+			fb.unlock();
 			try {
 				fb = initBuffer(fName, sect);
 			} catch (IOException ex) {
 				logger.error("getLockedBuffer.error:", ex);
 				throw new RuntimeException(ex);
 			}
+			fb.lock();
 		}
-		fb.lock();
 		return fb;
 	}
 	
@@ -305,7 +312,7 @@ public abstract class MemoryMappedStore<K, E> {
     
     protected class FileBuffer {
 
-    	private int tail;
+    	private volatile int tail;
     	private int section;
     	private Lock lock;
         private FileChannel fc;

@@ -3,7 +3,6 @@ package com.bagri.xquery.saxon;
 import static com.bagri.core.Constants.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -25,14 +24,8 @@ import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.model.Document;
 import com.bagri.core.model.Query;
-import com.bagri.core.query.AxisType;
-import com.bagri.core.query.Comparison;
-import com.bagri.core.query.ExpressionBuilder;
 import com.bagri.core.query.ExpressionContainer;
-import com.bagri.core.query.PathBuilder;
-import com.bagri.core.query.PathExpression;
 import com.bagri.core.query.QueryBuilder;
 import com.bagri.core.server.api.QueryManagement;
 import com.bagri.core.xquery.api.XQProcessor;
@@ -43,6 +36,7 @@ import net.sf.saxon.expr.Operand;
 import net.sf.saxon.expr.UserFunctionCall;
 import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.lib.TraceListener;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.query.DynamicQueryContext;
@@ -184,6 +178,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    	DynamicQueryContext dqc = getDynamicContext();
 					
    	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
+   	   	    xqExp.explainPathMap();
+   	   	    //TraceListener tl; tl. 
+   	   	    //xqExp.newController(dqc).makePipelineConfiguration().
+   	   	    //sqc.
         	clnFinder.setExpression(xqExp);
     	    if (xdmQuery == null && xQuery != null) {
 	    	    xdmQuery = xQuery.getXdmQuery();

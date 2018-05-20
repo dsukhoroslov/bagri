@@ -71,7 +71,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
     private int port = 3030;
     private int sport = 3443;
     private boolean jmx = true;
-    private int accept_count = 5;
+    private int accept_count = 4;
     private int thread_count = 100;
     private int out_buff_size = 32768;
     private int ssl_idle_tout = 500000;

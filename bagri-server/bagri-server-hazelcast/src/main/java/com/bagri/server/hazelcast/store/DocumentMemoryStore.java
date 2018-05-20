@@ -116,10 +116,6 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 
 	@Override
 	protected Document readEntry(MappedByteBuffer buff) {
-		//if (buff.remaining() < getEntrySize(entry)) {
-			logger.info("readDocument; remaining: {}, capacity: {}, limit: {}; position: {}", 
-				buff.remaining(), buff.capacity(), buff.limit(), buff.position());
-		//}
 		long txFinish = buff.getLong();
 		long docKey = buff.getLong();
 		String uri = getString(buff);

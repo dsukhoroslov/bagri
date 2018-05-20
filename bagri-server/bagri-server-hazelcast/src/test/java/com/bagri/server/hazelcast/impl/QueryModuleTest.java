@@ -223,7 +223,7 @@ public class QueryModuleTest extends BagriManagementTest {
 			for (XQItemAccessor item: results) {
 				cnt++;
 			}  
-			assertEquals(2, cnt);
+			assertEquals(3, cnt);
 		}
 	}
 }
