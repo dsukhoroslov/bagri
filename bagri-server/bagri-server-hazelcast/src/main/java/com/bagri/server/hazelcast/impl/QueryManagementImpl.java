@@ -7,6 +7,7 @@ import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ import com.bagri.core.xquery.api.XQProcessor;
 import com.bagri.server.hazelcast.predicate.DocsAwarePredicate;
 import com.bagri.server.hazelcast.predicate.QueryPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
+import com.bagri.server.hazelcast.predicate.ResultsQueryParamsPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.server.hazelcast.task.query.QueryResultProcessor;
 import com.bagri.support.stats.StatisticsEvent;
@@ -213,26 +215,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	private boolean intersects(Query query, Collection<Integer> pathIds, boolean checkIndexed) {
-		if (checkIndexed) {
-			for (ExpressionContainer ec: query.getXdmQuery().getContainers()) {
-				for (Expression ex: ec.getBuilder().getExpressions()) {
-					if (ex.isCached()) {
-						QueriedPath qp = ((PathExpression) ex).getCachedPath();
-						if (qp.isIndexed()) {
-							for (Integer pid: pathIds) {
-								if (qp.getPathIds().contains(pid)) {
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		} else {
-			for (ExpressionContainer ec: query.getXdmQuery().getContainers()) {
-				for (Expression ex: ec.getBuilder().getExpressions()) {
-					if (ex.isCached()) {
-						QueriedPath qp = ((PathExpression) ex).getCachedPath();
+		for (ExpressionContainer ec: query.getXdmQuery().getContainers()) {
+			for (Expression ex: ec.getBuilder().getExpressions()) {
+				if (ex.isCached()) {
+					QueriedPath qp = ((PathExpression) ex).getCachedPath();
+					if (!checkIndexed || qp.isIndexed()) {
 						for (Integer pid: pathIds) {
 							if (qp.getPathIds().contains(pid)) {
 								return true;
@@ -245,9 +232,23 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return false;
 	}
 
+	private PathExpression getCachedPathExpression(Query query, int pathId) {
+		for (ExpressionContainer ec: query.getXdmQuery().getContainers()) {
+			for (Expression ex: ec.getBuilder().getExpressions()) {
+				if (ex.isCached()) {
+					QueriedPath qp = ((PathExpression) ex).getCachedPath();
+					if (qp.getPathIds().contains(pathId)) {
+						return (PathExpression) ex;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	List<Object> getQueryResults(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
-		logger.trace("getQueryResults; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
+		logger.trace("getQueryResults.enter; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
 		QueryResult xqr = xrCache.get(qpKey);
 		List<Object> result = null;
 		if (xqr != null) {
@@ -256,13 +257,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		} else {
 			updateStats(query, 0, -1);
 		}
-		logger.trace("getQueryResults; returning: {}", xqr);
+		logger.trace("getQueryResults.exit; returning: {}", xqr);
 		return result;
 	}
 
 	Map<Long, String> getQueryUris(String query, Map<String, Object> params, Properties props) {
 		long qpKey = getResultsKey(query, params);
-		logger.trace("getQueryUris; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
+		logger.trace("getQueryUris.enter; got result key: {}; parts: {}", qpKey, getResultsKeyParts(qpKey));
 		QueryResult xqr = xrCache.get(qpKey);
 		Map<Long, String> result = null;
 		if (xqr != null) {
@@ -271,7 +272,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		} else {
 			updateStats(query, 0, -1);
 		}
-		logger.trace("getQueryUris; returning: {}", result);
+		logger.trace("getQueryUris.exit; returning: {}", result);
 		return result;
 	}
 	
@@ -284,6 +285,25 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
+	void invalidateQueryResults(int pathId, Elements elts) {
+		logger.info("invalidateQueryResults.enter; pathId: {}; elts: {}", pathId, elts.getElements().size());
+		if (!xqCache.isEmpty()) {
+			Map<Integer, PathExpression> queries = new HashMap<>();
+			for (Map.Entry<Integer, Query> e: xqCache.entrySet()) {
+				PathExpression pex = getCachedPathExpression(e.getValue(), pathId);
+				if (pex != null) {
+					queries.put(e.getKey(), pex);
+				}
+			}
+			if (!queries.isEmpty()) {
+				for (Map.Entry<Integer, PathExpression> e: queries.entrySet()) {
+					removeQueryResults(e.getKey(), e.getValue(), elts);
+				}
+			}
+		}
+		logger.info("invalidateQueryResults.exit");
+	}
+
 	void removeQueryResults(long docId) {
 		int oSize = logger.isTraceEnabled() ? xrCache.size() : 0;
 		logger.trace("removeQueryResults.enter; got docId: {}; result cache size: {}", docId, oSize);
@@ -295,10 +315,18 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	void removeQueryResults(Collection<Integer> queryIds) {
 		int oSize = logger.isTraceEnabled() ? xrCache.size() : 0;
-		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, xrCache.size());
+		logger.trace("removeQueryResults.enter; got queryIds: {}; result cache size: {}", queryIds, oSize);
 		xrCache.removeAll(new ResultsQueryPredicate(queryIds));
 		int nSize = logger.isTraceEnabled() ? xrCache.size() : 0;
 		logger.trace("removeQueryResults.exit; deleted {} results; new size is: {}", oSize - nSize, nSize);
+	}
+	
+	void removeQueryResults(int queryId, PathExpression pex, Elements elts) {
+		int oSize = logger.isTraceEnabled() ? xrCache.size() : 0;
+		logger.info("removeQueryResults.enter; got queryId: {}; result cache size: {}", queryId, oSize);
+		xrCache.removeAll(new ResultsQueryParamsPredicate(queryId, pex, elts));
+		int nSize = logger.isTraceEnabled() ? xrCache.size() : 0;
+		logger.info("removeQueryResults.exit; deleted {} results; new size is: {}", oSize - nSize, nSize);
 	}
 	
 	@Override

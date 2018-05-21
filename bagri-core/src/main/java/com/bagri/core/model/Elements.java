@@ -149,7 +149,6 @@ public class Elements {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private boolean compareValues(Comparison comp, Object value, List<Element> elements) {
 
 		for (Element element : elements) {

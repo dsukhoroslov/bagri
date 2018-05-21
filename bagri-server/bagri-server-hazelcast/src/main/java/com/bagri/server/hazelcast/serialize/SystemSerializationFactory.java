@@ -12,6 +12,7 @@ import com.bagri.server.hazelcast.predicate.LimitAggregator;
 import com.bagri.server.hazelcast.predicate.LimitPredicate;
 import com.bagri.server.hazelcast.predicate.QueryPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsDocPredicate;
+import com.bagri.server.hazelcast.predicate.ResultsQueryParamsPredicate;
 import com.bagri.server.hazelcast.predicate.ResultsQueryPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentBackupProcessor;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
@@ -29,6 +30,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 	public static final int cli_DocVisiblePredicate = 206;
 	public static final int cli_LimitPredicate = 207;
 	public static final int cli_LimitAggregator = 208;
+	public static final int cli_ResultsQueryParamsPredicate = 209;
 	
 	public static final int cli_DocumentProcessor = 250;
 	public static final int cli_DocumentBackupProcessor = 251;
@@ -56,6 +58,7 @@ public class SystemSerializationFactory extends com.bagri.client.hazelcast.seria
 			case cli_DocumentProcessor: return new DocumentProcessor();
 			case cli_DocumentBackupProcessor: return new DocumentBackupProcessor();
 			case cli_QueryResultProcessor: return new QueryResultProcessor();
+			case cli_ResultsQueryParamsPredicate: return new ResultsQueryParamsPredicate();
 		}
 		return super.create(typeId);
 	}

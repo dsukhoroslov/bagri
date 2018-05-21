@@ -951,10 +951,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (pRes.getResultSize() > 0) {
 	    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
 	    	Set<Integer> pathIds = new HashSet<>(paths.size());
-	    	//Map<DataKey, Elements> eMap = ddSvc.getElements(newDoc.getDocumentKey());
+	    	
+	    	List<String> inPath = null;
+			if (invScope.startsWith("/")) {
+				// invalidate by path-value pairs
+				inPath = Arrays.asList(invScope.split(";"));
+			}
+			logger.info("storeDocumentInternal; inScope: {}; inPath: {}", invScope, inPath); 
+	    	
 			for (Path path: paths) {
 				DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
-				//Elements elts = eMap.get(dKey);
 				Elements elts = ddSvc.getCachedObject(CN_XDM_ELEMENT, dKey, binaryElts);
 				if (elts != null) {
 					if (indexManager.isPathIndexed(path.getPathId())) {
@@ -963,6 +969,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						}
 					}
 					pathIds.add(path.getPathId());
+					
+					if (inPath != null && inPath.contains(path.getPath())) {
+						((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(path.getPathId(), elts);
+					}
 				}
 			}
 
@@ -973,9 +983,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			} 
 			// otherwise may be we don't need to collect pathIds at all?!
 		}
-		if (update && tx == null && pv_query_invalidate_docs.equals(invScope)) {
-			logger.debug("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 
-	    	((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+		if (pv_query_invalidate_docs.equals(invScope)) {
+			// don't remember why for no tx only?!
+			if (update && tx == null) {
+				logger.debug("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 
+				((QueryManagementImpl) repo.getQueryManagement()).removeQueryResults(docKey.getKey());
+			}
 		}
 
 		logger.trace("storeDocumentInternal.exit; returning: {}", newDoc);

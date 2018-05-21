@@ -142,7 +142,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
     }
     
     public void reload(final String schemaName, final boolean force) {
-        logger.info("reload.enter; got schema: {}, force: {}; active schemas: {}", schemaName, force, activeSchemas);
+        logger.debug("reload.enter; got schema: {}, force: {}; active schemas: {}", schemaName, force, activeSchemas);
     	if (force || !activeSchemas.contains(schemaName)) {
             if (reloading.compareAndSet(false,  true)) {
 		    	new Thread() {
@@ -158,7 +158,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
 		    					newList.add(schema);
 		    				}
 		    			}
-		    	        logger.debug("reload; going to reload context for schemas: {}", newList);
+		    	        logger.info("reload; going to reload context for schemas: {}", newList);
 		    	        if (newList.size() > 0) {
 		    	        	reloader.reload(config);
 		    	        	// rebuild Swagger definitions
@@ -173,6 +173,8 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
 		    		}
 		    	}.start();
             }
+    	} else {
+            logger.info("reload.exit; skipped as in reloading state now");
     	}
     }
     
@@ -252,7 +254,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
 
         // HTTP connector
         // The first server connector we create is the one for http, passing in the http configuration we configured
-        // above so it can get things like the output buffer size, etc. We also set the port (8080) and configure an
+        // above so it can get things like the output buffer size, etc. We also set the port (3030) and configure an
         // idle timeout.
         ServerConnector http = new ServerConnector(server, accept_count, accept_count, new HttpConnectionFactory(http_config));        
         http.setPort(port); 
@@ -296,8 +298,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
         // Finally, add the connectors to the server
 
         // Here you see the server having multiple connectors registered with it, now requests can flow into the server
-        // from both http and https urls to their respective ports and be processed accordingly by jetty. A simple
-        // handler is also registered with the server so the example has something to pass requests off to.
+        // from both http and https urls to their respective ports and be processed accordingly by jetty. 
 
         // Set the connectors
         server.setConnectors(new Connector[] {http, https});
@@ -442,6 +443,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
         beanConfig.setVersion(bg_version);
         beanConfig.setSchemes(new String[] {"http", "https"});
         // TODO: get host info somehow..
+        //jettyServer.getConnectors()[0].getConnectedEndPoints().iterator().next().getRemoteAddress()
         beanConfig.setHost("localhost:" + port);
         beanConfig.setBasePath("/"); // /api
         beanConfig.setResourcePackage("com.bagri.rest.service");
