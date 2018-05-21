@@ -947,15 +947,18 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		// otherwise counters did not change
 
-		String invScope = props.getProperty(pn_query_invalidate, pv_query_invalidate_all);
+		String inScope = props.getProperty(pn_query_invalidate, pv_query_invalidate_values);
 		if (pRes.getResultSize() > 0) {
 	    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
 	    	Set<Integer> pathIds = new HashSet<>(paths.size());
 	    	
+	    	boolean inVals = false;
 	    	List<String> inPath = null;
-			if (invScope.startsWith("/")) {
+			if (inScope.startsWith("/")) {
 				// invalidate by path-value pairs
-				inPath = Arrays.asList(invScope.split(";"));
+				inPath = Arrays.asList(inScope.split(";"));
+			} else {
+				inVals = pv_query_invalidate_values.equals(inScope);
 			}
 	    	
 			for (Path path: paths) {
@@ -969,20 +972,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					}
 					pathIds.add(path.getPathId());
 					
-					if (inPath != null && inPath.contains(path.getPath())) {
+					if (inVals || (inPath != null && inPath.contains(path.getPath()))) {
 						((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(path.getPathId(), elts);
 					}
 				}
 			}
 
-			if (pv_query_invalidate_all.equals(invScope) || pv_query_invalidate_paths.equals(invScope)) {
+			if (pv_query_invalidate_all.equals(inScope) || pv_query_invalidate_paths.equals(inScope)) {
 				// invalidate cached query results.
 				logger.debug("storeDocumentInternal; going to invalidate {} paths for document {}", pathIds.size(), uri); 
 				((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 			} 
-			// otherwise may be we don't need to collect pathIds at all?!
 		}
-		if (pv_query_invalidate_docs.equals(invScope)) {
+		if (pv_query_invalidate_all.equals(inScope) || pv_query_invalidate_docs.equals(inScope)) {
 			// don't remember why for no tx only?!
 			if (update && tx == null) {
 				logger.debug("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 

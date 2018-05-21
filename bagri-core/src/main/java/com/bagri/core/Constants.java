@@ -89,6 +89,7 @@ public class Constants {
 	public static final String pv_query_invalidate_none = "none";
 	public static final String pv_query_invalidate_docs = "docs";
 	public static final String pv_query_invalidate_paths = "paths";
+	public static final String pv_query_invalidate_values = "values";
 	public static final String pv_query_invalidate_all = "all";
 	
 	//  %bgdb:property("bdb.rest.chunkAs", "json")
