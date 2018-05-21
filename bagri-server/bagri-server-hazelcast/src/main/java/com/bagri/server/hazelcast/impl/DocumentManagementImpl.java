@@ -957,7 +957,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				// invalidate by path-value pairs
 				inPath = Arrays.asList(invScope.split(";"));
 			}
-			logger.info("storeDocumentInternal; inScope: {}; inPath: {}", invScope, inPath); 
 	    	
 			for (Path path: paths) {
 				DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());

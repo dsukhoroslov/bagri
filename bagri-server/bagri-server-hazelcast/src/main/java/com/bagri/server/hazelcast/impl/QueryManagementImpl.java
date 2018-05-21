@@ -286,7 +286,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	void invalidateQueryResults(int pathId, Elements elts) {
-		logger.info("invalidateQueryResults.enter; pathId: {}; elts: {}", pathId, elts.getElements().size());
+		logger.trace("invalidateQueryResults.enter; pathId: {}; elts: {}", pathId, elts.getElements().size());
 		if (!xqCache.isEmpty()) {
 			Map<Integer, PathExpression> queries = new HashMap<>();
 			for (Map.Entry<Integer, Query> e: xqCache.entrySet()) {
@@ -301,7 +301,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			}
 		}
-		logger.info("invalidateQueryResults.exit");
+		logger.trace("invalidateQueryResults.exit");
 	}
 
 	void removeQueryResults(long docId) {
@@ -323,10 +323,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	void removeQueryResults(int queryId, PathExpression pex, Elements elts) {
 		int oSize = logger.isTraceEnabled() ? xrCache.size() : 0;
-		logger.info("removeQueryResults.enter; got queryId: {}; result cache size: {}", queryId, oSize);
+		logger.trace("removeQueryResults.enter; got queryId: {}; result cache size: {}", queryId, oSize);
 		xrCache.removeAll(new ResultsQueryParamsPredicate(queryId, pex, elts));
 		int nSize = logger.isTraceEnabled() ? xrCache.size() : 0;
-		logger.info("removeQueryResults.exit; deleted {} results; new size is: {}", oSize - nSize, nSize);
+		logger.trace("removeQueryResults.exit; deleted {} results; new size is: {}", oSize - nSize, nSize);
 	}
 	
 	@Override
@@ -353,7 +353,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	private Set<Long> queryKeys(boolean local, Set<Long> found, ExpressionContainer ec, Expression ex) throws BagriException {
+	private Set<Long> queryKeys(boolean local, Set<Long> found, ExpressionContainer ec, Expression ex, Map<String, Object> params) throws BagriException {
 		if (ex == null) {
 			logger.debug("queryKeys; got null expression in container: {}, skipping..", ec);
 			return found;
@@ -365,15 +365,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
-			Set<Long> leftKeys = queryKeys(local, found, ec, be.getLeft());
+			Set<Long> leftKeys = queryKeys(local, found, ec, be.getLeft(), params);
 			if (Comparison.AND == be.getCompType()) {
 				if (leftKeys != null && leftKeys.isEmpty()) {
 					return leftKeys;
 				}
-				Set<Long> rightKeys = queryKeys(local, leftKeys, ec, be.getRight());
+				Set<Long> rightKeys = queryKeys(local, leftKeys, ec, be.getRight(), params);
 				return rightKeys;
 			} else if (Comparison.OR == be.getCompType()) {
-				Set<Long> rightKeys = queryKeys(local, found, ec, be.getRight());
+				Set<Long> rightKeys = queryKeys(local, found, ec, be.getRight(), params);
 				if (leftKeys != null) {
 					if (rightKeys != null) {
 						leftKeys.addAll(rightKeys);
@@ -388,7 +388,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		PathExpression pex = (PathExpression) ex;
-		return queryPathKeys(local, found, pex, ec.getParam(pex));
+		return queryPathKeys(local, found, pex, ec.getParam(pex), params);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -450,7 +450,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return value;
 	}
 
-	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value) throws BagriException {
+	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value, Map<String, Object> params) throws BagriException {
 
 		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
@@ -512,7 +512,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 			return result;
 		}
-		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal); 
+		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal);
+		if (params.containsKey(pex.getParamName())) {
+			params.put(pex.getParamName(), newVal);
+		}
 		
 		if (indexed) {
 			for (Integer pathId: paths) {
@@ -678,7 +681,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
-				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot());
+				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot(), params);
 				// otherwise filter out documents with wrong collectionIds here
 				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
 				ctx.setDocKeys(result);

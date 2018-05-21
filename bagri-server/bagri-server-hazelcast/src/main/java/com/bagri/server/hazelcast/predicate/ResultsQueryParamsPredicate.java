@@ -6,9 +6,6 @@ import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cl
 import java.io.IOException;
 import java.util.Map.Entry;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-
 import com.bagri.core.model.Elements;
 import com.bagri.core.model.QueryResult;
 import com.bagri.core.query.PathExpression;
@@ -20,7 +17,6 @@ import com.hazelcast.query.Predicate;
 public class ResultsQueryParamsPredicate implements Predicate<Long, QueryResult>, IdentifiedDataSerializable {   
 	
 	private static final long serialVersionUID = 1L;
-	//private static final transient Logger logger = LoggerFactory.getLogger(ResultsDocPredicate.class);
 	
 	private int queryId;
 	private PathExpression pex;
@@ -52,8 +48,6 @@ public class ResultsQueryParamsPredicate implements Predicate<Long, QueryResult>
 		int queryKey = (int) (resultKey >> 32);
 		if (queryKey == queryId) {
 			Object param = resEntry.getValue().getParams().get(pex.getParamName());
-			//pex.getCachedPath().getDataType()
-			//adjustSearchValue..
 			if (param != null) {
 				return elts.apply(pex, param);
 			}
