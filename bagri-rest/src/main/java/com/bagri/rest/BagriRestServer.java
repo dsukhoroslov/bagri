@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import javax.ws.rs.core.MediaType;
@@ -81,6 +82,7 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
     private RepositoryProvider rePro;
     private Reloader reloader = new Reloader();
     private Set<String> activeSchemas = new HashSet<>();
+    private AtomicBoolean reloading = new AtomicBoolean(false);
 	
     public static void main(String[] args) throws Exception {
     	BagriRestServer server = new BagriRestServer();
@@ -140,34 +142,37 @@ public class BagriRestServer implements ContextResolver<BagriRestServer>, Suppli
     }
     
     public void reload(final String schemaName, final boolean force) {
-        logger.debug("reload.enter; got schema: {}, force: {}; active schemas: {}", schemaName, force, activeSchemas);
+        logger.info("reload.enter; got schema: {}, force: {}; active schemas: {}", schemaName, force, activeSchemas);
     	if (force || !activeSchemas.contains(schemaName)) {
-	    	new Thread() {
-	    		@Override
-	    		public void run() {
-	    			// TODO: think about concurrency issues
-	    			ResourceConfig config = buildConfig();
-	    			activeSchemas.add(schemaName);
-	    			Set<String> newList = new HashSet<>(activeSchemas.size());
-	    			SwaggerListener.clearFunctions();
-	    			for (String schema: activeSchemas) {
-	    				if (buildSchemaConfig(config, schema)) {
-	    					newList.add(schema);
-	    				}
-	    			}
-	    	        logger.debug("reload; going to reload context for schemas: {}", newList);
-	    	        if (newList.size() > 0) {
-	    	        	reloader.reload(config);
-	    	        	// rebuild Swagger definitions
-	    	        	bildSwaggerConfig();
-	    	        	activeSchemas = newList;
-	    	        	// what about current clients?
-	    	        	// should we disconnect all of them?
-	    	        } else {
-		    	        logger.info("reload; no reload required for schema: {}", schemaName);
-	    	        }
-	    		}
-	    	}.start();
+            if (reloading.compareAndSet(false,  true)) {
+		    	new Thread() {
+		    		@Override
+		    		public void run() {
+		    			// TODO: think about concurrency issues
+		    			ResourceConfig config = buildConfig();
+		    			activeSchemas.add(schemaName);
+		    			Set<String> newList = new HashSet<>(activeSchemas.size());
+		    			SwaggerListener.clearFunctions();
+		    			for (String schema: activeSchemas) {
+		    				if (buildSchemaConfig(config, schema)) {
+		    					newList.add(schema);
+		    				}
+		    			}
+		    	        logger.debug("reload; going to reload context for schemas: {}", newList);
+		    	        if (newList.size() > 0) {
+		    	        	reloader.reload(config);
+		    	        	// rebuild Swagger definitions
+		    	        	bildSwaggerConfig();
+		    	        	activeSchemas = newList;
+		    	        	// what about current clients?
+		    	        	// should we disconnect all of them?
+		    	        } else {
+			    	        logger.info("reload; no reload required for schema: {}", schemaName);
+		    	        }
+		    	        reloading.set(false);
+		    		}
+		    	}.start();
+            }
     	}
     }
     

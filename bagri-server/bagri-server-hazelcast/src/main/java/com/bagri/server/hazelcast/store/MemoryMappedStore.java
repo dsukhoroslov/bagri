@@ -112,7 +112,7 @@ public abstract class MemoryMappedStore<K, E> {
 				fb.unlock();
 			}
 		} else {
-			logger.info("getEntry; cann't find entry for key: {}", key);
+			logger.debug("getEntry; cann't find entry for key: {}", key);
 		}
 		return result;
 	}
