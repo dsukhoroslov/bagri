@@ -2,6 +2,7 @@ package com.bagri.server.hazelcast.predicate;
 
 import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cli_factory_id;
 import static com.bagri.server.hazelcast.serialize.SystemSerializationFactory.cli_ResultsQueryParamsPredicate;
+import static com.bagri.support.util.XQUtils.adjustSearchValue;
 
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -48,8 +49,9 @@ public class ResultsQueryParamsPredicate implements Predicate<Long, QueryResult>
 		int queryKey = (int) (resultKey >> 32);
 		if (queryKey == queryId) {
 			Object param = resEntry.getValue().getParams().get(pex.getParamName());
-			if (param != null) {
-				return elts.apply(pex, param);
+			Object value = adjustSearchValue(param, pex.getCachedPath().getDataType());
+			if (value != null) {
+				return elts.apply(pex, value);
 			}
 		}
 		return false;

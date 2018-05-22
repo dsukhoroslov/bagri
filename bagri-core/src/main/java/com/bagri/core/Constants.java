@@ -92,9 +92,6 @@ public class Constants {
 	public static final String pv_query_invalidate_values = "values";
 	public static final String pv_query_invalidate_all = "all";
 	
-	//  %bgdb:property("bdb.rest.chunkAs", "json")
-	//  %bgdb:property("bdb.query.splitBy", "pids")
-	
 	// XDM Server configuration constants
 	public static final String pn_cluster_login = "bdb.cluster.login";
     public static final String pn_cluster_node_name = "bdb.cluster.node.name";

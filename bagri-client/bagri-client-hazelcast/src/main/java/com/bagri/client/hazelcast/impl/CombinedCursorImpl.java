@@ -1,9 +1,9 @@
 package com.bagri.client.hazelcast.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
     private final static Logger logger = LoggerFactory.getLogger(CombinedCursorImpl.class);
 	
     private int limit;
-	protected List<ResultCursor<T>> results = new ArrayList<>();
+	private Queue<ResultCursor<T>> results = new ConcurrentLinkedQueue<>();
 	
 	public CombinedCursorImpl() {
 		this(0);
@@ -82,7 +82,6 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	private class CombinedCursorIterator<T> implements Iterator<T> {
 
 		private int resIndex = 0;
-		private int curIndex = 0; //-1;
 		private Iterator<T> curIter = null;
 		private ResultCursor<T> curResult = null;
 		
@@ -96,13 +95,9 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 				if (results.isEmpty()) {
 					return false;
 				}
-				if (curIndex < results.size()) {
-					curResult = (ResultCursor<T>) results.get(curIndex);
-					curIter = curResult.iterator();
-				} else {
-					return false;
-				}
-				logger.trace("hasNext; got index: {}; results: {}", curIndex, curResult);
+				curResult = (ResultCursor<T>) results.poll();
+				curIter = curResult.iterator();
+				logger.trace("hasNext; got results: {}", curResult);
 			}
 			if (curIter.hasNext()) {
 				return true;
@@ -110,7 +105,7 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 				if (curResult.isComplete()) {
 					logger.trace("hasNext; complete");
 					curResult = null;
-					curIndex++;
+					//curIndex++;
 					return hasNext();
 				} else {
 					// could get asynch results..

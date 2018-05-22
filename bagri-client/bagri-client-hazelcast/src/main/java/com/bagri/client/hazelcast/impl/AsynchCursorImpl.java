@@ -24,14 +24,6 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements Execut
 	}
 
 	@Override
-	public void addResults(ResultCursor<T> result) {
-		synchronized (results) {
-			results.add(result);
-		}
-		logger.trace("addResults; results: {}", results);
-	}
-
-	@Override
 	public boolean isAsynch() {
 		return true;
 	}

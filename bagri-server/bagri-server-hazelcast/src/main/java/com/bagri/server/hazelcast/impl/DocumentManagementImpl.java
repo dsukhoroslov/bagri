@@ -320,8 +320,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			// getConverter set dataFormat in props
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
-			//logger.trace("getDocumentInternal; got content: {}", content);
 			if (content == null) {
+				logger.debug("getDocumentInternal; got no content for doc: {}", doc);
 				// build it and store in cache
 				// if docId is not local then buildDocument returns null!
 				// query docId owner node for the XML instead
@@ -341,6 +341,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
 					return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
 				}
+				logger.debug("getDocumentInternal; new content is: {}", content);
 			}
 			if (cc != null) {
 				content = cc.convertTo(content);
@@ -947,19 +948,22 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		// otherwise counters did not change
 
+    	boolean inVals = false;
 		String inScope = props.getProperty(pn_query_invalidate, pv_query_invalidate_values);
+		boolean inAll = pv_query_invalidate_all.equals(inScope);
 		if (pRes.getResultSize() > 0) {
 	    	java.util.Collection<Path> paths = model.getTypePaths(newDoc.getTypeRoot());
 	    	Set<Integer> pathIds = new HashSet<>(paths.size());
 	    	
-	    	boolean inVals = false;
 	    	List<String> inPath = null;
-			if (inScope.startsWith("/")) {
-				// invalidate by path-value pairs
-				inPath = Arrays.asList(inScope.split(";"));
-			} else {
-				inVals = pv_query_invalidate_values.equals(inScope);
-			}
+	    	if (!inAll) {
+				if (inScope.startsWith("/")) {
+					// invalidate by path-value pairs
+					inPath = Arrays.asList(inScope.split(";"));
+				} else {
+					inVals = pv_query_invalidate_values.equals(inScope);
+				}
+	    	}
 	    	
 			for (Path path: paths) {
 				DataKey dKey = factory.newDataKey(newDoc.getDocumentKey(), path.getPathId());
@@ -978,13 +982,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				}
 			}
 
-			if (pv_query_invalidate_all.equals(inScope) || pv_query_invalidate_paths.equals(inScope)) {
+			if (inAll || pv_query_invalidate_paths.equals(inScope)) {
 				// invalidate cached query results.
 				logger.debug("storeDocumentInternal; going to invalidate {} paths for document {}", pathIds.size(), uri); 
 				((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(pathIds);
 			} 
 		}
-		if (pv_query_invalidate_all.equals(inScope) || pv_query_invalidate_docs.equals(inScope)) {
+		if (inAll || pv_query_invalidate_docs.equals(inScope) || inVals) {
 			// don't remember why for no tx only?!
 			if (update && tx == null) {
 				logger.debug("storeDocumentInternal; going to invalidate query results for document {} with key {}", uri, docKey); 

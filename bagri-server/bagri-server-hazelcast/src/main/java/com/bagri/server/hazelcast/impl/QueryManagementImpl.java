@@ -2,12 +2,10 @@ package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.system.DataFormat.df_xml;
-import static com.bagri.support.util.XQUtils.getAtomicValue;
-import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
+import static com.bagri.support.util.XQUtils.adjustSearchValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,8 +20,6 @@ import java.util.concurrent.ExecutorService;
 
 import javax.xml.xquery.XQConstants;
 import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQItem;
-import javax.xml.xquery.XQItemType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,7 +349,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 	}
 	
-	private Set<Long> queryKeys(boolean local, Set<Long> found, ExpressionContainer ec, Expression ex, Map<String, Object> params) throws BagriException {
+	private Set<Long> queryKeys(boolean local, Set<Long> found, ExpressionContainer ec, Expression ex) throws BagriException {
 		if (ex == null) {
 			logger.debug("queryKeys; got null expression in container: {}, skipping..", ec);
 			return found;
@@ -365,15 +361,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (ex instanceof BinaryExpression) {
 			BinaryExpression be = (BinaryExpression) ex;
-			Set<Long> leftKeys = queryKeys(local, found, ec, be.getLeft(), params);
+			Set<Long> leftKeys = queryKeys(local, found, ec, be.getLeft());
 			if (Comparison.AND == be.getCompType()) {
 				if (leftKeys != null && leftKeys.isEmpty()) {
 					return leftKeys;
 				}
-				Set<Long> rightKeys = queryKeys(local, leftKeys, ec, be.getRight(), params);
+				Set<Long> rightKeys = queryKeys(local, leftKeys, ec, be.getRight());
 				return rightKeys;
 			} else if (Comparison.OR == be.getCompType()) {
-				Set<Long> rightKeys = queryKeys(local, found, ec, be.getRight(), params);
+				Set<Long> rightKeys = queryKeys(local, found, ec, be.getRight());
 				if (leftKeys != null) {
 					if (rightKeys != null) {
 						leftKeys.addAll(rightKeys);
@@ -388,69 +384,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		PathExpression pex = (PathExpression) ex;
-		return queryPathKeys(local, found, pex, ec.getParam(pex), params);
+		return queryPathKeys(local, found, pex, ec.getParam(pex));
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object adjustSearchValue(Object value, int pathType) {
-		if (value == null) {
-			return null;
-		}
-		logger.trace("adjustSearchValue.enter; adjusting {}:{}; expected type is {}", value.getClass().getName(), value, pathType);
-		int valType = XQItemType.XQBASETYPE_ANYTYPE;
-		while (value instanceof Collection) {
-			Collection values = (Collection) value;
-			if (values.size() == 0) {
-				return null;
-			}
-			if (values.size() == 1) {
-				value = values.iterator().next();
-				if (value == null) {
-					return null;
-				}
-			} else {
-				// CompType must be IN !
-				List newVals = new ArrayList(values.size());
-				for (Object val: values) {
-					newVals.add(adjustSearchValue(val, pathType));
-				}
-				return newVals;
-			}
-		} 
-		logger.trace("adjustSearchValue; after reduction value is {}:{}", value.getClass().getName(), value);
-		if (value instanceof XQItem) {
-			try {
-				valType = ((XQItem) value).getItemType().getBaseType();
-				value = ((XQItem) value).getObject();
-			} catch (XQException ex) {
-				logger.error("adjustSearchValue.error getting XQItem", ex);
-				value = value.toString();
-				valType = XQItemType.XQBASETYPE_STRING;
-			}
-		}
-		
-		if (pathType != valType) {
-			if (isStringTypeCompatible(pathType)) {
-				value = value.toString();
-			} else {				
-				// conversion from value type to path type
-				String strVal = value.toString();
-				if (strVal.startsWith("[") && strVal.endsWith("]")) {
-					String[] values = strVal.substring(1, strVal.length() - 1).split(", ");
-					List newVals = new ArrayList(values.length);
-					for (String val: values) {
-						newVals.add(adjustSearchValue(val, pathType));
-					}
-					return newVals;
-				} else {
-					value = getAtomicValue(pathType, value.toString());
-				}
-			}
-		}
-		return value;
-	}
-
-	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value, Map<String, Object> params) throws BagriException {
+	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value) throws BagriException {
 
 		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
@@ -513,9 +450,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return result;
 		}
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal);
-		if (params.containsKey(pex.getParamName())) {
-			params.put(pex.getParamName(), newVal);
-		}
 		
 		if (indexed) {
 			for (Integer pathId: paths) {
@@ -681,7 +615,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					
 				// TODO: check stats for exp.getRoot().getCollectionId(), 
 				// build 'found' set here if collectionId is selective enough
-				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot(), params);
+				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot());
 				// otherwise filter out documents with wrong collectionIds here
 				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
 				ctx.setDocKeys(result);
@@ -691,21 +625,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		logger.info("getDocumentIds; got rootless path: {}", query); 
 		// fallback to full IDs set: default collection over all documents. not too good...
-		List<Long> result;
+		Set<DocumentKey> keys;
 		if (localOnly) {
-			result = new ArrayList<Long>(xddCache.localKeySet().size());
-			for (DocumentKey docKey: xddCache.localKeySet()) {
-				if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
-					result.add(docKey.getKey());
-				}
-			}
+			keys = xddCache.localKeySet();
 		} else {
-			result = new ArrayList<Long>(xddCache.keySet().size());
-			for (DocumentKey docKey: xddCache.keySet()) {
-				// we must provide only visible docIds!
-				if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
-					result.add(docKey.getKey());
-				}
+			keys = xddCache.keySet();
+		}
+		List<Long> result = new ArrayList<>(keys.size());
+		for (DocumentKey docKey: keys) {
+			// we must provide only visible docIds! but can do it later during lazy iteration..
+			if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
+				result.add(docKey.getKey());
 			}
 		}
 		// We don't want to cache all docIds here in result? 

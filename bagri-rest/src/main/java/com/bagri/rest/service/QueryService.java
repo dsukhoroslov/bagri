@@ -51,7 +51,7 @@ public class QueryService extends RestService {
 		logger.debug("postQuery; got query: {}", params);
     	final ChunkedOutput<String> output = new ChunkedOutput<String>(String.class);
     	
-    	// TODO: think about thread pool for this? 
+    	// TODO: think about thread pool for this? OR, just do the same as in RestRequestProc
         new Thread() {
             public void run() {
         		QueryManagement queryMgr = getQueryManager();

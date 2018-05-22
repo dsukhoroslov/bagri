@@ -33,6 +33,6 @@ public class RestConstants {
 	public static final String arv_update = "update";
 	public static final String arv_delete = "delete";
 	
-	public static final String apn_rest_chunk_type = "bgdb:chunk-type"; //("json")
+	public static final String apn_rest_chunk_type = "bgdb:chunk-type"; 
 
 }

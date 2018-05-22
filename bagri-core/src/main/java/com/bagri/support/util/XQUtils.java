@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -824,4 +825,60 @@ public class XQUtils {
        	return result;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static Object adjustSearchValue(Object value, int pathType) {
+		if (value == null) {
+			return null;
+		}
+		int valType = XQItemType.XQBASETYPE_ANYTYPE;
+		while (value instanceof Collection) {
+			Collection values = (Collection) value;
+			if (values.size() == 0) {
+				return null;
+			}
+			if (values.size() == 1) {
+				value = values.iterator().next();
+				if (value == null) {
+					return null;
+				}
+			} else {
+				// CompType must be IN !?
+				List newVals = new ArrayList(values.size());
+				for (Object val: values) {
+					newVals.add(adjustSearchValue(val, pathType));
+				}
+				return newVals;
+			}
+		} 
+		if (value instanceof XQItem) {
+			try {
+				valType = ((XQItem) value).getItemType().getBaseType();
+				value = ((XQItem) value).getObject();
+			} catch (XQException ex) {
+				value = value.toString();
+				valType = XQItemType.XQBASETYPE_STRING;
+			}
+		}
+		
+		if (pathType != valType) {
+			if (isStringTypeCompatible(pathType)) {
+				value = value.toString();
+			} else {				
+				// conversion from value type to path type
+				String strVal = value.toString();
+				if (strVal.startsWith("[") && strVal.endsWith("]")) {
+					String[] values = strVal.substring(1, strVal.length() - 1).split(", ");
+					List newVals = new ArrayList(values.length);
+					for (String val: values) {
+						newVals.add(adjustSearchValue(val, pathType));
+					}
+					return newVals;
+				} else {
+					value = getAtomicValue(pathType, value.toString());
+				}
+			}
+		}
+		return value;
+	}
+
 }
