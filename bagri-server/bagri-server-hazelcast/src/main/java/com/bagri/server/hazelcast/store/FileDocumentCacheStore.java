@@ -210,7 +210,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
         			}
        				return newDoc;
 				} catch (Exception ex) {
-					logger.error("loadDocument.error; error loading document: {}", fullUri, ex);
+					logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, fullUri, docKey, ex);
 					// TODO: notify popManager about this?!
 				}
 	    	}

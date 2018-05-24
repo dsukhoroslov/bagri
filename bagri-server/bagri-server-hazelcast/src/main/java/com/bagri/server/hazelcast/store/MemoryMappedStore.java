@@ -171,9 +171,10 @@ public abstract class MemoryMappedStore<K, E> {
 	protected synchronized FileBuffer initBuffer(String fileName, int section) throws IOException {
         FileBuffer fb = new FileBuffer(fileName, buffSize, section); 
         buffers.add(fb);
-        int expected = buffers.size() - 1;
-        if (expected != section) {
-        	logger.warn("initBuffer; added buffer at the wrong position: {}; expected: {}", expected, section);
+        int pos = buffers.size() - 1;
+        if (pos != section) {
+        	logger.warn("initBuffer; added buffer at unexpected position: {}; expected: {}; total count: {}", 
+        			pos, section, buffers.size());
         }
         fb.reset();
 		return fb;
@@ -242,7 +243,7 @@ public abstract class MemoryMappedStore<K, E> {
 		return actCount;
 	}
 
-	private /*synchronized*/ FileBuffer getLockedBuffer(E entry) {
+	private synchronized FileBuffer getLockedBuffer(E entry) {
 		FileBuffer fb = buffers.get(buffers.size() - 1);
 		fb.lock();
         fb.reset();
@@ -254,6 +255,7 @@ public abstract class MemoryMappedStore<K, E> {
 			fb.unlock();
 			try {
 				fb = initBuffer(fName, sect);
+				logger.debug("getLockedBuffer; got new buffer: {} for section: {}", fb, sect);
 			} catch (IOException ex) {
 				logger.error("getLockedBuffer.error:", ex);
 				throw new RuntimeException(ex);

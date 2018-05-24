@@ -192,7 +192,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		for (Long docKey: docStore.getEntryKeys()) {
 			result.add(factory.newDocumentKey(docKey));
 		}
-		logger.info("getDocumentKeys; returning {} keys", result.size());
+		logger.info("getDocumentKeys; returning {} keys, out of total {}", result.size(), docStore.getEntryKeys().size());
 		return result;
 	}
 	
