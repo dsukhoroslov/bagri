@@ -12,7 +12,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.SortedSet;
 
 import com.bagri.core.model.Document;
 import com.hazelcast.core.IMap;
@@ -41,8 +45,18 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 			}
 		};
 
+		List<Path> pl = new ArrayList<>();
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, filter)) {
 		    for (Path path: stream) {
+		    	pl.add(path);
+		    }
+		} catch (IOException ex) {
+			logger.error("init; error reading catalog:", ex);
+		}
+		
+		Collections.sort(pl);
+		try {
+		    for (Path path: pl) {
 	    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
 	        	String fileName = path.toString();
 	        	int section = getSection(path.getFileName().toString()); 
