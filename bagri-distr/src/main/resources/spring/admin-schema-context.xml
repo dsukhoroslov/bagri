@@ -52,8 +52,8 @@
 	<bean id="queryManager" class="com.bagri.server.hazelcast.management.QueryManagement">
 		<constructor-arg value="${bdb.schema.name}" />
 		<property name="statsAggregator" ref="invocationStatsAggregator"/>
-		<property name="fetchSize" value="${bdb.client.fetchSize}"/>
-		<property name="queryTimeout" value="${xqj.schema.queryTimeout}"/>
+		<property name="fetchSize" value="${bdb.client.fetchSize:0}"/>
+		<property name="queryTimeout" value="${xqj.schema.queryTimeout:0}"/>
 	</bean>
 
 	<bean id="resourceManager" class="com.bagri.server.hazelcast.management.ResourceManagement">
