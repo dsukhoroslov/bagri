@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     private Future<?> execution = null; 
     private IMap<Long, QueryResult> resCache;
     private ReplicatedMap<Integer, Query> xqCache;
-    private int runIdx = 0;
+    private AtomicLong runIdx = new AtomicLong(0);
     
 	public QueryManagementImpl() {
 		// what should we do here? 
@@ -222,17 +223,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 			Member owner = null;
 			if (runKey == null) {
-				// this is for ANY and default/not implemented cases
-				// balance job between nodes...
+				// this is for any/default cases: balance job between nodes...
 				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
-				int cnt = runIdx % members.size();
+				int cnt = (int) (runIdx.incrementAndGet() % members.size());
 				Iterator<Member> itr = members.iterator();
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();
 				}
 				logger.debug("executeQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
 				futures.put(owner, execService.submitToMember(task, owner));
-				runIdx++;
 			} else {
 				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
 				futures.put(owner, execService.submitToKeyOwner(task, runKey));
