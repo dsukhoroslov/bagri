@@ -76,9 +76,12 @@ public class HealthManagementImpl implements MessageListener<Counter>, Partition
 	}
 	
 	private void checkState() {
-		int docSize = xddCache.size();
-		logger.trace("checkState; active count: {}; inactive count: {}; cache size: {}", cntActive, cntInactive, docSize);
 		long fullSize = cntActive.get() + cntInactive.get();
+		// TODO: commented out to prevent size check at population time.
+		// should be fixed..
+		//int docSize = xddCache.size();
+		long docSize = fullSize;
+		logger.trace("checkState; active count: {}; inactive count: {}; cache size: {}", cntActive, cntInactive, docSize);
 		HealthState hState;
 		if (fullSize < docSize - thLow) {
 			hState = HealthState.bad;

@@ -134,6 +134,12 @@ public class Constants {
     public static final String pn_schema_query_cache = "bdb.schema.query.cache";
     public static final String pn_schema_tx_level = "bdb.schema.transaction.level";
     public static final String pn_schema_tx_timeout = "bdb.schema.transaction.timeout";
+    public static final String pn_schema_cache_content = "bdb.schema.cache.content";
+    public static final String pn_schema_cache_elements = "bdb.schema.cache.elements";
+    
+    public static final String pn_schema_health_check = "bdb.schema.health.management.enabled";
+    public static final String pn_schema_health_th_low = "bdb.schema.health.threshold.low";
+    public static final String pn_schema_health_th_high = "bdb.schema.health.threshold.high";
     
     public static final String pn_schema_builder_pretty = "bdb.schema.builder.pretty";
     public static final String pn_schema_builder_ident = "bdb.schema.builder.ident";
@@ -226,6 +232,7 @@ public class Constants {
 			case pn_schema_name: return 4;
 			case pn_schema_user: return 5;
 			case pn_schema_password: return 6;
+			
 			case pn_client_id: return 7;
 			case pn_client_txId: return 8;
 			case pn_client_txLevel: return 9;
@@ -294,6 +301,7 @@ public class Constants {
 			case 4: return pn_schema_name;
 			case 5: return pn_schema_user;
 			case 6: return pn_schema_password;
+			
 			case 7: return pn_client_id;
 			case 8: return pn_client_txId;
 			case 9: return pn_client_txLevel;

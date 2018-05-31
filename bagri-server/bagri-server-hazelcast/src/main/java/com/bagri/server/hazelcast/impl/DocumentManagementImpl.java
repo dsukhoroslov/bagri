@@ -602,7 +602,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		ContentParser<Object> parser = repo.getParser(dataFormat);
 		try {
 			pRes = parser.parse(content);
-			// TODO: get length from parser
 		} catch (BagriException ex) {
 			logger.info("createDocument; parse error. content: {}", content);
 			throw ex;
@@ -675,6 +674,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			String root = dRoot.getRoot();
 			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
 
+			String storeElements = repo.getSchema().getProperty(pn_schema_cache_elements);
+			boolean cacheElements = storeElements == null ? true : Boolean.parseBoolean(storeElements);
+			
 			Set<Integer> fragments = new HashSet<>();
 			for (Fragment fragment: repo.getSchema().getFragments()) {
 				if (fragment.getDocumentType().equals(root)) {
@@ -724,7 +726,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 				}
 			}
-			eltCache.putAll(elements);
+			
+			if (cacheElements) {
+				eltCache.putAll(elements);
+			}
 
 			stamp = System.currentTimeMillis() - stamp;
 			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}",
@@ -921,6 +926,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		ParseResults pRes = parseContent(docKey, content, update, props);
 		// if fragmented document - process it in the old style!
+		
+		// if elements used for indices only then don't store them..
 
 		Transaction tx = null;
     	String txLevel = props.getProperty(pn_client_txLevel);
@@ -1012,7 +1019,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	private ParseResults parseContent(DocumentKey docKey, Object content, boolean update, Properties props) throws BagriException {
 		ParseResults result;
-		boolean cacheElts = Boolean.parseBoolean(props.getProperty(pn_document_cache_elements, "true"));
+		String storeElements = props.getProperty(pn_document_cache_elements);
+		if (storeElements == null) {
+			storeElements = repo.getSchema().getProperty(pn_schema_cache_elements);
+			if (storeElements == null) {
+				storeElements = "true";
+			}
+		}
+		boolean cacheElts = Boolean.parseBoolean(storeElements);
 		if (!cacheElts) {
 			cacheElts = indexManager.hasIndices();
 		}

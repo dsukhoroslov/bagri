@@ -106,7 +106,7 @@
 				</hz:indexes-->
 			</hz:map>
 
-			<hz:map name="xdm-content" in-memory-format="OBJECT" async-backup-count="${bdb.schema.data.backup.async}" 
+			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 					 backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25">
