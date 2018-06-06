@@ -34,11 +34,11 @@ import com.bagri.core.system.TriggerAction.Scope;
 import com.bagri.server.hazelcast.impl.CompressingCursorImpl;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
-import com.bagri.server.hazelcast.predicate.LimitPredicate;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
 import com.bagri.server.hazelcast.task.doc.DocumentRemoveProcessor;
 import com.bagri.support.idgen.IdGenerator;
 import com.bagri.support.stats.StatisticsEvent;
+import com.bagri.support.util.FileUtils;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
@@ -47,13 +47,12 @@ import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import com.hazelcast.query.TruePredicate;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.api.BagriException.*;
@@ -66,7 +65,7 @@ import static com.bagri.support.util.FileUtils.*;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement, EntryEvictedListener<DocumentKey, Document> {
 
-	private static final String fnUri = "uri";
+	//private static final String fnUri = "uri";
 	//private static final String fnTxStart = "txStart";
 	private static final String fnTxFinish = "txFinish";
 	private static final String fnRoot = "root";
@@ -88,6 +87,9 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	private boolean binaryDocs;
 	private boolean binaryElts;
 	private boolean binaryContent;
+	
+	private boolean cacheContent;
+	private boolean cacheElements; 
 
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -103,12 +105,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	binaryDocs = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_DOCUMENT).getInMemoryFormat();
     	binaryElts = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_ELEMENT).getInMemoryFormat();
     	binaryContent = InMemoryFormat.BINARY == repo.getHzInstance().getConfig().getMapConfig(CN_XDM_CONTENT).getInMemoryFormat();
-
     	//keyCache = repo.getHzInstance().getMap(CN_XDM_KEY);
-    }
-
-    IMap<DocumentKey, Object> getContentCache() {
-    	return cntCache;
     }
 
     IMap<DocumentKey, Document> getDocumentCache() {
@@ -117,6 +114,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     IMap<DataKey, Elements> getElementCache() {
     	return eltCache;
+    }
+
+    public void setCacheContent(boolean cacheContent) {
+    	this.cacheContent = cacheContent;
+    }
+
+    public void setCacheElements(boolean cacheElements) {
+    	this.cacheElements = cacheElements;
     }
 
     public void setDocumentIdGenerator(IdGenerator<Long> docGen) {
@@ -317,29 +322,43 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		long headMask = Long.parseLong(headers);
 		logger.trace("getDocumentInternal; returning document: {} for props: {}", doc, props);
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
+			if (!ddSvc.isLocalKey(docKey)) {
+				// shouldn't cause a deadlock as getDoc from client should be routed properly
+				logger.trace("getDocumentInternal; docKey is not local, requesting owner node..");
+				DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
+				return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
+			}
+		
 			// getConverter set dataFormat in props
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
 			if (content == null) {
 				logger.debug("getDocumentInternal; got no content for doc: {}", doc);
-				// build it and store in cache
-				// if docId is not local then buildDocument returns null!
-				// query docId owner node for the XML instead
-				if (ddSvc.isLocalKey(docKey)) {
-					// do this asynchronously!?
+				if (cacheElements) { 
+					// build content from elements
 					String dataFormat = props.getProperty(pn_document_data_format);
-					Map<String, Object> params = new HashMap<>();
-					params.put(":doc", doc.getTypeRoot());
-					java.util.Collection<String> results = buildContent(Collections.singleton(docKey.getKey()), ":doc", params, dataFormat);
-					if (!results.isEmpty()) {
-						content = results.iterator().next();
-						cntCache.set(docKey, content);
-					}
+				    ContentBuilder<?> builder = repo.getBuilder(dataFormat);
+				    if (builder == null) {
+						logger.info("buildContent.exit; no Handler found for dataFormat {}", dataFormat);
+						// get builder for default format!
+				        return null;
+				    }
+					content = buildElement(doc.getTypeRoot(), doc.getFragments(), builder);
 				} else {
-					// shouldn't cause a deadlock as getDoc from client should be routed properly
-					logger.trace("getDocumentInternal; docKey is not local, requesting owner node..");
-					DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
-					return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
+					// get content from source
+					// this is a rough huck, just to make it work
+					String dataPath = repo.getSchema().getProperty(pn_schema_store_data_path);
+					String fullUri = dataPath + "/" + doc.getUri();
+					try {
+						content = FileUtils.readTextFile(fullUri);
+					} catch (IOException ex) {
+						logger.info("getDocumentInternal; error reading content", ex);
+					}
+				}
+				
+				if (content != null && cacheContent) {
+					// do this asynchronously!?
+					cntCache.set(docKey, content);
 				}
 				logger.debug("getDocumentInternal; new content is: {}", content);
 			}
@@ -595,7 +614,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	//@Override
 	@SuppressWarnings("unchecked")
 	public Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, Date createdAt, String createdBy,
-			long txStart, int[] collections, boolean addContent) throws BagriException {
+			long txStart, int[] collections) throws BagriException {
 
 		ParseResults pRes;
 		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
@@ -650,7 +669,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 
-		if (addContent) {
+		if (cacheContent) {
+			//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 			cntCache.set(docKey, content);
 		}
 
@@ -674,9 +694,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			String root = dRoot.getRoot();
 			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
 
-			String storeElements = repo.getSchema().getProperty(pn_schema_cache_elements);
-			boolean cacheElements = storeElements == null ? true : Boolean.parseBoolean(storeElements);
-			
 			Set<Integer> fragments = new HashSet<>();
 			for (Fragment fragment: repo.getSchema().getFragments()) {
 				if (fragment.getDocumentType().equals(root)) {
@@ -800,7 +817,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		
 		int length = pRes.getContentLength();
 		String root = pRes.getContentRoot();
-		if (rSize > 0) {
+		if (rSize > 0 && cacheElements) {
 			processElements(docId, data);
 		}
 		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), user, dataFormat + "/" + def_encoding, length, rSize);
@@ -838,12 +855,15 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (txId == TX_NO && !revisioned) {
 				old.setValue(newDoc);
 			} else {
+				//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
 				docCache.set(docKey, newDoc);
 			}
 		}
-		//ddSvc.storeData(docKey, newDoc, CN_XDM_DOCUMENT);
-		//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
-		cntCache.set(docKey, content);
+
+		if (cacheContent) {
+			//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
+			cntCache.set(docKey, content);
+		}
 		
 		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
@@ -1019,14 +1039,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	private ParseResults parseContent(DocumentKey docKey, Object content, boolean update, Properties props) throws BagriException {
 		ParseResults result;
-		String storeElements = props.getProperty(pn_document_cache_elements);
-		if (storeElements == null) {
-			storeElements = repo.getSchema().getProperty(pn_schema_cache_elements);
-			if (storeElements == null) {
-				storeElements = "true";
-			}
-		}
-		boolean cacheElts = Boolean.parseBoolean(storeElements);
+		boolean cacheElts = cacheElements;
 		if (!cacheElts) {
 			cacheElts = indexManager.hasIndices();
 		}

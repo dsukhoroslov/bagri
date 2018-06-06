@@ -203,10 +203,10 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
         			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
         			if (doc == null) {
         				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
-        						Files.getOwner(path).getName(), TX_INIT, null, true);
+        						Files.getOwner(path).getName(), TX_INIT, null);
         			} else {
         				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, doc.getCreatedAt(), doc.getCreatedBy(), doc.getTxStart(), 
-        						doc.getCollections(), true);
+        						doc.getCollections());
         			}
        				return newDoc;
 				} catch (Exception ex) {
