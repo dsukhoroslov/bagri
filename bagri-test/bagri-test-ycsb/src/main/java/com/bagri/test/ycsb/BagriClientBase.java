@@ -93,10 +93,6 @@ public abstract class BagriClientBase extends DB {
     if (compress != null) {
       insertProps.setProperty(pn_document_compress, compress);
     }
-    String cacheElts = props.getProperty(pn_document_cache_elements);
-    if (cacheElts != null) {
-      insertProps.setProperty(pn_document_cache_elements, cacheElts);
-    }
 
     scanProps.setProperty(pn_document_data_format, format);
     String fetchAsynch = props.getProperty(pn_client_fetchAsynch);
@@ -128,9 +124,6 @@ public abstract class BagriClientBase extends DB {
     updateProps.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI));
     if (compress != null) {
       updateProps.setProperty(pn_document_compress, compress);
-    }
-    if (cacheElts != null) {
-      updateProps.setProperty(pn_document_cache_elements, cacheElts);
     }
 
     if (txLevel != null) {

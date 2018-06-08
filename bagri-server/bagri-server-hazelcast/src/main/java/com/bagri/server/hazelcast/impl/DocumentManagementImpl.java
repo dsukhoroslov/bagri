@@ -197,7 +197,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (clnId > 0 && !doc.hasCollection(clnId)) {
 				return null;
 			}
-			if (doc.getTxFinish() > TX_NO && txManager.isTxVisible(doc.getTxFinish())) {
+			if (!doc.isActive() && txManager.isTxVisible(doc.getTxFinish())) {
 				return null;
 			}
 			if (txManager.isTxVisible(doc.getTxStart())) {
@@ -259,7 +259,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	Document getDocument(String uri) {
 		Document doc = ddSvc.getLastDocumentForUri(uri);
    		if (doc != null) {
-   			if (doc.getTxFinish() != TX_NO) { // && txManager.isTxVisible(doc.getTxFinish())) {
+   			if (!doc.isActive()) { // && txManager.isTxVisible(doc.getTxFinish())) {
    				logger.info("getDocument; the latest document version is finished already: {}", doc);
    				doc = null;
    			}
@@ -616,31 +616,23 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	public Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, Date createdAt, String createdBy,
 			long txStart, int[] collections) throws BagriException {
 
-		ParseResults pRes;
-		//dataFormat = repo.getHandler(dataFormat).getDataFormat();
-		ContentParser<Object> parser = repo.getParser(dataFormat);
-		try {
-			pRes = parser.parse(content);
-		} catch (BagriException ex) {
-			logger.info("createDocument; parse error. content: {}", content);
-			throw ex;
-		}
+		ParseResults pRes = parseContent(docKey, content, dataFormat, null);
 
 		List<Data> data = pRes.getResults();
 		int length = pRes.getContentLength();
 		Object[] ids = loadElements(docKey.getKey(), data);
-		List<Long> fragments = (List<Long>) ids[0];
-		if (fragments == null) {
+		if (ids == null) {
 			logger.warn("createDocument.exit; the document is not valid as it has no root element");
 			throw new BagriException("invalid document", BagriException.ecDocument);
 		}
 
-		String root = data.get(0).getRoot();
 		Document doc;
+		String format = dataFormat + "/" + def_encoding;
+		List<Long> fragments = (List<Long>) ids[0];
 		if (fragments.size() == 0) {
-			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, dataFormat + "/" + def_encoding, length, data.size());
+			doc = new Document(docKey.getKey(), uri, pRes.getContentRoot(), txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
 		} else {
-			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, dataFormat + "/" + def_encoding, length, data.size());
+			doc = new FragmentedDocument(docKey.getKey(), uri, pRes.getContentRoot(), txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=0; i < fragments.size(); i++) {
@@ -649,52 +641,49 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			((FragmentedDocument) doc).setFragments(fa);
 		}
 
-		List<String> clns = new ArrayList<>();
 		if (collections != null && collections.length > 0) {
 			doc.setCollections(collections);
-			for (Collection cln: repo.getSchema().getCollections()) {
-				for (int clnId: collections) {
+			for (int clnId: collections) {
+				for (Collection cln: repo.getSchema().getCollections()) {
 					if (clnId == cln.getId()) {
-						clns.add(cln.getName());
+						updateStats(cln.getName(), true, doc.getElements(), doc.getFragments().length);
 						break;
 					}
 				}
 			}
-		}
-
-		if (clns.size() == 0) {
-			String cln = checkDefaultDocumentCollection(doc);
-			if (cln != null) {
-				clns.add(cln);
+		} else {
+			String clName = checkDefaultDocumentCollection(doc);
+			if (clName != null) {
+				updateStats(clName, true, doc.getElements(), doc.getFragments().length);
 			}
 		}
-
+		updateStats(null, true, doc.getElements(), doc.getFragments().length);
+		
 		if (cacheContent) {
 			//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
 			cntCache.set(docKey, content);
 		}
 
-		// invalidate cached query results. always do this, even on load?
-		Set<Integer> paths = (Set<Integer>) ids[1];
-		((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
+		// invalidate cached query results on load. what for..?
+		//Set<Integer> paths = (Set<Integer>) ids[1];
+		//((QueryManagementImpl) repo.getQueryManagement()).invalidateQueryResults(paths);
 
-		// update statistics
-		for (String cln: clns) {
-			updateStats(cln, true, data.size(), doc.getFragments().length);
-		}
-		updateStats(null, true, data.size(), doc.getFragments().length);
 		return doc;
 	}
 
 	private Object[] loadElements(long docKey, List<Data> data) throws BagriException {
 
-		long stamp = System.currentTimeMillis();
 		Data dRoot = getDataRoot(data);
-		if (dRoot != null) {
+		if (dRoot == null) { 
+			return null;
+		}
+		
+		List<Long> fragIds = new ArrayList<>();
+		Set<Integer> pathIds = new HashSet<>();
+		if (cacheElements) {
 			String root = dRoot.getRoot();
-			Map<DataKey, Elements> elements = new HashMap<DataKey, Elements>(data.size());
-
 			Set<Integer> fragments = new HashSet<>();
+			Map<DataKey, Elements> elements = new HashMap<>(data.size());
 			for (Fragment fragment: repo.getSchema().getFragments()) {
 				if (fragment.getDocumentType().equals(root)) {
 					Path path = model.getPath(root, fragment.getPath());
@@ -718,9 +707,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (fragments.size() > 0) {
 				size = data.size() / fragments.size();
 			}
-			Set<Integer> pathIds = new HashSet<>(size);
-			List<Long> fragIds = new ArrayList<>(size);
 			for (Data xdm: data) {
+				pathIds.add(xdm.getPathId());
 				if (fragments.contains(xdm.getPathId())) {
 					int hash = docGen.next().intValue();
 					fraPath = DocumentKey.toKey(hash, 0, 0);
@@ -731,7 +719,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					fraPath = docKey;
 					fraPost = 0;
 				}
-				pathIds.add(xdm.getPathId());
 				if (xdm.getValue() != null) {
 					DataKey xdk = factory.newDataKey(fraPath, xdm.getPathId());
 					Elements xdes = elements.get(xdk);
@@ -743,20 +730,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 				}
 			}
-			
-			if (cacheElements) {
-				eltCache.putAll(elements);
+			eltCache.putAll(elements);
+			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}", elements.size(), docKey, fragIds.size());
+		} else {
+			for (Data xdm: data) {
+				pathIds.add(xdm.getPathId());
+				indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
 			}
-
-			stamp = System.currentTimeMillis() - stamp;
-			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}; time taken: {}",
-					elements.size(), docKey, fragIds.size(), stamp);
-			Object[] result = new Object[2];
-			result[0] = fragIds;
-			result[1] = pathIds;
-			return result;
 		}
-		return null;
+
+		Object[] result = new Object[2];
+		result[0] = fragIds;
+		result[1] = pathIds;
+		return result;
 	}
 
 	public Document processDocument(Map.Entry<DocumentKey, Document> old, long txId, String uri, String user, Object content, ParseResults pRes, Properties props) throws BagriException {
@@ -944,11 +930,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			update = true;
 		}
 
-		ParseResults pRes = parseContent(docKey, content, update, props);
+		String dataFormat = props.getProperty(pn_document_data_format);
+		ParseResults pRes = parseContent(docKey, content, dataFormat, update ? props : null);
 		// if fragmented document - process it in the old style!
 		
-		// if elements used for indices only then don't store them..
-
 		Transaction tx = null;
     	String txLevel = props.getProperty(pn_client_txLevel);
     	if (!pv_client_txLevel_skip.equals(txLevel)) {
@@ -1037,17 +1022,17 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     	return newContent;
 	}
 	
-	private ParseResults parseContent(DocumentKey docKey, Object content, boolean update, Properties props) throws BagriException {
+	private ParseResults parseContent(DocumentKey docKey, Object content, String dataFormat, Properties props) throws BagriException {
 		ParseResults result;
 		boolean cacheElts = cacheElements;
 		if (!cacheElts) {
 			cacheElts = indexManager.hasIndices();
 		}
 		if (cacheElts) {
-			String dataFormat = props.getProperty(pn_document_data_format);
-			boolean mergeContent = Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"));
-	    	if (update && mergeContent) {
-	    		content = mergeContent(docKey, content, dataFormat);
+	    	if (props != null) {
+				if (Boolean.parseBoolean(props.getProperty(pn_document_map_merge, "false"))) {
+	    			content = mergeContent(docKey, content, dataFormat);
+				}
 	    	}			
 			ContentParser<Object> parser = repo.getParser(dataFormat);
 			result = parser.parse(content);

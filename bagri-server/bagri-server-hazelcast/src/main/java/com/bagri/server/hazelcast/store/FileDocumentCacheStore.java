@@ -7,7 +7,6 @@ import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
 import static com.bagri.core.api.TransactionManagement.TX_INIT;
-import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.core.model.Document.dvFirst;
 
 import java.io.IOException;
@@ -130,13 +129,9 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 
 	@Override
 	public Set<DocumentKey> loadAllKeys() {
-		//if (true) {
-		//	return Collections.emptySet();
-		//}
-		
 		ensureRepository();
 		if (xdmRepo == null) {
-			logger.trace("loadAllKeys.enter; store is not ready yet, skipping population");
+			logger.debug("loadAllKeys.enter; store is not ready yet, skipping population");
 			return null;
 		}
 		
@@ -179,11 +174,20 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		return docIds;
 	}
 	
+	//private String loadDocumentContent(String uri) throws IOException {
+	//	String fullUri = getFullUri(uri);
+	//	Path path = Paths.get(fullUri);
+    //	if (Files.exists(path)) {
+   	//		return FileUtils.readTextFile(fullUri);
+    //	}
+    //	return null;
+	//}
+	
 	private Document loadDocument(DocumentKey docKey) {
     	String docUri = null;
     	Document doc = popManager.getDocument(docKey.getKey());
     	if (doc != null) {
-    		if (doc.getTxFinish() > TX_NO) {
+    		if (!doc.isActive()) {
     			// no need to load content for inactive docs
     			return doc;
     		}
@@ -205,8 +209,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
         				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
         						Files.getOwner(path).getName(), TX_INIT, null);
         			} else {
-        				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, doc.getCreatedAt(), doc.getCreatedBy(), doc.getTxStart(), 
-        						doc.getCollections());
+        				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, doc.getCreatedAt(), 
+        						doc.getCreatedBy(), doc.getTxStart(), doc.getCollections());
         			}
        				return newDoc;
 				} catch (Exception ex) {

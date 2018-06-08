@@ -214,6 +214,15 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	}
 	
 	/**
+	 * return true if doc is not finished yet, false otherwise
+	 * 
+	 * @return boolean 
+	 */
+	public boolean isActive() {
+		return txFinish == 0; // TX_NO
+	}
+	
+	/**
 	 * 
 	 * @return ids of document collections
 	 */

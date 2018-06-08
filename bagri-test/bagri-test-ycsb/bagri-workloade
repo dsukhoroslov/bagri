@@ -71,7 +71,6 @@ bdb.client.storeMode=merge
 #bdb.client.txTimeout=100
 bdb.client.txLevel=skip
 
-bdb.document.cache.elements=true
 bdb.document.compress=true
 bdb.document.data.format=BMAP
 bdb.document.map.merge=true

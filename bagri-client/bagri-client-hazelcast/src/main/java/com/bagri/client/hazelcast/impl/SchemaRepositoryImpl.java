@@ -138,7 +138,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
 
-		//setProperty(original, props, pn_document_cache.elements=true
 		//-Dbdb.document.compress=false
 		//-Dbdb.document.data.format=BMAP
 		//-Dbdb.document.map.merge=true

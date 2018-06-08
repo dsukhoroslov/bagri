@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.SortedSet;
 
 import com.bagri.core.model.Document;
 import com.hazelcast.core.IMap;
@@ -125,7 +124,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	
 	@Override
 	protected boolean isEntryActive(Document entry) {
-		return entry.getTxFinish() == TX_NO;
+		return entry.isActive();
 	}
 
 	@Override
@@ -174,7 +173,7 @@ public class DocumentMemoryStore extends MemoryMappedStore<Long, Document> {
 	protected void deactivateEntry(MappedByteBuffer buff, Document entry) {
 		if (entry == null) {
 			logger.info("deactivateEntry; got null entry for some reason!"); 
-		} else if (entry.getTxFinish() > TX_NO) {
+		} else if (!entry.isActive()) {
 			buff.putLong(entry.getTxFinish());
 		} else {
 			// forgot it, what does it mean? 

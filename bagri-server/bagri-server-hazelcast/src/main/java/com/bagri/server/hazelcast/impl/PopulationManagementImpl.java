@@ -4,6 +4,8 @@ import static com.bagri.core.Constants.*;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -211,6 +213,17 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
 		ApplicationContext schemaCtx = getContext(schemaName);
 		docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
+
+		KeyFactory factory = getKeyFactory();
+		Collection<Long> docKeys = docStore.getEntryKeys();
+		Map<DocumentKey, String> mappings = new HashMap<>(docKeys.size());
+		for (Long docKey: docKeys) {
+			Document doc = docStore.getEntry(docKey);
+			if (doc != null && doc.isActive()) {
+				mappings.put(factory.newDocumentKey(docKey), doc.getUri());
+			}
+		}
+		setKeyMappings(mappings);
 	}
 	
 	private KeyFactory getKeyFactory() {

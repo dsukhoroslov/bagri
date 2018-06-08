@@ -106,7 +106,7 @@
 				</hz:indexes-->
 			</hz:map>
 
-			<hz:map name="xdm-content" in-memory-format="OBJECT" async-backup-count="${bdb.schema.data.backup.async}" 
+			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 					 backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 					 max-size="25">
@@ -131,7 +131,7 @@
 			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="10">
+					 max-size="25">
 				<!--hz:indexes>
 					<hz:index attribute="docId"/>
 				</hz:indexes>
@@ -377,7 +377,8 @@
 		<property name="statsQueue" ref="docQueue"/>
 		<property name="distrService" ref="distrService"/>
 		<property name="execPool" ref="execService"/>
-   		<!--property name="repository" ref="xdmRepo" /-->
+		<property name="cacheContent" value="${bdb.schema.cache.content:true}"/>
+		<property name="cacheElements" value="${bdb.schema.cache.elements:true}"/>
 	</bean>
 
 	<bean id="healthManager" class="com.bagri.server.hazelcast.impl.HealthManagementImpl">
@@ -430,8 +431,8 @@
 		<!--property name="hzInstance" ref="hzInstance"/-->
 		<property name="execPool" ref="execService"/>
 		<property name="publishCounters" value="${bdb.schema.publish.counters:true}"/>
-		<property name="transactionLevel" value="${bdb.schema.transaction.level}"/>
-		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout}"/>
+		<property name="transactionLevel" value="${bdb.schema.transaction.level:readCommited}"/>
+		<property name="transactionTimeout" value="${bdb.schema.transaction.timeout:0}"/>
 	</bean>
 	
 	<bean id="xdmRepo" class="com.bagri.server.hazelcast.impl.SchemaRepositoryImpl">
