@@ -169,7 +169,7 @@ public class QueryModuleTest extends BagriManagementTest {
 			for (XQItemAccessor item: results) {
 				cnt++;
 			}  
-			assertEquals(10, cnt);
+			assertEquals(9, cnt);
 		}
 	}
 

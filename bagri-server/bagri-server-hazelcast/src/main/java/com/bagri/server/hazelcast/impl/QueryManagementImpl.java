@@ -588,16 +588,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@Override
-	public Collection<String> getContent(ExpressionContainer query, String template, Map<String, Object> params) throws BagriException {
-		
-		Collection<Long> docKeys = getDocumentIds(query);
-		if (docKeys.size() > 0) {
-			return docMgr.buildContent(new HashSet<>(docKeys), template, params, df_xml);
-		}
-		return Collections.emptyList();
-	}
-	
-	@Override
 	public Collection<Long> getDocumentIds(ExpressionContainer query) throws BagriException {
 		QueryExecContext ctx = thContext.get();
 		Properties props = ctx.getProperties();

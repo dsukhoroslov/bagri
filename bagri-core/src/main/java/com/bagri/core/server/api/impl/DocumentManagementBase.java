@@ -1,11 +1,7 @@
 package com.bagri.core.server.api.impl;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.bagri.core.api.BagriException;
 import com.bagri.core.model.Data;
 import com.bagri.core.model.NodeKind;
 import com.bagri.core.server.api.ModelManagement;
@@ -16,7 +12,7 @@ import com.bagri.core.server.api.ModelManagement;
  * @author Denis Sukhoroslov
  *
  */
-public abstract class DocumentManagementBase extends com.bagri.core.api.impl.DocumentManagementBase  {
+public abstract class DocumentManagementBase {
 
 	protected ModelManagement model;
 	
@@ -28,11 +24,9 @@ public abstract class DocumentManagementBase extends com.bagri.core.api.impl.Doc
 		this.model = model;
 	}
 
-    //public abstract Collection<String> buildDocument(Set<Long> docIds, String template, Map<String, Object> params) throws BagriException;
-
 	public Data getDataRoot(List<Data> elements) {
 		for (Data data: elements) {
-			if (data.getNodeKind() == NodeKind.document) { //element) {
+			if (data.getNodeKind() == NodeKind.document) { 
 				return data;
 			}
 		}

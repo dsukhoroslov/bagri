@@ -1,7 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.model.Document;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.ExpressionContainer;
@@ -25,8 +24,6 @@ import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static com.bagri.core.Constants.*;
@@ -86,7 +83,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		return ((SchemaRepository) xRepo).getModelManagement();
 	}
 
-	public Collection<String> getSecurity(String symbol) throws Exception {
+	public Collection<Long> getSecurity(String symbol) throws Exception {
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
@@ -95,9 +92,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, Object> params = new HashMap<>();
-		params.put(":sec", "/" + prefix + ":Security");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
 	
@@ -123,7 +118,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 			xRepo.getTxManagement().rollbackTransaction(txId);
 		}
 			
-		Collection<String> sec = getSecurity("IBM");
+		Collection<Long> sec = getSecurity("IBM");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
@@ -148,7 +143,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
-		Collection<String> sec = getSecurity("VFINX");
+		Collection<Long> sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
@@ -169,7 +164,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		uris.add(doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
-		Collection<String> sec = getSecurity("VFINX");
+		Collection<Long> sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}
@@ -190,7 +185,7 @@ public class UniqueIndexManagementTest extends BagriManagementTest {
 		assertNotNull(doc);
 		getTxManagement().commitTransaction(txId);
 		
-		Collection<String> sec = getSecurity("VFINX");
+		Collection<Long> sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 	}

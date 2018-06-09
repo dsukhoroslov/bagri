@@ -10,6 +10,7 @@ import com.bagri.core.Convertable;
 import com.bagri.core.Versionable;
 
 import static com.bagri.core.DocumentKey.*;
+import static com.bagri.core.api.TransactionManagement.TX_NO;
 import static com.bagri.support.util.FileUtils.def_encoding;
 
 /**
@@ -188,7 +189,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	
 	/**
 	 * 
-	 * @return the number of fragments owning by the documents. A single document has 1 fragment
+	 * @return the number of fragments owning by the documents. A simple document has 1 fragment
 	 */
 	public long[] getFragments() {
 		return new long[] {documentKey};
@@ -214,12 +215,11 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	}
 	
 	/**
-	 * return true if doc is not finished yet, false otherwise
 	 * 
-	 * @return boolean 
+	 * @return true if doc is not finished yet, false otherwise 
 	 */
 	public boolean isActive() {
-		return txFinish == 0; // TX_NO
+		return txFinish == TX_NO;
 	}
 	
 	/**

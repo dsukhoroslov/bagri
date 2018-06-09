@@ -4,14 +4,11 @@ import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionManagement;
-import com.bagri.core.model.Document;
 import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.query.PathBuilder;
-import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
-import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
@@ -25,9 +22,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -80,7 +75,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		//Thread.sleep(1000);
 	}
 
-	public Collection<String> getSecurity(String symbol) throws Exception {
+	public Collection<Long> getSecurity(String symbol) throws Exception {
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
@@ -89,9 +84,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, Object> params = new HashMap<>();
-		params.put(":sec", "/{" + prefix + "}Security");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
 	@Test
@@ -99,7 +92,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		long txId = xRepo.getTxManagement().beginTransaction();
 		storeSecurityTest();
 
-		Collection<String> sec = getSecurity("VFINX");
+		Collection<Long> sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertTrue("expected 1 but got " + sec.size() + " test documents", sec.size() == 1);
 
@@ -155,7 +148,7 @@ public class TransactionManagementImplTest extends BagriManagementTest {
 		assertEquals(uri, doc.getUri());
 		getTxManagement().commitTransaction(txId);
 		
-		Collection<String> sec = getSecurity("VFINX");
+		Collection<Long> sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertTrue("expected 0 but got " + sec.size() + " test documents", sec.size() == 0);
 	}

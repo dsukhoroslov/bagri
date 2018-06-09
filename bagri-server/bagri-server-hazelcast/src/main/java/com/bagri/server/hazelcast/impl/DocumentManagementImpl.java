@@ -54,6 +54,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.api.BagriException.*;
 import static com.bagri.core.api.TransactionManagement.*;
@@ -65,6 +68,8 @@ import static com.bagri.support.util.FileUtils.*;
 
 public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement, EntryEvictedListener<DocumentKey, Document> {
 
+	private static final transient Logger logger = LoggerFactory.getLogger(DocumentManagementImpl.class);
+	
 	//private static final String fnUri = "uri";
 	//private static final String fnTxStart = "txStart";
 	private static final String fnTxFinish = "txFinish";
@@ -343,7 +348,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 						// get builder for default format!
 				        return null;
 				    }
-					content = buildElement(doc.getTypeRoot(), doc.getFragments(), builder);
+				    Set<DataKey> xdKeys = getDocumentElementKeys(doc.getTypeRoot(), doc.getFragments());
+				    content = builder.buildContent(eltCache.getAll(xdKeys));
 				} else {
 					// get content from source
 					// this is a rough huck, just to make it work
@@ -513,71 +519,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 		logger.trace("fetchDocuments.exit; fetched {} docs", cnt);
 	}
-
-	java.util.Collection<String> buildContent(Set<Long> docKeys, String template, Map<String, Object> params, String dataFormat) throws BagriException {
-
-        logger.trace("buildContent.enter; docKeys: {}", docKeys.size());
-        ContentBuilder<?> builder = repo.getBuilder(dataFormat);
-        if (builder == null) {
-			logger.info("buildContent.exit; no Handler found for dataFormat {}", dataFormat);
-        	return null;
-        }
-
-		long stamp = System.currentTimeMillis();
-        java.util.Collection<String> result = new ArrayList<>(docKeys.size());
-
-        String root = null;
-		for (Iterator<Long> itr = docKeys.iterator(); itr.hasNext(); ) {
-			DocumentKey docKey = factory.newDocumentKey(itr.next());
-			if (ddSvc.isLocalKey(docKey)) {
-				Document doc = docCache.get(docKey);
-				if (doc == null) {
-					logger.info("buildContent; lost document for key {}", docKey);
-					continue;
-				}
-
-				StringBuilder buff = new StringBuilder(template);
-				for (Map.Entry<String, Object> param: params.entrySet()) {
-					String key = param.getKey();
-					String path = param.getValue().toString();
-					Object content = null;
-					if (path.equals(root)) {
-						// TODO: get and convert to string?
-						content = cntCache.get(docKey);
-					}
-					if (content == null) {
-				        logger.trace("buildContent; no content found for doc key: {}", docKey);
-						content = buildElement(path, doc.getFragments(), builder);
-					}
-					if (content != null) {
-						String str = content.toString();
-						int pos = 0;
-						while (true) {
-							int idx = buff.indexOf(key, pos);
-							if (idx < 0) break;
-							buff.replace(idx, idx + key.length(), str);
-							pos = idx + str.length();
-						}
-					}
-				}
-				result.add(buff.toString());
-			} else {
-				// remove is not supported by the HZ iterator provided!
-				// actually, don't think we have to do it at all..
-				//itr.remove();
-		        logger.debug("buildDocument; docId {} is not local, processing skipped", docKey);
-			}
-		}
-
-		stamp = System.currentTimeMillis() - stamp;
-        logger.trace("buildDocument.exit; time taken: {}; returning: {}", stamp, result.size());
-        return result;
-	}
-
-	private Object buildElement(String path, long[] fragments, ContentBuilder<?> builder) throws BagriException {
-    	Set<DataKey> xdKeys = getDocumentElementKeys(path, fragments);
-    	return builder.buildContent(eltCache.getAll(xdKeys));
-    }
 
 	//public InputStream getDocumentAsStream(long docKey, Properties props) throws BagriException {
 	//	String content = getDocumentAsString(docKey, props);

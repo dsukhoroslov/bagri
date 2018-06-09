@@ -28,17 +28,6 @@ public interface QueryManagement extends com.bagri.core.api.QueryManagement {
 	Collection<Long> getDocumentIds(ExpressionContainer query) throws BagriException;
 
 	/**
-	 * build text content by applying {@literal template} with {@literal params} on documents found by {@literal query}  
-	 * 
-	 * @param query container with internal compiled query representation
-	 * @param template the String template to apply on the found documents
-	 * @param params the 0{@link Map} of parameters associated with template 
-	 * @return collection of strings produced by the system. The number of returned strings matches the number of documents found by query 
-	 * @throws BagriException in case of any error
-	 */
-	Collection<String> getContent(ExpressionContainer query, String template, Map<String, Object> params) throws BagriException;
-	
-	/**
 	 * check if the {@literal query} read-only or not. To do this the system looks query in internal cache. 
 	 * If the query is not cached yet the system assumes it is read-write for the first time.
 	 * 

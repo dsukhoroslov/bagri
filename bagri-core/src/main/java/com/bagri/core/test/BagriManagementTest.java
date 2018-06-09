@@ -8,8 +8,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -79,6 +82,16 @@ public abstract class BagriManagementTest {
 		}
 		ResultCursor<XQItemAccessor> result = getQueryManagement().executeQuery(query, params, props);
 		assertNotNull(result);
+		return result;
+	}
+	
+	protected Collection<String> fetchQueryResults(String query, Map<String, Object> params, Properties props) throws Exception {
+		List<String> result = new ArrayList<>();
+		try (ResultCursor<XQItemAccessor> cursor = query(query, params, props)) {
+			for (XQItemAccessor item: cursor) {
+				result.add(item.getAtomicValue());
+			}
+		}
 		return result;
 	}
 

@@ -5,9 +5,7 @@ import com.bagri.core.query.AxisType;
 import com.bagri.core.query.Comparison;
 import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.query.PathBuilder;
-import com.bagri.core.server.api.ModelManagement;
 import com.bagri.core.server.api.QueryManagement;
-import com.bagri.core.server.api.SchemaRepository;
 import com.bagri.core.system.Library;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
@@ -26,8 +24,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -99,7 +95,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 		//txFileName = FileUtils.buildStoreFileName(dataPath, nodeNum, "txlog");
 	}
 
-	public Collection<String> getSecurity(String symbol) throws Exception {
+	public Collection<Long> getSecurity(String symbol) throws Exception {
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
@@ -108,9 +104,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, Object> params = new HashMap<>();
-		params.put(":sec", "/" + prefix + ":Security");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
 	@Test
@@ -171,7 +165,7 @@ public class TransactionCacheStoreTest extends BagriManagementTest {
 						throw ex;
 					}
 						
-					Collection<String> sec = getSecurity("VFINX");
+					Collection<Long> sec = getSecurity("VFINX");
 					assertNotNull("Got null VFINX", sec);
 					assertTrue("Got empty VFINX", sec.size() > 0);
 					sec = getSecurity("IBM");

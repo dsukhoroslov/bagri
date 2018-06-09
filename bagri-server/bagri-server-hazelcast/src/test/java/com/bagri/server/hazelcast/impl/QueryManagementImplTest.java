@@ -90,7 +90,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	}
 
 	
-	public Collection<String> getPrice(String symbol) throws Exception {
+	public Collection<Long> getPrice(String symbol) throws Exception {
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
@@ -99,13 +99,10 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, Object> params = new HashMap<>();
-		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name/text()");
-		params.put(":price", "/" + prefix + ":Security/" + prefix + ":Price/" + prefix + ":PriceToday/" + prefix + ":Open/text()");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, "<print>The open price of the security \":name\" is :price dollars</print>", params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
-	public Collection<String> getSecurity(String symbol) throws Exception {
+	public Collection<Long> getSecurity(String symbol) throws Exception {
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
 		PathBuilder path = new PathBuilder().
@@ -114,12 +111,10 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$sym", symbol);
-		Map<String, Object> params = new HashMap<>();
-		params.put(":sec", "/" + prefix + ":Security");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, ":sec", params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
-	public Collection<String> getOrder(String id) throws Exception {
+	public Collection<Long> getOrder(String id) throws Exception {
 		String prefix = "http://www.fixprotocol.org/FIXML-4-4"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":FIXML"); // /" + prefix + ":Order");
 		PathBuilder path = new PathBuilder().
@@ -128,12 +123,10 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.ATTRIBUTE, null, "ID");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
-		Map<String, Object> params = new HashMap<>();
-		params.put(":order", "/" + prefix + ":FIXML/" + prefix + ":Order");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, ":order", params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
-	public Collection<String> getCustomerProfile(String id) throws Exception {
+	public Collection<Long> getCustomerProfile(String id) throws Exception {
 		String prefix = "http://tpox-benchmark.com/custacc"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
@@ -141,28 +134,10 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.ATTRIBUTE, null, "id");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
-
-		String template = "<Customer_Profile CUSTOMERID=\":id\">\n" +
-				"\t:name" + 
-				"\t:dob" + 
-				"\t:gender" + 
-				"\t:langs" + 
-				"\t:addrs" + 
-				"\t:email" + 
-			"</Customer_Profile>";
-		
-		Map<String, Object> params = new HashMap<>();
-		params.put(":id", "/" + prefix + ":Customer/@id");
-		params.put(":name", "/" + prefix + ":Customer/" + prefix + ":Name");
-		params.put(":dob", "/" + prefix + ":Customer/" + prefix + ":DateOfBirth");
-		params.put(":gender", "/" + prefix + ":Customer/" + prefix + ":Gender");
-		params.put(":langs", "/" + prefix + ":Customer/" + prefix + ":Languages");
-		params.put(":addrs", "/" + prefix + ":Customer/" + prefix + ":Addresses");
-		params.put(":email", "/" + prefix + ":Customer/" + prefix + ":EmailAddresses");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, template, params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
-	public Collection<String> getCustomerAccounts(String id) throws Exception {
+	public Collection<Long> getCustomerAccounts(String id) throws Exception {
 		String prefix = "http://tpox-benchmark.com/custacc"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Customer");
 		PathBuilder path = new PathBuilder().
@@ -170,28 +145,10 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.ATTRIBUTE, null, "id");
 		ExpressionContainer ec = new ExpressionContainer();
 		ec.addExpression(docType, Comparison.EQ, path, "$id", id);
-
-		String template = "<Customer>:id\n" +
-				"\t:name" + 
-				"\t<Customer_Securities>\n" +
-				"\t\t<Account BALANCE=\":balance\" ACCOUNT_ID=\":accId\">\n" +
-				"\t\t\t<Securities>\n" +
-				"\t\t\t\t:posName" +
-				"\t\t\t</Securities>\n" +
-				"\t\t</Account>\n" +
-				"\t</Customer_Securities>\n" + 
-			"</Customer_Profile>";
-		
-		Map<String, Object> params = new HashMap<>();
-		params.put(":id", "/" + prefix + ":Customer/@id");
-		params.put(":name", "/" + prefix + ":Customer/" + prefix + ":Name");
-		params.put(":balance", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/" + prefix + ":Balance/" + prefix + ":OnlineActualBal/text()");
-		params.put(":accId", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/@id");
-		params.put(":posName", "/" + prefix + ":Customer/" + prefix + ":Accounts/" + prefix + ":Account/" + prefix + ":Holdings/" + prefix + ":Position/" + prefix + ":Name");
-		return ((QueryManagement) getQueryManagement()).getContent(ec, template, params);
+		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
-	public Collection<String> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
+	public Collection<Long> searchSecurity(String sector, float peMin, float peMax, float yieldMin) throws Exception {
 
 		String prefix = "http://tpox-benchmark.com/security"; 
 		int docType = 0; //getModelManagement().getDocumentType("/" + prefix + ":Security");
@@ -217,40 +174,14 @@ public class QueryManagementImplTest extends BagriManagementTest {
 				addPathSegment(AxisType.CHILD, prefix, "Yield").
 				addPathSegment(AxisType.CHILD, null, "text()");
 		ec.addExpression(docType, Comparison.GT, path, "$yMin", new BigDecimal(yieldMin));
-
-        String template = "<Security>\n" +
-				"\t:symbol" + 
-				"\t:name" + 
-				"\t:type" +  
-        		//{$sec/SecurityInformation//Sector}
-        		//regex = "^/" + prefix + ":Security/" + prefix + ":SecurityInformation/.*/" + prefix + ":Sector$";
-        		//Collection<String> sPath = mDictionary.getPathFromRegex(docType, regex);
-        		//int idx = 0;
-        		//for (String path : sPath) {
-        		//	params.put(":sector" + idx, path);
-        		//	template += "\t:sector" + idx;
-        		//	idx++;
-        		//}
-				"\t:sector" +  
-        		"\t:pe" +
-        		"\t:yield" +
-		"</Security>";
-
-		Map<String, Object> params = new HashMap<>();
-		params.put(":symbol", "/" + prefix + ":Security/" + prefix + ":Symbol");
-		params.put(":name", "/" + prefix + ":Security/" + prefix + ":Name");
-		params.put(":type", "/" + prefix + ":Security/" + prefix + ":SecurityType");
-		params.put(":sector", "/" + prefix + ":Security/" + prefix + ":SecurityInformation//" + prefix + ":Sector");
-		params.put(":pe", "/" + prefix + ":Security/" + prefix + ":PE");
-   		params.put(":yield", "/" + prefix + ":Security/" + prefix + ":Yield");
-   		return ((QueryManagement) getQueryManagement()).getContent(ec, template, params);
+   		return ((QueryManagement) getQueryManagement()).getDocumentIds(ec);
 	}
 	
 	@Test
 	public void getPriceTest() throws Exception {
 		storeSecurityTest();
 
-		Collection<String> sec = getPrice("VFINX");
+		Collection<Long> sec = getPrice("VFINX");
 		assertNotNull(sec);
 		assertEquals(1, sec.size());
 
@@ -267,7 +198,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	public void getSecurityTest() throws Exception {
 		storeSecurityTest();
 
-		Collection<String> sec = getSecurity("VFINX");
+		Collection<Long> sec = getSecurity("VFINX");
 		assertNotNull(sec);
 		assertEquals(1, sec.size());
 
@@ -284,7 +215,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	public void searchSecurityTest() throws Exception {
 		storeSecurityTest();
 
-		Collection<String> sec = searchSecurity("Technology", 25, 28, 0);
+		Collection<Long> sec = searchSecurity("Technology", 25, 28, 0);
 		assertNotNull(sec);
 		assertEquals(1, sec.size());
 
@@ -300,7 +231,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	@Test
 	public void getOrderTest() throws Exception {
 		storeOrderTest();
-		Collection<String> sec = getOrder("103404");
+		Collection<Long> sec = getOrder("103404");
 		assertNotNull(sec);
 		assertEquals(1, sec.size());
 		sec = getOrder("103935");
@@ -311,7 +242,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	@Test
 	public void getCustomerProfileTest() throws Exception {
 		storeCustomerTest();
-		Collection<String> sec = getCustomerProfile("1011");
+		Collection<Long> sec = getCustomerProfile("1011");
 		assertNotNull(sec);
 		assertEquals(1, sec.size());
 	}
@@ -319,7 +250,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	@Test
 	public void getCustomerAccountsTest() throws Exception {
 		storeCustomerTest();
-		Collection<String> sec = getCustomerAccounts("1011");
+		Collection<Long> sec = getCustomerAccounts("1011");
 		assertNotNull(sec);
 		assertEquals(1, sec.size());
 	}

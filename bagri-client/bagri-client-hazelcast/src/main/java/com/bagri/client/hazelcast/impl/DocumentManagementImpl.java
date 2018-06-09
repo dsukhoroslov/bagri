@@ -18,6 +18,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bagri.client.hazelcast.DocumentPartKey;
 import com.bagri.client.hazelcast.task.doc.*;
 import com.bagri.core.DocumentKey;
@@ -25,15 +28,16 @@ import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
-import com.bagri.core.api.impl.DocumentManagementBase;
 import com.bagri.core.model.Document;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 
-public class DocumentManagementImpl extends DocumentManagementBase implements DocumentManagement {
+public class DocumentManagementImpl implements DocumentManagement {
 
+    private final static transient Logger logger = LoggerFactory.getLogger(DocumentManagementImpl.class);
+	
 	//private IMap<DocumentKey, Object> cntCache;
 	private IMap<DocumentKey, Document> xddCache;
 	private IExecutorService execService;
