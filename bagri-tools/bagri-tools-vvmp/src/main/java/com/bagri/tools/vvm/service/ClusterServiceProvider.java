@@ -9,6 +9,7 @@ import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 
+import com.bagri.support.util.JMXUtils;
 import com.bagri.tools.vvm.model.*;
 
 import java.util.*;
@@ -139,6 +140,22 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
         }
     }
 
+    @Override
+	public Properties getDataStoreProperties(String dsName) {
+        try {
+        	ObjectName oName = new ObjectName("com.bagri.db:type=DataStore,name=" + dsName);
+        	CompositeData cd = (CompositeData) connection.getAttribute(oName, "Properties");
+        	Properties props = convertCompositeToProperties(cd);
+        	String clName = (String) connection.getAttribute(oName, "StoreClass");
+        	props.setProperty("store.className", clName);
+        	return props;
+        } catch (Exception e) {
+            LOGGER.throwing(this.getClass().getName(), "getDataStoreProperties", e);
+            //throw new ServiceException(e);
+        }
+    	return null;
+    }
+    
 	@Override
 	public DocumentManagementService getDocumentManagement(String schemaName) {
 		DocumentManagementService docMgr = docMgrs.get(schemaName);
@@ -328,7 +345,7 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
 	                    , new Object[] {query, direct, props}
 	                    , new String[] {String.class.getName(), boolean.class.getName(), Properties.class.getName()});
         	} else {
-            	CompositeData bindings = mapToComposite("param", "desc", params);
+            	CompositeData bindings = JMXUtils.mapToComposite("param", "desc", params);
 	            result = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
 	                    , "runPreparedQuery"
 	                    , new Object[] {query, direct, bindings, props}
@@ -511,74 +528,5 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
         return properties;
     }
 
-    private CompositeData mapToComposite(String name, String desc, Map<String, Object> map) {
-        if (map != null && !map.isEmpty()) {
-            try {
-                String[] names = new String[map.size()];
-                OpenType[] types = new OpenType[map.size()];
-                int idx = 0;
-                for (Map.Entry<String, Object> e : map.entrySet()) {
-                    names[idx] = e.getKey();
-                    types[idx] = getOpenType(e.getValue());
-                    idx++;
-                }
-                CompositeType type = new CompositeType(name, desc, names, names, types);
-                return new CompositeDataSupport(type, map);
-            } catch (OpenDataException ex) {
-                //logger.warn("statsToComposite. error: {}", ex.getMessage());
-            }
-        }
-        return null;
-    }
-
-    private static OpenType getOpenType(Object value) {
-        if (value == null) {
-            return SimpleType.VOID;
-        }
-        String name = value.getClass().getName();
-        //if (OpenType.ALLOWED_CLASSNAMES_LIST.contains(name)) {
-
-        if ("java.lang.Long".equals(name)) {
-            return SimpleType.LONG;
-        }
-        if ("java.lang.Integer".equals(name)) {
-            return SimpleType.INTEGER;
-        }
-        if ("java.lang.String".equals(name)) {
-            return SimpleType.STRING;
-        }
-        if ("java.lang.Double".equals(name)) {
-            return SimpleType.DOUBLE;
-        }
-        if ("java.lang.Float".equals(name)) {
-            return SimpleType.FLOAT;
-        }
-        if ("java.math.BigDecimal".equals(name)) {
-            return SimpleType.BIGDECIMAL;
-        }
-        if ("java.math.BigInteger".equals(name)) {
-            return SimpleType.BIGINTEGER;
-        }
-        if ("java.lang.Boolean".equals(name)) {
-            return SimpleType.BOOLEAN;
-        }
-        if ("java.lang.Byte".equals(name)) {
-            return SimpleType.BYTE;
-        }
-        if ("java.lang.Character".equals(name)) {
-            return SimpleType.CHARACTER;
-        }
-        if ("java.util.Date".equals(name)) {
-            return SimpleType.DATE;
-        }
-        if ("java.lang.Short".equals(name)) {
-            return SimpleType.SHORT;
-        }
-        //"javax.management.ObjectName",
-        //CompositeData.class.getName(),
-        //TabularData.class.getName()
-        //}
-        return null; // is it allowed ??
-    }
 
 }

@@ -19,7 +19,7 @@
     </organization-->
 
     <properties>
-	<nbm.plugin.version>3.11</nbm.plugin.version>
+	<nbm.plugin.version>4.0</nbm.plugin.version>
 	<helper.plugin.version>1.7</helper.plugin.version>
     </properties>
 
@@ -126,6 +126,44 @@
             <optional>false</optional>
             <systemPath>${project.basedir}/lib/tools.jar</systemPath>
         </dependency>
+        <!--dependency>
+            <groupId>com.bagridb</groupId>
+            <artifactId>bagri-tools-vvmp-core</artifactId>
+        </dependency-->
+        <dependency>
+            <groupId>com.bagridb</groupId>
+            <artifactId>bagri-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.xquery</groupId>
+                    <artifactId>xqj-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish</groupId>
+                    <artifactId>javax.json</artifactId>
+	        </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+	            <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.thoughtworks.xstream</groupId>
+	            <artifactId>xstream</artifactId>
+	        </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,6 +182,9 @@
                     <licenseName>GNU General Public License, version 2</licenseName>
                     <requiresRestart>true</requiresRestart>
                     <sourceManifestFile>${basedir}/src/main/resources/META-INF/MANIFEST.MF</sourceManifestFile>
+                    <publicPackages>
+                        <publicPackage>com.bagri.*</publicPackage>
+                    </publicPackages>
                 </configuration>
             </plugin>
             <plugin>
@@ -151,12 +192,13 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven-jar-plugin.version}</version>
                 <configuration>
-                    <archive>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                    <!--archive>
                         <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
               		<manifestEntries>
                 	    <OpenIDE-Module-Specification-Version>${project.version}</OpenIDE-Module-Specification-Version>
               		</manifestEntries>
-                    </archive>
+                    </archive-->
                 </configuration>
             </plugin>
             <!--plugin>

@@ -1,8 +1,5 @@
 package com.bagri.server.hazelcast.management;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 
 import javax.management.openmbean.CompositeData;
@@ -14,8 +11,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.core.system.DataStore;
-import com.bagri.core.system.Schema;
-import com.bagri.server.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.support.util.JMXUtils;
 import com.hazelcast.core.HazelcastInstance;
 

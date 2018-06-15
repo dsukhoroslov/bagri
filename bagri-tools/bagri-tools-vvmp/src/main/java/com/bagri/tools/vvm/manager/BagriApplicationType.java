@@ -1,10 +1,10 @@
 package com.bagri.tools.vvm.manager;
 
-import com.bagri.tools.vvm.util.Icons;
 import com.sun.tools.visualvm.application.type.ApplicationType;
 import java.awt.Image;
-import javax.swing.ImageIcon;
 import org.openide.util.Utilities;
+
+import static com.bagri.core.Constants.bg_version;
 
 public class BagriApplicationType extends ApplicationType {
 
@@ -29,7 +29,7 @@ public class BagriApplicationType extends ApplicationType {
 
     @Override
     public String getVersion() {
-        return "1.2.1";
+        return bg_version;
     }
 
     @Override

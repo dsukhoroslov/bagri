@@ -42,7 +42,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     private UserManagementPanel userManagementPanel;
     private ClusterManagementPanel clusterManagementPanel;
     private BagriManagementPanel bagriManagementPanel;
-    private SchemaManagementPanel schemaManagementPanel;
+    private SchemasManagementPanel schemaManagementPanel;
     // TODO: Remove cache entry if schema is deleted.
     private HashMap<String, SchemaPanel> schemaCache = new HashMap<String, SchemaPanel>();
 
@@ -254,9 +254,9 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         return clusterManagementPanel;
     }
 
-    private SchemaManagementPanel getSchemaManagementPanel() {
+    private SchemasManagementPanel getSchemaManagementPanel() {
         if (null == schemaManagementPanel) {
-            schemaManagementPanel = new SchemaManagementPanel(schemaManagementService, eventBus);
+            schemaManagementPanel = new SchemasManagementPanel(schemaManagementService, eventBus);
         }
         return schemaManagementPanel;
     }

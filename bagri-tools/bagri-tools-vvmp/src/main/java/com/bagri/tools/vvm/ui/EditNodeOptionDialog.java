@@ -46,7 +46,7 @@ public class EditNodeOptionDialog extends JDialog {
         }
         panel.add(optionName, cs);
 
-        JLabel lbOptionValue = new JLabel("OptionValue: ");
+        JLabel lbOptionValue = new JLabel("Option value: ");
         cs.gridx = 0;
         cs.gridy = 1;
         cs.gridwidth = 1;

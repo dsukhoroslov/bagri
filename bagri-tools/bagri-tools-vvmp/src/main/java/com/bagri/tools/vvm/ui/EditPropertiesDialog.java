@@ -14,9 +14,6 @@ import java.util.*;
 
 public class EditPropertiesDialog extends JDialog {
     private static final KeyStroke ESCAPE_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-    private JTextField schemaName;
-    private JTextField description;
-    private Schema original;
     private Properties properties;
     private ActionListener successListener;
     private XTable propertiesGrid;

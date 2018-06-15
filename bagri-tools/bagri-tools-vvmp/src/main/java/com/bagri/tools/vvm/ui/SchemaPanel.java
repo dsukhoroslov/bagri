@@ -29,7 +29,7 @@ public class SchemaPanel extends JPanel {
         this.schemaService = schemaService;
         this.eventBus = eventBus;
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(schema.getSchemaName() + SchemaManagement.SCHEMA_DETAILS, createSchemaInfoPanel());
+        tabbedPane.addTab(SchemaManagement.SCHEMA_MANAGEMENT, createSchemaInfoPanel());
         tabbedPane.addTab(SchemaManagement.DOCUMENT_MANAGEMENT, createSchemaDocumentsPanel());
         tabbedPane.addTab(SchemaManagement.QUERY_MANAGEMENT, createSchemaQueryPanel());
         tabbedPane.addTab(SchemaManagement.SCHEMA_MONITORING, createSchemaMonitoringPanel());
@@ -39,7 +39,8 @@ public class SchemaPanel extends JPanel {
     }
 
     private JPanel createSchemaInfoPanel() {
-        JPanel panel = new SchemaCapacityPanel(schema.getSchemaName(), schemaService, eventBus);
+        //JPanel panel = new SchemaCapacityPanel(schema.getSchemaName(), schemaService, eventBus);
+        JPanel panel = new SchemaManagementPanel(schema.getSchemaName(), schemaService, eventBus);
         return panel;
     }
 

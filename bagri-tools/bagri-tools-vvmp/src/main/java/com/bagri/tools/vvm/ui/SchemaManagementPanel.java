@@ -1,473 +1,336 @@
 package com.bagri.tools.vvm.ui;
 
-import javax.management.ObjectName;
-import javax.swing.*;
+import static com.bagri.core.Constants.*;
 
-import com.bagri.tools.vvm.event.ApplicationEvent;
-import com.bagri.tools.vvm.event.EventBus;
-import com.bagri.tools.vvm.event.EventHandler;
-import com.bagri.tools.vvm.model.*;
-import com.bagri.tools.vvm.service.SchemaManagementService;
-import com.bagri.tools.vvm.service.ServiceException;
-import com.bagri.tools.vvm.util.ErrorUtil;
-
-import static com.bagri.tools.vvm.util.Icons.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import com.bagri.tools.vvm.event.ApplicationEvent;
+import com.bagri.tools.vvm.event.EventBus;
+import com.bagri.tools.vvm.model.ColumnConfig;
+import com.bagri.tools.vvm.model.DefaultGridRow;
+import com.bagri.tools.vvm.model.GridDataLoader;
+import com.bagri.tools.vvm.model.GridRow;
+import com.bagri.tools.vvm.model.Schema;
+import com.bagri.tools.vvm.service.SchemaManagementService;
+import com.bagri.tools.vvm.service.ServiceException;
+
 public class SchemaManagementPanel extends JPanel {
+	
     private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
+
+    private Schema schema;
     private final SchemaManagementService schemaService;
     private final EventBus<ApplicationEvent> eventBus;
-    private JTabbedPane tabbedPane;
-    private JToolBar schemasToolBar;
-    private XTable schemasGrid;
-    private JToolBar propsToolBar;
-    private XTable propsGrid;
 
-    public SchemaManagementPanel(SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
-        super(new GridLayout(1, 1));
-        this.schemaService= schemaService;
+    public SchemaManagementPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+        super(new BorderLayout());
         this.eventBus = eventBus;
-        tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(SchemaManagement.SCHEMA_MANAGEMENT, createSchemaManagementPanel());
-        tabbedPane.addTab(SchemaManagement.PROPERTIES_MANAGEMENT, createPropertiesManagementPanel());
-        add(tabbedPane);
-        tabbedPane.setBorder(BorderFactory.createEmptyBorder());
-        setBorder(BorderFactory.createEmptyBorder());
-    }
+        this.schemaService = schemaService;
+        try {
+        	this.schema = schemaService.getSchema(schemaName);
+        } catch (ServiceException ex) {
+        	//
+        	schema = null;
+        }
 
-    private JPanel createSchemaManagementPanel() {
+        JPanel left = createClusterPanel();
+        JPanel right = createPropertiesPanel();
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+		splitPane.setResizeWeight(0.5);
+		add(splitPane, BorderLayout.CENTER);        
+    }
+    
+    private JPanel createClusterPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        schemasToolBar = new JToolBar();
-        // "Add schema" button
-        JButton addNode = new JButton("Add");
-        addNode.setToolTipText("Adds new schema");
-        addNode.setIcon(ADD_ICON);
-        addNode.addActionListener(new ActionListener() {
+        JPanel clPanel = new JPanel(new BorderLayout());
+        clPanel.setBorder(BorderFactory.createTitledBorder("Cluster state "));
+        JPanel stPanel = new JPanel(new BorderLayout());
+        stPanel.setPreferredSize(new Dimension(400, 25));
+        JLabel clState = new JLabel(" INACTIVE ");
+        stPanel.add(clState, BorderLayout.WEST);
+        JButton clStartStop = new JButton("Start/stop cluster");
+        clStartStop.setToolTipText("start/stop schema cluster");
+        clStartStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                onAddSchema();
+                startStopCluster();
             }
         });
-        schemasToolBar.add(addNode);
-        schemasToolBar.addSeparator();
-        // "Edit Schema" button
-        JButton editNode = new JButton("Edit");
-        editNode.setToolTipText("Edit selected schema");
-        editNode.setIcon(EDIT_ICON);
-        editNode.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onEditSchema();
-            }
-        });
-        schemasToolBar.add(editNode);
-        schemasToolBar.addSeparator();
-        // "Delete Schema" button
-        JButton deleteNode = new JButton("Delete");
-        deleteNode.setToolTipText("Delete selected schema");
-        deleteNode.setIcon(DELETE_ICON);
-        deleteNode.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onDeleteSchema();
-            }
-        });
-        schemasToolBar.add(deleteNode);
-        schemasToolBar.addSeparator();
-        schemasToolBar.setFloatable(false);
-        panel.add(schemasToolBar, BorderLayout.PAGE_START);
-        // Column configs
-        ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        stPanel.add(clStartStop, BorderLayout.EAST);
+        clPanel.add(stPanel, BorderLayout.NORTH);
+        
+        ArrayList<ColumnConfig> clConfigs = new ArrayList<ColumnConfig>();
         ColumnConfig c = new ColumnConfig();
-        c.setHeader("Schema Name");
+        c.setHeader("Address");
         c.setColumnClass(String.class);
         c.setWidth(40);
         c.setResizable(true);
-        configs.add(c);
+        clConfigs.add(c);
         c = new ColumnConfig();
-        c.setHeader("Description");
-        c.setColumnClass(String.class);
-        c.setWidth(140);
-        c.setResizable(true);
-        configs.add(c);
-        c = new ColumnConfig();
-        c.setHeader("Persistent");
-        c.setColumnClass(Boolean.class);
-        c.setWidth(40);
-        c.setResizable(true);
-        configs.add(c);
-        c = new ColumnConfig();
-        c.setHeader("Data format");
+        c.setHeader("Port");
         c.setColumnClass(String.class);
         c.setWidth(40);
         c.setResizable(true);
-        configs.add(c);
+        clConfigs.add(c);
+        c = new ColumnConfig();
+        c.setHeader("Size");
+        c.setColumnClass(String.class);
+        c.setWidth(40);
+        c.setResizable(true);
+        clConfigs.add(c);
         c = new ColumnConfig();
         c.setHeader("State");
         c.setColumnClass(String.class);
         c.setWidth(40);
         c.setResizable(true);
-        configs.add(c);
-        c = new ColumnConfig();
-        c.setHeader("Active");
-        c.setColumnClass(Boolean.class);
-        c.setFixedWidth(45);
-        c.setResizable(true);
-        configs.add(c);
-        schemasGrid = new XTable(configs, new GridDataLoader() {
+        clConfigs.add(c);
+        XTable nodeGrid = new XTable(clConfigs, new GridDataLoader() {
             @Override
-            public java.util.List<GridRow> loadData() {
-                java.util.List<Schema> schemas;
-                try {
-                    schemas = schemaService.getSchemas();
-                } catch (ServiceException e) {
-                    ErrorUtil.showError(SchemaManagementPanel.this, e);
-                    return null;
-                }
-                java.util.List<GridRow> rows = new ArrayList<GridRow>();
-                if (null == schemas) { 
-                	return rows; 
-                }
-                for (Schema schema : schemas) {
-                    rows.add(new DefaultGridRow(schema.getObjectName(), new Object[]{
-                            schema.getSchemaName()
-                            , schema.getDescription()
-                            , schema.isPersistent()
-                            , schema.getDataFormat()
-                            , schema.getState()
-                            , schema.isActive()
-                    }));
-                }
-                return rows;
+            public List<GridRow> loadData() {
+            	return getClusterRows();
             }
         });
-        schemasGrid.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() >= 2) {
-                    onEditSchema();
-                }
-            }
-        });
-        eventBus.addEventHandler(new EventHandler<ApplicationEvent>() {
-            @Override
-            public void handleEvent(ApplicationEvent e) {
-                if (SchemaManagement.SCHEMA_STATE_CHANGED.equals(e.getCommand())) {
-                    schemasGrid.reload();
-                    invalidate();
-                }
-            }
-        });
-        panel.add(new JScrollPane(schemasGrid), BorderLayout.CENTER);
-        return panel;
-    }
+        nodeGrid.reload();
+        JScrollPane nodeScroller = new JScrollPane(nodeGrid);
+        clPanel.add(nodeScroller, BorderLayout.CENTER);
 
-    private JPanel createPropertiesManagementPanel() {
+        JPanel btPanel = new JPanel(new BorderLayout());
+        btPanel.setPreferredSize(new Dimension(400, 50));
+
+        JButton clAddNode = new JButton("Add nodes");
+        clAddNode.setToolTipText("add nodes to schema cluster");
+        clAddNode.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addNodes();
+            }
+        });
+        btPanel.add(clAddNode, BorderLayout.WEST);
+        JButton clDelNode = new JButton("Remove nodes");
+        clDelNode.setToolTipText("remove nodes from schema cluster");
+        clDelNode.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeNodes();
+            }
+        });
+        btPanel.add(clDelNode, BorderLayout.EAST);
+        
+        clPanel.add(btPanel, BorderLayout.SOUTH);
+        clPanel.setPreferredSize(new Dimension(400, 400));
+
+        JPanel ppPanel = new JPanel(new BorderLayout());
+        ppPanel.setBorder(BorderFactory.createTitledBorder("Population state "));
+        JPanel ptPanel = new JPanel(new BorderLayout());
+        ptPanel.setPreferredSize(new Dimension(400, 25));
+        JLabel ppState = new JLabel(" NOT POPULATED ");
+        ptPanel.add(ppState, BorderLayout.WEST);
+        JButton clPopulate = new JButton("Populate cluster");
+        clPopulate.setToolTipText("populate schema cluster");
+        clPopulate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                populateCluster();
+            }
+        });
+        ptPanel.add(clPopulate, BorderLayout.EAST);
+        ppPanel.add(ptPanel, BorderLayout.NORTH);
+
+        ArrayList<ColumnConfig> dsConfigs = new ArrayList<ColumnConfig>();
+        c = new ColumnConfig();
+        c.setHeader("Property");
+        c.setColumnClass(String.class);
+        c.setWidth(40);
+        c.setResizable(true);
+        dsConfigs.add(c);
+        c = new ColumnConfig();
+        c.setHeader("Value");
+        c.setColumnClass(Integer.class);
+        c.setWidth(40);
+        c.setResizable(true);
+        dsConfigs.add(c);
+        XTable dsGrid = new XTable(dsConfigs, new GridDataLoader() {
+            @Override
+            public List<GridRow> loadData() {
+            	return getDataStoreRows();
+            }
+        });
+        dsGrid.reload();
+        JScrollPane dsScroller = new JScrollPane(dsGrid);
+        ppPanel.add(dsScroller, BorderLayout.CENTER);
+
+        JPanel dsPanel = new JPanel(new BorderLayout());
+        dsPanel.setPreferredSize(new Dimension(400, 50));
+        ppPanel.add(dsPanel, BorderLayout.SOUTH);
+        ppPanel.setPreferredSize(new Dimension(400, 400));
+        
+        JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT, clPanel, ppPanel);
+		splitter.setResizeWeight(0.5);
+		panel.add(splitter, BorderLayout.CENTER);        
+        
+        JPanel hlPanel = new JPanel(new BorderLayout());
+        hlPanel.setBorder(BorderFactory.createTitledBorder("Health state "));
+        hlPanel.setPreferredSize(new Dimension(400, 100));
+        panel.add(hlPanel, BorderLayout.SOUTH);
+    	return panel;
+    }
+    
+    private JPanel createPropertiesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        propsToolBar = new JToolBar();
-        // "Add schema" button
-        JButton addNode = new JButton("Add");
-        addNode.setToolTipText("Add new default property");
-        addNode.setIcon(ADD_ICON);
-        addNode.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onAddProperty();
-            }
-        });
-        propsToolBar.add(addNode);
-        propsToolBar.addSeparator();
-        // "Edit Schema" button
-        JButton editNode = new JButton("Edit");
-        editNode.setToolTipText("Edit selected property");
-        editNode.setIcon(EDIT_ICON);
-        editNode.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onEditProperty();
-            }
-        });
-        propsToolBar.add(editNode);
-        propsToolBar.addSeparator();
-        // "Delete Schema" button
-        JButton deleteNode = new JButton("Delete");
-        deleteNode.setToolTipText("Delete selected property");
-        deleteNode.setIcon(DELETE_ICON);
-        deleteNode.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                onDeleteProperty();
-            }
-        });
-        propsToolBar.add(deleteNode);
-        propsToolBar.addSeparator();
-        propsToolBar.setFloatable(false);
-        panel.add(propsToolBar, BorderLayout.PAGE_START);
+        panel.setBorder(BorderFactory.createTitledBorder("Properties "));
+        
         // Column configs
         ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         ColumnConfig c = new ColumnConfig();
-        c.setHeader("Property Name");
+        c.setHeader("Property");
         c.setColumnClass(String.class);
         c.setWidth(40);
         c.setResizable(true);
         configs.add(c);
         c = new ColumnConfig();
-        c.setHeader("Property Value");
+        c.setHeader("Value");
         c.setColumnClass(String.class);
-        c.setWidth(140);
+        c.setWidth(40);
         c.setResizable(true);
         configs.add(c);
-        propsGrid = new XTable(configs, new GridDataLoader() {
+        List<String> propNames = new ArrayList<>(schema.getProperties().stringPropertyNames());
+        Collections.sort(propNames);
+        XTable propsGrid = new XTable(configs, new GridDataLoader() {
             @Override
-            public java.util.List<GridRow> loadData() {
-                Properties properties;
-                try {
-                    properties = schemaService.getDefaultProperties();
-                } catch (ServiceException e) {
-                    ErrorUtil.showError(SchemaManagementPanel.this, e);
-                    return null;
+            public List<GridRow> loadData() {
+                List<GridRow> result = new ArrayList<GridRow>();
+                for (String prop: propNames) {
+                    result.add(new DefaultGridRow(prop, new Object[] {prop, schema.getProperty(prop)}));
                 }
-                java.util.List<GridRow> rows = new ArrayList<GridRow>();
-                if (null == properties || properties.isEmpty()) { return rows; }
-                for (String propertyName : properties.stringPropertyNames()) {
-                    rows.add(new DefaultGridRow(propertyName, new Object[]{
-                            propertyName
-                            , properties.get(propertyName)
-                    }));
-                }
-                return rows;
+                return result;
             }
         });
-        propsGrid.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() >= 2) {
-                    onEditProperty();
-                }
-            }
-        });
-        eventBus.addEventHandler(new EventHandler<ApplicationEvent>() {
-            @Override
-            public void handleEvent(ApplicationEvent e) {
-                if (SchemaManagement.SCHEMA_PROPERTIES_CHANGED.equals(e.getCommand())) {
-                    propsGrid.reload();
-                    invalidate();
-                }
-            }
-        });
-        panel.add(new JScrollPane(propsGrid), BorderLayout.CENTER);
-        return panel;
-    }
+        //propsGrid.addMouseListener(new MouseAdapter() {
+        //    @Override
+        //    public void mouseClicked(MouseEvent e) {
+        //        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount()>=2) {
+        //            int selectedIndex = optionsGrid.getSelectionModel().getLeadSelectionIndex();
+        //            if (selectedIndex >= 0 && selectedIndex < optionsGrid.getModel().getRowCount()) {
+        //                GridRow row = ((GridTableModel) optionsGrid.getModel()).getRow(selectedIndex);
+        //                final EditNodeOptionDialog dlg = new EditNodeOptionDialog(options.get(row.getId().toString()), owner);
+        //                dlg.setSuccessListener(new ActionListener() {
+        //                    @Override
+        //                    public void actionPerformed(ActionEvent e) {
+        //                        NodeOption op = dlg.getOption();
+        //                        if (null != op.getOptionName()){
+        //                            options.put(op.getOptionName(), op);
+        //                            optionsGrid.reload();
+        //                        }
+        //                    }
+        //                });
+        //                dlg.setVisible(true);
+        //            }
+        //        }
+        //    }
+        //});
+        propsGrid.reload();
+        JScrollPane propsScroller = new JScrollPane(propsGrid);
+        panel.add(propsScroller, BorderLayout.CENTER); //NORTH);
+        //JSeparator propSep = new JSeparator(SwingConstants.HORIZONTAL);
+        //propSep.setPreferredSize(new Dimension(200, 5));
+        //panel.add(propSep, BorderLayout.CENTER);
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (!enabled) {
-            schemasGrid.clearSelection();
-            schemasGrid.getTableHeader().setEnabled(false);
-            schemasGrid.setEnabled(false);
-            for (Component c : schemasToolBar.getComponents()) {
-                c.setEnabled(false);
-            }
-            schemasToolBar.setEnabled(false);
-            for (Component c : tabbedPane.getComponents()) {
-                c.setEnabled(false);
-            }
-            propsGrid.clearSelection();
-            propsGrid.getTableHeader().setEnabled(false);
-            propsGrid.setEnabled(false);
-            for (Component c : propsToolBar.getComponents()) {
-                c.setEnabled(false);
-            }
-            propsToolBar.setEnabled(false);
-            for (Component c : tabbedPane.getComponents()) {
-                c.setEnabled(false);
-            }
-            tabbedPane.setEnabled(false);
-        }
-    }
-
-    @Override
-    public void invalidate() {
-        super.invalidate();
-        if (!schemasGrid.isLoaded()) {
-            schemasGrid.reload();
-        }
-        if (!propsGrid.isLoaded()) {
-            propsGrid.reload();
-        }
-    }
-
-    // --- Event Handlers --- //
-    private void onAddSchema() {
-        final EditSchemaDialog dlg = new EditSchemaDialog(null, SchemaManagementPanel.this);
-        dlg.setSuccessListener(new ActionListener() {
+        JPanel propMgmt = new JPanel(new GridLayout(1, 3));
+        propMgmt.add(new JLabel("Set property: "));
+        JTextField propVal = new JTextField();
+        propMgmt.add(propVal);
+        JButton propSet = new JButton("Set value");
+        propSet.setToolTipText("Update property");
+        propSet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Schema schema = dlg.getSchema();
-                        try {
-                            schemaService.addSchema(schema);
-                        } catch (ServiceException e1) {
-                            LOGGER.throwing(SchemaManagementPanel.class.getName(), "onAddSchema", e1);
-                            ErrorUtil.showError(SchemaManagementPanel.this, e1);
-                        }
-                        eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_STATE_CHANGED));
-                    }
-                });
+                setSchemaProperty();
             }
         });
-        dlg.setVisible(true);
+        propMgmt.add(propSet); //CENTER);
+        propMgmt.setPreferredSize(new Dimension(200, 22));
+        panel.add(propMgmt, BorderLayout.SOUTH);
+    	return panel;
     }
-
-    private void onEditSchema() {
-        int selectedIndex = schemasGrid.getSelectionModel().getLeadSelectionIndex();
-        if (selectedIndex >= 0 && selectedIndex < schemasGrid.getModel().getRowCount()) {
-            final GridRow row = ((GridTableModel) schemasGrid.getModel()).getRow(selectedIndex);
-            Schema schema = null;
-            try {
-                schema = schemaService.getSchema((ObjectName) row.getId());
-            } catch (ServiceException e) {
-                LOGGER.throwing(SchemaManagementPanel.class.getName(), "onEditSchema", e);
-                ErrorUtil.showError(SchemaManagementPanel.this, e);
-            }
-            final EditSchemaDialog dlg = new EditSchemaDialog(schema, SchemaManagementPanel.this);
-            dlg.setSuccessListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            Schema updated = dlg.getSchema();
-                            try {
-                                schemaService.saveSchema(updated);
-                            } catch (ServiceException e1) {
-                                LOGGER.throwing(SchemaManagementPanel.class.getName(), "onEditSchema", e1);
-                                ErrorUtil.showError(SchemaManagementPanel.this, e1);
-                            }
-                            eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_STATE_CHANGED));
-                        }
-                    });
-                }
-            });
-            dlg.setVisible(true);
+    
+    private List<GridRow> getClusterRows() {
+        List<GridRow> result = new ArrayList<GridRow>();
+        String members = schema.getProperty(pn_schema_members);
+        if (members != null) {
+            String fPort = schema.getProperty(pn_schema_ports_first);
+            String lPort = schema.getProperty(pn_schema_ports_last);
+        	String[] mms = members.split(",");
+        	String port;
+        	for (String member: mms) {
+            	String[] parts = member.split(":");
+            	if (parts.length > 1) {
+            		port = parts[1];
+            	} else {
+            		port = fPort + ".." + lPort;
+            	}
+                result.add(new DefaultGridRow(member, new Object[] {parts[0], port, "4G", ""}));
+        	}
         }
+        return result;
     }
-
-    private void onDeleteSchema() {
-        int selectedIndex = schemasGrid.getSelectionModel().getLeadSelectionIndex();
-        if (selectedIndex >= 0 && selectedIndex < schemasGrid.getModel().getRowCount()) {
-            final GridRow row = ((GridTableModel) schemasGrid.getModel()).getRow(selectedIndex);
-            int n = JOptionPane.showConfirmDialog(
-                    SchemaManagementPanel.this,
-                    "Are you sure you want to delete selected schema \"" + row.getValueAt(0) + "\"?",
-                    "Confirm deletion",
-                    JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == n) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Schema schema = schemaService.getSchema((ObjectName)row.getId());
-                            schemaService.deleteSchema(schema);
-                        } catch (ServiceException e1) {
-                            LOGGER.throwing(SchemaManagementPanel.class.getName(), "onDeleteSchema", e1);
-                            ErrorUtil.showError(SchemaManagementPanel.this, e1);
-                        }
-                        eventBus.fireEvent(new ApplicationEvent(SchemaManagementPanel.this, SchemaManagement.SCHEMA_STATE_CHANGED));
-                    }
-                });
-            }
+    
+    private List<GridRow> getDataStoreRows() {
+        List<GridRow> result = new ArrayList<GridRow>();
+        String stype = schema.getProperty(pn_schema_store_type);
+        Properties props = schemaService.getDataStoreProperties(stype);
+        if (props != null) {
+	        List<String> pNames = new ArrayList<>(props.stringPropertyNames());
+	        Collections.sort(pNames);
+	        for (String pName: pNames) {
+	        	String pVal = schema.getProperty(pName);
+	        	if (pVal == null) {
+	        		pVal = props.getProperty(pName);
+	        	}
+	            result.add(new DefaultGridRow(pName, new Object[] {pName, pVal}));
+	        }
         }
+        return result;
+    }
+    
+    private void startStopCluster() {
+    	//
+    }
+    
+    private void populateCluster() {
+    	//
+    }
+    
+    private void addNodes() {
+    	//
     }
 
-    private void onAddProperty() {
-        final EditPropertyDialog dlg = new EditPropertyDialog(null, "Default Property", SchemaManagementPanel.this);
-        dlg.setSuccessListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Property prop = dlg.getProperty();
-                        if (null != prop.getPropertyName()) {
-                            try {
-                                schemaService.setDefaultProperty(prop);
-                            } catch (ServiceException e1) {
-                                LOGGER.throwing(SchemaManagementPanel.class.getName(), "onAddDefaultProperty", e1);
-                                ErrorUtil.showError(SchemaManagementPanel.this, e1);
-                            }
-                            eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_PROPERTIES_CHANGED));
-                        }
-                    }
-                });
-            }
-        });
-        dlg.setVisible(true);
+    private void removeNodes() {
+    	//
     }
-
-    private void onEditProperty() {
-        int selectedIndex = propsGrid.getSelectionModel().getLeadSelectionIndex();
-        if (selectedIndex >= 0 && selectedIndex < propsGrid.getModel().getRowCount()) {
-            final GridRow row = ((GridTableModel) propsGrid.getModel()).getRow(selectedIndex);
-            final EditPropertyDialog dlg = new EditPropertyDialog(new Property((String) row.getValueAt(0), (String) row.getValueAt(1)), "Default Property", SchemaManagementPanel.this);
-            dlg.setSuccessListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            Property prop = dlg.getProperty();
-                            try {
-                                schemaService.setDefaultProperty(prop);
-                            } catch (ServiceException e1) {
-                                LOGGER.throwing(SchemaManagementPanel.class.getName(), "onEditDefaultProperty", e1);
-                                ErrorUtil.showError(SchemaManagementPanel.this, e1);
-                            }
-                            eventBus.fireEvent(new ApplicationEvent(dlg, SchemaManagement.SCHEMA_PROPERTIES_CHANGED));
-                        }
-                    });
-                }
-            });
-            dlg.setVisible(true);
-        }
+    
+    private void setSchemaProperty() {
+    	//
     }
-
-    private void onDeleteProperty() {
-        int selectedIndex = propsGrid.getSelectionModel().getLeadSelectionIndex();
-        if (selectedIndex >= 0 && selectedIndex < propsGrid.getModel().getRowCount()) {
-            final GridRow row = ((GridTableModel) propsGrid.getModel()).getRow(selectedIndex);
-            int n = JOptionPane.showConfirmDialog(
-                    SchemaManagementPanel.this,
-                    "Are you sure you want to delete selected property \"" + row.getValueAt(0) + "\"?",
-                    "Confirm deletion",
-                    JOptionPane.YES_NO_OPTION);
-            if (JOptionPane.YES_OPTION == n) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            schemaService.setDefaultProperty(new Property((String) row.getId(), null));
-                        } catch (ServiceException e1) {
-                            LOGGER.throwing(SchemaManagementPanel.class.getName(), "onDeleteDefaultProperty", e1);
-                            ErrorUtil.showError(SchemaManagementPanel.this, e1);
-                        }
-                        eventBus.fireEvent(new ApplicationEvent(SchemaManagementPanel.this, SchemaManagement.SCHEMA_PROPERTIES_CHANGED));
-                    }
-                });
-            }
-        }
-    }
-
 }

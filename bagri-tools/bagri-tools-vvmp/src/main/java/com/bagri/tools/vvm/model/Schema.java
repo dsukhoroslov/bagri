@@ -99,6 +99,14 @@ public class Schema implements Comparable<Schema> {
     public void setProperties(Properties properties) {
         this.properties = properties;
     }
+    
+    public String getProperty(String name) {
+    	return properties.getProperty(name);
+    }
+    
+    public void setProperty(String name, String value) {
+    	properties.setProperty(name, value);
+    }
 
     @Override
     public String toString() {
