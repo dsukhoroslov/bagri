@@ -28,11 +28,14 @@ import javax.swing.SwingConstants;
 
 import com.bagri.tools.vvm.event.ApplicationEvent;
 import com.bagri.tools.vvm.event.EventBus;
+import com.bagri.tools.vvm.event.EventHandler;
+import com.bagri.tools.vvm.model.ClusterManagement;
 import com.bagri.tools.vvm.model.ColumnConfig;
 import com.bagri.tools.vvm.model.DefaultGridRow;
 import com.bagri.tools.vvm.model.GridDataLoader;
 import com.bagri.tools.vvm.model.GridRow;
 import com.bagri.tools.vvm.model.Schema;
+import com.bagri.tools.vvm.model.SchemaManagement;
 import com.bagri.tools.vvm.service.SchemaManagementService;
 import com.bagri.tools.vvm.service.ServiceException;
 
@@ -40,20 +43,15 @@ public class SchemaManagementPanel extends JPanel {
 	
     private static final Logger LOGGER = Logger.getLogger(SchemaManagementPanel.class.getName());
 
-    private Schema schema;
+    private String schemaName;
+    private final EventBus eventBus;
     private final SchemaManagementService schemaService;
-    private final EventBus<ApplicationEvent> eventBus;
 
-    public SchemaManagementPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+    public SchemaManagementPanel(String schemaName, SchemaManagementService schemaService, EventBus eventBus) {
         super(new BorderLayout());
         this.eventBus = eventBus;
         this.schemaService = schemaService;
-        try {
-        	this.schema = schemaService.getSchema(schemaName);
-        } catch (ServiceException ex) {
-        	//
-        	schema = null;
-        }
+       	this.schemaName = schemaName;
 
         JPanel left = createClusterPanel();
         JPanel right = createPropertiesPanel();
@@ -194,7 +192,17 @@ public class SchemaManagementPanel extends JPanel {
         hlPanel.setBorder(BorderFactory.createTitledBorder("Health state "));
         hlPanel.setPreferredSize(new Dimension(400, 100));
         panel.add(hlPanel, BorderLayout.SOUTH);
-    	return panel;
+
+        eventBus.addEventHandler(new EventHandler<ApplicationEvent>() {
+            @Override
+            public void handleEvent(ApplicationEvent e) {
+                if (SchemaManagement.SCHEMA_HEALTH_CHANGED.equals(e.getCommand())) {
+                    hlPanel.invalidate();
+                }
+            }
+        });
+        
+        return panel;
     }
     
     private JPanel createPropertiesPanel() {
@@ -215,11 +223,16 @@ public class SchemaManagementPanel extends JPanel {
         c.setWidth(40);
         c.setResizable(true);
         configs.add(c);
-        List<String> propNames = new ArrayList<>(schema.getProperties().stringPropertyNames());
-        Collections.sort(propNames);
         XTable propsGrid = new XTable(configs, new GridDataLoader() {
             @Override
             public List<GridRow> loadData() {
+            	Schema schema = getSchema();
+            	if (schema == null) {
+            		return null;
+            	}
+            	
+                List<String> propNames = new ArrayList<>(schema.getProperties().stringPropertyNames());
+                Collections.sort(propNames);
                 List<GridRow> result = new ArrayList<GridRow>();
                 for (String prop: propNames) {
                     result.add(new DefaultGridRow(prop, new Object[] {prop, schema.getProperty(prop)}));
@@ -272,10 +285,38 @@ public class SchemaManagementPanel extends JPanel {
         propMgmt.add(propSet); //CENTER);
         propMgmt.setPreferredSize(new Dimension(200, 22));
         panel.add(propMgmt, BorderLayout.SOUTH);
-    	return panel;
+
+        eventBus.addEventHandler(new EventHandler<ApplicationEvent>() {
+            @Override
+            public void handleEvent(ApplicationEvent e) {
+            	LOGGER.info("SchemaManagementPanel; got event: " + e);
+                if (schemaName.equals(e.getSource()) && 
+                	(SchemaManagement.SCHEMA_PROPERTY_CHANGED.equals(e.getCommand()) || 
+                		SchemaManagement.SCHEMA_PROPERTIES_CHANGED.equals(e.getCommand()))) {
+                	LOGGER.info("SchemaManagementPanel; reloading schema: " + schemaName);
+                    propsGrid.reload();
+                }
+            }
+        });
+        
+        return panel;
+    }
+    
+    private Schema getSchema() {
+    	try {
+    		return schemaService.getSchema(schemaName);
+    	} catch (ServiceException ex) {
+    		LOGGER.throwing(SchemaManagementPanel.class.getName(), "getSchema", ex);
+    	}
+		return null;
     }
     
     private List<GridRow> getClusterRows() {
+    	Schema schema = getSchema();
+    	if (schema == null) {
+    		return null;
+    	}
+    	
         List<GridRow> result = new ArrayList<GridRow>();
         String members = schema.getProperty(pn_schema_members);
         if (members != null) {
@@ -297,6 +338,11 @@ public class SchemaManagementPanel extends JPanel {
     }
     
     private List<GridRow> getDataStoreRows() {
+    	Schema schema = getSchema();
+    	if (schema == null) {
+    		return null;
+    	}
+    	
         List<GridRow> result = new ArrayList<GridRow>();
         String stype = schema.getProperty(pn_schema_store_type);
         Properties props = schemaService.getDataStoreProperties(stype);

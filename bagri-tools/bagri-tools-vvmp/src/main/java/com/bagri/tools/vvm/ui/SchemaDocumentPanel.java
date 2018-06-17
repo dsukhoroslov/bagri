@@ -59,7 +59,7 @@ public class SchemaDocumentPanel extends JPanel {
     private static final String all_docs = "All Documents";
     
     private final DocumentManagementService docMgr;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private final Schema schema; 
 
     private JTree docTree;
@@ -73,7 +73,7 @@ public class SchemaDocumentPanel extends JPanel {
     private String currentPath = null;
     private List<Collection> collections = null;
     
-    public SchemaDocumentPanel(Schema schema, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+    public SchemaDocumentPanel(Schema schema, SchemaManagementService schemaService, EventBus eventBus) {
     	super(new BorderLayout());
         this.schema = schema;
         this.eventBus = eventBus;

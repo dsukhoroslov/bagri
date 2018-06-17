@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.TabularData;
@@ -28,6 +29,8 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.jmx.export.notification.NotificationPublisher;
+import org.springframework.jmx.export.notification.NotificationPublisherAware;
 
 import com.bagri.client.hazelcast.PartitionStatistics;
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
@@ -58,7 +61,7 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Schema Manager MBean")
-public class SchemaManager extends EntityManager<Schema> implements HealthChangeListener {
+public class SchemaManager extends EntityManager<Schema> implements HealthChangeListener, NotificationPublisherAware {
 
     private static final String state_ok = "working";
     private static final String state_fail = "inactive";
@@ -68,6 +71,9 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
     private HealthState hState;
 	private IExecutorService execService;
 	private HazelcastInstance schemaInstance;
+
+	private int jmxIndex = 0;
+	private NotificationPublisher jmxPublisher;
     
 	public SchemaManager() {
 		super();
@@ -76,6 +82,11 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	public SchemaManager(HazelcastInstance hzInstance, String schemaName, SchemaManagement parent) {
 		super(hzInstance, schemaName);
 		this.parent = parent;
+	}
+	
+	@Override
+	public void setNotificationPublisher(NotificationPublisher notificationPublisher) {
+		jmxPublisher = notificationPublisher; 
 	}
 	
 	HazelcastInstance getHazelcastClient() {
@@ -218,10 +229,6 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		return state_ok;
 	}
 	
-	//void setState(String state) {
-	//	this.state = state;
-	//}
-	
 	@ManagedOperation(description="Activate Schema")
 	public boolean activateSchema() {
 		Schema schema = getEntity();
@@ -246,7 +253,6 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		return false;
 	}
 
-	//@Override
 	@ManagedOperation(description="Returns named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to return")})
@@ -254,7 +260,6 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		return getEntity().getProperty(name);
 	}
 	
-	//@Override
 	@ManagedOperation(description="Set named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to set"),
@@ -267,10 +272,16 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	    	Object result = entityCache.executeOnKey(entityName, new SchemaUpdater(schema.getVersion(), 
 	    			getCurrentUser(), false, props));
 	    	logger.trace("setProperty; execution result: {}", result);
+	    	if (result != null) { //schema updated
+				String message = "Schema property " + name + " set to " + value;
+				String jmxType = "bdb.jmx.notification.property";
+				Notification note = new Notification(jmxType, this, jmxIndex++, System.currentTimeMillis(), message);
+				note.setUserData(entityName);
+				jmxPublisher.sendNotification(note);
+	    	}
 		}
 	}
 	
-	//@Override
 	@ManagedOperation(description="Removes named Schema property")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "A name of the property to remove")})
@@ -383,7 +394,13 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	
 	@Override
 	public void onHealthStateChange(HealthState newState) {
+		String message = "Health state changed from " + hState + " to " + newState;
 		this.hState = newState;
+
+		String jmxType = "bdb.jmx.notification.health";
+		Notification note = new Notification(jmxType, this, jmxIndex++, System.currentTimeMillis(), message);
+		note.setUserData(entityName);
+		jmxPublisher.sendNotification(note);
 	}
 
 	
@@ -563,3 +580,4 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	}
 
 }
+

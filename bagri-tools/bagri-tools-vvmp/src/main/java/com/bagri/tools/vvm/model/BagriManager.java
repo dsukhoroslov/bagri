@@ -2,6 +2,7 @@ package com.bagri.tools.vvm.model;
 
 public class BagriManager {
     public static final String BAGRI_MANAGER = "Bagri Manager";
+    public static final String MANAGER_STATE_CHANGED = "_Manager_State_Changed";
     public static final String MANAGEMENT_SECTION_SELECTED = "_MANAGEMENT_SECTION_SELECTED";
 
     @Override

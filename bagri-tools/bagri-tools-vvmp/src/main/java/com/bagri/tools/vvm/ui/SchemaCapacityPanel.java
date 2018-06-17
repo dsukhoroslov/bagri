@@ -44,14 +44,14 @@ public class SchemaCapacityPanel extends JPanel {
     
     private final String schemaName; 
     private final SchemaManagementService schemaService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
 
     private int partSize;
     private JPanel header;
     private SimpleXYChartSupport chart;
     //private BarChart chart;
 
-    public SchemaCapacityPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+    public SchemaCapacityPanel(String schemaName, SchemaManagementService schemaService, EventBus eventBus) {
         super(new BorderLayout());
         this.schemaName = schemaName;
         this.schemaService = schemaService;

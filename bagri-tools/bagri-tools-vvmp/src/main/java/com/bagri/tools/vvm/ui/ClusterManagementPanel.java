@@ -22,12 +22,12 @@ import java.util.logging.Logger;
 public class ClusterManagementPanel extends JPanel {
     private static final Logger LOGGER = Logger.getLogger(ClusterManagementPanel.class.getName());
     private final ClusterManagementService clusterService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private JTabbedPane tabbedPane;
     private JToolBar toolBar;
     private XTable grid;
 
-    public ClusterManagementPanel(ClusterManagementService clusterService, EventBus<ApplicationEvent> eventBus) {
+    public ClusterManagementPanel(ClusterManagementService clusterService, EventBus eventBus) {
         super(new GridLayout(1, 1));
         this.clusterService = clusterService;
         this.eventBus = eventBus;

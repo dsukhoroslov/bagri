@@ -41,7 +41,7 @@ public class SchemaMonitoringPanel extends JPanel {
     private static final int VALUES_LIMIT = 150;
     
     private final SchemaManagementService schemaService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private final String schemaName; 
 
     private int partSize;
@@ -49,7 +49,7 @@ public class SchemaMonitoringPanel extends JPanel {
     private SimpleXYChartSupport capChart;
     private SimpleXYChartSupport volChart;
     
-    public SchemaMonitoringPanel(String schemaName, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+    public SchemaMonitoringPanel(String schemaName, SchemaManagementService schemaService, EventBus eventBus) {
         //super(new GridLayout(1, 1));
         super(new BorderLayout());
         this.schemaName = schemaName;

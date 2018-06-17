@@ -25,14 +25,14 @@ import java.util.logging.Logger;
 public class SchemasManagementPanel extends JPanel {
     private static final Logger LOGGER = Logger.getLogger(SchemasManagementPanel.class.getName());
     private final SchemaManagementService schemaService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private JTabbedPane tabbedPane;
     private JToolBar schemasToolBar;
     private XTable schemasGrid;
     private JToolBar propsToolBar;
     private XTable propsGrid;
 
-    public SchemasManagementPanel(SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+    public SchemasManagementPanel(SchemaManagementService schemaService, EventBus eventBus) {
         super(new GridLayout(1, 1));
         this.schemaService= schemaService;
         this.eventBus = eventBus;

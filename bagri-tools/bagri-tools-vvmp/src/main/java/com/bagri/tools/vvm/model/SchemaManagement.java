@@ -10,6 +10,9 @@ public class SchemaManagement {
     public static final String SCHEMA_STATE_CHANGED = "_Schema_State_Changed";
     public static final String SCHEMA_PROPERTIES_CHANGED = "_Schema_Properties_Changed";
 
+    public static final String SCHEMA_HEALTH_CHANGED = "bdb.jmx.notification.health";
+    public static final String SCHEMA_PROPERTY_CHANGED = "bdb.jmx.notification.property";
+
     @Override
     public String toString() {
         return SCHEMA_MANAGEMENT;

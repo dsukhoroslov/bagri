@@ -65,7 +65,7 @@ public class BagriManagerView extends DataSourceView implements DataRemovedListe
             MBeanServerConnection mbsc = jmx.getMBeanServerConnection();
             LOGGER.info("got connection: " + mbsc + "; className: " + mbsc.getClass().getName());
         	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(mbsc);
-            mainPanel = new BagriMainPanel(bsp);
+            mainPanel = new BagriMainPanel(bsp, mbsc);
             jmx.addPropertyChangeListener(WeakListeners.propertyChange(mainPanel, jmx));
             dvc.addDetailsView(new DataViewComponent.DetailsView("", null, 10, mainPanel, null), DataViewComponent.TOP_LEFT); // NOI18N
         }

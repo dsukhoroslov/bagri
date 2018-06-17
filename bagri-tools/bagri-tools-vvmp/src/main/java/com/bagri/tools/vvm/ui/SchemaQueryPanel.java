@@ -53,7 +53,7 @@ public class SchemaQueryPanel extends JPanel {
 	private static final Logger LOGGER = Logger.getLogger(SchemaQueryPanel.class.getName());
 	
     private final SchemaManagementService schemaService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private final Schema schema;
     //private JToolBar toolBar;
     private JTextArea queryText;
@@ -69,7 +69,7 @@ public class SchemaQueryPanel extends JPanel {
     private long parseTime;
     private Thread qRunner;
 	
-	public SchemaQueryPanel(Schema schema, SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus) {
+	public SchemaQueryPanel(Schema schema, SchemaManagementService schemaService, EventBus eventBus) {
 		super(new BorderLayout());
 		this.schema = schema;
 		this.schemaService = schemaService;

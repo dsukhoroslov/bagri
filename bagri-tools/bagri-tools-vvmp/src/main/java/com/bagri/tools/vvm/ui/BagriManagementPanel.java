@@ -23,11 +23,11 @@ public class BagriManagementPanel extends JPanel {
             new ManagedSection(SchemaManagement.SCHEMA_MANAGEMENT, SchemaManagement.SCHEMA_MANAGEMENT, "Manages schemas and schema properties"),
             new ManagedSection(UserManagement.USER_MANAGEMENT, UserManagement.USER_MANAGEMENT, "Allows to manage users and user-roles")
     };
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private JTabbedPane tabbedPane;
     private XTable grid;
 
-    public BagriManagementPanel(EventBus<ApplicationEvent> eventBus) {
+    public BagriManagementPanel(EventBus eventBus) {
         super(new GridLayout(1, 1));
         this.eventBus = eventBus;
 

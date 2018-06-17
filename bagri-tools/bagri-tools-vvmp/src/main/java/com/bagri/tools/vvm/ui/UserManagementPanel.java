@@ -19,12 +19,12 @@ import java.util.logging.Logger;
 public class UserManagementPanel extends JPanel {
     private static final Logger LOGGER = Logger.getLogger(UserManagementPanel.class.getName());
     private final UserManagementService userService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private XTable grid;
     private JToolBar toolBar;
     private JTabbedPane tabbedPane;
 
-    public UserManagementPanel(UserManagementService service, EventBus<ApplicationEvent> bus) {
+    public UserManagementPanel(UserManagementService service, EventBus bus) {
         super(new GridLayout(1, 1));
         this.userService = service;
         this.eventBus = bus;
@@ -297,7 +297,7 @@ public class UserManagementPanel extends JPanel {
             public boolean changePassword(String user, String password) throws ServiceException {
                 return false;
             }
-        }, new EventBus<ApplicationEvent>());
+        }, new EventBus(null));
         JFrame frame = new JFrame("User management");
         frame.addWindowListener(windowAdapter);
         frame.getContentPane().add("Center", panel);

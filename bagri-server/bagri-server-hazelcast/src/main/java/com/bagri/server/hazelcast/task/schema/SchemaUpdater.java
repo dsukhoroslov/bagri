@@ -34,12 +34,12 @@ public class SchemaUpdater extends SchemaProcessor implements IdentifiedDataSeri
 		if (entry.getValue() != null) {
 			Schema schema = entry.getValue();
 			if (schema.getVersion() == getVersion()) {
-				if (schema.isActive()) {
-					if (denitSchemaInCluster(schema) > 0) {
+				//if (schema.isActive()) {
+				//	if (denitSchemaInCluster(schema) > 0) {
 						// don't go further
-						return null;
-					}
-				}
+				//		return null;
+				//	}
+				//}
 				
 				if (override) {
 					String pwd = properties.getProperty(pn_schema_password);
@@ -57,11 +57,11 @@ public class SchemaUpdater extends SchemaProcessor implements IdentifiedDataSeri
 					}
 				}
 				
-				if (schema.isActive()) {
-					if (initSchemaInCluster(schema) == 0) {
-						schema.setActive(false);
-					}
-				}
+				//if (schema.isActive()) {
+				//	if (initSchemaInCluster(schema) == 0) {
+				//		schema.setActive(false);
+				//	}
+				//}
 				schema.updateVersion(getAdmin());
 				entry.setValue(schema);
 				auditEntity(AuditType.update, schema);

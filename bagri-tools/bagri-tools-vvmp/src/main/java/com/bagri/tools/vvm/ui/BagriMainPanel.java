@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-public class BagriMainPanel extends JPanel implements NotificationListener, PropertyChangeListener {
+public class BagriMainPanel extends JPanel implements PropertyChangeListener {
 
 	private static final Logger LOGGER = Logger.getLogger(BagriMainPanel.class.getName());
 
@@ -38,7 +38,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     private final UserManagementService userManagementService;
     private final ClusterManagementService clusterManagementService;
     private final SchemaManagementService schemaManagementService;
-    private final EventBus<ApplicationEvent> eventBus = new EventBus<ApplicationEvent>();
+    private final EventBus eventBus;
     private UserManagementPanel userManagementPanel;
     private ClusterManagementPanel clusterManagementPanel;
     private BagriManagementPanel bagriManagementPanel;
@@ -46,11 +46,12 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
     // TODO: Remove cache entry if schema is deleted.
     private HashMap<String, SchemaPanel> schemaCache = new HashMap<String, SchemaPanel>();
 
-    public BagriMainPanel(BagriServiceProvider serviceProvider) {
+    public BagriMainPanel(BagriServiceProvider serviceProvider, MBeanServerConnection mbsc) {
         // Services
         userManagementService = serviceProvider.getUserManagement();
         clusterManagementService = serviceProvider.getClusterManagement();
         schemaManagementService = serviceProvider.getSchemaManagement();
+        eventBus = new EventBus(mbsc);
 
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -93,6 +94,9 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
                     if (null != tp) {
                         mainTree.setSelectionPath(tp);
                     }
+                }
+                if (BagriManager.MANAGER_STATE_CHANGED.equals(e.getCommand())) {
+                    dispose();
                 }
             }
         });
@@ -281,48 +285,6 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
 */
 
 
-    /* notification listener:  handleNotification */
-    @Override
-    public void handleNotification(final Notification notification, Object handback) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                if (notification instanceof JMXConnectionNotification) {
-                    if (JMXConnectionNotification.FAILED.equals(notification.getType()) || JMXConnectionNotification.CLOSED.equals(notification.getType())) {
-                        dispose();
-                    }
-                }
-                if (notification instanceof MBeanServerNotification) {
-                    ObjectName mbean =
-                            ((MBeanServerNotification) notification).getMBeanName();
-                    if (notification.getType().equals(
-                            MBeanServerNotification.REGISTRATION_NOTIFICATION)) {
-                        if ("User".equals(mbean.getKeyProperty("type"))) {
-                            eventBus.fireEvent(new ApplicationEvent(this, UserManagement.USER_STATE_CHANGED));
-                        }
-                        if ("Node".equals(mbean.getKeyProperty("type"))) {
-                            eventBus.fireEvent(new ApplicationEvent(this, ClusterManagement.CLUSTER_STATE_CHANGED));
-                        }
-                        if ("Schema".equals(mbean.getKeyProperty("type"))) {
-                            eventBus.fireEvent(new ApplicationEvent(this, SchemaManagement.SCHEMA_STATE_CHANGED));
-                        }
-                    } else if (notification.getType().equals(
-                            MBeanServerNotification.UNREGISTRATION_NOTIFICATION)) {
-                        if ("User".equals(mbean.getKeyProperty("type"))) {
-                            eventBus.fireEvent(new ApplicationEvent(this, UserManagement.USER_STATE_CHANGED));
-                        }
-                        if ("Node".equals(mbean.getKeyProperty("type"))) {
-                            eventBus.fireEvent(new ApplicationEvent(this, ClusterManagement.CLUSTER_STATE_CHANGED));
-                        }
-                        if ("Schema".equals(mbean.getKeyProperty("type"))) {
-                            eventBus.fireEvent(new ApplicationEvent(this, SchemaManagement.SCHEMA_STATE_CHANGED));
-                        }
-                    }
-                }
-            }
-        });
-
-    }
-
     public void dispose() {
         removePropertyChangeListener(this);
         mainTree.setEnabled(false);
@@ -356,7 +318,7 @@ public class BagriMainPanel extends JPanel implements NotificationListener, Prop
         }
         if (o != null) {
         	BagriServiceProvider bsp = DefaultServiceProvider.getInstance(mbsc);
-            final BagriMainPanel panel = new BagriMainPanel(bsp);
+            final BagriMainPanel panel = new BagriMainPanel(bsp, mbsc);
             WindowListener windowAdapter = new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {System.exit(0);}
             };

@@ -18,12 +18,12 @@ public class SchemaPanel extends JPanel {
 	private static final Logger LOGGER = Logger.getLogger(SchemaPanel.class.getName());
     
     private final SchemaManagementService schemaService;
-    private final EventBus<ApplicationEvent> eventBus;
+    private final EventBus eventBus;
     private final Schema schema;
     private JTabbedPane tabbedPane;
     //private XTable grid;
 
-    public SchemaPanel(SchemaManagementService schemaService, EventBus<ApplicationEvent> eventBus, Schema schema) {
+    public SchemaPanel(SchemaManagementService schemaService, EventBus eventBus, Schema schema) {
         super(new GridLayout(1, 1));
         this.schema = schema;
         this.schemaService = schemaService;
