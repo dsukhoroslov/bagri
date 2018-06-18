@@ -205,7 +205,7 @@ public abstract class MemoryMappedStore<K, E> {
 	}
 	
 	protected int loadEntries(IMap<K, E> cache) {
-		logger.info("loadEntries.enter; entry count: {}", cache.size());
+		logger.info("loadEntries.enter; entry count: {}", 0); //cache.size());
 		int actCount = 0;
 		int sect = 0;
 		int cnt = 0;

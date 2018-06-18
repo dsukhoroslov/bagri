@@ -559,21 +559,26 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 		ParseResults pRes = parseContent(docKey, content, dataFormat, null);
 
+		List<Long> fragments = null;
 		List<Data> data = pRes.getResults();
 		int length = pRes.getContentLength();
-		Object[] ids = loadElements(docKey.getKey(), data);
-		if (ids == null) {
-			logger.warn("createDocument.exit; the document is not valid as it has no root element");
-			throw new BagriException("invalid document", BagriException.ecDocument);
+		String root = "/"; //TODO: make constant for this
+		if (data != null) { 
+			Object[] ids = loadElements(docKey.getKey(), data);
+			if (ids == null) {
+				logger.warn("createDocument.exit; the document is not valid as it has no root element");
+				throw new BagriException("invalid document", BagriException.ecDocument);
+			}
+			fragments = (List<Long>) ids[0];
+			root = pRes.getContentRoot();
 		}
 
 		Document doc;
 		String format = dataFormat + "/" + def_encoding;
-		List<Long> fragments = (List<Long>) ids[0];
-		if (fragments.size() == 0) {
-			doc = new Document(docKey.getKey(), uri, pRes.getContentRoot(), txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
+		if (fragments == null || fragments.size() == 0) {
+			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
 		} else {
-			doc = new FragmentedDocument(docKey.getKey(), uri, pRes.getContentRoot(), txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
+			doc = new FragmentedDocument(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
 			long[] fa = new long[fragments.size()];
 			fa[0] = docKey.getKey();
 			for (int i=0; i < fragments.size(); i++) {

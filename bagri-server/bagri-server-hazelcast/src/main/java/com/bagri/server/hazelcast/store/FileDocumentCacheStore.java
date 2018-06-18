@@ -8,6 +8,7 @@ import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
 import static com.bagri.core.api.TransactionManagement.TX_INIT;
 import static com.bagri.core.model.Document.dvFirst;
+import static com.bagri.core.server.api.CacheConstants.TPN_XDM_POPULATION;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -38,6 +39,7 @@ import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.support.util.FileUtils;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 
@@ -52,6 +54,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
     private Properties props;
+    //private ITopic<Long> pTopic;
     
 	@Override
 	public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
@@ -69,6 +72,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		if (schemaName == null) {
 			logger.warn("init; schemaName not set, please check node profile properties"); 
 		}
+		//pTopic = hzInstance.getTopic(TPN_XDM_POPULATION);
 	}
 
 	@Override
@@ -243,6 +247,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	    	}
 	    }
 		logger.debug("loadAll.exit; returning: {} documents for keys: {}", result.size(), keys.size());
+		//pTopic.publish(new Long(result.size()));
 		return result;
 	}
 
