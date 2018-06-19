@@ -8,7 +8,6 @@ import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.core.server.api.SchemaRepository.bean_id;
 import static com.bagri.support.util.JMXUtils.*;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -48,9 +47,9 @@ import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.system.XQueryTrigger;
 import com.bagri.server.hazelcast.task.doc.DocumentQueueCounter;
 import com.bagri.server.hazelcast.task.node.NodeDistributionProvider;
+import com.bagri.server.hazelcast.task.node.NodeKiller;
 import com.bagri.server.hazelcast.task.schema.SchemaActivator;
 import com.bagri.server.hazelcast.task.schema.SchemaHealthAggregator;
-import com.bagri.server.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.server.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.server.hazelcast.util.HazelcastUtils;
 import com.bagri.support.util.PropUtils;
@@ -228,6 +227,35 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		}
 		return state_ok;
 	}
+
+	@ManagedOperation(description="Start Schema cluster")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "addresses", description = "Nodes to start schema on, separated by comma"),
+		@ManagedOperationParameter(name = "nodesPerAddress", description = "Number of nodes started on each address"),
+		@ManagedOperationParameter(name = "nodeSize", description = "Amount of memory allocated per node, in Gb")})
+	public boolean startCluster(String addresses, int nodesPerAddress, int nodeSize) {
+		Schema schema = getEntity();
+		//if (schema != null && schema.isActive()) {
+		//} 
+		return false;
+	}
+	
+	@ManagedOperation(description="Stop Schema cluster")
+	public boolean stopCluster() {
+		if (schemaInstance == null) {
+			return false;
+		}
+		java.util.Collection<Member> members;
+		if (schemaInstance instanceof HazelcastClientInstanceImpl) {
+			members = ((HazelcastClientInstanceImpl) schemaInstance).getClientClusterService().getMemberList();
+		} else {
+			members = schemaInstance.getCluster().getMembers();
+		}
+
+        Runnable task = new NodeKiller(entityName);
+        execService.executeOnMembers(task, members);
+		return true;
+	}
 	
 	@ManagedOperation(description="Activate Schema")
 	public boolean activateSchema() {
@@ -334,16 +362,6 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		// throw ex for wrong node name?
 	}
 	
-	@ManagedOperation(description="Initiates schema population process")
-	public void populateSchema() {
-		if (!isPersistent()) {
-			// throw ex?
-			return;
-		}
-		SchemaPopulator pop = new SchemaPopulator(entityName);
-		execService.submitToAllMembers(pop);
-	}
-
 	@ManagedOperation(description="Return number of not-stored-yet Documents")
 	public int checkUpdatingDocuments() {
 		DocumentQueueCounter task = new DocumentQueueCounter();

@@ -285,15 +285,18 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 		ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
 	    mMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(mMgr, mMgr.getObjectName());
-	    QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
+	    PopulationManagement pMgr = ctx.getBean("popManager", PopulationManagement.class);
+	    pMgr.setSchemaManager(sMgr);
+		mbeanExporter.registerManagedResource(pMgr, pMgr.getObjectName());
+		QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
 	    qMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(qMgr, qMgr.getObjectName());
-		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
-	    tMgr.setSchemaManager(sMgr);
-		mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
 	    ResourceManagement rMgr = ctx.getBean("resourceManager", ResourceManagement.class);
 	    rMgr.setSchemaManager(sMgr);
 		mbeanExporter.registerManagedResource(rMgr, rMgr.getObjectName());
+		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+	    tMgr.setSchemaManager(sMgr);
+		mbeanExporter.registerManagedResource(tMgr, tMgr.getObjectName());
 	}
 	
 	private void unregisterFeatureManagers(ApplicationContext ctx) throws MalformedObjectNameException {
@@ -307,12 +310,14 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
 		mbeanExporter.unregisterManagedResource(trMgr.getObjectName());
 		ModelManagement mMgr = ctx.getBean("modelManager", ModelManagement.class);
 		mbeanExporter.unregisterManagedResource(mMgr.getObjectName());
+	    PopulationManagement pMgr = ctx.getBean("popManager", PopulationManagement.class);
+		mbeanExporter.unregisterManagedResource(pMgr.getObjectName());
 		QueryManagement qMgr = ctx.getBean("queryManager", QueryManagement.class);
 		mbeanExporter.unregisterManagedResource(qMgr.getObjectName());
-		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
-		mbeanExporter.unregisterManagedResource(tMgr.getObjectName());
 	    ResourceManagement rMgr = ctx.getBean("resourceManager", ResourceManagement.class);
 		mbeanExporter.unregisterManagedResource(rMgr.getObjectName());
+		TransactionManagement tMgr = ctx.getBean("transManager", TransactionManagement.class);
+		mbeanExporter.unregisterManagedResource(tMgr.getObjectName());
 	}
 
 	private boolean isSchemaActive(String schemaName, Set<Member> members) {

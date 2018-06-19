@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,14 +67,16 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
-
+    private AtomicInteger errorCount = new AtomicInteger(0);
+    private AtomicInteger loadCount = new AtomicInteger(0);
+    
     private KeyFactory xFactory;
 	private IMap<Long, Transaction> xtxCache;
     private IMap<DocumentKey, String> keyCache;
 	//private IMap<DocumentKey, Document> xddCache;
 	private IMap xddCache;
 	private DocumentMemoryStore docStore;
-	private DocumentManagementImpl docMgr;
+	//private DocumentManagementImpl docMgr;
 
 	@Override
 	public String getKeyMapping(DocumentKey key) {
@@ -148,13 +151,17 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
 		activateDocStore();
 		xddCache.addEntryListener(this, true);
-    	if (populationSize == currentSize && xddCache.size() == 0) {
+    	if (populationSize > 0 && populationSize == currentSize && getLoadedCount() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName);
     		// try to run it from the same thread..
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
     		//pop.call();
     	}
     }
+	
+	public void clearLoadStats() {
+		loadCount.set(0);
+	}
 	
 	public Document getDocument(Long docKey) {
 		return docStore.getEntry(docKey);
@@ -166,6 +173,18 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	
 	public int getDocumentCount() {
 		return docStore.getFullEntryCount();
+	}
+	
+	public int getErrorCount() {
+		return errorCount.get();
+	}
+	
+	public int getKeyCount() {
+		return keyCache.size();
+	}
+	
+	public int getLoadedCount() {
+		return loadCount.get();
 	}
 	
 	public int getUpdatingDocumentCount() {
@@ -202,6 +221,11 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return docStore.getMaxTransactionId();
 	}
 	
+	public void addPopulationCounts(int errors, int loaded) {
+		errorCount.addAndGet(errors);
+		loadCount.addAndGet(loaded);
+	}
+	
 	private void activateDocStore() {
 
 		if (docStore.isActivated()) {
@@ -211,8 +235,8 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
 		docStore.init(xddCache);
 
-		ApplicationContext schemaCtx = getContext(schemaName);
-		docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
+		//ApplicationContext schemaCtx = getContext(schemaName);
+		//docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
 
 		KeyFactory factory = getKeyFactory();
 		Collection<Long> docKeys = docStore.getEntryKeys();

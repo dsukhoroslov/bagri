@@ -47,6 +47,7 @@ import com.bagri.server.hazelcast.task.schema.SchemaDenitiator;
 import com.bagri.server.hazelcast.task.schema.SchemaDocCleaner;
 import com.bagri.server.hazelcast.task.schema.SchemaHealthAggregator;
 import com.bagri.server.hazelcast.task.schema.SchemaInitiator;
+import com.bagri.server.hazelcast.task.schema.SchemaLoadMonitor;
 import com.bagri.server.hazelcast.task.schema.SchemaMemberExtractor;
 import com.bagri.server.hazelcast.task.schema.SchemaPopulator;
 import com.bagri.server.hazelcast.task.schema.SchemaQueryCleaner;
@@ -127,6 +128,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public static final int cli_PopulateSchemaTask = 259;
 	public static final int cli_AggregateSchemaInfoTask = 260;
 	public static final int cli_AggregateSchemaHealthTask = 261;
+	public static final int cli_MonitorSchemaLoadTask = 262;
 	
 	public static final int cli_CreateDataFormatTask = 265;
 	public static final int cli_RemoveDataFormatTask = 266;
@@ -153,7 +155,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_BeginTransactionTask: return new TransactionStarter(); 
 			case cli_CommitTransactionTask: return new TransactionCommiter();
 			case cli_RollbackTransactionTask: return new TransactionAborter();
-			case cli_ExecQueryTask: return new QueryExecutor();
+			case cli_ExecQueryTask: return new QueryExecutor<>();
 			case cli_ProcessQueryTask: return new QueryProcessor();
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_ProvideQueryUrisTask: return new QueryUrisProvider();
@@ -206,6 +208,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_UpdateSchemaTask: return new SchemaUpdater();
 			case cli_DeleteSchemaTask: return new SchemaRemover();
 			case cli_ActivateSchemaTask: return new SchemaActivator();
+			case cli_MonitorSchemaLoadTask: return new SchemaLoadMonitor();
 			case cli_CreateDataFormatTask: return new DataFormatCreator();
 			case cli_RemoveDataFormatTask: return new DataFormatRemover();
 			//case cli_CreateDataStoreTask: return new DataStoreCreator();

@@ -8,6 +8,7 @@ import static com.bagri.server.hazelcast.util.HazelcastUtils.hz_instance;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,31 +37,30 @@ public class NodeKiller implements Runnable, IdentifiedDataSerializable {
 	@Override
 	public void run() {
 		logger.info("run.enter; about to stop schemas: {}", Arrays.toString(schemas));
-		HazelcastInstance hzSystem = Hazelcast.getHazelcastInstanceByName(hz_instance);
+		HazelcastInstance hzSystem = null;
 		Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
+		logger.info("run; instances: {}", instances);
 		int cnt = 0;
 		for (HazelcastInstance instance: instances) {
-			if (!hz_instance.equals(instance.getName())) {
-				if (shutdownInstance(instance)) {
-					instance.shutdown();
-					cnt++;
-				}
+			if (matchNames(instance.getName(), hz_instance)) {
+				hzSystem = instance;
+			} else if (shutdownInstance(instance)) {
+				instance.shutdown();
+				cnt++;
 			}
 		}
-		if (schemas.length == 0) {
-			cnt++;
+		logger.info("run.exit; instances stopped: {}", cnt);
+		if (schemas.length == 0 || (hzSystem != null && instances.size() - cnt == 1)) {
 			if ("admin".equals(hzSystem.getCluster().getLocalMember().getStringAttribute(pn_cluster_node_role))) {
 				// close all open clients to cache nodes!
 				for (HazelcastInstance client: HazelcastClient.getAllHazelcastClients()) {
 					client.shutdown();
 				}
-				hzSystem.shutdown();
-				logger.info("run.exit; instances stopped: {}; admin terminated", cnt);
-				System.exit(0);
 			}
 			hzSystem.shutdown();
+			logger.info("run.exit; admin instance terminated as well");
+			System.exit(0);
 		}
-		logger.info("run.exit; instances stopped: {}", cnt);
 	}
 	
 	private boolean shutdownInstance(HazelcastInstance hzInstance) {
@@ -68,11 +68,15 @@ public class NodeKiller implements Runnable, IdentifiedDataSerializable {
 			return true;
 		}
 		for (int i=0; i < schemas.length; i++) {
-			if (hzInstance.getName().equals(schemas[i])) {
+			if (matchNames(hzInstance.getName(), schemas[i])) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	private boolean matchNames(String instanceName, String schemaName) {
+		return Pattern.compile(schemaName + "-\\d+").matcher(instanceName).matches();
 	}
 
 	@Override

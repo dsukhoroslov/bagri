@@ -54,7 +54,6 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
     private Properties props;
-    //private ITopic<Long> pTopic;
     
 	@Override
 	public void init(HazelcastInstance hzInstance, Properties properties, String mapName) {
@@ -72,7 +71,6 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		if (schemaName == null) {
 			logger.warn("init; schemaName not set, please check node profile properties"); 
 		}
-		//pTopic = hzInstance.getTopic(TPN_XDM_POPULATION);
 	}
 
 	@Override
@@ -246,8 +244,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	    		result.put(key, doc);
 	    	}
 	    }
+		popManager.addPopulationCounts(keys.size() - result.size(), result.size());
 		logger.debug("loadAll.exit; returning: {} documents for keys: {}", result.size(), keys.size());
-		//pTopic.publish(new Long(result.size()));
 		return result;
 	}
 
