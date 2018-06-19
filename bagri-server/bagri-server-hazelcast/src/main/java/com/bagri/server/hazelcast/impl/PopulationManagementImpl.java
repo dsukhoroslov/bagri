@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,10 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
+
+    private AtomicLong startTime = new AtomicLong(0);
+    private AtomicLong stopTime = new AtomicLong(0);
+    private AtomicInteger batchCount = new AtomicInteger(0);
     private AtomicInteger errorCount = new AtomicInteger(0);
     private AtomicInteger loadCount = new AtomicInteger(0);
     
@@ -175,16 +180,28 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return docStore.getFullEntryCount();
 	}
 	
+	public int getBatchCount() {
+		return batchCount.get();
+	}
+	
 	public int getErrorCount() {
 		return errorCount.get();
 	}
 	
 	public int getKeyCount() {
-		return keyCache.size();
+		return keyCache.localKeySet().size();
 	}
 	
 	public int getLoadedCount() {
 		return loadCount.get();
+	}
+	
+	public long getStartTime() {
+		return startTime.get();
+	}
+	
+	public long getLastTime() {
+		return stopTime.get();
 	}
 	
 	public int getUpdatingDocumentCount() {
@@ -222,8 +239,11 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	}
 	
 	public void addPopulationCounts(int errors, int loaded) {
+		startTime.compareAndSet(0, nodeEngine.getClusterService().getClusterTime());
+		batchCount.incrementAndGet();
 		errorCount.addAndGet(errors);
 		loadCount.addAndGet(loaded);
+		stopTime.set(nodeEngine.getClusterService().getClusterTime());
 	}
 	
 	private void activateDocStore() {

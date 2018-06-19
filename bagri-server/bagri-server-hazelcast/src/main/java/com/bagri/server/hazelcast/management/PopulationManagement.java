@@ -22,10 +22,11 @@ import com.hazelcast.core.Member;
 
 @ManagedResource(description="Population Manager MBean")
 public class PopulationManagement extends SchemaFeatureManagement {
-	
+
 	private int cntKeys = 0;
 	private int cntErrors = 0;
 	private int cntLoaded = 0;
+	private int cntBatches = 0;
 
     public PopulationManagement(String schemaName) {
     	super(schemaName);
@@ -34,6 +35,11 @@ public class PopulationManagement extends SchemaFeatureManagement {
 	@Override
 	protected String getFeatureKind() {
 		return "PopulationManagement";
+	}
+	
+	@ManagedAttribute(description="Provides number of load batches applied")
+	public int getBatchCount() {
+		return cntBatches;
 	}
 	
 	@ManagedAttribute(description="Provides number of not loaded documents")
@@ -63,17 +69,18 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		cntKeys = 0;
 		cntErrors = 0;
 		cntLoaded = 0;
+		cntBatches = 0;
 		for (Map.Entry<Member, Future<CompositeData>> entry: futures.entrySet()) {
 			try {
 				CompositeData loaded = entry.getValue().get();
-				Integer ck = (Integer) loaded.get("Keys");
-				if (ck > cntKeys) {
-					cntKeys = ck;
-				}
 				Integer ce = (Integer) loaded.get("Errors");
 				cntErrors += ce;
+				Integer ck = (Integer) loaded.get("Keys");
+				cntKeys += ck;
 				Integer cl = (Integer) loaded.get("Loaded");
 				cntLoaded += cl;
+				Integer cb = (Integer) loaded.get("Batches");
+				cntBatches += cb;
 				String member = entry.getKey().getSocketAddress().toString();
 				logger.trace("getPopulationStatistics; loaded: {} by member {}", loaded, member);
                 result = compositeToTabular("Population", "Monitor", "Member", result, loaded);
@@ -91,14 +98,14 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		if (cntKeys == 0) {
 			return "NOT POPULATED";
 		}
-		if (cntLoaded == cntKeys) {
+		if (cntLoaded + cntErrors == cntKeys) {
 			return "POPULATED";
 		}
 		return "POPULATING"; 
 	}
 	
 	@ManagedOperation(description="Initiates schema population process")
-	public void populateSchema() {
+	public void startPopulation() {
 		if (!this.schemaManager.isPersistent()) {
 			// throw ex?
 			return;
@@ -107,4 +114,13 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		execService.submit(pop); //ToAllMembers(pop);
 	}
 
+	@ManagedOperation(description="Stops on-going schema population process")
+	public void stopPopulation() {
+		if (!this.schemaManager.isPersistent()) {
+			// throw ex?
+			return;
+		}
+		//SchemaPopulator pop = new SchemaPopulator(schemaName);
+		//execService.submit(pop); //ToAllMembers(pop);
+	}
 }

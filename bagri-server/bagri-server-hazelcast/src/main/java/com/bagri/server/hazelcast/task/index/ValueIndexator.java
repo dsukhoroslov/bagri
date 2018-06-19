@@ -6,27 +6,45 @@ import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.bagri.core.IndexKey;
+import com.bagri.core.api.BagriException;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.model.IndexedDocument;
 import com.bagri.core.model.IndexedValue;
+import com.bagri.core.server.api.IndexManagement;
+import com.bagri.core.server.api.QueryManagement;
+import com.bagri.core.system.Index;
+import com.bagri.server.hazelcast.impl.IndexManagementImpl;
+import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
+import com.hazelcast.spring.context.SpringAware;
 
+@SpringAware
 public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>, 
 	EntryBackupProcessor<IndexKey, IndexedValue>, IdentifiedDataSerializable {
 
-	private long docId;
+	private long docKey;
+	private long txId;
+	private IndexManagementImpl idxMgr;
 	
 	public ValueIndexator() {
 		//
 	}
 
-	public ValueIndexator(long docId) {
-		this.docId = docId;
+	public ValueIndexator(long docKey, long txId) {
+		this.docKey = docKey;
+		this.txId = txId;
+	}
+
+    @Autowired
+	public void setIndexManagement(IndexManagementImpl idxMgr) {
+		this.idxMgr = idxMgr;
 	}
 
 	@Override
@@ -46,13 +64,11 @@ public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>,
 
 	@Override
 	public Object process(Entry<IndexKey, IndexedValue> entry) {
-		IndexedValue index = entry.getValue(); 
-		if (index == null) {
-			index = new IndexedDocument(docId);
-		} else {
-			index.addDocument(docId, TransactionManagement.TX_NO);
+		try {
+			idxMgr.indexPath(entry, docKey, txId);
+		} catch (BagriException ex) {
+			return ex;
 		}
-		entry.setValue(index);
 		return null;
 	}
 
@@ -63,12 +79,14 @@ public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>,
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		docId = in.readLong();
+		docKey = in.readLong();
+		txId = in.readLong();
 	}
 
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		out.writeLong(docId);
+		out.writeLong(docKey);
+		out.writeLong(txId);
 	}
 
 }

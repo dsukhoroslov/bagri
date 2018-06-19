@@ -40,6 +40,7 @@ public class BagriApplicationTypeProvider extends MainClassApplicationTypeFactor
 
     private boolean isAdminApp(Application app) {
         LOGGER.info("check app: " + app);
+        // JmxApplication [id: service:jmx:rmi:///jndi/rmi://172.20.3.10:3430/jmxrmi]
     	return admins.contains(app);
     }
 

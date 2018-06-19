@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -24,6 +25,7 @@ import com.bagri.core.IndexKey;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.BagriException;
+import com.bagri.core.model.Data;
 import com.bagri.core.model.IndexedDocument;
 import com.bagri.core.model.IndexedValue;
 import com.bagri.core.model.NodeKind;
@@ -36,6 +38,7 @@ import com.bagri.core.query.PathBuilder;
 import com.bagri.core.query.PathExpression;
 import com.bagri.core.server.api.IndexManagement;
 import com.bagri.core.system.Index;
+import com.bagri.server.hazelcast.task.index.ValueIndexator;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.JMXUtils;
 import com.bagri.support.util.XQUtils;
@@ -214,22 +217,24 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		return PathBuilder.isRegexPath(index.getPath());
 	}
 
-	private Collection<Index> getPathIndexes(int pathId, String path) {
-		Set<Index> result = new HashSet<>();
+	private Collection<Index> getPathIndices(int pathId, String path) {
+		Set<Index> result = new HashSet<>(1);
 		Index idx = idxDict.get(pathId);
 		if (idx != null) {
 			result.add(idx);
 		} else {
-			for (Map.Entry<Index, Pattern> e: patterns.entrySet()) {
-				Matcher m = e.getValue().matcher(path);
-				boolean match = m.matches(); 
-				if (match) {
-					result.add(e.getKey());
-					// TODO: do we put multiple indexes for the same path?! think about it..
-					idxDict.put(pathId, e.getKey());
-					result.add(e.getKey());
+			if (!patterns.isEmpty()) {
+				for (Map.Entry<Index, Pattern> e: patterns.entrySet()) {
+					Matcher m = e.getValue().matcher(path);
+					boolean match = m.matches(); 
+					if (match) {
+						result.add(e.getKey());
+						// TODO: do we put multiple indexes for the same path?! think about it..
+						idxDict.put(pathId, e.getKey());
+						result.add(e.getKey());
+					}
+					logger.trace("getPathIndexes; pattern {} {}matched for path {}", e.getValue().pattern(), match ? "" : "not ", path);
 				}
-				logger.trace("getPathIndexes; pattern {} {}matched for path {}", e.getValue().pattern(), match ? "" : "not ", path);
 			}
 		}
 		return result;
@@ -239,13 +244,21 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 
 		// shouldn't we index NULL values too? create special NULL class for this..
 		if (value != null) {
-			Collection<Index> indexes = getPathIndexes(pathId, path);
-			if (indexes.isEmpty()) {
+			Collection<Index> indices = getPathIndices(pathId, path);
+			if (indices.isEmpty()) {
 				return;
 			}
 			
-			for (Index idx: indexes) {
-				indexPath(idx, docId, pathId, value);
+			IndexKey xid = factory.newIndexKey(pathId, value);
+			for (Index idx: indices) {
+				//indexPath(idx, docId, pathId, value);
+				if (idx.isEnabled()) {
+					long txId = idx.isUnique() ? txMgr.getCurrentTxId() : TX_NO;
+					ValueIndexator indexator = new ValueIndexator(docId, txId);
+					idxCache.executeOnKey(xid, indexator);
+					//idxCache.submitToKey(xid, indexator);
+					logger.trace("addIndex; index submit for key {}", xid);
+				}
 			}
 		}
 	}
@@ -274,15 +287,40 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		return value;
 	}
 	
-	private void indexPath(Index idx, long docKey, int pathId, Object value) throws BagriException {
+	public void indexDocument(long docKey, List<Data> docData) {
+		Map<Integer, Index> localIdx = new HashMap<>();
+		Index idx;
+		Collection<Index> cIdx;
+		for (Data dta: docData) {
+			Integer pId = dta.getPathId();
+			if (localIdx.containsKey(pId)) {
+				idx = localIdx.get(pId);
+			} else {
+				cIdx = getPathIndices(pId, dta.getPath());
+				if (cIdx.isEmpty()) {
+					idx = null;
+				} else {
+					idx = cIdx.iterator().next();
+				}
+				localIdx.put(pId, idx);
+			}
+			if (idx != null) {
+				
+			}
+		}		
+	}
+	
+	public void indexPath(Map.Entry<IndexKey, IndexedValue> entry, long docKey, long txId) throws BagriException {
 
+		int pathId = entry.getKey().getPathId();
+		Object value = entry.getKey().getValue();
+		Index idx = idxDict.get(pathId);
 		value = getIndexedValue(idx, pathId, value);
 		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
 			
 		int oldCount = 0;
 		boolean first = false;
-		IndexKey xid = factory.newIndexKey(pathId, value);
-		IndexedValue xidx = idxCache.get(xid);
+		IndexedValue xidx = entry.getValue();
 		if (idx.isUnique()) {
 			long id = DocumentKey.toDocumentId(docKey);
 			if (!checkUniquiness((UniqueDocument) xidx, id)) {
@@ -296,23 +334,15 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 			} else {
 				oldCount = xidx.getCount();
 			}
-			xidx.addDocument(docKey, txMgr.getCurrentTxId());
-			IndexedValue xidx2 = idxCache.put(xid, xidx);
-			// why it is done second time here? because it can be new xidx!
-			if (!checkUniquiness((UniqueDocument) xidx2, id)) {
-				// shouldn't we delete just created xidx then ?
-				throw new BagriException("unique index '" + idx.getName() + "' violated for docKey: " + 
-						docKey + ", pathId: " + pathId + ", value: " + value, BagriException.ecIndexUnique);
-			}
+			xidx.addDocument(docKey, txId);
 		} else {
 			if (xidx == null) {
 				xidx = new IndexedDocument(docKey);
 				first = true;
 			} else { 
 				oldCount = xidx.getCount();
-				xidx.addDocument(docKey, TransactionManagement.TX_NO);
+				xidx.addDocument(docKey, txId);
 			}
-			idxCache.set(xid, xidx);
 			if (idx.isRange()) {
 				TreeMap<Comparable, Integer> range = rangeIndex.get(pathId);
 				Integer count = range.get(value);
@@ -324,16 +354,12 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 				range.put((Comparable) value, count);
 			}
 		}
+		entry.setValue(xidx);
 		updateStats(idx.getName(), true, first, xidx.getCount() - oldCount, xidx.getSize());
 		
 		//if (isPatternIndex(idx)) {
 		//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
 		//}
-			
-		// it works asynch. but major time is taken in isPathIndexed method..
-		//ValueIndexator indexator = new ValueIndexator(docId);
-		//idxCache.submitToKey(xid, indexator);
-		//logger.trace("addIndex; index submit for key {}", xid);
 	}
 
 	private boolean checkUniquiness(UniqueDocument uidx, long docId) throws BagriException {

@@ -8,7 +8,6 @@ import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
 import static com.bagri.core.api.TransactionManagement.TX_INIT;
 import static com.bagri.core.model.Document.dvFirst;
-import static com.bagri.core.server.api.CacheConstants.TPN_XDM_POPULATION;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -29,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.DocumentKey;
-import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.DocumentManagement;
@@ -39,7 +37,6 @@ import com.bagri.server.hazelcast.impl.PopulationManagementImpl;
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.support.util.FileUtils;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MapLoaderLifecycleSupport;
 import com.hazelcast.core.MapStore;
 

@@ -35,10 +35,12 @@ public class SchemaLoadMonitor implements Callable<CompositeData>, IdentifiedDat
 	public CompositeData call() throws Exception {
 		PopulationManagementImpl pSvc = (PopulationManagementImpl) xdmRepo.getPopulationManagement();
 		Map<String, Object> result = new HashMap<>(1);
+		result.put("Batches", pSvc.getBatchCount());
 		result.put("Keys", pSvc.getKeyCount());
 		result.put("Errors", pSvc.getErrorCount());
 		result.put("Loaded", pSvc.getLoadedCount());
-		// add other stats later..
+		result.put("StartTime", pSvc.getStartTime());
+		result.put("LastTime", pSvc.getLastTime());
 		Member m = xdmRepo.getHzInstance().getCluster().getLocalMember();
 		result.put("Member", m.getSocketAddress().toString()); 
 		return mapToComposite("Population", "Monitor", result);
