@@ -395,6 +395,7 @@
 		<property name="statsQueue" ref="indexQueue"/>
 		<property name="txManager" ref="txManager"/>
 		<property name="documentManager" ref="docManager"/>
+		<property name="indexAsynch" value="${bdb.schema.index.asynch:false}"/>
 	</bean>
 
 	<bean id="modelManager" class="com.bagri.server.hazelcast.impl.ModelManagementImpl">

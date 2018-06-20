@@ -134,6 +134,7 @@ public class Constants {
     public static final String pn_schema_tx_timeout = "bdb.schema.transaction.timeout";
     public static final String pn_schema_cache_content = "bdb.schema.cache.content";
     public static final String pn_schema_cache_elements = "bdb.schema.cache.elements";
+    public static final String pn_schema_index_asynch = "bdb.schema.index.asynch";
     
     public static final String pn_schema_health_check = "bdb.schema.health.management.enabled";
     public static final String pn_schema_health_th_low = "bdb.schema.health.threshold.low";

@@ -63,6 +63,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	private TransactionManagementImpl txMgr;
     
 	private boolean enableStats = true;
+	private boolean indexAsynch = false;
 	private BlockingQueue<StatisticsEvent> queue;
 
 	protected ModelManagementImpl getModelManager() {
@@ -95,6 +96,10 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 
 	public void setStatsEnabled(boolean enable) {
 		this.enableStats = enable;
+	}
+	
+	public void setIndexAsynch(boolean indexAsynch) {
+		this.indexAsynch = indexAsynch;
 	}
 
 	public void setRepository(SchemaRepositoryImpl repo) {
@@ -255,8 +260,12 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 				if (idx.isEnabled()) {
 					long txId = idx.isUnique() ? txMgr.getCurrentTxId() : TX_NO;
 					ValueIndexator indexator = new ValueIndexator(docId, txId);
-					idxCache.executeOnKey(xid, indexator);
-					//idxCache.submitToKey(xid, indexator);
+					if (indexAsynch) {
+						idxCache.submitToKey(xid, indexator);
+					} else {
+						// this does not work in transaction!
+						idxCache.executeOnKey(xid, indexator);
+					}
 					logger.trace("addIndex; index submit for key {}", xid);
 				}
 			}
@@ -374,6 +383,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 					continue;
 				}
 				
+				// not sure we should check it at all!
 				if (docMgr.checkDocumentCommited(uv.getDocumentKey(), 0) != null) {
 					if (uv.getTxFinish() > TX_NO) {
 						if (txMgr.isTxVisible(uv.getTxFinish())) {
