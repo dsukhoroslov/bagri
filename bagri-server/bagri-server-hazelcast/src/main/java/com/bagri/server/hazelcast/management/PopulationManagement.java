@@ -1,5 +1,6 @@
 package com.bagri.server.hazelcast.management;
 
+import static com.bagri.core.Constants.pn_schema_store_data_path;
 import static com.bagri.support.util.JMXUtils.compositeToTabular;
 
 import java.util.Map;
@@ -13,6 +14,8 @@ import javax.management.openmbean.TabularData;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.server.hazelcast.task.schema.SchemaLoadMonitor;
@@ -27,6 +30,8 @@ public class PopulationManagement extends SchemaFeatureManagement {
 	private int cntErrors = 0;
 	private int cntLoaded = 0;
 	private int cntBatches = 0;
+	private long startTime = 0;
+	private long popTime = 0;
 
     public PopulationManagement(String schemaName) {
     	super(schemaName);
@@ -37,27 +42,61 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		return "PopulationManagement";
 	}
 	
-	@ManagedAttribute(description="Provides number of load batches applied")
+	@ManagedAttribute(description="The number of load batches applied")
 	public int getBatchCount() {
 		return cntBatches;
 	}
 	
-	@ManagedAttribute(description="Provides number of not loaded documents")
+	@ManagedAttribute(description="The number of not loaded documents")
 	public int getErrorCount() {
 		return cntErrors;
 	}
 	
-	@ManagedAttribute(description="Provides Schema store key count")
+	@ManagedAttribute(description="Schema store key count")
 	public int getKeyCount() {
 		return cntKeys;
 	}
 	
-	@ManagedAttribute(description="Provides number of total loaded documents")
+	@ManagedAttribute(description="The number of total loaded documents")
 	public int getLoadedCount() {
 		return cntLoaded;
 	}
+
+	@ManagedAttribute(description="Population data path")
+	public String getPopulationPath() {
+		return schemaManager.getEntity().getProperty(pn_schema_store_data_path);
+	}
 	
-	@ManagedAttribute(description="Return population statistics per node")
+	@ManagedAttribute(description="Time spent for population")
+	public String getPopulationTime() {
+		String pm = "";
+		long time = popTime;
+		long hours = time / (60*60*1000);
+		if (hours > 0) {
+			time -= hours*60*60*1000;
+			pm += hours + "h ";
+		}
+		long mins = time / (60*1000);
+		if (mins > 0) {
+			time -= mins*60*1000;
+			pm += mins + "m ";
+		}
+		double sec = time / 1000.0;
+		if (sec > 0.0) {
+			pm += sec + "s";
+		}
+		return pm;
+	}
+
+	@ManagedAttribute(description="Date/Time when population has been started")
+	public String getStartTime() {
+		if (startTime > 0) {
+			return new java.util.Date(startTime).toString();
+		}
+		return "";
+	}
+	
+	@ManagedAttribute(description="Population statistics per node")
 	public TabularData getPopulationStatistics() {
 		//super.getUsageStatistics(new StatisticSeriesCollector(schemaName, "triggerStats"), aggregator);
 		logger.trace("getPopulationStatistics.enter;");
@@ -70,6 +109,9 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		cntErrors = 0;
 		cntLoaded = 0;
 		cntBatches = 0;
+		popTime = 0;
+		startTime = Long.MAX_VALUE;
+		long lastTime = Long.MIN_VALUE;
 		for (Map.Entry<Member, Future<CompositeData>> entry: futures.entrySet()) {
 			try {
 				CompositeData loaded = entry.getValue().get();
@@ -81,6 +123,14 @@ public class PopulationManagement extends SchemaFeatureManagement {
 				cntLoaded += cl;
 				Integer cb = (Integer) loaded.get("Batches");
 				cntBatches += cb;
+				Long st = (Long) loaded.get("StartTime");
+				if (st < startTime) {
+					startTime = st;
+				}
+				Long lt = (Long) loaded.get("LastTime");
+				if (lt > lastTime) {
+					lastTime = lt;
+				}
 				String member = entry.getKey().getSocketAddress().toString();
 				logger.trace("getPopulationStatistics; loaded: {} by member {}", loaded, member);
                 result = compositeToTabular("Population", "Monitor", "Member", result, loaded);
@@ -89,11 +139,12 @@ public class PopulationManagement extends SchemaFeatureManagement {
 				logger.error("getPopulationStatistics.error: " + ex.getMessage(), ex);
 			}
 		}
+		popTime = lastTime - startTime;
 		logger.trace("getPopulationStatistics.exit; got stats from {} nodes", cnt);
 		return result;
 	}
 
-	@ManagedAttribute(description="Returns Schema population state")
+	@ManagedAttribute(description="Schema population state")
 	public String getState() {
 		if (cntKeys == 0) {
 			return "NOT POPULATED";
@@ -105,12 +156,14 @@ public class PopulationManagement extends SchemaFeatureManagement {
 	}
 	
 	@ManagedOperation(description="Initiates schema population process")
-	public void startPopulation() {
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "overrideExisting", description = "Override existing documents or not")})
+	public void startPopulation(boolean overrideExisting) {
 		if (!this.schemaManager.isPersistent()) {
 			// throw ex?
 			return;
 		}
-		SchemaPopulator pop = new SchemaPopulator(schemaName);
+		SchemaPopulator pop = new SchemaPopulator(schemaName, overrideExisting, false);
 		execService.submit(pop); //ToAllMembers(pop);
 	}
 
@@ -120,7 +173,7 @@ public class PopulationManagement extends SchemaFeatureManagement {
 			// throw ex?
 			return;
 		}
-		//SchemaPopulator pop = new SchemaPopulator(schemaName);
-		//execService.submit(pop); //ToAllMembers(pop);
+		SchemaPopulator pop = new SchemaPopulator(schemaName, false, true);
+		execService.submitToAllMembers(pop);
 	}
 }

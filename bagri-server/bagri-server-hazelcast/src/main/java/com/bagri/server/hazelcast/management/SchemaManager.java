@@ -245,15 +245,16 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		if (schemaInstance == null) {
 			return false;
 		}
-		java.util.Collection<Member> members;
-		if (schemaInstance instanceof HazelcastClientInstanceImpl) {
-			members = ((HazelcastClientInstanceImpl) schemaInstance).getClientClusterService().getMemberList();
-		} else {
-			members = schemaInstance.getCluster().getMembers();
-		}
+		//java.util.Collection<Member> members;
+		//if (schemaInstance instanceof HazelcastClientInstanceImpl) {
+		//	members = ((HazelcastClientInstanceImpl) schemaInstance).getClientClusterService().getMemberList();
+		//} else {
+		//	members = schemaInstance.getCluster().getMembers();
+		//}
 
-        Runnable task = new NodeKiller(entityName);
-        execService.executeOnMembers(task, members);
+        //Runnable task = new NodeKiller(entityName);
+        //execService.executeOnMembers(task, members);
+		schemaInstance.getCluster().shutdown();
 		return true;
 	}
 	

@@ -366,7 +366,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					// do this asynchronously!?
 					cntCache.set(docKey, content);
 				}
-				logger.debug("getDocumentInternal; new content is: {}", content);
+				logger.trace("getDocumentInternal; new content is: {}", content);
 			}
 			if (cc != null) {
 				content = cc.convertTo(content);
@@ -586,6 +586,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			((FragmentedDocument) doc).setFragments(fa);
 		}
+		
+		indexManager.indexDocument(docKey.getKey(), data);
 
 		if (collections != null && collections.length > 0) {
 			doc.setCollections(collections);
@@ -624,8 +626,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			return null;
 		}
 		
-		List<Long> fragIds = new ArrayList<>();
-		Set<Integer> pathIds = new HashSet<>();
+		List<Long> fragIds = new ArrayList<>(1);
+		Set<Integer> pathIds = new HashSet<>(1);
 		if (cacheElements) {
 			String root = dRoot.getRoot();
 			Set<Integer> fragments = new HashSet<>();
@@ -679,10 +681,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			eltCache.putAll(elements);
 			logger.debug("loadElements; cached {} elements for docKey: {}; fragments: {}", elements.size(), docKey, fragIds.size());
 		} else {
-			for (Data xdm: data) {
-				pathIds.add(xdm.getPathId());
-				indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
-			}
+			//for (Data xdm: data) {
+			//	pathIds.add(xdm.getPathId());
+			//	indexManager.addIndex(docKey, xdm.getPathId(), xdm.getPath(), xdm.getValue());
+			//}
 		}
 
 		Object[] result = new Object[2];

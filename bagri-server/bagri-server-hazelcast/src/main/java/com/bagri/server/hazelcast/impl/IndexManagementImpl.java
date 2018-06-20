@@ -300,6 +300,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		Map<Integer, Index> localIdx = new HashMap<>();
 		Index idx;
 		Collection<Index> cIdx;
+		Set<IndexKey> iKeys = new HashSet<>();
 		for (Data dta: docData) {
 			Integer pId = dta.getPathId();
 			if (localIdx.containsKey(pId)) {
@@ -313,10 +314,19 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 				}
 				localIdx.put(pId, idx);
 			}
-			if (idx != null) {
-				
+			if (idx != null && idx.isEnabled()) {
+				iKeys.add(factory.newIndexKey(dta.getPathId(), dta.getValue()));
 			}
 		}		
+
+		//long txId = idx.isUnique() ? txMgr.getCurrentTxId() : TX_NO;
+		ValueIndexator indexator = new ValueIndexator(docKey, TX_NO); //txId);
+		//if (indexAsynch) {
+		//	idxCache.submitToKeys(iKeys, indexator);
+		//} else {
+			// this does not work in transaction!
+			idxCache.executeOnKeys(iKeys, indexator);
+		//}
 	}
 	
 	public void indexPath(Map.Entry<IndexKey, IndexedValue> entry, long docKey, long txId) throws BagriException {

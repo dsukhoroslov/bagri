@@ -157,15 +157,18 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		activateDocStore();
 		xddCache.addEntryListener(this, true);
     	if (populationSize > 0 && populationSize == currentSize && getLoadedCount() == 0) {
-    		SchemaPopulator pop = new SchemaPopulator(schemaName);
-    		// try to run it from the same thread..
+    		SchemaPopulator pop = new SchemaPopulator(schemaName, false, false);
+    		// we can't call it directly as it'll block current thread for a long time..
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
-    		//pop.call();
     	}
     }
 	
 	public void clearLoadStats() {
+		startTime.set(0);
+		batchCount.set(0);
+		errorCount.set(0);
 		loadCount.set(0);
+		stopTime.set(0);
 	}
 	
 	public Document getDocument(Long docKey) {
@@ -291,6 +294,33 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			}
 		}
 		return null;
+	}
+	
+	public void populateSchema(boolean overrideExisting) {
+		clearLoadStats();
+		startTime.set(nodeEngine.getClusterService().getClusterTime());
+		
+		// don't load transactions if schema non-transactional?
+		xtxCache.loadAll(false);
+    	logger.info("populateSchema; transactions size after loadAll: {}", xtxCache.size());
+
+		xddCache.loadAll(overrideExisting);
+    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
+		stopTime.set(nodeEngine.getClusterService().getClusterTime());
+	}
+	
+	public void stopPopulation() {
+		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
+		MapContainer mc = svc.getMapServiceContext().getMapContainer(CN_XDM_DOCUMENT);
+		if (mc != null) {
+			MapStoreContext msc = mc.getMapStoreContext();
+			if (msc != null) {
+				// not sure it'll stop the population..
+				msc.getMapStoreManager().stop();
+		    	logger.info("stopPopulation; stopped");
+				stopTime.set(nodeEngine.getClusterService().getClusterTime());
+			}
+		}
 	}
 
 	//public ManagedService getHzService(String serviceName, String instanceName) {

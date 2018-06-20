@@ -109,7 +109,7 @@
 			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 					 backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="25">
+					 max-size="30">
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 
@@ -131,7 +131,7 @@
 			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
 					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
 					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="25">
+					 max-size="30">
 				<!--hz:indexes>
 					<hz:index attribute="docId"/>
 				</hz:indexes>
@@ -395,6 +395,7 @@
 		<property name="statsQueue" ref="indexQueue"/>
 		<property name="txManager" ref="txManager"/>
 		<property name="documentManager" ref="docManager"/>
+		<property name="indexAsynch" value="${bdb.schema.index.asynch:false}"/>
 	</bean>
 
 	<bean id="modelManager" class="com.bagri.server.hazelcast.impl.ModelManagementImpl">
