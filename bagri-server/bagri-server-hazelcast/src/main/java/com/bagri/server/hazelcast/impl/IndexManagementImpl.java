@@ -67,7 +67,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	private DocumentManagementImpl docMgr;
 	private TransactionManagementImpl txMgr;
     
-	private boolean enableStats = true;
+	private boolean enableStats = false;
 	private boolean indexAsynch = false;
 	private BlockingQueue<StatisticsEvent> queue;
 
@@ -137,21 +137,11 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
     
 	@Override
 	public boolean isPathIndexed(int pathId) {
-		// TODO: it takes a lot of time to perform these two gets
-		// even on local cache! think about better solution!
-		//XDMPath xPath = mdlMgr.getPath(pathId);
-		//if (xPath == null) {
-		//	logger.warn("isPathIndexed; got unknown pathId: {}", pathId);
-		//	return false;
-		//}
-		
-		// well, one get is better :)
 		// how near cache does works on cache miss!? does is go to 
 		// original cache? 
 		// shouldn't we also check index.isEnabled() here?
 		//return idxDict.get(pathId) != null;
 		return idxDict.containsKey(pathId);
-		//return pathId == 2;
 	}
 
 	public boolean isIndexEnabled(int pathId) {
@@ -288,8 +278,8 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		} else {
 			Path xPath = mdlMgr.getPath(pathId);
 			if (xPath.getDataType() != baseType) {
-				logger.info("getIndexedValue; index [{}] and path [{}] types are not compatible; value: {}({})", 
-						baseType, xPath.getDataType(), value.getClass().getName(), value);
+				logger.info("getIndexedValue; index [{}] and path [{}] types are not compatible; Index: {}; path: {}; value: {}({})", 
+						baseType, xPath.getDataType(), idx, pathId, value.getClass().getName(), value);
 				try {
 					// conversion from path type to index type
 					value = getAtomicValue(baseType, value.toString());

@@ -6,6 +6,8 @@ import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_
 import java.io.IOException;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.IndexKey;
@@ -29,6 +31,8 @@ import com.hazelcast.spring.context.SpringAware;
 public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>, 
 	EntryBackupProcessor<IndexKey, IndexedValue>, IdentifiedDataSerializable {
 
+	private static final transient Logger logger = LoggerFactory.getLogger(ValueIndexator.class);
+	
 	protected long docKey;
 	protected long txId;
 	protected IndexManagementImpl idxMgr;
@@ -67,6 +71,7 @@ public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>,
 		try {
 			idxMgr.indexPath(entry, docKey, txId);
 		} catch (BagriException ex) {
+			logger.error("process.error", ex);
 			return ex;
 		}
 		return null;

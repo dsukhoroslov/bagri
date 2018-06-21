@@ -39,6 +39,7 @@ public class SchemaLoadMonitor implements Callable<CompositeData>, IdentifiedDat
 		result.put("Keys", pSvc.getKeyCount());
 		result.put("Errors", pSvc.getErrorCount());
 		result.put("Loaded", pSvc.getLoadedCount());
+		result.put("Loaders", pSvc.getLoadThreadCount());
 		result.put("StartTime", pSvc.getStartTime());
 		result.put("LastTime", pSvc.getLastTime());
 		Member m = xdmRepo.getHzInstance().getCluster().getLocalMember();

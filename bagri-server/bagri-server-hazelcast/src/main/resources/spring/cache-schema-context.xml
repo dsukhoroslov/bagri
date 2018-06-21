@@ -54,6 +54,7 @@
 			<hz:executor-service name="xdm-trans-pool" pool-size="${bdb.schema.thread.pool}" />
 			<hz:executor-service name="xdm-exec-pool" pool-size="${bdb.schema.thread.pool}" />
 			<hz:executor-service name="hz:async" pool-size="${bdb.schema.thread.pool}" />
+			<hz:executor-service name="hz:map-load" pool-size="${bdb.schema.thread.pool}" />
 			<hz:executor-service name="hz:query" pool-size="${bdb.schema.thread.pool}" />
 			
 			<!--hz:queue name="client:*" async-backup-count="0" backup-count="0" empty-queue-ttl="100" max-size="100"/-->

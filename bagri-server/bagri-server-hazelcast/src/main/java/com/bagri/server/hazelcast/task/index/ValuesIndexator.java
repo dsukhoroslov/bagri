@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.IndexKey;
@@ -25,6 +27,8 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class ValuesIndexator extends ValueIndexator {
+	
+	private static final transient Logger logger = LoggerFactory.getLogger(ValuesIndexator.class);
 	
 	private Collection<IndexKey> indices;
 
@@ -50,6 +54,16 @@ public class ValuesIndexator extends ValueIndexator {
     }
 
 	@Override
+	public EntryBackupProcessor<IndexKey, IndexedValue> getBackupProcessor() {
+		return null;
+	}
+
+	@Override
+	public void processBackup(Entry<IndexKey, IndexedValue> entry) {
+		//process(entry);
+	}
+    
+	@Override
 	public Object process(Entry<IndexKey, IndexedValue> entry) {
 		IMap<IndexKey, IndexedValue> idxCache;
 		try {
@@ -60,7 +74,8 @@ public class ValuesIndexator extends ValueIndexator {
 				//ddSvc.storeData(ik, entry.getValue(), CN_XDM_INDEX);
 				idxCache.set(ik, entry.getValue());
 			}
-		} catch (BagriException ex) {
+		} catch (Exception ex) {
+			logger.error("process.error", ex);
 			return ex;
 		}
 		return null;

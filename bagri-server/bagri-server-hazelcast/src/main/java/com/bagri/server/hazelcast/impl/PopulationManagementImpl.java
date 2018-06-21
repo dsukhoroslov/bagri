@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -74,6 +75,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private AtomicInteger batchCount = new AtomicInteger(0);
     private AtomicInteger errorCount = new AtomicInteger(0);
     private AtomicInteger loadCount = new AtomicInteger(0);
+    private Map<String, String> loaders = new ConcurrentHashMap<>(16); 
     
     private KeyFactory xFactory;
 	private IMap<Long, Transaction> xtxCache;
@@ -169,6 +171,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		errorCount.set(0);
 		loadCount.set(0);
 		stopTime.set(0);
+		loaders.clear();
 	}
 	
 	public Document getDocument(Long docKey) {
@@ -197,6 +200,10 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	
 	public int getLoadedCount() {
 		return loadCount.get();
+	}
+	
+	public int getLoadThreadCount() {
+		return loaders.size();
 	}
 	
 	public long getStartTime() {
@@ -247,6 +254,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		errorCount.addAndGet(errors);
 		loadCount.addAndGet(loaded);
 		stopTime.set(nodeEngine.getClusterService().getClusterTime());
+		loaders.putIfAbsent(Thread.currentThread().getName(), "" + Thread.currentThread().getId());
 	}
 	
 	private void activateDocStore() {
@@ -289,7 +297,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			if (msc != null) {
 				MapStoreWrapper msw = msc.getMapStoreWrapper();
 				if (msw != null) {
-					return msw.getMapStore();
+					return (MapStore) msw.getImpl();
 				}
 			}
 		}
