@@ -29,9 +29,9 @@ import com.hazelcast.spring.context.SpringAware;
 public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>, 
 	EntryBackupProcessor<IndexKey, IndexedValue>, IdentifiedDataSerializable {
 
-	private long docKey;
-	private long txId;
-	private IndexManagementImpl idxMgr;
+	protected long docKey;
+	protected long txId;
+	protected IndexManagementImpl idxMgr;
 	
 	public ValueIndexator() {
 		//

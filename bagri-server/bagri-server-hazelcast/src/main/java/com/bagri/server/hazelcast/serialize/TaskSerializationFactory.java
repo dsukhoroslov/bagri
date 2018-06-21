@@ -18,6 +18,7 @@ import com.bagri.server.hazelcast.task.format.DataFormatRemover;
 import com.bagri.server.hazelcast.task.index.IndexCreator;
 import com.bagri.server.hazelcast.task.index.IndexRemover;
 import com.bagri.server.hazelcast.task.index.ValueIndexator;
+import com.bagri.server.hazelcast.task.index.ValuesIndexator;
 import com.bagri.server.hazelcast.task.library.LibFunctionUpdater;
 import com.bagri.server.hazelcast.task.library.LibraryCreator;
 import com.bagri.server.hazelcast.task.library.LibraryRemover;
@@ -80,7 +81,8 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public static final int cli_CreateIndexTask = 205;
 	public static final int cli_RemoveIndexTask = 206;
 	public static final int cli_IndexValueTask = 207;
-	public static final int cli_DeindexValueTask = 208;
+	public static final int cli_IndexValuesTask = 208;
+	public static final int cli_DeindexValueTask = 209;
 	
 	public static final int cli_CleanTxDocumentsTask = 210; 
 	public static final int cli_CleanQueryTask = 211;
@@ -181,6 +183,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_CreateIndexTask: return new IndexCreator();
 			case cli_RemoveIndexTask: return new IndexRemover();
 			case cli_IndexValueTask: return new ValueIndexator();
+			case cli_IndexValuesTask: return new ValuesIndexator();
 			case cli_CleanQueryTask:  return new SchemaQueryCleaner();
 			case cli_CreateTriggerTask: return new TriggerCreator(); 
 			case cli_RemoveTriggerTask: return new TriggerRemover(); 

@@ -5,6 +5,7 @@ import static com.bagri.support.util.XQUtils.getAtomicValue;
 import static com.bagri.support.util.XQUtils.getBaseTypeForTypeName;
 import static com.bagri.support.util.XQUtils.isStringTypeCompatible;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,11 +40,14 @@ import com.bagri.core.query.PathExpression;
 import com.bagri.core.server.api.IndexManagement;
 import com.bagri.core.system.Index;
 import com.bagri.server.hazelcast.task.index.ValueIndexator;
+import com.bagri.server.hazelcast.task.index.ValuesIndexator;
 import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.util.JMXUtils;
 import com.bagri.support.util.XQUtils;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -56,6 +60,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	//private IExecutorService execService;
 	private Map<Integer, TreeMap<Comparable, Integer>> rangeIndex = new HashMap<>();
 	private Map<Index, Pattern> patterns = new HashMap<>();
+	private HazelcastInstance hzInstance;
 
 	private KeyFactory factory;
 	private ModelManagementImpl mdlMgr;
@@ -105,6 +110,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	public void setRepository(SchemaRepositoryImpl repo) {
 		//this.repo = repo;
 		this.factory = repo.getFactory();
+		this.hzInstance = repo.getHzInstance();
 		//this.model = repo.getModelManagement();
 		//this.docMgr = (DocumentManagementImpl) repo.getDocumentManagement();
 		//this.txMgr = (TransactionManagementImpl) repo.getTxManagement();
@@ -299,8 +305,11 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	public void indexDocument(long docKey, List<Data> docData) {
 		Map<Integer, Index> localIdx = new HashMap<>();
 		Index idx;
+		int cnt = 0;
 		Collection<Index> cIdx;
-		Set<IndexKey> iKeys = new HashSet<>();
+		Map<Integer, List<IndexKey>> iPartKeys = new HashMap<>();
+		//Set<IndexKey> iKeys = new HashSet<>();
+		PartitionService ps = hzInstance.getPartitionService();
 		for (Data dta: docData) {
 			Integer pId = dta.getPathId();
 			if (localIdx.containsKey(pId)) {
@@ -315,21 +324,38 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 				localIdx.put(pId, idx);
 			}
 			if (idx != null && idx.isEnabled()) {
-				iKeys.add(factory.newIndexKey(dta.getPathId(), dta.getValue()));
+				IndexKey ik = factory.newIndexKey(dta.getPathId(), dta.getValue());
+				//iKeys.add(ik);
+				Integer partId = ps.getPartition(ik).getPartitionId();
+				List<IndexKey> iKeys = iPartKeys.get(partId);
+				if (iKeys == null) {
+					iKeys = new ArrayList<>();
+					iPartKeys.put(partId, iKeys);
+				}
+				iKeys.add(ik);
+				cnt++;
 			}
 		}		
 
 		//long txId = idx.isUnique() ? txMgr.getCurrentTxId() : TX_NO;
-		ValueIndexator indexator = new ValueIndexator(docKey, TX_NO); //txId);
+		//ValueIndexator indexator = new ValueIndexator(docKey, TX_NO); //txId);
+		//logger.info("indexDocument; found parts: {}; indices: {}; for data: {}", iPartKeys.size(), cnt, docData.size());
+		for (Map.Entry<Integer, List<IndexKey>> e: iPartKeys.entrySet()) {
+			//for (IndexKey ik: e.getValue()) {
+			//	idxCache.executeOnKey(ik, indexator);
+			//}
+			ValuesIndexator indexator = new ValuesIndexator(docKey, TX_NO, e.getValue()); //txId);
+			idxCache.executeOnKey(e.getValue().iterator().next(), indexator);
+		}
 		//if (indexAsynch) {
 		//	idxCache.submitToKeys(iKeys, indexator);
 		//} else {
 			// this does not work in transaction!
-			idxCache.executeOnKeys(iKeys, indexator);
+			//idxCache.executeOnKeys(iKeys, indexator);
 		//}
 	}
 	
-	public void indexPath(Map.Entry<IndexKey, IndexedValue> entry, long docKey, long txId) throws BagriException {
+	public IMap<IndexKey, IndexedValue> indexPath(Map.Entry<IndexKey, IndexedValue> entry, long docKey, long txId) throws BagriException {
 
 		int pathId = entry.getKey().getPathId();
 		Object value = entry.getKey().getValue();
@@ -379,6 +405,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		//if (isPatternIndex(idx)) {
 		//	logger.info("indexPath; indexed pattern: {}, dataType: {}, value: {}", idx, dataType, value);
 		//}
+		return idxCache;
 	}
 
 	private boolean checkUniquiness(UniqueDocument uidx, long docId) throws BagriException {
