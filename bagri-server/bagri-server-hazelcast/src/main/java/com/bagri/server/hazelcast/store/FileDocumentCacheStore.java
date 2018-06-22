@@ -224,8 +224,11 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	@Override
 	public Document load(DocumentKey key) {
 		logger.trace("load.enter; key: {}", key);
-		ensureRepository();
-    	Document result = loadDocument(key);
+		Document result = null;
+		if (popManager.isPopulationAllowed()) {
+			ensureRepository();
+	    	result = loadDocument(key);
+		}
 		logger.trace("load.exit; returning: {}", result);
 		return result;
 	}
@@ -233,15 +236,25 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	@Override
 	public Map<DocumentKey, Document> loadAll(Collection<DocumentKey> keys) {
 		logger.debug("loadAll.enter; keys: {}; ", keys.size());
-		ensureRepository();
-		Map<DocumentKey, Document> result = new HashMap<>(keys.size());
-	    for (DocumentKey key: keys) {
-	    	Document doc = loadDocument(key);
-	    	if (doc != null) {
-	    		result.put(key, doc);
-	    	}
-	    }
-		popManager.addPopulationCounts(keys.size() - result.size(), result.size());
+		Map<DocumentKey, Document> result;
+		if (popManager.isPopulationAllowed()) {
+			ensureRepository();
+			int skipped = 0;
+			result = new HashMap<>(keys.size());
+		    for (DocumentKey key: keys) {
+		    	if (popManager.isPopulationAllowed()) {
+			    	Document doc = loadDocument(key);
+			    	if (doc != null) {
+			    		result.put(key, doc);
+			    	}
+		    	} else {
+		    		skipped++;
+		    	}
+		    }
+			popManager.addPopulationCounts(keys.size() - result.size() - skipped, result.size());
+		} else {
+			result = new HashMap<>(1);
+		}
 		logger.debug("loadAll.exit; returning: {} documents for keys: {}", result.size(), keys.size());
 		return result;
 	}

@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.impl;
 import static com.bagri.core.Constants.*;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.SpringContextHolder.*;
+import static com.hazelcast.spi.ExecutionService.MAP_LOADER_EXECUTOR;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,9 +52,11 @@ import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.map.listener.EntryUpdatedListener;
 import com.hazelcast.map.listener.MapClearedListener;
 import com.hazelcast.map.listener.MapEvictedListener;
+import com.hazelcast.spi.ExecutionService;
 //import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.NodeEngine;
+import com.hazelcast.util.executor.ManagedExecutorService;
 
 public class PopulationManagementImpl implements PopulationManagement, ManagedService, 
 	MembershipListener, MigrationListener, LifecycleListener,
@@ -69,6 +72,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
+    private boolean allowPopulation;
 
     private AtomicLong startTime = new AtomicLong(0);
     private AtomicLong stopTime = new AtomicLong(0);
@@ -146,6 +150,8 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	@Override
 	public void reset() {
 		logger.info("reset"); 
+		allowPopulation = true;
+		clearLoadStats();
 	}
 
 	@Override
@@ -304,8 +310,13 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return null;
 	}
 	
+	public boolean isPopulationAllowed() {
+		return allowPopulation;
+	}
+	
 	public void populateSchema(boolean overrideExisting) {
 		clearLoadStats();
+		allowPopulation = true;
 		startTime.set(nodeEngine.getClusterService().getClusterTime());
 		
 		// don't load transactions if schema non-transactional?
@@ -318,19 +329,16 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	}
 	
 	public void stopPopulation() {
-		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
-		MapContainer mc = svc.getMapServiceContext().getMapContainer(CN_XDM_DOCUMENT);
-		if (mc != null) {
-			MapStoreContext msc = mc.getMapStoreContext();
-			if (msc != null) {
-				// not sure it'll stop the population..
-				msc.getMapStoreManager().stop();
-		    	logger.info("stopPopulation; stopped");
-				stopTime.set(nodeEngine.getClusterService().getClusterTime());
-			}
+		ExecutionService svc = nodeEngine.getExecutionService(); 
+		ManagedExecutorService mes = svc.getExecutor(MAP_LOADER_EXECUTOR);
+		if (mes != null) {
+	    	logger.info("stopPopulation; stopping.. completed load tasks: {}; remaining load tasks: {}", 
+	    			mes.getCompletedTaskCount(), mes.getQueueSize());
 		}
+		allowPopulation = false;
+		stopTime.set(nodeEngine.getClusterService().getClusterTime());
 	}
-
+	
 	//public ManagedService getHzService(String serviceName, String instanceName) {
 	//	return nodeEngine.getHazelcastInstance().getDistributedObject(serviceName, instanceName);
 	//}

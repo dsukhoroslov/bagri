@@ -126,6 +126,7 @@ public class Constants {
     public static final String pn_schema_store_tx_buffer_size = "bdb.schema.store.tx.buffer.size";
     public static final String pn_schema_store_read_only = "bdb.schema.store.read-only";
     public static final String pn_schema_population_size = "bdb.schema.population.size";
+    public static final String pn_schema_population_pool = "bdb.schema.population.pool";
     public static final String pn_schema_population_buffer_size = "bdb.schema.population.buffer.size";
     public static final String pn_schema_fetch_size = "bdb.schema.fetch.size";
     public static final String pn_schema_publish_counters = "bdb.schema.publish.counters";

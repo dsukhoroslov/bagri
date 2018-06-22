@@ -416,7 +416,7 @@
                 <entry name="bdb.schema.query.backup.async">0</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
-		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
@@ -490,7 +490,7 @@
             <indexes/>
             <triggers/>
         </schema>
-        <schema name="TPoX-J" active="true">
+        <schema name="JSON" active="true">
             <version>1</version>
             <createdAt>2016-05-22T13:36:26.965+03:00</createdAt>
             <createdBy>admin</createdBy>
@@ -527,8 +527,7 @@
                 <entry name="bdb.schema.store.data.path">../data/json</entry>
                 <entry name="bdb.schema.buffer.size">128</entry>
                 <entry name="bdb.schema.partition.count">271</entry>
-		<entry name="bdb.schema.transaction.level"></entry>
-		<entry name="bdb.schema.transaction.timeout">60000</entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.health.threshold.low">25</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
@@ -556,16 +555,382 @@
             <indexes/>
             <triggers/>
         </schema>
+        <schema name="YCSB" active="true">
+            <version>1</version>
+            <createdAt>2016-01-26T21:30:58.096+04:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>Schema for YCSB Benchmark</description>
+            <properties>
+                <entry name="bdb.schema.password">password</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">1024</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.store.enabled">false</entry>
+                <entry name="bdb.schema.thread.pool">64</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">false</entry>
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.ports.first">10150</entry>
+                <entry name="bdb.schema.format.default">MAP</entry>
+                <entry name="bdb.schema.ports.last">10160</entry>
+                <entry name="bdb.schema.population.size">1</entry>
+                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.publish.counters">false</entry>
+                <entry name="bdb.schema.data.backup.async">1</entry>
+                <entry name="bdb.schema.store.data.path">../data/ycsb</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.members">localhost</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.partition.count">271</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
+                <entry name="bdb.schema.transaction.timeout">0</entry>
+                <entry name="bdb.schema.transaction.level"></entry>
+                <entry name="bdb.schema.health.threshold.low">250</entry>
+                <entry name="bdb.schema.health.threshold.high">250</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <entry name="bdb.schema.partition.pool">271</entry>
+                <entry name="xqj.schema.baseUri">file:/../data/ycsb/</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace"></entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+            </properties>
+            <collections>
+                <collection id="1" name="usertable">
+                    <version>1</version>
+                    <createdAt>2016-05-10T01:01:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <!--docType>/map</docType-->
+                    <description>YCSB default collection</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
+            <fragments/>
+            <indexes>
+                <!--index name="IDX_YCSB_Key">
+                    <version>1</version>
+                    <createdAt>2017-03-13T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <path>/@key</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <range>true</range>
+                    <unique>false</unique>
+                    <description>YCSB Key</description>
+                    <enabled>true</enabled>
+                </index-->
+            </indexes>
+            <triggers/>
+        </schema>
+        <schema name="Delivery" active="true">
+            <version>1</version>
+            <createdAt>2016-05-22T13:36:26.965+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>MarketPlato schema for Delivery service</description>
+            <properties>
+                <entry name="bdb.schema.password">password</entry>
+                <!-- cache settings -->
+                <entry name="bdb.schema.cache.content">true</entry>
+                <entry name="bdb.schema.cache.elements">false</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.data.backup.async">0</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">false</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <!-- connection settings -->
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.ports.first">10750</entry>
+                <entry name="bdb.schema.ports.last">10800</entry>
+                <entry name="bdb.schema.members">127.0.0.1</entry>
+                <!-- persistence settings -->
+                <entry name="bdb.schema.format.default">JSON</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.store.data.path">/home/dsukhoroslov/data/del</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.size">9</entry>
+                <entry name="bdb.schema.population.pool">24</entry>
+                <entry name="bdb.schema.population.buffer.size">10000000</entry>
+                <!-- transaction settings -->
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
+                <!-- executor settings -->
+                <entry name="bdb.schema.partition.count">271</entry>
+                <entry name="bdb.schema.partition.pool">24</entry>
+                <entry name="bdb.schema.thread.pool">24</entry>
+                <!-- query settings -->
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <!-- health settings -->
+                <entry name="bdb.schema.health.management.enabled">false</entry>
+                <entry name="bdb.schema.health.threshold.low">250</entry>
+                <entry name="bdb.schema.health.threshold.high">250</entry>
+                <!-- XQJ settings -->
+                <entry name="xqj.schema.baseUri">file:/../data/mp/</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+            </properties>
+            <collections>
+                <collection id="1" name="CLN_Seller_Deliveries">
+                    <version>1</version>
+                    <createdAt>2016-05-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <description>Seller Delivery documents</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
+            <fragments/>
+            <indexes>
+                <index name="IDX_Region_To">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <path>/region-to</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:long</dataType>
+                    <caseSensitive>false</caseSensitive>
+                    <range>false</range>
+                    <unique>false</unique>
+                    <description>Destination Region ID</description>
+                    <enabled>true</enabled>
+                </index>
+                <index name="IDX_Region_From">
+                    <version>1</version>
+                    <createdAt>2015-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <path>/routes/region-from</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:long</dataType>
+                    <caseSensitive>false</caseSensitive>
+                    <range>false</range>
+                    <unique>false</unique>
+                    <description>Destination Region ID</description>
+                    <enabled>true</enabled>
+                </index>
+            </indexes>
+            <resources>
+                <resource name="DeliveryService">
+                    <version>0</version>
+                    <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <path>/del</path>
+                    <description>DeliveryService resource exposed via REST</description>
+                    <module>delivery_service</module>
+                    <enabled>true</enabled>
+                </resource>
+            </resources>
+            <triggers/>
+        </schema>
+        <schema name="Inventory" active="true">
+            <version>1</version>
+            <createdAt>2016-05-22T13:36:26.965+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <description>MarketPlato schema for Inventory service</description>
+            <properties>
+                <entry name="bdb.schema.password">password</entry>
+                <!-- cache settings -->
+                <entry name="bdb.schema.cache.content">true</entry>
+                <entry name="bdb.schema.cache.elements">false</entry>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
+                <entry name="bdb.schema.cont.max.size">30</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
+                <entry name="bdb.schema.dict.backup.async">1</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
+                <entry name="bdb.schema.dict.backup.read">true</entry>
+                <entry name="bdb.schema.data.backup.async">0</entry>
+                <entry name="bdb.schema.data.backup.sync">0</entry>
+                <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">false</entry>
+                <entry name="bdb.schema.query.max.size">30</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <!-- connection settings -->
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.ports.first">10700</entry>
+                <entry name="bdb.schema.ports.last">10750</entry>
+                <entry name="bdb.schema.members">127.0.0.1</entry>
+                <!-- persistence settings -->
+                <entry name="bdb.schema.format.default">JSON</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.store.data.path">/home/dsukhoroslov/data/inv</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.size">27</entry>
+                <entry name="bdb.schema.population.pool">24</entry>
+                <entry name="bdb.schema.population.buffer.size">10000000</entry>
+                <!-- transaction settings -->
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
+                <!-- executor settings -->
+                <entry name="bdb.schema.partition.count">1321</entry>
+                <entry name="bdb.schema.partition.pool">64</entry>
+                <entry name="bdb.schema.thread.pool">64</entry>
+                <!-- query settings -->
+                <entry name="bdb.schema.query.cache">true</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <!-- health settings -->
+                <entry name="bdb.schema.health.management.enabled">false</entry>
+                <entry name="bdb.schema.health.threshold.low">250</entry>
+                <entry name="bdb.schema.health.threshold.high">250</entry>
+                <!-- XQJ settings -->
+                <entry name="xqj.schema.baseUri">file:/../data/mp/</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
+                <entry name="xqj.schema.boundarySpacePolicy">1</entry>
+                <entry name="xqj.schema.scrollability">1</entry>
+                <entry name="xqj.schema.holdability">2</entry>
+                <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
+                <entry name="xqj.schema.queryTimeout">0</entry>
+                <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
+                <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
+                <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
+                <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
+                <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
+                <entry name="xqj.schema.constructionMode">1</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
+            </properties>
+            <collections>
+                <collection id="1" name="CLN_Product_Inventory">
+                    <version>1</version>
+                    <createdAt>2016-05-20T01:01:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <description>Seller Product documents</description>
+                    <enabled>true</enabled>
+                </collection>
+            </collections>
+            <fragments/>
+            <indexes>
+                <index name="IDX_Product_ID">
+                    <version>1</version>
+                    <createdAt>2018-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <path>/inventory/product-id</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:long</dataType>
+                    <caseSensitive>false</caseSensitive>
+                    <range>false</range>
+                    <unique>false</unique>
+                    <description>Product ID</description>
+                    <enabled>true</enabled>
+                </index>
+                <index name="IDX_Region_To">
+                    <version>1</version>
+                    <createdAt>2018-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <path>/region-to</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:long</dataType>
+                    <caseSensitive>false</caseSensitive>
+                    <range>false</range>
+                    <unique>false</unique>
+                    <description>Destination Region ID</description>
+                    <enabled>true</enabled>
+                </index>
+                <index name="IDX_Seller_ID">
+                    <version>1</version>
+                    <createdAt>2018-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/</docType>
+                    <path>/seller-id</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:long</dataType>
+                    <caseSensitive>false</caseSensitive>
+                    <range>false</range>
+                    <unique>false</unique>
+                    <description>Seller ID</description>
+                    <enabled>true</enabled>
+                </index>
+            </indexes>
+            <resources>
+                <resource name="InventoryService">
+                    <version>0</version>
+                    <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <path>/inv</path>
+                    <description>InventoryService resource exposed via REST</description>
+                    <module>inventory_service</module>
+                    <enabled>true</enabled>
+                </resource>
+            </resources>
+            <triggers/>
+        </schema>
     </schemas>
     <modules>
-        <module name="hello_module">
+        <module name="delivery_service">
             <version>1</version>
-            <createdAt>2016-05-10T13:36:26.965+03:00</createdAt>
+            <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
             <createdBy>admin</createdBy>
-            <fileName>../data/tpox/hello_module.xq</fileName>
-            <description>The Hello Test Module</description>
-            <prefix>hw</prefix>
-            <namespace>http://helloworld</namespace>
+            <fileName>../data/mp/delivery_service.xq</fileName>
+            <description>DeliveryService REST module for Delivery schema</description>
+            <prefix>del</prefix>
+            <namespace>http://mpoffice.ru/del</namespace>
+            <enabled>true</enabled>
+        </module>
+        <module name="inventory_service">
+            <version>1</version>
+            <createdAt>2016-10-04T13:36:26.965+03:00</createdAt>
+            <createdBy>admin</createdBy>
+            <fileName>../data/mp/inventory_service.xq</fileName>
+            <description>InventoryService REST module for Inventory schema</description>
+            <prefix>inv</prefix>
+            <namespace>http://mpoffice.ru/inv</namespace>
             <enabled>true</enabled>
         </module>
         <module name="rest_module">
