@@ -452,6 +452,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal);
 		
 		if (indexed) {
+			if (found != null) {
+				result.addAll(found);
+			}
+			boolean gotIndexed = false;
 			for (Integer pathId: paths) {
 				Set<Long> docKeys = idxMgr.getIndexedDocuments(pathId, pex, newVal);
 				logger.trace("queryPathKeys; search for index - got keys: {}", docKeys == null ? null : docKeys.size()); 
@@ -462,18 +466,14 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					if (found == null) {
 						result.addAll(docKeys);
 					} else {
-						found.retainAll(docKeys);
-						result = found;
+						result.retainAll(docKeys);
 					}
-				} else {
-					//fallback to full scan below..
-					// what if 'found' has been already changed above? actually, this 'break will not help ..
-					result = null;
-					break;
+					gotIndexed = true;
 				}
 			}
 		
-			if (result != null) {
+			if (gotIndexed) {
+				// what if some paths were not indexed? 
 				logger.trace("queryPathKeys.exit; returning {} indexed keys", result.size());
 				if (!cached) {
 					pex.setCachedPath(dataType, indexed, paths);
@@ -481,6 +481,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				return result;
 			}
 			indexed = false;
+		}
+		
+		if (!docMgr.isCacheElements()) {
+			// no point to search by data as it is not cached
+			return result;
 		}
 		
 		QueryPredicate qp;
@@ -492,7 +497,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Predicate<DataKey, Elements> f = Predicates.and(pp, qp);
 	   	Set<DataKey> xdmKeys = local ? xdmCache.localKeySet(f) : xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
-		result = new HashSet<>(xdmKeys.size());
+		//result = new HashSet<>(xdmKeys.size()); ensure capacity somehow..
 		for (DataKey key: xdmKeys) {
 			result.add(key.getDocumentKey());
 		}

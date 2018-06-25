@@ -42,7 +42,7 @@ public class ModuleURIResolverImpl implements ModuleURIResolver {
 		}
 		Module module = getModule(moduleName);
 		if (module != null) {
-			logger.debug("resolve.exit; returning module: {}", module.getBody());
+			logger.trace("resolve.exit; returning module: {}", module.getBody());
 			Reader mReader = new StringReader(module.getBody());
 			return new StreamSource[] {new StreamSource(mReader)};
 		} else {

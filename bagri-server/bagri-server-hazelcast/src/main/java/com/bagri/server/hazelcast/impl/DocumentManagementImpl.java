@@ -120,6 +120,14 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
     IMap<DataKey, Elements> getElementCache() {
     	return eltCache;
     }
+    
+    boolean isCacheContent() {
+    	return cacheContent;
+    }
+    
+    boolean isCacheElements() {
+    	return cacheElements;
+    }
 
     public void setCacheContent(boolean cacheContent) {
     	this.cacheContent = cacheContent;
