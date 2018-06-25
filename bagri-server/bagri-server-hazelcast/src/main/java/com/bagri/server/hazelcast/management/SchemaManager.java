@@ -8,7 +8,11 @@ import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 import static com.bagri.core.server.api.SchemaRepository.bean_id;
 import static com.bagri.support.util.JMXUtils.*;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -230,14 +234,64 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 
 	@ManagedOperation(description="Start Schema cluster")
 	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "node", description = "Schema node template"),
 		@ManagedOperationParameter(name = "addresses", description = "Nodes to start schema on, separated by comma"),
 		@ManagedOperationParameter(name = "nodesPerAddress", description = "Number of nodes started on each address"),
 		@ManagedOperationParameter(name = "nodeSize", description = "Amount of memory allocated per node, in Gb")})
-	public boolean startCluster(String addresses, int nodesPerAddress, int nodeSize) {
+	public int startCluster(String node, String addresses, int nodesPerAddress, int nodeSize) {
 		Schema schema = getEntity();
 		//if (schema != null && schema.isActive()) {
-		//} 
-		return false;
+		// get node template for cache server (first)
+		// get properties from the node
+		// run command to go to server node: ssh user@address:password
+		// cd to node bin path: cd /home/sdv/bagri/bin
+		// run start script: ./bgcache.sh start fourth 1
+		//
+		// for Windows, assume we mount external boX? no..
+		// run cmd command
+		// cd to node bin path
+		// run start script: bgcache.cmd fourth 0
+		//
+		// path memory size as command line param: bgcache.cmd fourth 3 16g
+		//}
+		
+		int started = 0;
+		String[] boxes = addresses.split(", ");
+		if (boxes.length > 0 && nodesPerAddress > 0 && nodeSize > 0) {
+			String bStart = "cmd /K start \"bagri server\" /D %path% bgcache.cmd empty %num% %size%";
+			String bHome = "C:\\Work\\Bagri\\install\\bagri-2.0.0-SNAPSHOT\\bin"; // get it from node settings 
+			String size = " " + nodeSize + "g";
+			for (String box: boxes) {
+				for (int cnt = 1; cnt <= nodesPerAddress; cnt++) {
+				
+					//try {
+					//	String command = "bgcache.cmd fourth 0";
+					//	ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c start", command);
+					//	pb.directory(new File("C:\\Work\\Bagri\\install\\bagri-2.0.0-SNAPSHOT\\bin"));
+					//	Process pro = pb.start();
+					
+					try {
+						String cmd = bStart.replace("%path%", bHome); 
+						cmd = cmd.replace("%num%", String.valueOf(started));
+						cmd = cmd.replaceAll("%size%", size);
+					    cmd += " -Dbdb.cluster.members=" + box; // it must be admin node IP?
+			    	    cmd += " -Dbdb.cluster.node.schemas=" + entityName;
+						logger.info("startCluster; cmd: {}", cmd);
+						Process pro = Runtime.getRuntime().exec(cmd);
+					    //PrintStream out = new PrintStream(pro.getOutputStream());
+						//BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+						//out.println("cd C:\\Work\\Bagri\\install\\bagri-2.0.0-SNAPSHOT\\bin");
+						//out.println("bgcache.cmd fourth 0");
+						//pro.waitFor();
+						started++;
+					} catch (IOException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
+		return started;
 	}
 	
 	@ManagedOperation(description="Stop Schema cluster")

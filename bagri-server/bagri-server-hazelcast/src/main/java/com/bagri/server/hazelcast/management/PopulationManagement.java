@@ -164,7 +164,7 @@ public class PopulationManagement extends SchemaFeatureManagement {
 			return;
 		}
 		SchemaPopulator pop = new SchemaPopulator(schemaName, overrideExisting, false);
-		execService.submit(pop); //ToAllMembers(pop);
+		execService.submitToAllMembers(pop);
 	}
 
 	@ManagedOperation(description="Stops on-going schema population process")

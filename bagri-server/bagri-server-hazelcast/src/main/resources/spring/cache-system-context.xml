@@ -25,6 +25,7 @@
 				<hz:property name="hazelcast.memcache.enabled">false</hz:property>
 				<hz:property name="hazelcast.operation.thread.count">${bdb.cluster.thread.pool:8}</hz:property>
 				<hz:property name="hazelcast.operation.generic.thread.count">${bdb.cluster.thread.pool:8}</hz:property>
+				<hz:property name="hazelcast.max.no.heartbeat.seconds">100</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.cluster.port:3331}" port-auto-increment="true">
 				<hz:outbound-ports>

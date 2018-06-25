@@ -33,6 +33,8 @@
 				<hz:property name="hazelcast.socket.send.buffer.size">${bdb.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.socket.receive.buffer.size">${bdb.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.query.predicate.parallel.evaluation">${bdb.schema.query.parallel}</hz:property>
+				<hz:property name="hazelcast.backpressure.enabled">false</hz:property>				
+				<hz:property name="hazelcast.max.no.heartbeat.seconds">100</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.schema.ports.first}" port-auto-increment="true">
 				<hz:outbound-ports>
@@ -107,10 +109,10 @@
 				</hz:indexes-->
 			</hz:map>
 
-			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
-					 backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
-					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="30">
+			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.cont.backup.async}" 
+				backup-count="${bdb.schema.cont.backup.sync}" read-backup-data="${bdb.schema.cont.backup.read:false}"
+				eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
+				cache-deserialized-values="NEVER" max-size="${bdb.schema.cont.max.size:30}">
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 
@@ -130,9 +132,9 @@
 			</hz:map>
 
 			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
-					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
-					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="30">
+				 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
+				 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
+				 max-size="${bdb.schema.query.max.size:30}">
 				<!--hz:indexes>
 					<hz:index attribute="docId"/>
 				</hz:indexes>

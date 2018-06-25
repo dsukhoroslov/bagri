@@ -72,7 +72,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private String schemaName;
     private int populationSize;
     private NodeEngine nodeEngine;
-    private boolean allowPopulation;
+    private boolean allowPopulation = true;
 
     private AtomicLong startTime = new AtomicLong(0);
     private AtomicLong stopTime = new AtomicLong(0);
@@ -167,7 +167,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     	if (populationSize > 0 && populationSize == currentSize && getLoadedCount() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName, false, false);
     		// we can't call it directly as it'll block current thread for a long time..
-    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToMember(pop, nodeEngine.getLocalMember());
+    		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
     	}
     }
 	
@@ -318,14 +318,17 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		clearLoadStats();
 		allowPopulation = true;
 		startTime.set(nodeEngine.getClusterService().getClusterTime());
-		
-		// don't load transactions if schema non-transactional?
-		xtxCache.loadAll(false);
-    	logger.info("populateSchema; transactions size after loadAll: {}", xtxCache.size());
 
-		xddCache.loadAll(overrideExisting);
-    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
-		stopTime.set(nodeEngine.getClusterService().getClusterTime());
+		int partId = nodeEngine.getPartitionService().getPartitionId(CN_XDM_DOCUMENT);
+		if (nodeEngine.getPartitionService().isPartitionOwner(partId)) {
+			// don't load transactions if schema non-transactional?
+			xtxCache.loadAll(false);
+	    	logger.info("populateSchema; transactions size after loadAll: {}", xtxCache.size());
+	
+			xddCache.loadAll(overrideExisting);
+	    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
+			stopTime.set(nodeEngine.getClusterService().getClusterTime());
+		}
 	}
 	
 	public void stopPopulation() {

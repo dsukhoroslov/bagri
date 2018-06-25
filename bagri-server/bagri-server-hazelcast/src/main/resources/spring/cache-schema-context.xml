@@ -75,6 +75,7 @@
 			
 			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 			<hz:map name="xdm-document" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
@@ -92,6 +93,7 @@
 					<hz:index attribute="typeRoot"/>
 					<hz:index attribute="uri" ordered="true"/>
 				</hz:indexes>
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 			<hz:map name="xdm-element" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}"
@@ -100,6 +102,7 @@
 					<!--hz:index attribute="__key#documentKey"/-->
 					<hz:index attribute="pathId" ordered="true"/>
 				</hz:indexes>
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 			<hz:map name="xdm-index" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
 				backup-count="${bdb.schema.data.backup.sync}" read-backup-data="${bdb.schema.data.backup.read}">
@@ -107,12 +110,14 @@
 					<hz:index attribute="pathId"/>
 					<hz:index attribute="value" ordered="true"/>
 				</hz:indexes-->
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 
 			<hz:map name="xdm-content" in-memory-format="BINARY" async-backup-count="${bdb.schema.cont.backup.async}" 
 				backup-count="${bdb.schema.cont.backup.sync}" read-backup-data="${bdb.schema.cont.backup.read:false}"
 				eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
 				cache-deserialized-values="NEVER" max-size="${bdb.schema.cont.max.size:30}">
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 
 			<hz:map name="xdm-transaction" in-memory-format="BINARY" async-backup-count="${bdb.schema.trans.backup.async}" 
@@ -132,15 +137,16 @@
 			</hz:map>
 
 			<hz:map name="xdm-result" in-memory-format="BINARY" async-backup-count="${bdb.schema.query.backup.async}" 
-					 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
-					 eviction-policy="LRU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
-					 max-size="${bdb.schema.query.max.size:30}">
+				 backup-count="${bdb.schema.query.backup.sync}" read-backup-data="${bdb.schema.query.backup.read}"
+				 eviction-policy="LFU" time-to-live-seconds="0" max-size-policy="USED_HEAP_PERCENTAGE" 
+				 max-size="${bdb.schema.query.max.size:30}">
 				<!--hz:indexes>
 					<hz:index attribute="docId"/>
 				</hz:indexes>
 				<hz:attributes>
 					<hz:attribute name="docId" extractor="com.bagri.server.hazelcast.predicate.ResultsQueryExtractor" />
 				</hz:attributes-->
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 
 			<hz:topic name="xdm-health">
