@@ -97,6 +97,11 @@ public class Constants {
     public static final String pn_cluster_node_size = "bdb.cluster.node.size";
     public static final String pn_cluster_admin_port = "bdb.cluster.admin.port";
     public static final String pn_cluster_node_schemas = "bdb.cluster.node.schemas";
+    
+    public static final String pn_cluster_node_home = "bdb.cluster.node.home";
+    public static final String pn_cluster_node_start = "bdb.cluster.node.start";
+    public static final String pn_cluster_node_ssh = "bdb.cluster.node.ssh";
+    public static final String pn_cluster_node_user = "bdb.cluster.node.user";
 
 	// REST Server configuration constants
 	public static final String pn_rest_enabled = "bdb.rest.enabled";

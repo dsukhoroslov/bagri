@@ -37,13 +37,47 @@ then
 fi
 
 libdir="${java_apphome}${file_separator}lib"
-
 CLASSPATH="${java_apphome}${file_separator}config${file_separator}*"
 CLASSPATH="${CLASSPATH}${path_separator}${libdir}${file_separator}*"
 
 export CLASSPATH
 
-. "${apphome}/bin/bgadmin.conf"
+JAVA_OPTS="\
+-Xms1024m \
+-Xmx1024m \
+-XX:+UseParNewGC \
+-XX:+UseConcMarkSweepGC \
+-XX:+ExplicitGCInvokesConcurrent \
+-XX:+UseCMSInitiatingOccupancyOnly \
+-XX:CMSInitiatingOccupancyFraction=80 \
+-XX:+CMSScavengeBeforeRemark \
+-XX:+PrintGC \
+-XX:+PrintGCDetails \
+-XX:+PrintGCDateStamps \
+-XX:+HeapDumpOnOutOfMemoryError \
+-XX:+UseGCLogFileRotation \
+-XX:NumberOfGCLogFiles=10 \
+-XX:GCLogFileSize=256M \
+-Xloggc:../logs/admin/gc/gc.log \
+-Dnode.logdir=../logs/admin \
+-Dnode.name=admin \
+-Dnode.instance=0 \
+-Dlogback.configurationFile=../config/hz-logging.xml \
+-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=3430 \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dbdb.log.level=info \
+-Dbdb.config.path=../config \
+-Dbdb.config.context.file=spring/admin-system-context.xml \
+-Dbdb.config.properties.file=admin.properties \
+-Dbdb.cluster.node.name=admin \
+-Dbdb.cluster.node.role=admin \
+-Dbdb.cluster.node.schemas= \
+-Dbdb.config.filename=../config/config.xml \
+-Dbdb.access.filename=../config/access.xml \
+-Djava.rmi.server.hostname=127.0.0.1 \
+"
 
 logdir="${apphome}/logs/${nodeName}"
 rundir="${apphome}/run"
@@ -77,9 +111,7 @@ start() {
                 return 1
         fi
 
-        JAVA_OPTS="${JAVA_OPTS} -showversion"
-        JAVA_OPTS="${JAVA_OPTS} -server"
-#        ${JAVA_HOME}/bin/java ${JAVA_OPTS} com.bagri.server.hazelcast.BagriCacheServer </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
+        JAVA_OPTS="-server -showversion ${JAVA_OPTS}"
         java ${JAVA_OPTS} com.bagri.server.hazelcast.BagriCacheServer </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 

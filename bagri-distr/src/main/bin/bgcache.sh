@@ -33,13 +33,52 @@ if [ $# -gt 2 ]
 then
    nodeNum=$3
 fi
+jmx_port=$(( 3431 + $nodeNum ))
 
 libdir="${java_apphome}${file_separator}lib"
-
 CLASSPATH="${java_apphome}${file_separator}config${file_separator}*"
 CLASSPATH="${CLASSPATH}${path_separator}${libdir}${file_separator}*"
 
-. "${apphome}/bin/${appname}.conf"
+memSize=4g
+if [ $# -gt 3 ]
+then
+   memSize=$4
+fi
+
+JAVA_OPTS="\
+-XX:NewSize=1024m \
+-XX:MaxNewSize=1024m \
+-XX:+UseParNewGC \
+-XX:+UseConcMarkSweepGC \
+-XX:+ExplicitGCInvokesConcurrent \
+-XX:+UseCMSInitiatingOccupancyOnly \
+-XX:CMSInitiatingOccupancyFraction=80 \
+-XX:+CMSScavengeBeforeRemark \
+-XX:+PrintGC \
+-XX:+PrintGCDetails \
+-XX:+PrintGCDateStamps \
+-XX:+HeapDumpOnOutOfMemoryError \
+-XX:+UseGCLogFileRotation \
+-XX:NumberOfGCLogFiles=10 \
+-XX:GCLogFileSize=256M \
+-Xloggc:../logs/${nodeName}/gc/gc.${nodeNum}.log \
+-Dnode.logdir=../logs/${nodeName} \
+-Dnode.name=${nodeName} \
+-Dnode.instance=${nodeNum} \
+-Dlogback.configurationFile=../config/hz-logging.xml \
+-Dbdb.log.level=info \
+-Dbdb.config.path=../config \
+-Dbdb.config.context.file=spring/cache-system-context.xml \
+-Dbdb.config.properties.file=${nodeName}.properties \
+-Dbdb.config.filename=../config/config.xml \
+-Dbdb.access.filename=../config/access.xml \
+-Dbdb.node.instance=${nodeNum} \
+-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port=${jmx_port} \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+-Djava.rmi.server.hostname=localhost \
+"
 
 export CLASSPATH
 
@@ -75,10 +114,8 @@ start() {
                 return 1
         fi
 
-        JAVA_OPTS="-server -showversion ${JAVA_OPTS}"
-#        ${JAVA_HOME}/bin/java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
-        java ${JAVA_OPTS} "${main}" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
-#        java ${JAVA_OPTS} "${main}" &
+        JAVA_OPTS="-server -showversion -Xms${memSize} -Xmx${memSize} ${JAVA_OPTS}"
+        java ${JAVA_OPTS} "com.bagri.server.hazelcast.BagriCacheServer" </dev/null >>"${stdoutfile}" 2>>"${stderrfile}" &
         echo $! >"${pidfile}"
 
         status
