@@ -280,18 +280,25 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 			for (String box: boxes) {
 				for (int cnt = 1; cnt <= nodesPerAddress; cnt++) {
 					try {
+						//String os = System.getProperty("os.name"); // Linux/Windows
 						if (useSsh) {
-							String cmd = "ssh " + bUser + "@" + box;
-							Process pro = Runtime.getRuntime().exec(cmd);
-							PrintStream out = new PrintStream(pro.getOutputStream());
-							//BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-							out.println("cd " + bHome + "/bin");
-							//while (in.ready()) {
-							//	String s = in.readLine();
-							//	System.out.println(s);
-							//}
-							out.println(bStart + " start empty " + String.valueOf(started) + " " + size);
-							//out.println("exit");						
+							String cmd = "/home/dsukhoroslov/git/bagri/start_node.sh"; // "ssh " + bUser + "@" + box;
+							Process pro = Runtime.getRuntime().exec("lxterminal -e " + cmd);
+							PrintStream out = new PrintStream(pro.getOutputStream(), true);
+							BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+							//out.println(cmd);
+							logger.info("startCluster; ssh: {}", cmd);
+							cmd = "cd " + bHome + "/bin";
+							//out.println(cmd);
+							logger.info("startCluster; dir: {}", cmd);
+							cmd = bStart + " start empty " + String.valueOf(started) + " " + size;
+							//out.println(cmd);
+							logger.info("startCluster; cmd: {}", cmd);
+							while (in.ready()) {
+								String s = in.readLine();
+								logger.info("startCluster; got input: {}", s);
+							}
+							out.println("exit");						
 						} else {
 							ProcessBuilder pb = new ProcessBuilder(bStart, "start", "empty", String.valueOf(started), size);
 							Map<String, String> env = pb.environment();
