@@ -8,7 +8,7 @@
 	<import resource="file:${bdb.config.path}/spring/cache-schema-context.xml" />
  
 	<!-- Beans Declaration -->
-	<!--context:property-placeholder ignore-unresolvable="true" location="file:${bdb.config.path}/${bdb.config.properties.file}" /-->
+	<context:property-placeholder ignore-unresolvable="true" location="file:${bdb.config.path}/${bdb.config.properties.file}" />
 	<context:annotation-config />
 	
 	<bean id="xqFactory" class="com.bagri.xqj.BagriXQDataFactory">

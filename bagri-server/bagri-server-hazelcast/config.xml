@@ -41,6 +41,9 @@
             <createdBy>SDV</createdBy>
             <description>TPoX-J: schema for TPoX-related tests; JSON data format</description>
             <properties>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
@@ -108,6 +111,9 @@
             <createdBy>SDV</createdBy>
             <description>Schema for YCSB Benchmark</description>
             <properties>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.transaction.level"></entry>
@@ -182,6 +188,9 @@
             <createdBy>SDV</createdBy>
             <description>default schema for test and demo purpose</description>
             <properties>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
@@ -339,6 +348,9 @@
             <createdBy>SDV</createdBy>
             <description>TPoX: schema for TPoX-related tests</description>
             <properties>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
@@ -524,6 +536,9 @@
                 <entry name="bdb.schema.query.cache">true</entry>
                 <entry name="bdb.schema.health.threshold.high">0</entry>
                 <entry name="bdb.schema.name">XMark</entry>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="xqj.schema.boundarySpacePolicy">1</entry>
                 <entry name="xqj.schema.scrollability">1</entry>
                 <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
@@ -635,6 +650,9 @@
                 <entry name="bdb.schema.ports.last">10800</entry>
                 <entry name="bdb.schema.data.backup.sync">0</entry>
                 <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.store.enabled">true</entry>
                 <entry name="bdb.schema.aws.enabled">false</entry>
@@ -733,67 +751,77 @@
             <createdBy>admin</createdBy>
             <description>MarketPlato schema for Inventory service</description>
             <properties>
-                <entry name="bdb.schema.dict.backup.sync">0</entry>
-                <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.transaction.level">readCommited</entry>
-                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.password">password</entry>
+                <!-- cache settings -->
+                <entry name="bdb.schema.cache.content">true</entry>
+                <entry name="bdb.schema.cache.elements">false</entry>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
+                <entry name="bdb.schema.cont.max.size">30</entry>
+                <entry name="bdb.schema.data.cache">NEVER</entry>
+                <entry name="bdb.schema.data.stats.enabled">true</entry>
                 <entry name="bdb.schema.dict.backup.async">1</entry>
-                <entry name="xqj.schema.orderingMode">2</entry>
-                <entry name="bdb.schema.trans.backup.read">false</entry>
-                <entry name="bdb.schema.store.type">File</entry>
-                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.dict.backup.sync">0</entry>
                 <entry name="bdb.schema.dict.backup.read">true</entry>
-                <entry name="bdb.schema.tcp.enabled">true</entry>
-                <entry name="bdb.schema.thread.pool">32</entry>
-                <entry name="bdb.schema.ports.last">10750</entry>
+                <entry name="bdb.schema.data.backup.async">0</entry>
                 <entry name="bdb.schema.data.backup.sync">0</entry>
-                <entry name="bdb.schema.multicast.enabled">false</entry>
-                <entry name="bdb.schema.query.backup.read">false</entry>
-                <entry name="bdb.schema.store.enabled">true</entry>
-                <entry name="bdb.schema.aws.enabled">false</entry>
-                <entry name="bdb.schema.population.size">0</entry>
-                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
-                <entry name="bdb.schema.ports.first">10700</entry>
-                <entry name="bdb.schema.store.data.path">/home/dsukhoroslov/bagri/bagri-2.0.0-SNAPSHOT/data/mp/inv</entry>
-                <entry name="xqj.schema.bindingMode">0</entry>
                 <entry name="bdb.schema.data.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.async">0</entry>
+                <entry name="bdb.schema.query.backup.sync">0</entry>
+                <entry name="bdb.schema.query.backup.read">false</entry>
+                <entry name="bdb.schema.query.max.size">30</entry>
+                <entry name="bdb.schema.trans.backup.async">0</entry>
+                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="bdb.schema.trans.backup.read">false</entry>
+                <!-- connection settings -->
+                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.connect.timeout">5</entry>
+                <entry name="bdb.schema.aws.enabled">false</entry>
+                <entry name="bdb.schema.multicast.enabled">false</entry>
+                <entry name="bdb.schema.tcp.enabled">true</entry>
+                <entry name="bdb.schema.ports.first">10700</entry>
+                <entry name="bdb.schema.ports.last">10750</entry>
+                <entry name="bdb.schema.members">127.0.0.1</entry>
+                <!-- persistence settings -->
+                <entry name="bdb.schema.format.default">JSON</entry>
+                <entry name="bdb.schema.store.enabled">true</entry>
+                <entry name="bdb.schema.store.type">File</entry>
+                <entry name="bdb.schema.store.data.path">../../etc/samples/mp/mp2</entry>
+                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
+                <entry name="bdb.schema.population.size">27</entry>
+                <entry name="bdb.schema.population.pool">24</entry>
+                <entry name="bdb.schema.population.buffer.size">10000000</entry>
+                <!-- transaction settings -->
+                <entry name="bdb.schema.transaction.level">readCommited</entry>
+                <entry name="bdb.schema.transaction.timeout">60000</entry>
+                <!-- executor settings -->
+                <entry name="bdb.schema.partition.count">1321</entry>
+                <entry name="bdb.schema.partition.pool">64</entry>
+                <entry name="bdb.schema.thread.pool">64</entry>
+                <!-- query settings -->
                 <entry name="bdb.schema.query.cache">true</entry>
-                <entry name="bdb.schema.health.threshold.high">0</entry>
+                <entry name="bdb.schema.query.parallel">true</entry>
+                <!-- health settings -->
+                <entry name="bdb.schema.health.management.enabled">false</entry>
+                <entry name="bdb.schema.health.threshold.low">250</entry>
+                <entry name="bdb.schema.health.threshold.high">250</entry>
+                <!-- XQJ settings -->
+                <entry name="xqj.schema.baseUri">file:/../data/mp/</entry>
+                <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
+                <entry name="xqj.schema.bindingMode">0</entry>
                 <entry name="xqj.schema.boundarySpacePolicy">1</entry>
                 <entry name="xqj.schema.scrollability">1</entry>
-                <entry name="bdb.schema.index.asynch">false</entry>
-                <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
-                <entry name="bdb.schema.partition.count">1321</entry>
                 <entry name="xqj.schema.holdability">2</entry>
-                <entry name="bdb.schema.cache.content">true</entry>
-                <entry name="bdb.schema.query.parallel">true</entry>
-                <entry name="bdb.schema.data.stats.enabled">true</entry>
-                <entry name="bdb.schema.partition.pool">32</entry>
-                <entry name="bdb.schema.password">password</entry>
-                <entry name="bdb.schema.buffer.size">128</entry>
                 <entry name="xqj.schema.copyNamespacesModePreserve">1</entry>
                 <entry name="xqj.schema.queryTimeout">0</entry>
                 <entry name="xqj.schema.defaultFunctionNamespace">http://www.w3.org/2005/xpath-functions</entry>
-                <entry name="bdb.schema.members">127.0.0.1</entry>
                 <entry name="xqj.schema.defaultElementTypeNamespace"></entry>
-                <entry name="bdb.schema.health.threshold.low">25</entry>
-                <entry name="bdb.schema.transaction.timeout">60000</entry>
-                <entry name="bdb.schema.data.cache">NEVER</entry>
                 <entry name="xqj.schema.copyNamespacesModeInherit">1</entry>
-                <entry name="bdb.schema.cont.backup.sync">0</entry>
-                <entry name="xqj.schema.baseUri">file:/../../etc/samples/mp/</entry>
-                <entry name="bdb.schema.cont.backup.async">0</entry>
                 <entry name="xqj.schema.defaultOrderForEmptySequences">2</entry>
-                <entry name="bdb.schema.format.default">JSON</entry>
-                <entry name="bdb.schema.cache.elements">false</entry>
-                <entry name="bdb.schema.query.backup.async">0</entry>
-                <entry name="bdb.schema.health.management.enabled">false</entry>
-                <entry name="bdb.schema.population.buffer.size">1000000</entry>
-                <entry name="bdb.schema.population.pool">8</entry>
                 <entry name="xqj.schema.defaultCollationUri">http://www.w3.org/2005/xpath-functions/collation/codepoint</entry>
                 <entry name="xqj.schema.constructionMode">1</entry>
-                <entry name="bdb.schema.data.backup.async">0</entry>
-                <entry name="bdb.schema.trans.backup.sync">1</entry>
+                <entry name="xqj.schema.orderingMode">2</entry>
             </properties>
             <collections>
                 <collection id="1" name="CLN_Product_Inventory">

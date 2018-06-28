@@ -65,6 +65,9 @@
                 <entry name="bdb.schema.population.buffer.size">1000000</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
                 <entry name="bdb.schema.partition.pool">32</entry>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="xqj.schema.orderingMode">2</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
                 <entry name="xqj.schema.bindingMode">0</entry>
@@ -257,6 +260,9 @@
                 <entry name="bdb.schema.trans.backup.async">0</entry>
                 <entry name="bdb.schema.trans.backup.sync">1</entry>
                 <entry name="bdb.schema.trans.backup.read">false</entry>
+                <entry name="bdb.schema.cont.backup.async">0</entry>
+                <entry name="bdb.schema.cont.backup.sync">0</entry>
+                <entry name="bdb.schema.cont.backup.read">false</entry>
                 <entry name="bdb.schema.data.backup.read">false</entry>
                 <entry name="bdb.schema.data.backup.async">1</entry>
                 <entry name="bdb.schema.data.backup.sync">0</entry>
