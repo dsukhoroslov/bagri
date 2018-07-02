@@ -239,6 +239,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		Map<DocumentKey, Document> result;
 		if (popManager.isPopulationAllowed()) {
 			ensureRepository();
+			popManager.addLoadingCounts(keys.size());
 			int skipped = 0;
 			result = new HashMap<>(keys.size());
 		    for (DocumentKey key: keys) {
@@ -251,7 +252,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		    		skipped++;
 		    	}
 		    }
-			popManager.addPopulationCounts(keys.size() - result.size() - skipped, result.size());
+			popManager.addLoadedCounts(keys.size() - result.size() - skipped, result.size());
 		} else {
 			result = new HashMap<>(1);
 		}

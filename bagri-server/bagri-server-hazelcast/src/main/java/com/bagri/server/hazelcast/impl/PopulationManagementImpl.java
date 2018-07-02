@@ -76,9 +76,11 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
     private AtomicLong startTime = new AtomicLong(0);
     private AtomicLong stopTime = new AtomicLong(0);
-    private AtomicInteger batchCount = new AtomicInteger(0);
+    private AtomicInteger startedBatchCount = new AtomicInteger(0);
+    private AtomicInteger finishedBatchCount = new AtomicInteger(0);
     private AtomicInteger errorCount = new AtomicInteger(0);
-    private AtomicInteger loadCount = new AtomicInteger(0);
+    private AtomicInteger loadingCount = new AtomicInteger(0);
+    private AtomicInteger loadedCount = new AtomicInteger(0);
     private Map<String, String> loaders = new ConcurrentHashMap<>(16); 
     
     private KeyFactory xFactory;
@@ -173,9 +175,11 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	
 	public void clearLoadStats() {
 		startTime.set(0);
-		batchCount.set(0);
+		startedBatchCount.set(0);
+		finishedBatchCount.set(0);
 		errorCount.set(0);
-		loadCount.set(0);
+		loadingCount.set(0);
+		loadedCount.set(0);
 		stopTime.set(0);
 		loaders.clear();
 	}
@@ -192,8 +196,12 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return docStore.getFullEntryCount();
 	}
 	
-	public int getBatchCount() {
-		return batchCount.get();
+	public int getStartedBatchCount() {
+		return startedBatchCount.get();
+	}
+	
+	public int getFinishedBatchCount() {
+		return finishedBatchCount.get();
 	}
 	
 	public int getErrorCount() {
@@ -204,8 +212,12 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return keyCache.localKeySet().size();
 	}
 	
+	public int getLoadingCount() {
+		return loadingCount.get();
+	}
+	
 	public int getLoadedCount() {
-		return loadCount.get();
+		return loadedCount.get();
 	}
 	
 	public int getLoadThreadCount() {
@@ -254,13 +266,20 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return docStore.getMaxTransactionId();
 	}
 	
-	public void addPopulationCounts(int errors, int loaded) {
+	public void addLoadingCounts(int loading) {
 		startTime.compareAndSet(0, nodeEngine.getClusterService().getClusterTime());
-		batchCount.incrementAndGet();
-		errorCount.addAndGet(errors);
-		loadCount.addAndGet(loaded);
+		startedBatchCount.incrementAndGet();
+		loadingCount.addAndGet(loading);
 		stopTime.set(nodeEngine.getClusterService().getClusterTime());
 		loaders.putIfAbsent(Thread.currentThread().getName(), "" + Thread.currentThread().getId());
+	}
+	
+	public void addLoadedCounts(int errors, int loaded) {
+		finishedBatchCount.incrementAndGet();
+		errorCount.addAndGet(errors);
+		loadingCount.addAndGet(-errors - loaded);
+		loadedCount.addAndGet(loaded);
+		stopTime.set(nodeEngine.getClusterService().getClusterTime());
 	}
 	
 	private void activateDocStore() {

@@ -28,8 +28,10 @@ public class PopulationManagement extends SchemaFeatureManagement {
 
 	private int cntKeys = 0;
 	private int cntErrors = 0;
+	private int cntLoading = 0;
 	private int cntLoaded = 0;
-	private int cntBatches = 0;
+	private int cntBatchStarted = 0;
+	private int cntBatchFinished = 0;
 	private long startTime = 0;
 	private long popTime = 0;
 
@@ -42,9 +44,14 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		return "PopulationManagement";
 	}
 	
-	@ManagedAttribute(description="The number of load batches applied")
-	public int getBatchCount() {
-		return cntBatches;
+	@ManagedAttribute(description="The number of started load batches")
+	public int getStartedBatchCount() {
+		return cntBatchStarted;
+	}
+	
+	@ManagedAttribute(description="The number of finished load batches")
+	public int getFinishedBatchCount() {
+		return cntBatchFinished;
 	}
 	
 	@ManagedAttribute(description="The number of not loaded documents")
@@ -57,6 +64,11 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		return cntKeys;
 	}
 	
+	@ManagedAttribute(description="The number of currently loading documents")
+	public int getLoadingCount() {
+		return cntLoading;
+	}
+
 	@ManagedAttribute(description="The number of total loaded documents")
 	public int getLoadedCount() {
 		return cntLoaded;
@@ -107,8 +119,10 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		
 		cntKeys = 0;
 		cntErrors = 0;
+		cntLoading = 0;
 		cntLoaded = 0;
-		cntBatches = 0;
+		cntBatchStarted = 0;
+		cntBatchFinished = 0;
 		popTime = 0;
 		startTime = Long.MAX_VALUE;
 		long lastTime = Long.MIN_VALUE;
@@ -119,10 +133,14 @@ public class PopulationManagement extends SchemaFeatureManagement {
 				cntErrors += ce;
 				Integer ck = (Integer) loaded.get("Keys");
 				cntKeys += ck;
-				Integer cl = (Integer) loaded.get("Loaded");
-				cntLoaded += cl;
-				Integer cb = (Integer) loaded.get("Batches");
-				cntBatches += cb;
+				Integer cg = (Integer) loaded.get("Loading");
+				cntLoading += cg;
+				Integer cd = (Integer) loaded.get("Loaded");
+				cntLoaded += cd;
+				Integer cs = (Integer) loaded.get("StartedBatches");
+				cntBatchStarted += cs;
+				Integer cf = (Integer) loaded.get("FinishedBatches");
+				cntBatchFinished += cf;
 				Long st = (Long) loaded.get("StartTime");
 				if (st < startTime) {
 					startTime = st;
