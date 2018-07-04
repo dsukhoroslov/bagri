@@ -11,7 +11,7 @@
 		<property name="hazelcast.logging.type">slf4j</property>
 		<!--property name="hazelcast.socket.client.buffer.direct">true</property-->
 		<!--property name="hazelcast.client.responsequeue.idlestrategy">backoff</property-->
-		<!--property name="hazelcast.client.heartbeat.timeout">100</property-->
+		<!--property name="hazelcast.client.heartbeat.timeout">100000</property-->
 	</properties>
 
 	<network>

@@ -97,10 +97,10 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.webjars</groupId>
             <artifactId>swagger-ui</artifactId>
-        </dependency>
+        </dependency-->
 
         <!-- Dependencies for logging -->
         <dependency>

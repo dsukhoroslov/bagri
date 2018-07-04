@@ -32,6 +32,7 @@ import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.ContentSerializer;
+import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
@@ -134,6 +135,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		return modelMgr;
 	}
 
+	public void setModelManagement(ModelManagement modelMgr) {
+		this.modelMgr = modelMgr;
+	}
+	
 	@Override
 	public PopulationManagement getPopulationManagement() {
 		return popMgr;
@@ -143,8 +148,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		this.popMgr = popMgr;
 	}
 	
-	public void setModelManagement(ModelManagement modelMgr) {
-		this.modelMgr = modelMgr;
+	@Override
+	public void setQueryManagement(QueryManagement queryMgr) {
+		super.setQueryManagement(queryMgr);
+		((QueryManagementImpl) queryMgr).setRepository(this);
 	}
 	
 	@Override

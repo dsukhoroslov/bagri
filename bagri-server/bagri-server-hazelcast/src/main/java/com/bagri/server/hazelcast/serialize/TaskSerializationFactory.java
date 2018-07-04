@@ -140,8 +140,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 	public static final int cli_RemoveDataStoreTask = 271;
 	public static final int cli_UpdateDataStoreTask = 272;
 	
-	private SchemaRepository repo;
-	
+
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
 		
@@ -220,8 +219,5 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 		return super.create(typeId);
 	}
 
-	public void setSchemaRepository(SchemaRepository repo) {
-		this.repo = repo;
-	}
 	
 }

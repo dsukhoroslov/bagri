@@ -417,7 +417,7 @@
 		<property name="resultCache" ref="xdm-result"/>
 		<property name="execPool" ref="execService"/>
 		<property name="statsQueue" ref="queryCacheQueue"/>
-   		<property name="repository" ref="xdmRepo" />
+   		<!--property name="repository" ref="xdmRepo" /-->
    		<property name="indexManager" ref="idxManager" />
    		<property name="cacheResults" value="${bdb.schema.query.cache}" />
 		<property name="timeQueue" ref="queryQueue"/>
@@ -451,12 +451,13 @@
 		<property name="accessManagement" ref="accManager"/>
 		<property name="clientManagement" ref="clientManager"/>
 		<property name="modelManagement" ref="modelManager"/>
-		<property name="queryManagement" ref="queryManager"/>
 		<property name="documentManagement" ref="docManager"/>
 		<!--property name="healthManagement" ref="healthManager"/-->
    		<property name="indexManagement" ref="idxManager" />
    		<property name="triggerManagement" ref="trManager" />
    		<property name="txManagement" ref="txManager" />
+		<!-- got circular dependency on the below ref -->
+		<property name="queryManagement" ref="queryManager"/>
 	</bean>
 
 	<bean id="distrService" class="com.bagri.server.hazelcast.impl.DataDistributionService">
@@ -465,21 +466,10 @@
 	</bean>
 
 	<bean id="sysFactory" class="com.bagri.server.hazelcast.serialize.SystemSerializationFactory"/>
+	<bean id="taskFactory" class="com.bagri.server.hazelcast.serialize.TaskSerializationFactory"/>
 
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject" ref="sysFactory" />
-        <property name="targetMethod" value="setSchemaRepository" />
-        <property name="arguments">
-            <list>
-                <ref bean="xdmRepo" />
-            </list>
-        </property>
-    </bean>
-	
-	<bean id="taskFactory" class="com.bagri.server.hazelcast.serialize.TaskSerializationFactory"/>
-	
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject" ref="taskFactory" />
         <property name="targetMethod" value="setSchemaRepository" />
         <property name="arguments">
             <list>
