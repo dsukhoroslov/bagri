@@ -223,13 +223,19 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     
 	@Override
 	public Document load(DocumentKey key) {
-		logger.trace("load.enter; key: {}", key);
+		try {
+			throw new RuntimeException();
+		} catch (Exception ex) {
+			logger.error("load", ex);
+		}
+		
+		logger.debug("load.enter; key: {}", key);
 		Document result = null;
 		if (popManager.isPopulationAllowed()) {
 			ensureRepository();
 	    	result = loadDocument(key);
 		}
-		logger.trace("load.exit; returning: {}", result);
+		logger.debug("load.exit; returning: {}", result);
 		return result;
 	}
 

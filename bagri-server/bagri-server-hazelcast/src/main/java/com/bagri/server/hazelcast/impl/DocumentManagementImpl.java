@@ -370,11 +370,12 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					}
 				}
 				
-				if (content != null && cacheContent) {
+				if (content == null) {
+					logger.debug("getDocumentInternal; new content is null");
+				} else if (cacheContent) {
 					// do this asynchronously!?
 					cntCache.set(docKey, content);
 				}
-				logger.trace("getDocumentInternal; new content is: {}", content);
 			}
 			if (cc != null) {
 				content = cc.convertTo(content);
