@@ -389,7 +389,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value) throws BagriException {
 
-		logger.trace("queryPathKeys.enter; found: {}; value: {}", (found == null ? "null" : found.size()), value);
+		logger.trace("queryPathKeys.enter; localOnly: {}; found: {}; value: {}", local, (found == null ? "null" : found.size()), value);
 		Predicate pp = null;
 		int dataType = 0;
 		boolean indexed = true;
@@ -513,7 +513,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Iterator<Long> itr = docKeys.iterator();
 		while (itr.hasNext()) {
 			long docKey = itr.next();
-			String uri = docMgr.checkDocumentCommited(docKey, clnId); 
+			String uri = docMgr.checkDocumentVisible(docKey, clnId); 
 			if (uri != null) {
 				result.put(docKey, uri);
 			}
@@ -629,7 +629,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		List<Long> result = new ArrayList<>(keys.size());
 		for (DocumentKey docKey: keys) {
 			// we must provide only visible docIds! but can do it later during lazy iteration..
-			if (docMgr.checkDocumentCommited(docKey.getKey(), 0) != null) {
+			if (docMgr.checkDocumentVisible(docKey.getKey(), 0) != null) {
 				result.add(docKey.getKey());
 			}
 		}

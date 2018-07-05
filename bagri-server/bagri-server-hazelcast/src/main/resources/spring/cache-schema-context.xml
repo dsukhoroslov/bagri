@@ -35,6 +35,7 @@
 				<hz:property name="hazelcast.query.predicate.parallel.evaluation">${bdb.schema.query.parallel}</hz:property>
 				<hz:property name="hazelcast.backpressure.enabled">false</hz:property>				
 				<hz:property name="hazelcast.max.no.heartbeat.seconds">100</hz:property>
+				<hz:property name="hazelcast.map.load.chunk.size">${bdb.schema.population.chunk.size:500}</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.schema.ports.first}" port-auto-increment="true">
 				<hz:outbound-ports>

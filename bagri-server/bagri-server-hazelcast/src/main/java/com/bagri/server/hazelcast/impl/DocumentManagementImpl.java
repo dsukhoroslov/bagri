@@ -203,7 +203,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return elements.values();
     }
 
-	public String checkDocumentCommited(long docKey, int clnId) throws BagriException {
+	String checkDocumentVisible(long docKey, int clnId) throws BagriException {
 
 		Document doc = getDocument(docKey);
 		if (doc != null) {
@@ -266,6 +266,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	public Document getDocument(DocumentKey docKey) {
+		// causes load document from store under some circumstances
+		// looks like an effect of readBackup option..
 		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
 	}
 

@@ -6,6 +6,7 @@ import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
+import static com.bagri.core.Constants.pn_schema_store_load_percent;
 import static com.bagri.core.api.TransactionManagement.TX_INIT;
 import static com.bagri.core.model.Document.dvFirst;
 
@@ -47,6 +48,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	private String dataPath;
     private String schemaName;
     private String dataFormat;
+    private int populationPercent;
     private HazelcastInstance hzi;
     private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
@@ -68,6 +70,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		if (schemaName == null) {
 			logger.warn("init; schemaName not set, please check node profile properties"); 
 		}
+		populationPercent = Integer.parseInt(properties.getProperty(pn_schema_store_load_percent, "100"));
 	}
 
 	@Override
@@ -135,6 +138,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		}
 		
 		logger.trace("loadAllKeys.enter;");
+		// what about partial load here!?
 		Set<DocumentKey> docIds = popManager.getDocumentKeys();
 		if (docIds != null) {
 			if (logger.isTraceEnabled()) {
@@ -151,6 +155,10 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			List<Path> files = new ArrayList<>();
 			processPathFiles(root, files);
 			DocumentKey docKey; 
+			int keyPart = files.size();
+			if (populationPercent < 100) {
+				keyPart = keyPart*populationPercent/100;
+			}
 			for (Path path: files) {
 				String uri = path.getFileName().toString();
 				int revision = 0;
@@ -159,6 +167,10 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 					revision++;
 				} while (uris.get(docKey) != null);				
 				uris.put(docKey, uri);
+				// for partial load..
+				if (uris.size() >= keyPart) {
+					break;
+				}
 			}
 			docIds = new HashSet<>(uris.keySet());
 		} catch (IOException ex) {
@@ -184,23 +196,24 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	
 	private Document loadDocument(DocumentKey docKey) {
     	String docUri = null;
-    	Document doc = popManager.getDocument(docKey.getKey());
-    	if (doc != null) {
-    		if (!doc.isActive()) {
-    			// no need to load content for inactive docs
-    			return doc;
-    		}
-        	docUri = doc.getUri();
-    	} else {
-    		docUri = popManager.getKeyMapping(docKey);
-    	}
-		//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
-
-    	if (docUri != null) {
-    		String fullUri = getFullUri(docUri);
-			Path path = Paths.get(fullUri);
-	    	if (Files.exists(path)) {
-        		try {
+    	Document doc = null;
+   		try {
+	    	doc = popManager.getDocument(docKey.getKey());
+	    	if (doc != null) {
+	    		if (!doc.isActive()) {
+	    			// no need to load content for inactive docs
+	    			return doc;
+	    		}
+	        	docUri = doc.getUri();
+	    	} else {
+	    		docUri = popManager.getKeyMapping(docKey);
+	    	}
+			//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
+	
+	    	if (docUri != null) {
+	    		String fullUri = getFullUri(docUri);
+				Path path = Paths.get(fullUri);
+		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
         			Document newDoc;
         			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
@@ -212,11 +225,11 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
         						doc.getCreatedBy(), doc.getTxStart(), doc.getCollections());
         			}
        				return newDoc;
-				} catch (Exception ex) {
-					logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, fullUri, docKey, ex);
-					// TODO: notify popManager about this?!
-				}
-	    	}
+		    	}
+			}
+		} catch (Exception ex) {
+			logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, docUri, docKey, ex);
+			// TODO: notify popManager about this?!
 		}
     	return null;
     }

@@ -70,8 +70,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private static final transient Logger logger = LoggerFactory.getLogger(PopulationManagementImpl.class);
 
     private String schemaName;
-    private int populationSize;
-    private NodeEngine nodeEngine;
+    private int popClusterSize = 0;
     private boolean allowPopulation = true;
 
     private AtomicLong startTime = new AtomicLong(0);
@@ -83,6 +82,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private AtomicInteger loadedCount = new AtomicInteger(0);
     private Map<String, String> loaders = new ConcurrentHashMap<>(16); 
     
+    private NodeEngine nodeEngine;
     private KeyFactory xFactory;
 	private IMap<Long, Transaction> xtxCache;
     private IMap<DocumentKey, String> keyCache;
@@ -132,7 +132,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		logger.info("init; got properties: {}", properties); 
 		this.nodeEngine = nodeEngine;
 		this.schemaName = properties.getProperty(pn_schema_name);
-		this.populationSize = Integer.parseInt(properties.getProperty(pn_schema_population_size));
+		this.popClusterSize = Integer.parseInt(properties.getProperty(pn_schema_population_size, "0"));
 		String dataPath = properties.getProperty(pn_schema_store_data_path);
 		String nodeNum = properties.getProperty(pn_node_instance);
 		int buffSize = 2048*100;
@@ -163,10 +163,10 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	}
 
 	public void checkPopulation(int currentSize) throws Exception {
-		logger.info("checkPopulation; populationSize: {}; currentSize: {}", populationSize, currentSize);
+		logger.info("checkPopulation; will start population at {} cluster size; current size is: {}", popClusterSize, currentSize);
 		activateDocStore();
 		xddCache.addEntryListener(this, true);
-    	if (populationSize > 0 && populationSize == currentSize && getLoadedCount() == 0) {
+    	if (popClusterSize > 0 && popClusterSize == currentSize && getLoadedCount() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName, false, false);
     		// we can't call it directly as it'll block current thread for a long time..
     		nodeEngine.getHazelcastInstance().getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(pop);
