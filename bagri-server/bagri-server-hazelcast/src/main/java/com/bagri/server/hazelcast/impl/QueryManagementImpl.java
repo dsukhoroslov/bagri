@@ -528,6 +528,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		PartitionService ps = repo.getHzInstance().getPartitionService();
 		for (Long key: docKeys) {
 			DocumentKey docKey = factory.newDocumentKey(key);
+			// owner can be null when we're in transition state!
 			if (ps.getPartition(docKey).getOwner().localMember()) {
 				localKeys.add(key);
 			}

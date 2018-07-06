@@ -266,8 +266,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	}
 
 	public Document getDocument(DocumentKey docKey) {
-		// causes load document from store under some circumstances
-		// looks like an effect of readBackup option..
+		// causes load document from store under some circumstances..
+		// this happens when some node temporarily left cluster and then
+		// joins it back. Because of cluster rebalancing some documents not found
+		// on their partitions..
 		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
 	}
 

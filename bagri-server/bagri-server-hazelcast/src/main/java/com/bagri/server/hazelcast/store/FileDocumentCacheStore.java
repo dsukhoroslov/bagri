@@ -199,17 +199,47 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     	Document doc = null;
    		try {
 	    	doc = popManager.getDocument(docKey.getKey());
-	    	if (doc != null) {
-	    		if (!doc.isActive()) {
-	    			// no need to load content for inactive docs
-	    			return doc;
-	    		}
-	        	docUri = doc.getUri();
-	    	} else {
-	    		docUri = popManager.getKeyMapping(docKey);
+		} catch (Exception ex) {
+			logger.error("loadDocument.error; error getting document from PM; docKey {}", docKey, ex);
+		}
+
+/*
+ after cluster rebalancing got errors for lost documents: 
+ 
+2018-07-05 21:39:46.956 [hz.Inventory-0.cached.thread-39] ERROR com.bagri.server.hazelcast.impl.QueryManagementImpl - runQuery.error: 
+java.lang.IllegalArgumentException: null
+	at java.nio.Buffer.position(Buffer.java:244)
+	at com.bagri.server.hazelcast.store.MemoryMappedStore.getEntry(MemoryMappedStore.java:109)
+	at com.bagri.server.hazelcast.impl.PopulationManagementImpl.getDocument(PopulationManagementImpl.java:188)
+	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.loadDocument(FileDocumentCacheStore.java:187)
+	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.load(FileDocumentCacheStore.java:236)
+
+2018-07-05 21:39:47.944 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.store.DocumentMemoryStore - getString; too long: 65536
+2018-07-05 21:39:47.944 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.store.DocumentMemoryStore - getString; too long: 942749486
+2018-07-05 21:39:48.161 [hz.Inventory-0.cached.thread-23] ERROR com.bagri.server.hazelcast.impl.QueryManagementImpl - runQuery.error: 
+java.nio.BufferUnderflowException: null
+	at java.nio.DirectByteBuffer.get(DirectByteBuffer.java:271)
+	at java.nio.ByteBuffer.get(ByteBuffer.java:715)
+	at com.bagri.server.hazelcast.store.MemoryMappedStore.getString(MemoryMappedStore.java:304)
+	at com.bagri.server.hazelcast.store.DocumentMemoryStore.readEntry(DocumentMemoryStore.java:135)
+	at com.bagri.server.hazelcast.store.DocumentMemoryStore.readEntry(DocumentMemoryStore.java:23)
+	at com.bagri.server.hazelcast.store.MemoryMappedStore.getEntry(MemoryMappedStore.java:110)
+	at com.bagri.server.hazelcast.impl.PopulationManagementImpl.getDocument(PopulationManagementImpl.java:188)
+	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.loadDocument(FileDocumentCacheStore.java:187)
+	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.load(FileDocumentCacheStore.java:236)
+*/
+   		
+   		if (doc != null) {
+	    	if (!doc.isActive()) {
+	    		// no need to load content for inactive docs
+	    		return doc;
 	    	}
-			//logger.info("loadDocument; got uri: {} for key: {}; uris: {}", docUri, docKey, uris.size());
+	       	docUri = doc.getUri();
+	    } else {
+	    	docUri = popManager.getKeyMapping(docKey);
+	    }
 	
+   		try {
 	    	if (docUri != null) {
 	    		String fullUri = getFullUri(docUri);
 				Path path = Paths.get(fullUri);
