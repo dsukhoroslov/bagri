@@ -108,6 +108,9 @@ public abstract class MemoryMappedStore<K, E> {
 			try {
 				fb.buff.position(pos);
 				result = readEntry(fb.buff);
+			} catch (Exception ex) {
+				logger.error("getEntry.error; key: {}; sect: {}; pos: {}; err: {}", key, sect, pos, ex.getMessage());
+				throw ex;
 			} finally {
 				fb.unlock();
 			}

@@ -333,7 +333,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		return allowPopulation;
 	}
 	
-	public void populateSchema(boolean overrideExisting) {
+	public boolean populateSchema(boolean overrideExisting) {
 		clearLoadStats();
 		allowPopulation = true;
 		startTime.set(nodeEngine.getClusterService().getClusterTime());
@@ -347,7 +347,9 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 			xddCache.loadAll(overrideExisting);
 	    	logger.info("populateSchema; documents size after loadAll: {}", xddCache.size());
 			stopTime.set(nodeEngine.getClusterService().getClusterTime());
+			return true;
 		}
+		return false;
 	}
 	
 	public void stopPopulation() {

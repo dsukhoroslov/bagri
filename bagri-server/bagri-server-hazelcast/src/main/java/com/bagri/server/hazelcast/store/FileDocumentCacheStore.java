@@ -206,14 +206,6 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 /*
  after cluster rebalancing got errors for lost documents: 
  
-2018-07-05 21:39:46.956 [hz.Inventory-0.cached.thread-39] ERROR com.bagri.server.hazelcast.impl.QueryManagementImpl - runQuery.error: 
-java.lang.IllegalArgumentException: null
-	at java.nio.Buffer.position(Buffer.java:244)
-	at com.bagri.server.hazelcast.store.MemoryMappedStore.getEntry(MemoryMappedStore.java:109)
-	at com.bagri.server.hazelcast.impl.PopulationManagementImpl.getDocument(PopulationManagementImpl.java:188)
-	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.loadDocument(FileDocumentCacheStore.java:187)
-	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.load(FileDocumentCacheStore.java:236)
-
 2018-07-05 21:39:47.944 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.store.DocumentMemoryStore - getString; too long: 65536
 2018-07-05 21:39:47.944 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.store.DocumentMemoryStore - getString; too long: 942749486
 2018-07-05 21:39:48.161 [hz.Inventory-0.cached.thread-23] ERROR com.bagri.server.hazelcast.impl.QueryManagementImpl - runQuery.error: 
@@ -239,8 +231,8 @@ java.nio.BufferUnderflowException: null
 	    	docUri = popManager.getKeyMapping(docKey);
 	    }
 	
-   		try {
-	    	if (docUri != null) {
+    	if (docUri != null) {
+       		try {
 	    		String fullUri = getFullUri(docUri);
 				Path path = Paths.get(fullUri);
 		    	if (Files.exists(path)) {
@@ -256,10 +248,11 @@ java.nio.BufferUnderflowException: null
         			}
        				return newDoc;
 		    	}
-			}
-		} catch (Exception ex) {
-			logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, docUri, docKey, ex);
-			// TODO: notify popManager about this?!
+    		} catch (Exception ex) {
+    			logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, docUri, docKey, ex);
+    			// TODO: notify popManager about this?!
+    			// implement some retry policy here? skip/raise/retry
+    		}
 		}
     	return null;
     }

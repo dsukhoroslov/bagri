@@ -33,6 +33,9 @@ public class XmlResourceImpl extends ResourceImplBase {
 			props.setProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_CONTENT));
 			try {
 				DocumentAccessor doc = docMgr.getDocument(docKey, props);
+				if (doc == null) {
+					throw new XPathException("Lost document for key: " + docKey);
+				}
 				xml = doc.getContent();
 			} catch (BagriException ex) {
 				throw new XPathException(ex);

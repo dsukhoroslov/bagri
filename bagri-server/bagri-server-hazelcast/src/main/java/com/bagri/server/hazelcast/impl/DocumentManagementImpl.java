@@ -342,7 +342,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			if (!ddSvc.isLocalKey(docKey)) {
 				// shouldn't cause a deadlock as getDoc from client should be routed properly
 				logger.trace("getDocumentInternal; docKey is not local, requesting owner node..");
-				DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, doc.getUri());
+				DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, null);
 				return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
 			}
 		

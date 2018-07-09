@@ -49,6 +49,11 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 					try {
 						result = populateSchema(hz);
 						// now can turn triggers on.. but we need it even without population..
+				    	if (result) {
+				    		logger.info("call.exit; schema {} populated", schemaName);
+				    	} else {
+				    		logger.info("call.exit; schema {} population started", schemaName);
+				    	}
 					} catch (Exception ex) {
 				    	logger.error("call.error; on schema population", ex);
 					}
@@ -57,7 +62,6 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 				}
 			}
 		}
-    	logger.info("call.exit; schema {} populated: {}", schemaName, result);
 		return result;
 	}
 
@@ -72,19 +76,20 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 		}
 		
 		PopulationManagementImpl pm = (PopulationManagementImpl) hz.getUserContext().get(ctx_popService);
-		pm.populateSchema(overrideExisting);
-
-		ITopic<Long> pTopic = hz.getTopic(TPN_XDM_POPULATION);
-		int lo = pm.getActiveCount();
-		int hi = pm.getDocumentCount() - lo;
-		long counts = ((long) hi << 32) + lo;
-		pTopic.publish(counts);
-
-    	// adjusting tx idGen!
-		TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
-		txMgr.adjustTxCounter(pm.getMaxTransactionId());
-
-    	return true;
+		if (pm.populateSchema(overrideExisting)) {
+			// move this code to PM ?
+			ITopic<Long> pTopic = hz.getTopic(TPN_XDM_POPULATION);
+			int lo = pm.getActiveCount();
+			int hi = pm.getDocumentCount() - lo;
+			long counts = ((long) hi << 32) + lo;
+			pTopic.publish(counts);
+	
+	    	// adjusting tx idGen!
+			TransactionManagementImpl txMgr = schemaCtx.getBean("txManager", TransactionManagementImpl.class);
+			txMgr.adjustTxCounter(pm.getMaxTransactionId());
+			return true;
+		}
+		return false;
 	}
 	
 	@Override

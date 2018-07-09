@@ -19,6 +19,4 @@ public class DocumentProvider extends DocumentProcessor {
 		return cli_GetDocumentTask;
 	}
 
-
-
 }
