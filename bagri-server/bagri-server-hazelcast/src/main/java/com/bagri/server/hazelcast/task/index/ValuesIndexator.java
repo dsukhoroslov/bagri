@@ -1,7 +1,6 @@
 package com.bagri.server.hazelcast.task.index;
 
 import static com.bagri.core.server.api.CacheConstants.CN_XDM_INDEX;
-import static com.bagri.client.hazelcast.serialize.TaskSerializationFactory.cli_factory_id;
 import static com.bagri.server.hazelcast.serialize.TaskSerializationFactory.cli_IndexValuesTask;
 
 import java.io.IOException;
@@ -14,20 +13,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.IndexKey;
-import com.bagri.core.api.BagriException;
 import com.bagri.core.model.IndexedValue;
 import com.bagri.server.hazelcast.impl.DataDistributionService;
-import com.bagri.server.hazelcast.impl.IndexManagementImpl;
-import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryBackupProcessor;
-import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public class ValuesIndexator extends ValueIndexator {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final transient Logger logger = LoggerFactory.getLogger(ValuesIndexator.class);
 	
 	private Collection<IndexKey> indices;
@@ -65,14 +64,10 @@ public class ValuesIndexator extends ValueIndexator {
     
 	@Override
 	public Object process(Entry<IndexKey, IndexedValue> entry) {
-		IMap<IndexKey, IndexedValue> idxCache;
 		try {
 			for (IndexKey ik: indices) {
 				IndexedValue iv = ddSvc.getCachedObject(CN_XDM_INDEX, ik, true);
-				entry = new MapEntrySimple<>(ik, iv);
-				idxCache = idxMgr.indexPath(entry, docKey, txId);
-				//ddSvc.storeData(ik, entry.getValue(), CN_XDM_INDEX);
-				idxCache.set(ik, entry.getValue());
+				processIndex(new MapEntrySimple<>(ik, iv));
 			}
 		} catch (Exception ex) {
 			logger.error("process.error", ex);

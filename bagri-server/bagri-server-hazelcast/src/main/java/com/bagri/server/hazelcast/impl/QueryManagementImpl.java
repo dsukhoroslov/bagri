@@ -433,11 +433,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		Set<Long> result = new HashSet<>();
+		Set<Long> result = Collections.emptySet();
 		if (paths == null || paths.isEmpty()) {
 			logger.debug("queryPathKeys; got query on unknown path: {}", pex);
 			if (found != null) {
-				result.addAll(found);
+				result = new HashSet<>(found);
 			}
 			return result;
 		}
@@ -445,7 +445,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (newVal == null) {
 			logger.debug("queryPathKeys; got query on empty value, path: {}", pex);
 			if (found != null) {
-				result.addAll(found);
+				result = new HashSet<>(found);
 			}
 			return result;
 		}
@@ -453,7 +453,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (indexed) {
 			if (found != null) {
-				result.addAll(found);
+				result = new HashSet<>(found);
 			}
 			boolean gotIndexed = false;
 			for (Integer pathId: paths) {
@@ -463,7 +463,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					if (local && !docKeys.isEmpty()) {
 						docKeys = checkDocumentsLocal(docKeys);
 					}
-					if (found == null) {
+					if (result == null) {
+						result = new HashSet<>(docKeys);
+					} else if (found == null) {
 						result.addAll(docKeys);
 					} else {
 						result.retainAll(docKeys);
@@ -499,9 +501,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		Predicate<DataKey, Elements> f = Predicates.and(pp, qp);
 	   	Set<DataKey> xdmKeys = local ? xdmCache.localKeySet(f) : xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
-		//result = new HashSet<>(xdmKeys.size()); ensure capacity somehow..
-		for (DataKey key: xdmKeys) {
-			result.add(key.getDocumentKey());
+		if (xdmKeys.isEmpty()) {
+			result.clear();
+		} else {
+			result = new HashSet<>(xdmKeys.size()); 
+			for (DataKey key: xdmKeys) {
+				result.add(key.getDocumentKey());
+			}
 		}
 		logger.trace("queryPathKeys.exit; returning {} keys", result.size()); 
 		if (!cached) {
@@ -604,7 +610,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 		boolean localOnly = pv_client_submitTo_all.equalsIgnoreCase(runOn);
 		String overrides = props.getProperty(pn_query_customPaths);
-		logger.debug("getDocumentIds; got override paths: {}", overrides);
+		logger.trace("getDocumentIds; got override paths: {}", overrides);
 		
 		if (query != null) {
 			ExpressionBuilder exp = query.getBuilder();
@@ -615,6 +621,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				// build 'found' set here if collectionId is selective enough
 				Set<Long> ids = queryKeys(localOnly, null, query, exp.getRoot());
 				// otherwise filter out documents with wrong collectionIds here
+				// TODO: at query processing it can be cheaper to skip this check at all and
+				// perform it at result iteration time.
 				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
 				ctx.setDocKeys(result);
 				return result.keySet();

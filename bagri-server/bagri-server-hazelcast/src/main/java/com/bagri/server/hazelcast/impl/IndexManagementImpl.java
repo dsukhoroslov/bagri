@@ -348,9 +348,15 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 	public IMap<IndexKey, IndexedValue> indexPath(Map.Entry<IndexKey, IndexedValue> entry, long docKey, long txId) throws BagriException {
 
 		int pathId = entry.getKey().getPathId();
-		Object value = entry.getKey().getValue();
 		Index idx = idxDict.get(pathId);
-		// idx can be null in case when cluster was rebalanced!
+		if (idx == null) {
+			// idx can be null in case when cluster was rebalanced!
+			// return null or throw??
+			logger.info("indexPath; no index found for path: {}; document {} indexation skipped", pathId, docKey);
+			return null;
+		}
+		
+		Object value = entry.getKey().getValue();
 		value = getIndexedValue(idx, pathId, value);
 		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
 			

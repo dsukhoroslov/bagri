@@ -12,14 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.IndexKey;
 import com.bagri.core.api.BagriException;
-import com.bagri.core.api.TransactionManagement;
-import com.bagri.core.model.IndexedDocument;
 import com.bagri.core.model.IndexedValue;
-import com.bagri.core.server.api.IndexManagement;
-import com.bagri.core.server.api.QueryManagement;
-import com.bagri.core.system.Index;
 import com.bagri.server.hazelcast.impl.IndexManagementImpl;
-import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryBackupProcessor;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.nio.ObjectDataInput;
@@ -30,6 +25,11 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>, 
 	EntryBackupProcessor<IndexKey, IndexedValue>, IdentifiedDataSerializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final transient Logger logger = LoggerFactory.getLogger(ValueIndexator.class);
 	
@@ -69,7 +69,7 @@ public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>,
 	@Override
 	public Object process(Entry<IndexKey, IndexedValue> entry) {
 		try {
-			idxMgr.indexPath(entry, docKey, txId);
+			processIndex(entry);
 		} catch (BagriException ex) {
 			logger.error("process.error", ex);
 			return ex;
@@ -92,6 +92,15 @@ public class ValueIndexator implements EntryProcessor<IndexKey, IndexedValue>,
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeLong(docKey);
 		out.writeLong(txId);
+	}
+
+	protected void processIndex(Entry<IndexKey, IndexedValue> entry) throws BagriException {
+		IMap<IndexKey, IndexedValue> idxCache = idxMgr.indexPath(entry, docKey, txId);
+		if (idxCache != null) {
+			// null if no index found
+			idxCache.set(entry.getKey(), entry.getValue());
+			//ddSvc.storeData(ik, entry.getValue(), CN_XDM_INDEX);
+		}
 	}
 
 }

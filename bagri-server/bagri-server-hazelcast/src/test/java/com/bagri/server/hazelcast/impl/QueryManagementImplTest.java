@@ -47,7 +47,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		sampleRoot = "../../etc/samples/tpox/";
-		//System.setProperty(pn_log_level", "trace");
+		//System.setProperty(pn_log_level, "trace");
 		System.setProperty(pn_node_instance, "0");
 		System.setProperty("logback.configurationFile", "hz-logging.xml");
 		System.setProperty(pn_config_properties_file, "test.properties");
