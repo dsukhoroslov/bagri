@@ -350,6 +350,7 @@ public class IndexManagementImpl implements IndexManagement { //, StatisticsProv
 		int pathId = entry.getKey().getPathId();
 		Object value = entry.getKey().getValue();
 		Index idx = idxDict.get(pathId);
+		// idx can be null in case when cluster was rebalanced!
 		value = getIndexedValue(idx, pathId, value);
 		logger.trace("indexPath; index: {}, value: {}({})", idx, value.getClass().getName(), value);
 			

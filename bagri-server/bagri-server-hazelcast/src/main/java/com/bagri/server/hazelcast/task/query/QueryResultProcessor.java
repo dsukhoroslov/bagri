@@ -62,7 +62,7 @@ public class QueryResultProcessor implements EntryProcessor<Long, QueryResult>, 
 			qr.merge(entry.getValue());
 		}
 		entry.setValue(qr);
-		return qr;
+		return null;
 	}
 
 	@Override

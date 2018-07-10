@@ -469,6 +469,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						result.retainAll(docKeys);
 					}
 					gotIndexed = true;
+					logger.trace("queryPathKeys; added indexed keys, result size is: {}; found size is: {}", 
+							result.size(), found == null ? "null" : found.size()); 
 				}
 			}
 		

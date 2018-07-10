@@ -73,17 +73,23 @@ public class DataDistributionService implements ManagedService {
 	public <T> T getCachedObject(String cacheName, Object key, boolean convert) {
 		Data dKey = nodeEngine.toData(key);
 		int partId = nodeEngine.getPartitionService().getPartitionId(dKey);
-		RecordStore<?> cache = getRecordStore(partId, cacheName);
-		if (cache == null) {
-			// nothing stored in this partition yet
-			return null;
+		boolean isLocal = nodeEngine.getPartitionService().isPartitionOwner(partId);
+		logger.trace("getCachedObject; partition {} is {}local for key {} on cache {}", 
+				partId,	isLocal ? "" : "not ", key, cacheName);
+		if (isLocal) {
+			RecordStore<?> cache = getRecordStore(partId, cacheName);
+			if (cache == null) {
+				// nothing stored in this partition yet
+				return null;
+			}
+	
+			Object data = cache.get(dKey, false);
+			if (data != null && convert) {
+				data = nodeEngine.toObject(data);
+			} 
+			return (T) data;
 		}
-
-		Object data = cache.get(dKey, false);
-		if (data != null && convert) {
-			data = nodeEngine.toObject(data);
-		} 
-		return (T) data;
+		return null;
 	}
 
 	public <T> Collection<T> getCachedObjects(String cacheName, Collection<Object> keys, boolean convert) {

@@ -261,19 +261,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return docCache.keySet(f);
 	}
 
-	public Document getDocument(long docKey) {
+	private Document getDocument(long docKey) {
 		return getDocument(factory.newDocumentKey(docKey));
 	}
 
 	public Document getDocument(DocumentKey docKey) {
-		// causes load document from store under some circumstances..
-		// this happens when some node temporarily left cluster and then
-		// joins it back. Because of cluster rebalancing some documents not found
-		// on their partitions..
-		return (Document) ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
+		Document result = ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
+		if (result == null && !ddSvc.isLocalKey(docKey)) {
+			result = docCache.get(docKey);
+		}
+		return result;
 	}
 
-	Document getDocument(String uri) {
+	private Document getDocument(String uri) {
 		Document doc = ddSvc.getLastDocumentForUri(uri);
    		if (doc != null) {
    			if (!doc.isActive()) { // && txManager.isTxVisible(doc.getTxFinish())) {
@@ -322,30 +322,31 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	@Override
 	public DocumentAccessor getDocument(DocumentKey docKey, Properties props) throws BagriException {
-		Document doc = getDocument(docKey);
-		if (doc == null) {
-			logger.info("getDocument; no document found for key: {}", docKey);
-			return null;
+		if (ddSvc.isLocalKey(docKey)) {
+			Document doc = ddSvc.getCachedObject(CN_XDM_DOCUMENT, docKey, binaryDocs);
+			if (doc == null) {
+				logger.info("getDocument; no document found for key: {}", docKey);
+				return null;
+			}
+			return getDocumentInternal(docKey, doc, props);
 		}
 
-		return getDocumentInternal(docKey, doc, props);
+		// shouldn't cause a deadlock as getDoc from client should be routed properly
+		logger.trace("getDocument; key {} is not local, requesting owner node..", docKey);
+		DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, null);
+		DocumentAccessor result = (DocumentAccessor) docCache.executeOnKey(docKey, xp);
+		logger.trace("getDocument; got result from other node for key {}", docKey);
+		return result;
 	}
 
 	private DocumentAccessor getDocumentInternal(DocumentKey docKey, Document doc, Properties props) throws BagriException {
 		if (props == null) {
 			props = new Properties();
 		}
-		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI_WITH_CONTENT)); //CLIENT_DOCUMENT
+		String headers = props.getProperty(pn_document_headers, String.valueOf(DocumentAccessor.HDR_URI_WITH_CONTENT)); 
 		long headMask = Long.parseLong(headers);
-		logger.trace("getDocumentInternal; returning document: {} for props: {}", doc, props);
+		logger.trace("getDocumentInternal.enter; got document: {} for props: {}", doc, props);
 		if ((headMask & DocumentAccessor.HDR_CONTENT) != 0) {
-			if (!ddSvc.isLocalKey(docKey)) {
-				// shouldn't cause a deadlock as getDoc from client should be routed properly
-				logger.trace("getDocumentInternal; docKey is not local, requesting owner node..");
-				DocumentProvider xp = new DocumentProvider(repo.getClientId(), txManager.getCurrentTxId(), props, null);
-				return (DocumentAccessor) docCache.executeOnKey(docKey, xp);
-			}
-		
 			// getConverter set dataFormat in props
 			ContentConverter<Object, ?> cc = getConverter(props, doc.getContentType(), null);
 			Object content = getDocumentContent(docKey);
