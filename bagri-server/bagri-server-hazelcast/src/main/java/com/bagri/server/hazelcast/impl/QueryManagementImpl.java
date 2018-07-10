@@ -450,7 +450,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			return result;
 		}
 		logger.trace("queryPathKeys; adjusted value: {}({})", newVal.getClass().getName(), newVal);
-		
+
+		result = null;
 		if (indexed) {
 			if (found != null) {
 				result = new HashSet<>(found);
@@ -489,7 +490,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		
 		if (!docMgr.isCacheElements()) {
 			// no point to search by data as it is not cached
-			return result;
+			return Collections.emptySet();
 		}
 		
 		QueryPredicate qp;
@@ -502,7 +503,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	   	Set<DataKey> xdmKeys = local ? xdmCache.localKeySet(f) : xdmCache.keySet(f);
 		logger.trace("queryPathKeys; got {} query results", xdmKeys.size()); 
 		if (xdmKeys.isEmpty()) {
-			result.clear();
+			result = Collections.emptySet();
 		} else {
 			result = new HashSet<>(xdmKeys.size()); 
 			for (DataKey key: xdmKeys) {
