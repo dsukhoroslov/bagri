@@ -40,7 +40,7 @@ public class ClientManagementBeanTest extends ManagementBeanTest {
 	protected Map<String, Object> getExpectedAttributes() {
 		Map<String, Object> map = new HashMap<>(7);
 		map.put("Schema", "default");
-		map.put("ClientCount", 0);
+		map.put("ClientCount", 1);
 		map.put("ClientProperties", null);
 		map.put("ClientStatistics", null);
 		return map;

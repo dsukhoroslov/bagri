@@ -40,7 +40,7 @@ public class QueryManagementBeanTest extends ManagementBeanTest {
 	protected Map<String, Object> getExpectedAttributes() {
 		Map<String, Object> map = new HashMap<>(7);
 		map.put("Schema", "default");
-		map.put("FetchSize", 1000);
+		map.put("FetchSize", 0);
 		map.put("QueryTimeout", 0);
 		map.put("QueryCacheStatistics", null);
 		map.put("InvocationStatistics", null);

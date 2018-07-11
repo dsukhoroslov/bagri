@@ -48,7 +48,7 @@ public class ModuleManagementBeanTest extends EntityManagementBeanTest {
 
 	@Override
 	protected String[] getExpectedEntities() {
-		return new String[] {"hello_module", "mmd_module", "rest_module", "trigger_module"};
+		return new String[] {"hello_module", "rest_module", "trigger_module"};
 	}
 
 	@Override
