@@ -37,8 +37,9 @@ public class Constants {
 	public static final String pn_client_fetchType = "bdb.client.fetchType";
 
 	public static final String pv_client_fetchType_asynch = "asynch";
+	public static final String pv_client_fetchType_batch = "batch";
 	public static final String pv_client_fetchType_fixed = "fixed";
-	public static final String pv_client_fetchType_queued = "queued";
+	public static final String pv_client_fetchType_queue = "queue";
 	
 	public static final String pn_client_healthCheck = "bdb.client.healthCheck";
 	public static final String pn_client_loginTimeout = "bdb.client.loginTimeout";

@@ -25,14 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import com.bagri.client.hazelcast.task.query.QueryExecutor;
 import com.bagri.client.hazelcast.task.query.QueryUrisProvider;
-import com.bagri.client.hazelcast.task.query.QueryProcessor;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.ResultCursor;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.impl.QueryManagementBase;
 import com.bagri.core.model.Query;
 import com.bagri.core.model.QueryResult;
-import com.hazelcast.client.proxy.IExecutorDelegatingFuture;
 import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;
@@ -131,35 +129,32 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			useCache = Boolean.parseBoolean(qCache); 
 		}
 		long qKey = getResultsKey(query, params);
-		String splitBy = props.getProperty(pn_query_splitBy);
 
-		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
-		props.setProperty(pn_client_fetchAsynch, String.valueOf(pv_client_fetchType_queued.equals(fetchType)));
-		
 		if (useCache) {
 			QueryResult res = resCache.get(qKey);
 			if (res != null) {
 				logger.trace("executeQuery; got cached results: {}", res);
 				return new FixedCursorImpl(res.getResults());
 			}
-
-			if (splitBy != null) {
-				ResultCursor<T> cursor = executeSplitQuery(query, params, props, splitBy);
-				if (cursor !=  null) {
-					logger.debug("executeQuery.exit; returning: {}", cursor);
-					return cursor;
-				}
-			}
 		}
-		
-		Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		ResultCursor<T> cursor = executeQueryTask(task, params, props, qKey);
+
+		ResultCursor<T> cursor = null;
+		String splitBy = props.getProperty(pn_query_splitBy);
+		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
+		props.setProperty(pn_client_fetchAsynch, String.valueOf(pv_client_fetchType_queue.equals(fetchType)));
+		if (splitBy != null) {
+			cursor = executeSplitQuery(query, params, props, splitBy, useCache);
+		}
+		if (cursor == null) {
+			Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
+			cursor = executeQueryTask(task, params, props, qKey);
+		}
 		logger.debug("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, final Properties props, String splitBy) throws BagriException {
+	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, final Properties props, String splitBy, boolean useCache) throws BagriException {
 		Object param = params.get(splitBy);
 		if (param != null && param instanceof Collection) {
 			Collection collect = (Collection) param;
@@ -167,22 +162,39 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				// split...
 				int limit = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 				CombinedCursorImpl<T> cci = new CombinedCursorImpl<>(limit); 
-				Map<String, Object> splitParams = new HashMap<>(params);
-				splitParams.remove(splitBy);
 				Iterator<Object> itr = collect.iterator();
+
+				String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
+				boolean doBatch = pv_client_fetchType_batch.equals(fetchType);
+				List<Future<ResultCursor<T>>> futures = null;
+				if (doBatch) {
+					futures = new ArrayList<>(collect.size());
+				}
 				while (itr.hasNext()) {
 					List<Object> splitSeq = new ArrayList<>(1);
 					splitSeq.add(itr.next());
+					Map<String, Object> splitParams = new HashMap<>(params);
+					splitParams.remove(splitBy);
 					splitParams.put(splitBy, splitSeq);
 					long splitQKey = getResultsKey(query, splitParams);
-					QueryResult splitRes = resCache.get(splitQKey);
-					if (splitRes != null) {
-						logger.trace("executeSplitQuery; got cached split results: {}", splitRes);
-						cci.addResults(new FixedCursorImpl(splitRes.getResults()));
+					if (useCache) {
+						QueryResult splitRes = resCache.get(splitQKey);
+						if (splitRes != null) {
+							logger.trace("executeSplitQuery; got cached split results: {}", splitRes);
+							cci.addResults(new FixedCursorImpl(splitRes.getResults()));
+							continue;
+						}
+					}
+					
+					Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, splitParams, props);
+					if (doBatch) {
+						futures.addAll(submitQueryTask(task, params, props, splitQKey));
 					} else {
-						Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, splitParams, props);
 						cci.addResults(executeQueryTask(task, params, props, splitQKey));
 					}
+				}
+				if (doBatch && !futures.isEmpty()) {
+					cci.addResults(getResults(futures, props));
 				}
 				return cci; 
 			}
@@ -192,57 +204,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	
 	private <T> ResultCursor<T> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
 		
-		Map<Member, Future<ResultCursor<T>>> futures = null;
-		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
-		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
-			// run query on all nodes in cluster
-			futures = execService.submitToAllMembers(task);
-		} else {
-			Object runKey = null;
-			futures = new HashMap<>(1);
-			if (pv_client_submitTo_query_key_owner.equalsIgnoreCase(runOn)) {
-				runKey = qKey;
-			} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
-				String param = props.getProperty(pn_client_ownerParam);
-				if (param == null) {
-					logger.debug("executeQueryTask; the routing parameter not provided: {}", props);
-				} else {
-					runKey = params.get(param);
-					if (runKey == null) {
-						logger.debug("executeQueryTask; the routing parameter '{}' not found: {}", param, params);
-					} else {
-						if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
-							runKey = runKey.toString().hashCode();
-						}
-					}
-				}
-			//} else {
-				// just for future investigation..
-				// runKey = new Long(runOn.hashCode());
-			}
-
-			Member owner = null;
-			if (runKey == null) {
-				// this is for any/default cases: balance job between nodes...
-				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
-				int cnt = (int) (runIdx.incrementAndGet() % members.size());
-				Iterator<Member> itr = members.iterator();
-				for (int i=0; i <= cnt; i++) {
-					owner = itr.next();
-				}
-				logger.debug("executeQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
-				futures.put(owner, execService.submitToMember(task, owner));
-			} else {
-				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
-				futures.put(owner, execService.submitToKeyOwner(task, runKey));
-			}
-		}
+		List<Future<ResultCursor<T>>> futures = submitQueryTask(task, params, props, qKey);
 	
 		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
 		if (pv_client_fetchType_asynch.equals(fetchType)) {
 			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 			AsynchCursorImpl<T> cursor = new AsynchCursorImpl<>(fetchSize, futures.size());
-			for (Future<ResultCursor<T>> f: futures.values()) {
+			for (Future<ResultCursor<T>> f: futures) {
 				if (f instanceof ICompletableFuture) {
 					ICompletableFuture<ResultCursor<T>> icf = (ICompletableFuture<ResultCursor<T>>) f;
 					icf.andThen(cursor);
@@ -266,9 +234,60 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.debug("executeQueryTask.exit; returning: {}", cursor);
 		return cursor; 
 	}
+	
+	private <T> List<Future<ResultCursor<T>>> submitQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
+		
+		List<Future<ResultCursor<T>>> results = null;
+		String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+		if (pv_client_submitTo_all.equalsIgnoreCase(runOn)) {
+			// run query on all nodes in cluster
+			Map<Member, Future<ResultCursor<T>>> futures = execService.submitToAllMembers(task);
+			results = new ArrayList<>(futures.values());
+		} else {
+			Object runKey = null;
+			results = new ArrayList<>(1);
+			if (pv_client_submitTo_query_key_owner.equalsIgnoreCase(runOn)) {
+				runKey = qKey;
+			} else if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn) || pv_client_submitTo_param_value_owner.equalsIgnoreCase(runOn)) {
+				String param = props.getProperty(pn_client_ownerParam);
+				if (param == null) {
+					logger.debug("submitQueryTask; the routing parameter not provided: {}", props);
+				} else {
+					runKey = params.get(param);
+					if (runKey == null) {
+						logger.debug("submitQueryTask; the routing parameter '{}' not found: {}", param, params);
+					} else {
+						if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
+							runKey = runKey.toString().hashCode();
+						}
+					}
+				}
+			//} else {
+				// just for future investigation..
+				// runKey = new Long(runOn.hashCode());
+			}
+
+			Member owner = null;
+			if (runKey == null) {
+				// this is for any/default cases: balance job between nodes...
+				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
+				int cnt = (int) (runIdx.incrementAndGet() % members.size());
+				Iterator<Member> itr = members.iterator();
+				for (int i=0; i <= cnt; i++) {
+					owner = itr.next();
+				}
+				logger.debug("submitQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
+				results.add(execService.submitToMember(task, owner));
+			} else {
+				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
+				results.add(execService.submitToKeyOwner(task, runKey));
+			}
+		}
+		return results;
+	}	
 
 	@SuppressWarnings({ "unchecked", "resource" })
-	private <T> ResultCursor<T> getResults(Map<Member, Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
+	private <T> ResultCursor<T> getResults(List<Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
 
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		long timeout = Long.parseLong(props.getProperty(pn_xqj_queryTimeout, "0"));
@@ -279,19 +298,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			// get the fastest result somehow..
 			// no need to use combined cursor as results from all members 
 			// will go to the queue anyway 
-			future = futures.values().iterator().next();
+			future = futures.iterator().next();
 			result = getResult(future, timeout);
 			((QueuedCursorImpl<ResultCursor<T>>) result).init(repo.getHazelcastClient());
 		} else {
 			if (futures.size() > 1) { 
 				int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 				CombinedCursorImpl<T> comb = new CombinedCursorImpl<>(fetchSize);
-				for (Map.Entry<Member, Future<ResultCursor<T>>> entry: futures.entrySet()) {
-					comb.addResults(getResult(entry.getValue(), timeout));
+				for (Future<ResultCursor<T>> f: futures) {
+					comb.addResults(getResult(f, timeout));
 				}
 				result = comb;
 			} else {
-				result = getResult(futures.values().iterator().next(), timeout);
+				result = getResult(futures.iterator().next(), timeout);
 			}
 		}
 		return result;
@@ -348,42 +367,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		logger.trace("prepareQuery.exit; returning: {}", result);
 		return result;
 	}
-/*
-	private class CursorExecutionCallback<T> implements MultiExecutionCallback {
-		
-		private boolean isComplete = false;
-		private boolean hasResults = false;
-		private CombinedCursorImpl<T> results;
-		
-		CursorExecutionCallback(int limit) {
-			this.results = new CombinedCursorImpl<>(limit);
-		}
-		
-		ResultCursor<T> getResults() {
-			return results;
-		}
-		
-		boolean hasResults() {
-			return hasResults;
-		}
-		
-		boolean isComplete() {
-			return isComplete;
-		}
 
-		@Override
-		public void onResponse(Member member, Object value) {
-			hasResults = true;
-			results.addResults((ResultCursor<T>) value);
-		}
-
-		@Override
-		public void onComplete(Map<Member, Object> values) {
-			isComplete = true;
-		}
-		
-		
-	}
-*/
 	
 }
