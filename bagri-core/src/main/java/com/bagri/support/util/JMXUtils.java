@@ -140,7 +140,7 @@ public class JMXUtils {
 	 * @return the MBean ObjectName
 	 * @throws MalformedObjectNameException in case of ObjectName construction error
 	 */
-	public static ObjectName getObjectName(Hashtable keys) throws MalformedObjectNameException {
+	public static ObjectName getObjectName(Hashtable<String, String> keys) throws MalformedObjectNameException {
 		return new ObjectName(domain, keys);
 	}
 	
@@ -351,7 +351,7 @@ public class JMXUtils {
      */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static TabularData aggregateStats(TabularData source, TabularData target, StatsAggregator aggregator) {
-        logger.debug("aggregateStats.enter; got source: {}", source);
+        //logger.trace("aggregateStats.enter; got source: {}", source);
         if (source == null) {
         	return target;
         }
@@ -366,7 +366,7 @@ public class JMXUtils {
        			result.put(aggr);
         	}
     	}
-        logger.debug("aggregateStats.exit; returning: {}", result);
+        //logger.trace("aggregateStats.exit; returning: {}", result);
 		return result;
 	}
 
@@ -410,7 +410,7 @@ public class JMXUtils {
 	 * @return the produced Composite data
 	 */
     public static CompositeData propsToComposite(String name, String desc, Properties props) {
-    	logger.trace("propsToComposite; name: {}; properties: {}", name, props);
+    	//logger.trace("propsToComposite; name: {}; properties: {}", name, props);
         if (props != null && !props.isEmpty()) {
             try {
                 String[] names = new String[props.size()];

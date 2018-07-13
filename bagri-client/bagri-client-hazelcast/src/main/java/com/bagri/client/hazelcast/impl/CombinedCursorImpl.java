@@ -35,6 +35,7 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	}
 	
 	public void addResults(ResultCursor<T> result) {
+		logger.trace("addResults; got results: {}", result);
 		results.add(result);
 	}
 

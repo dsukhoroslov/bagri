@@ -3,6 +3,7 @@ package com.bagri.server.hazelcast.management;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
 import static com.bagri.support.util.JMXUtils.compositeToTabular;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +21,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.bagri.server.hazelcast.task.schema.SchemaLoadMonitor;
 import com.bagri.server.hazelcast.task.schema.SchemaPopulator;
-import com.bagri.server.hazelcast.task.stats.StatisticSeriesCollector;
 import com.hazelcast.core.Member;
 
 @ManagedResource(description="Population Manager MBean")
@@ -35,6 +35,8 @@ public class PopulationManagement extends SchemaFeatureManagement {
 	private long startTime = 0;
 	private long popTime = 0;
 
+	private Map<String, CompositeData> populators = new HashMap<>();
+	
     public PopulationManagement(String schemaName) {
     	super(schemaName);
 	}
@@ -116,7 +118,25 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		TabularData result = null;
 		Callable<CompositeData> task = new SchemaLoadMonitor();
 		Map<Member, Future<CompositeData>> futures = execService.submitToAllMembers(task);
-		
+		for (Map.Entry<Member, Future<CompositeData>> entry: futures.entrySet()) {
+			try {
+				CompositeData loaded = entry.getValue().get();
+				String member = entry.getKey().getSocketAddress().toString();
+				populators.put(member, loaded);
+				//logger.trace("getPopulationStatistics; loaded: {} by member {}", loaded, member);
+                result = compositeToTabular("Population", "Monitor", "Member", result, loaded);
+				cnt++;
+			} catch (InterruptedException | ExecutionException | OpenDataException ex) {
+				logger.error("getPopulationStatistics.error: " + ex.getMessage(), ex);
+			}
+		}
+		logger.trace("getPopulationStatistics.exit; got stats from {} nodes", cnt);
+		calcAggregates();
+		return result;
+	}
+	
+	private void calcAggregates() {
+
 		cntKeys = 0;
 		cntErrors = 0;
 		cntLoading = 0;
@@ -126,40 +146,29 @@ public class PopulationManagement extends SchemaFeatureManagement {
 		popTime = 0;
 		startTime = Long.MAX_VALUE;
 		long lastTime = Long.MIN_VALUE;
-		for (Map.Entry<Member, Future<CompositeData>> entry: futures.entrySet()) {
-			try {
-				CompositeData loaded = entry.getValue().get();
-				Integer ce = (Integer) loaded.get("Errors");
-				cntErrors += ce;
-				Integer ck = (Integer) loaded.get("Keys");
-				cntKeys += ck;
-				Integer cg = (Integer) loaded.get("Loading");
-				cntLoading += cg;
-				Integer cd = (Integer) loaded.get("Loaded");
-				cntLoaded += cd;
-				Integer cs = (Integer) loaded.get("StartedBatches");
-				cntBatchStarted += cs;
-				Integer cf = (Integer) loaded.get("FinishedBatches");
-				cntBatchFinished += cf;
-				Long st = (Long) loaded.get("StartTime");
-				if (st < startTime) {
-					startTime = st;
-				}
-				Long lt = (Long) loaded.get("LastTime");
-				if (lt > lastTime) {
-					lastTime = lt;
-				}
-				String member = entry.getKey().getSocketAddress().toString();
-				logger.trace("getPopulationStatistics; loaded: {} by member {}", loaded, member);
-                result = compositeToTabular("Population", "Monitor", "Member", result, loaded);
-				cnt++;
-			} catch (InterruptedException | ExecutionException | OpenDataException ex) {
-				logger.error("getPopulationStatistics.error: " + ex.getMessage(), ex);
+		for (CompositeData loaded: populators.values()) {
+			Integer ce = (Integer) loaded.get("Errors");
+			cntErrors += ce;
+			Integer ck = (Integer) loaded.get("Keys");
+			cntKeys += ck;
+			Integer cg = (Integer) loaded.get("Loading");
+			cntLoading += cg;
+			Integer cd = (Integer) loaded.get("Loaded");
+			cntLoaded += cd;
+			Integer cs = (Integer) loaded.get("StartedBatches");
+			cntBatchStarted += cs;
+			Integer cf = (Integer) loaded.get("FinishedBatches");
+			cntBatchFinished += cf;
+			Long st = (Long) loaded.get("StartTime");
+			if (st < startTime) {
+				startTime = st;
+			}
+			Long lt = (Long) loaded.get("LastTime");
+			if (lt > lastTime) {
+				lastTime = lt;
 			}
 		}
 		popTime = lastTime - startTime;
-		logger.trace("getPopulationStatistics.exit; got stats from {} nodes", cnt);
-		return result;
 	}
 
 	@ManagedAttribute(description="Schema population state")
@@ -181,6 +190,7 @@ public class PopulationManagement extends SchemaFeatureManagement {
 			// throw ex?
 			return;
 		}
+		populators.clear();
 		SchemaPopulator pop = new SchemaPopulator(schemaName, overrideExisting, false);
 		execService.submitToAllMembers(pop);
 	}

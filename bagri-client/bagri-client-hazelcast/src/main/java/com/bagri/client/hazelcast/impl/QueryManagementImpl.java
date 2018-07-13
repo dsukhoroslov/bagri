@@ -92,6 +92,20 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return props;
 	}
 	
+	private <T> ResultCursor<T> convertResults(List<ResultCursor<T>> results, int limit) {
+		if (results.size() > 1) {
+			CombinedCursorImpl<T> cci = new CombinedCursorImpl<>(limit); 
+			for (ResultCursor<T> rc: results) {
+				cci.addResults(rc);
+			}
+			return cci;
+		} else if (results.size() == 1) {
+			return results.iterator().next();
+		}
+		logger.warn("convertResults; no results found for some reason");
+		return null;
+	}
+	
 	@Override
 	public ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 
@@ -112,7 +126,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		Callable<ResultCursor<String>> task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
-		ResultCursor<String> cursor = executeQueryTask(task, params, props, qKey);
+		List<ResultCursor<String>> results = executeQueryTask(task, params, props, qKey);
+		ResultCursor<String> cursor = convertResults(results, 0);
 		logger.trace("getDocumentUris.exit; returning: {}", cursor);
 		return cursor;
 	}
@@ -147,7 +162,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		if (cursor == null) {
 			Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
-			cursor = executeQueryTask(task, params, props, qKey);
+			List<ResultCursor<T>> results = executeQueryTask(task, params, props, qKey);
+			cursor = convertResults(results, 0);
 		}
 		logger.debug("executeQuery.exit; returning: {}", cursor);
 		return cursor; 
@@ -190,11 +206,15 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					if (doBatch) {
 						futures.addAll(submitQueryTask(task, params, props, splitQKey));
 					} else {
-						cci.addResults(executeQueryTask(task, params, props, splitQKey));
+						for (ResultCursor<T> cr: executeQueryTask(task, params, props, splitQKey)) {
+							cci.addResults(cr);
+						}
 					}
 				}
 				if (doBatch && !futures.isEmpty()) {
-					cci.addResults(getResults(futures, props));
+					for (ResultCursor<T> cr: getResults(futures, props)) {
+						cci.addResults(cr);
+					}
 				}
 				return cci; 
 			}
@@ -202,7 +222,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 	
-	private <T> ResultCursor<T> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
+	private <T> List<ResultCursor<T>> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
 		
 		List<Future<ResultCursor<T>>> futures = submitQueryTask(task, params, props, qKey);
 	
@@ -219,20 +239,19 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			}
 			logger.debug("executeQueryTask.exit; returning: {}", cursor);
-			return cursor;
+			List<ResultCursor<T>> cursors = new ArrayList<>(1);
+			cursors.add(cursor);
+			return cursors;
 		}
 
 		//if (cursor != null && cursor instanceof QueuedCursorImpl) {
 		//  purge queue, fetch/close current cursor..?
 		//}
 		
-		ResultCursor<T> cursor = getResults(futures, props);
-		if (cursor.isAsynch()) {
-			((QueuedCursorImpl<T>) cursor).init(repo.getHazelcastClient());
-		}
+		List<ResultCursor<T>> cursors = getResults(futures, props);
 		
-		logger.debug("executeQueryTask.exit; returning: {}", cursor);
-		return cursor; 
+		logger.debug("executeQueryTask.exit; returning: {}", cursors);
+		return cursors; 
 	}
 	
 	private <T> List<Future<ResultCursor<T>>> submitQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
@@ -276,7 +295,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();
 				}
-				logger.debug("submitQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
+				logger.trace("submitQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
 				results.add(execService.submitToMember(task, owner));
 			} else {
 				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
@@ -287,30 +306,25 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}	
 
 	@SuppressWarnings({ "unchecked", "resource" })
-	private <T> ResultCursor<T> getResults(List<Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
+	private <T> List<ResultCursor<T>> getResults(List<Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
 
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
 		long timeout = Long.parseLong(props.getProperty(pn_xqj_queryTimeout, "0"));
 
-		ResultCursor<T> result;
-		Future<ResultCursor<T>> future; 
+		List<ResultCursor<T>> result;
 		if (asynch) {
 			// get the fastest result somehow..
-			// no need to use combined cursor as results from all members 
-			// will go to the queue anyway 
-			future = futures.iterator().next();
-			result = getResult(future, timeout);
-			((QueuedCursorImpl<ResultCursor<T>>) result).init(repo.getHazelcastClient());
+			// no need to take more than one result because results from all members 
+			// will go to the same queue anyway 
+			Future<ResultCursor<T>> f = futures.iterator().next();
+			ResultCursor<T> qc = getResult(f, timeout);
+			((QueuedCursorImpl<T>) qc).init(repo.getHazelcastClient());
+			result = new ArrayList<>(1);
+			result.add(qc);
 		} else {
-			if (futures.size() > 1) { 
-				int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
-				CombinedCursorImpl<T> comb = new CombinedCursorImpl<>(fetchSize);
-				for (Future<ResultCursor<T>> f: futures) {
-					comb.addResults(getResult(f, timeout));
-				}
-				result = comb;
-			} else {
-				result = getResult(futures.iterator().next(), timeout);
+			result = new ArrayList<>(futures.size());
+			for (Future<ResultCursor<T>> f: futures) {
+				result.add(getResult(f, timeout));
 			}
 		}
 		return result;
