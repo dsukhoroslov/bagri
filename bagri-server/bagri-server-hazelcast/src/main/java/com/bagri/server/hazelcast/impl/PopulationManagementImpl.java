@@ -88,8 +88,9 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
     private IMap<DocumentKey, String> keyCache;
 	//private IMap<DocumentKey, Document> xddCache;
 	private IMap xddCache;
-	private DocumentMemoryStore docStore;
-	//private DocumentManagementImpl docMgr;
+
+    private boolean useCatalog = false;
+	private DocumentMemoryStore catalog;
 
 	@Override
 	public String getKeyMapping(DocumentKey key) {
@@ -133,15 +134,18 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		this.nodeEngine = nodeEngine;
 		this.schemaName = properties.getProperty(pn_schema_name);
 		this.popClusterSize = Integer.parseInt(properties.getProperty(pn_schema_population_size, "0"));
-		String dataPath = properties.getProperty(pn_schema_store_data_path);
-		String nodeNum = properties.getProperty(pn_node_instance);
-		int buffSize = 2048*100;
-		String bSize = properties.getProperty(pn_schema_population_buffer_size);
-		if (bSize != null) {
-			buffSize = Integer.parseInt(bSize);
+		this.useCatalog = Boolean.parseBoolean(properties.getProperty(pn_schema_population_size, "0"));
+		if (useCatalog) {
+			String dataPath = properties.getProperty(pn_schema_store_data_path);
+			String nodeNum = properties.getProperty(pn_node_instance);
+			int buffSize = 2048*100;
+			String bSize = properties.getProperty(pn_schema_population_buffer_size);
+			if (bSize != null) {
+				buffSize = Integer.parseInt(bSize);
+			}
+			logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
+			catalog = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
 		}
-		logger.info("init; will open doc store from path: {}; instance: {}; buffer size: {} docs", dataPath, nodeNum, buffSize);
-		docStore = new DocumentMemoryStore(dataPath, nodeNum, buffSize);
 			
 		nodeEngine.getPartitionService().addMigrationListener(this);
 		nodeEngine.getHazelcastInstance().getCluster().addMembershipListener(this);
@@ -159,13 +163,17 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	@Override
 	public void shutdown(boolean terminate) {
 		logger.info("shutdown; terminate: {}", terminate);
-		docStore.close();
+		if (useCatalog) {
+			catalog.close();
+		}
 	}
 
 	public void checkPopulation(int currentSize) throws Exception {
 		logger.info("checkPopulation; will start population at {} cluster size; current size is: {}", popClusterSize, currentSize);
-		activateDocStore();
-		xddCache.addEntryListener(this, true);
+		if (useCatalog) {
+			activateDocStore();
+			xddCache.addEntryListener(this, true);
+		}
     	if (popClusterSize > 0 && popClusterSize == currentSize && getLoadedCount() == 0) {
     		SchemaPopulator pop = new SchemaPopulator(schemaName, false, false);
     		// we can't call it directly as it'll block current thread for a long time..
@@ -185,15 +193,24 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	}
 	
 	public Document getDocument(Long docKey) {
-		return docStore.getEntry(docKey);
+		if (useCatalog) {
+			return catalog.getEntry(docKey);
+		} 
+		return null;
 	}
 	
 	public int getActiveCount() {
-		return docStore.getActiveEntryCount();
+		if (useCatalog) {
+			return catalog.getActiveEntryCount();
+		}
+		return 0;
 	}
 	
 	public int getDocumentCount() {
-		return docStore.getFullEntryCount();
+		if (useCatalog) {
+			return catalog.getFullEntryCount();
+		}
+		return 0;
 	}
 	
 	public int getStartedBatchCount() {
@@ -249,21 +266,23 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	}
 	
 	public Set<DocumentKey> getDocumentKeys() {
-		if (docStore.getEntryKeys().size() == 0) {
-			return null;
+		if (useCatalog && !catalog.getEntryKeys().isEmpty()) {
+			Set<DocumentKey> result = new HashSet<>();
+			KeyFactory factory = getKeyFactory();
+			for (Long docKey: catalog.getEntryKeys()) {
+				result.add(factory.newDocumentKey(docKey));
+			}
+			logger.info("getDocumentKeys; returning {} keys, out of total {}", result.size(), catalog.getEntryKeys().size());
+			return result;
 		}
-		
-		Set<DocumentKey> result = new HashSet<>();
-		KeyFactory factory = getKeyFactory();
-		for (Long docKey: docStore.getEntryKeys()) {
-			result.add(factory.newDocumentKey(docKey));
-		}
-		logger.info("getDocumentKeys; returning {} keys, out of total {}", result.size(), docStore.getEntryKeys().size());
-		return result;
+		return null;
 	}
 	
 	public long getMaxTransactionId() {
-		return docStore.getMaxTransactionId();
+		if (useCatalog) {
+			return catalog.getMaxTransactionId();
+		}
+		return 0; //TX_NO;
 	}
 	
 	public void addLoadingCounts(int loading) {
@@ -284,21 +303,21 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	
 	private void activateDocStore() {
 
-		if (docStore.isActivated()) {
+		if (catalog.isActivated()) {
 			logger.info("activateDocStore; the document store has been already activated");
 			return;
 		}
 
-		docStore.init(xddCache);
+		catalog.init(xddCache);
 
 		//ApplicationContext schemaCtx = getContext(schemaName);
 		//docMgr = schemaCtx.getBean(DocumentManagementImpl.class);
 
 		KeyFactory factory = getKeyFactory();
-		Collection<Long> docKeys = docStore.getEntryKeys();
+		Collection<Long> docKeys = catalog.getEntryKeys();
 		Map<DocumentKey, String> mappings = new HashMap<>(docKeys.size());
 		for (Long docKey: docKeys) {
-			Document doc = docStore.getEntry(docKey);
+			Document doc = catalog.getEntry(docKey);
 			if (doc != null && doc.isActive()) {
 				mappings.put(factory.newDocumentKey(docKey), doc.getUri());
 			}
@@ -397,7 +416,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 
 	@Override
 	public void memberRemoved(MembershipEvent membershipEvent) {
-		logger.info("memberRemoved; event: {}; docs size: {}; active count: {}", membershipEvent, xddCache.size(), docStore.getActiveEntryCount());
+		logger.info("memberRemoved; event: {}", membershipEvent);
 	}
 
 	@Override
@@ -443,7 +462,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	@Override
 	public void entryAdded(EntryEvent<DocumentKey, Document> event) {
 		logger.trace("entryAdded.enter; event: {}", event);
-		boolean added = docStore.putEntry(event.getKey().getKey(), event.getValue(), false);
+		boolean added = catalog.putEntry(event.getKey().getKey(), event.getValue(), false);
 		logger.trace("entryAdded.exit; added: {}", added);
 	}
 
@@ -452,7 +471,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		logger.trace("entryUpdated.enter; event: {}", event);
 		boolean updated;
 		//if (event.getValue().getVersion() > event.getOldValue().getVersion()) {
-			updated = docStore.putEntry(event.getKey().getKey(), event.getValue(), true);
+			updated = catalog.putEntry(event.getKey().getKey(), event.getValue(), true);
 		//} else {
 			// update it inplace as the entry size shouldn't be changed
 		//	updated = docStore.updateEntry(event.getKey().getKey(), event.getValue());
@@ -463,7 +482,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 	@Override
 	public void entryRemoved(EntryEvent<DocumentKey, Document> event) {
 		logger.trace("entryRemoved.enter; event: {}", event);
-		boolean removed = docStore.clearEntry(event.getKey().getKey(), event.getValue(), true);
+		boolean removed = catalog.clearEntry(event.getKey().getKey(), event.getValue(), true);
 		logger.trace("entryRemoved.exit; removed: {}", removed);
 	}
 

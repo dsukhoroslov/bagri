@@ -1,9 +1,9 @@
 package com.bagri.client.hazelcast.impl;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,8 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
     private final static Logger logger = LoggerFactory.getLogger(CombinedCursorImpl.class);
 	
     private int limit;
-	private Queue<ResultCursor<T>> results = new ConcurrentLinkedQueue<>();
+	//private Queue<ResultCursor<T>> results = new ConcurrentLinkedQueue<>();
+	private List<ResultCursor<T>> results = new CopyOnWriteArrayList<>();
 	
 	public CombinedCursorImpl() {
 		this(0);
@@ -80,11 +81,21 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 	}
 
 	
-	private class CombinedCursorIterator<T> implements Iterator<T> {
+	private class CombinedCursorIterator<K> implements Iterator<T> {
 
 		private int resIndex = 0;
 		private Iterator<T> curIter = null;
 		private ResultCursor<T> curResult = null;
+		
+		private ResultCursor<T> getNextResult() {
+			for (ResultCursor<T> rc: results) {
+				if (rc.isComplete()) {
+					results.remove(rc);
+					return rc;
+				}
+			}
+			return null;
+		}
 		
 		@Override
 		public boolean hasNext() {
@@ -93,10 +104,10 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 				return false;
 			}
 			if (curResult == null) {
-				if (results.isEmpty()) {
+				curResult = getNextResult();
+				if (curResult == null) {
 					return false;
 				}
-				curResult = (ResultCursor<T>) results.poll();
 				curIter = curResult.iterator();
 				logger.trace("hasNext; got results: {}", curResult);
 			}
@@ -106,7 +117,6 @@ public class CombinedCursorImpl<T> implements ResultCursor<T> {
 				if (curResult.isComplete()) {
 					logger.trace("hasNext; complete");
 					curResult = null;
-					//curIndex++;
 					return hasNext();
 				} else {
 					// could get asynch results..
