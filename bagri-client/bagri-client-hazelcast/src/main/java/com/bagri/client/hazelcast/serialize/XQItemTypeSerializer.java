@@ -39,7 +39,6 @@ public class XQItemTypeSerializer implements StreamSerializer<XQItemType> {
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
 	
 	@Override

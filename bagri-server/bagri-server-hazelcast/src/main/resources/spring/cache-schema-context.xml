@@ -230,6 +230,7 @@
 						<hz:property name="bdb.schema.name">${bdb.schema.name}</hz:property>
 						<hz:property name="bdb.schema.population.size">${bdb.schema.population.size}</hz:property>
 						<hz:property name="bdb.schema.population.buffer.size">${bdb.schema.population.buffer.size}</hz:property>
+						<hz:property name="bdb.schema.population.use.catalog">${bdb.schema.population.use.catalog}</hz:property>
 						<hz:property name="bdb.schema.store.data.path">${bdb.schema.store.data.path}</hz:property>
 					</hz:properties>
 					<!--hz:configuration parser="MyParser">

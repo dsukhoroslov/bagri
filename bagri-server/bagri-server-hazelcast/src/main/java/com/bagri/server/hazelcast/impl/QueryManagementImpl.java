@@ -1,7 +1,6 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
-import static com.bagri.core.system.DataFormat.df_xml;
 import static com.bagri.support.util.XQUtils.adjustSearchValue;
 
 import java.io.IOException;
@@ -73,6 +72,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	private static final transient Logger logger = LoggerFactory.getLogger(QueryManagementImpl.class);
 	
 	private static final String xqScrollForwardStr = String.valueOf(XQConstants.SCROLLTYPE_FORWARD_ONLY);
+	private static final String fn_pathId = "pathId";
 	
 	private SchemaRepositoryImpl repo;
 	private ModelManagement model;
@@ -402,9 +402,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			paths = new HashSet<>(qPath.getPathIds());
 			if (paths.size() > 1) {
 				Integer[] pa = paths.toArray(new Integer[paths.size()]); 
-				pp = Predicates.in("pathId", pa);
+				pp = Predicates.in(fn_pathId, pa);
 			} else {
-				pp = Predicates.equal("pathId", paths.iterator().next());
+				pp = Predicates.equal(fn_pathId, paths.iterator().next());
 			}
 		} else {
 			if (pex.isRegex()) {
@@ -413,7 +413,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				logger.trace("queryPathKeys; regex: {}; pathIds: {}", pex.getRegex(), paths);
 				if (paths.size() > 0) {
 					Integer[] pa = paths.toArray(new Integer[paths.size()]); 
-					pp = Predicates.in("pathId", pa);
+					pp = Predicates.in(fn_pathId, pa);
 					Path xPath = model.getPath(pa[0]);
 					dataType = xPath.getDataType();
 				}
@@ -426,7 +426,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 				if (xPath != null) {
 					paths = new HashSet<>(1);
-					pp = Predicates.equal("pathId", xPath.getPathId());
+					pp = Predicates.equal(fn_pathId, xPath.getPathId());
 					paths.add(xPath.getPathId());
 					dataType = xPath.getDataType();
 				}
@@ -437,7 +437,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (paths == null || paths.isEmpty()) {
 			logger.debug("queryPathKeys; got query on unknown path: {}", pex);
 			if (found != null) {
-				result = new HashSet<>(found);
+				result = found; //new HashSet<>(found);
 			}
 			return result;
 		}
@@ -445,7 +445,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (newVal == null) {
 			logger.debug("queryPathKeys; got query on empty value, path: {}", pex);
 			if (found != null) {
-				result = new HashSet<>(found);
+				result = found; //new HashSet<>(found);
 			}
 			return result;
 		}
@@ -555,11 +555,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 		logger.trace("executeQuery.enter; query: {}; params: {}; properties: {}", query, params, props);
 		List<T> resList = null;
-		int qKey = 0;
 		boolean isQuery = "false".equalsIgnoreCase(props.getProperty(pn_query_command, "false"));
 		if (cacheResults) {
-			qKey = getQueryKey(query);
-			if (isQuery) {
+			String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+			boolean localOnly = pv_client_submitTo_all.equals(runOn);
+			if (isQuery && !localOnly) {
+				int qKey = getQueryKey(query);
 				if (xqCache.containsKey(qKey)) {
 					resList = (List<T>) getQueryResults(query, params, props);
 				}

@@ -7,7 +7,6 @@ import java.util.List;
 import javax.xml.xquery.XQDataFactory;
 import javax.xml.xquery.XQException;
 import javax.xml.xquery.XQItemAccessor;
-import javax.xml.xquery.XQItemType;
 import javax.xml.xquery.XQSequence;
 
 import org.slf4j.Logger;
@@ -44,8 +43,9 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 	public XQSequence read(ObjectDataInput in) throws IOException {
 		try {
 			//XQItemType type = in.readObject();
+			// TODO: get rid of List, read/write items manually..
 			List<XQItemAccessor> items = (List<XQItemAccessor>) in.readObject();
-			logger.trace("read; got items: {}", items);
+			logger.trace("read; got {} items", items.size());
 			return xqFactory.createSequence(items.iterator());
 		} catch (XQException ex) {
 			throw new IOException(ex);
@@ -72,7 +72,7 @@ public class XQSequenceSerializer implements StreamSerializer<XQSequence> {
 					}
 				}
 			}
-			logger.trace("write; writing items: {}", items);
+			logger.trace("write; writing {} items", items.size());
 			out.writeObject(items);
 		} catch (XQException ex) {
 			throw new IOException(ex);
