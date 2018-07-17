@@ -876,21 +876,22 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					params, ctx.getDocKeys(), resList);
 		} else {
 			long qrKey = getResultsKey(query, params);
-			String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
+			//String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 			Object qResult;
-			if (pv_client_submitTo_all.equals(runOn)) {
+			//if (pv_client_submitTo_all.equals(runOn)) {
 				QueryResultProcessor xqp = new QueryResultProcessor(params, ctx.getDocKeys(), resList);
 				// or, use xrCache.executeOnKey(..) ?
 				xrCache.submitToKey(qrKey, xqp);
 				qResult = xqp;
-			} else {
-				QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
+			//} else {
+			//	QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
 				// what is better to use here: putAsync or set ?
-				xrCache.set(qrKey, xqr);
-				qResult = xqr;
-			}
+			//	xrCache.set(qrKey, xqr);
+			//	qResult = xqr;
+			//}
 			updateStats(query, 1, resList.size());
-			logger.trace("fetchAndCacheResults.exit; stored results: {} for key: {}", qResult, qrKey);
+			// got java.util.ConcurrentModificationException printing qResult!
+			logger.trace("fetchAndCacheResults.exit; stored results: {} {} {} for key: {}", params, ctx.getDocKeys(), resList, qrKey);
 		}
 	}
 	
