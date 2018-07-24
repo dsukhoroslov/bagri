@@ -84,7 +84,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			props = new Properties();
 		}
 		props.setProperty(pn_schema_name, repo.getSchemaName());
-		props.setProperty(pn_client_id, repo.getClientId());
+		props.setProperty(pn_client_id, getClientId());
 		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		if (defTxLevel != null) {
 			props.setProperty(pn_client_txLevel, defTxLevel);
@@ -106,6 +106,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 	
+	private String getClientId() {
+		return repo.getClientId();
+	}
+	
 	@Override
 	public ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 
@@ -125,7 +129,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		Callable<ResultCursor<String>> task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
+		Callable<ResultCursor<String>> task = new QueryUrisProvider(getClientId(), repo.getTransactionId(), query, params, props);
 		List<ResultCursor<String>> results = executeQueryTask(task, params, props, qKey);
 		ResultCursor<String> cursor = convertResults(results, 0);
 		logger.trace("getDocumentUris.exit; returning: {}", cursor);
@@ -161,7 +165,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			cursor = executeSplitQuery(query, params, props, splitBy, useCache);
 		}
 		if (cursor == null) {
-			Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
+			Callable<ResultCursor<T>> task = new QueryExecutor(getClientId(), repo.getTransactionId(), query, params, props);
 			List<ResultCursor<T>> results = executeQueryTask(task, params, props, qKey);
 			cursor = convertResults(results, 0);
 		}
@@ -202,7 +206,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						}
 					}
 					
-					Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, splitParams, props);
+					Callable<ResultCursor<T>> task = new QueryExecutor(getClientId(), repo.getTransactionId(), query, splitParams, props);
 					if (doBatch) {
 						futures.addAll(submitQueryTask(task, params, props, splitQKey));
 					} else {
