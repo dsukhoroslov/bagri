@@ -2,12 +2,14 @@ package com.bagri.client.hazelcast.impl;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.setProperty;
+import static com.bagri.core.server.api.CacheConstants.PN_XDM_SCHEMA_POOL;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
 import com.bagri.client.hazelcast.serialize.ObjectMapContentSerializer;
 import com.bagri.client.hazelcast.serialize.StringContentSerializer;
 import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
+import com.bagri.client.hazelcast.task.auth.ChildIdsRegistrator;
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.HealthCheckState;
@@ -32,6 +35,9 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
     private static SchemaRepository stRepo = null;
     
 	private String clientId;
+    private AtomicLong childIdx = new AtomicLong(0);
+    private String[] childIdsPool = null;
+
 	private String schemaName;
 	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
@@ -84,8 +90,9 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_loginTimeout, null);
 		setProperty(props, pn_client_sharedConnection, null);
 		setProperty(props, pn_client_bufferSize, null); 
+		setProperty(props, pn_client_idCount, null);
 		setProperty(props, pn_client_connectAttempts, "3"); 
-		setProperty(props, pn_client_poolSize, "5");
+		setProperty(props, pn_client_poolSize, "8");
 		setProperty(props, pn_client_healthCheck, null);
 		setProperty(props, pn_client_queryCache, null);
 		setProperty(props, pn_client_txLevel, null);
@@ -109,6 +116,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(original, props, pn_client_loginTimeout, "loginTimeout");
 		setProperty(original, props, pn_client_sharedConnection, "sharedConnection");
 		setProperty(original, props, pn_client_bufferSize, null); 
+		setProperty(original, props, pn_client_idCount, null);
 		setProperty(original, props, pn_client_connectAttempts, null);
 
 		Object factory = original.get(pn_client_dataFactory);
@@ -147,6 +155,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	private void initializeFromProperties(Properties props) {
 		clientMgr = new ClientManagementImpl();
 		clientId = UUID.randomUUID().toString();
+		logger.debug("initializeFromProperties; initializing with props: {}", props);
 		hzClient = clientMgr.connect(clientId, props);
 		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
@@ -201,6 +210,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 			if (value != null) {
 				getHealthManagement().setCheckSate(HealthCheckState.valueOf(value));
 			}
+			value = props.getProperty(pn_client_idCount);
+			if (value != null) {
+				setChildIdsPool(Integer.parseInt(value));
+			}
 			value = props.getProperty(pn_client_queryCache);
 			if (value != null) {
 				((QueryManagementImpl) getQueryManagement()).setQueryCache(Boolean.parseBoolean(value));
@@ -209,6 +222,19 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 			if (value != null) {
 				((QueryManagementImpl) getQueryManagement()).setDefaultTxLevel(value);
 			}
+		}
+	}
+	
+	private void setChildIdsPool(int poolSize) {
+		if (poolSize > 0) {
+			childIdsPool = new String[poolSize];
+			for (int i=0; i < poolSize; i++) {
+				childIdsPool[i] = UUID.randomUUID().toString();
+			}
+			
+			ChildIdsRegistrator cir = new ChildIdsRegistrator(clientId, childIdsPool);
+			hzClient.getExecutorService(PN_XDM_SCHEMA_POOL).submit(cir);
+			// we don't need wait for response?
 		}
 	}
 	
@@ -238,13 +264,22 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	@Override
 	public void close() {
 		logger.trace("close.enter;");
-		clientMgr.disconnect(clientId);
+		// disconnect all child ids too...
+		ClientManagementImpl.disconnect(clientId);
 		logger.trace("close.exit;");
 	}
 	
 	@Override
 	public String getClientId() {
 		return clientId;
+	}
+
+	public String getChildId() {
+		if (childIdsPool == null) {
+			return clientId;
+		}
+		int idx = (int) (childIdx.incrementAndGet() % childIdsPool.length);
+		return childIdsPool[idx];
 	}
 
 	@Override

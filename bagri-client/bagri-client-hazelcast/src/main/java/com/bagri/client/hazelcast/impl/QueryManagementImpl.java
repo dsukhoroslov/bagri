@@ -48,7 +48,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     private Future<?> execution = null; 
     private IMap<Long, QueryResult> resCache;
     private ReplicatedMap<Integer, Query> xqCache;
-    private AtomicLong runIdx = new AtomicLong(0);
+    
+    private AtomicLong memberIdx = new AtomicLong(0);
     
 	public QueryManagementImpl() {
 		// what should we do here? 
@@ -84,7 +85,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			props = new Properties();
 		}
 		props.setProperty(pn_schema_name, repo.getSchemaName());
-		props.setProperty(pn_client_id, repo.getClientId());
+		props.setProperty(pn_client_id, getClientId());
 		props.setProperty(pn_client_txId, String.valueOf(repo.getTransactionId()));
 		if (defTxLevel != null) {
 			props.setProperty(pn_client_txLevel, defTxLevel);
@@ -106,6 +107,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 	
+	private String getClientId() {
+		return repo.getChildId();
+	}
+	
 	@Override
 	public ResultCursor<String> getDocumentUris(String query, Map<String, Object> params, Properties props) throws BagriException {
 
@@ -125,7 +130,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		Callable<ResultCursor<String>> task = new QueryUrisProvider(repo.getClientId(), repo.getTransactionId(), query, params, props);
+		Callable<ResultCursor<String>> task = new QueryUrisProvider(getClientId(), repo.getTransactionId(), query, params, props);
 		List<ResultCursor<String>> results = executeQueryTask(task, params, props, qKey);
 		ResultCursor<String> cursor = convertResults(results, 0);
 		logger.trace("getDocumentUris.exit; returning: {}", cursor);
@@ -161,7 +166,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			cursor = executeSplitQuery(query, params, props, splitBy, useCache);
 		}
 		if (cursor == null) {
-			Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, params, props);
+			Callable<ResultCursor<T>> task = new QueryExecutor(getClientId(), repo.getTransactionId(), query, params, props);
 			List<ResultCursor<T>> results = executeQueryTask(task, params, props, qKey);
 			cursor = convertResults(results, 0);
 		}
@@ -202,7 +207,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						}
 					}
 					
-					Callable<ResultCursor<T>> task = new QueryExecutor(repo.getClientId(), repo.getTransactionId(), query, splitParams, props);
+					Callable<ResultCursor<T>> task = new QueryExecutor(getClientId(), repo.getTransactionId(), query, splitParams, props);
 					if (doBatch) {
 						futures.addAll(submitQueryTask(task, params, props, splitQKey));
 					} else {
@@ -290,12 +295,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			if (runKey == null) {
 				// this is for any/default cases: balance job between nodes...
 				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
-				int cnt = (int) (runIdx.incrementAndGet() % members.size());
+				int cnt = (int) (memberIdx.incrementAndGet() % members.size());
 				Iterator<Member> itr = members.iterator();
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();
 				}
-				logger.trace("submitQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
+				logger.trace("submitQueryTask; routing task to node: {}; memberIdx: {}; cnt: {}", owner, memberIdx, cnt);
 				results.add(execService.submitToMember(task, owner));
 			} else {
 				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
@@ -305,7 +310,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return results;
 	}	
 
-	@SuppressWarnings({ "unchecked", "resource" })
+	@SuppressWarnings({ "resource" })
 	private <T> List<ResultCursor<T>> getResults(List<Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
 
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));

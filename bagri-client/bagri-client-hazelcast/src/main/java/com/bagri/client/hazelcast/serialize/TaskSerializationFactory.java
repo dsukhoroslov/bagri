@@ -1,5 +1,6 @@
 package com.bagri.client.hazelcast.serialize;
 
+import com.bagri.client.hazelcast.task.auth.ChildIdsRegistrator;
 import com.bagri.client.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.client.hazelcast.task.doc.CollectionsProvider;
 import com.bagri.client.hazelcast.task.doc.DocumentCollectionUpdater;
@@ -46,6 +47,7 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 	public static final int cli_ProvideQueryUrisTask = 133;
 
 	public static final int cli_AuthenticateTask = 140;
+	public static final int cli_RegisterChildIdsTask = 141;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {
@@ -67,6 +69,7 @@ public class TaskSerializationFactory implements DataSerializableFactory {
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_ProvideQueryUrisTask: return new QueryUrisProvider();
 			case cli_AuthenticateTask: return new UserAuthenticator();
+			case cli_RegisterChildIdsTask: return new ChildIdsRegistrator();
 		}
 		return null;
 	}

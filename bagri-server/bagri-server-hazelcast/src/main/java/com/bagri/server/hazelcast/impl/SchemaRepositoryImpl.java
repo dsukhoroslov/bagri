@@ -227,10 +227,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	}
 	
 	private XQProcessor newXQProcessor() {
-		XQProcessor result = appContext.getBean(XQProcessor.class, this);
-		//XDMQueryManagement qMgr = getQueryManagement();
-		//result.setRepository(this);
-		return result;
+		return appContext.getBean(XQProcessor.class, this);
 	}
 	
 	public KeyFactory getFactory() {

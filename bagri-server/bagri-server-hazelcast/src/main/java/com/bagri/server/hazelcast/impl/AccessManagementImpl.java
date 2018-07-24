@@ -76,12 +76,12 @@ public class AccessManagementImpl implements AccessManagement, InitializingBean 
 	}
 
 	public void checkPermission(String clientId, Permission.Value perm) throws BagriException {
-    	//repo.getXQProcessor(clientId);
-    	String user = ((ClientManagementImpl) repo.getClientManagement()).getClientUser(clientId);
 		if (bridge == null) {
 			// how this can be?
 	    	throw new BagriException("No access to permission configuration", BagriException.ecAccess);
 		}
+    	//repo.getXQProcessor(clientId);
+    	String user = ((ClientManagementImpl) repo.getClientManagement()).getClientUser(clientId);
 
 		Boolean result = bridge.hasPermission(schemaName, user, perm);
 		if (result == null) {

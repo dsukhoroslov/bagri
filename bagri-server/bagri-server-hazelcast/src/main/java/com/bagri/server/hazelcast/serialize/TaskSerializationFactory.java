@@ -1,7 +1,7 @@
 package com.bagri.server.hazelcast.serialize;
 
-import com.bagri.client.hazelcast.task.doc.DocumentsCreator;
-import com.bagri.core.api.SchemaRepository;
+import com.bagri.client.hazelcast.task.doc.DocumentsCreator; // why not server??
+import com.bagri.server.hazelcast.task.auth.ChildIdsRegistrator;
 import com.bagri.server.hazelcast.task.auth.UserAuthenticator;
 import com.bagri.server.hazelcast.task.doc.DocumentsRemover;
 import com.bagri.server.hazelcast.task.doc.CollectionsProvider;
@@ -161,6 +161,7 @@ public class TaskSerializationFactory extends com.bagri.client.hazelcast.seriali
 			case cli_FetchResultsTask: return new ResultFetcher();
 			case cli_ProvideQueryUrisTask: return new QueryUrisProvider();
 			case cli_AuthenticateTask: return new UserAuthenticator();
+			case cli_RegisterChildIdsTask: return new ChildIdsRegistrator();
 
 			case cli_InitSchemaTask: return new SchemaInitiator();
 			case cli_DenitSchemaTask: return new SchemaDenitiator();

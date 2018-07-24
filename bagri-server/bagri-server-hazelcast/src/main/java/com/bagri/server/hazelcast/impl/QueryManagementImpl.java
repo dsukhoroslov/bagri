@@ -1023,30 +1023,4 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 
 }
 
-/*
-2018-05-16 13:07:31.031 [hz.Inventory-0.cached.thread-29] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 1 results for docId: 5040631832572329985; new size is: 52447
-2018-05-16 13:07:31.733 [hz.Inventory-0.cached.thread-29] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 52438 results for docId: 4400133697706131457; new size is: 10
-2018-05-16 13:07:34.511 [hz.Inventory-0.cached.thread-37] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 1 results for docId: -941130761661054975; new size is: 60
 
-2018-05-16 15:08:57.338 [hz.Inventory-0.cached.thread-34] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document 8baaee7d-b866-448d-be4e-5af472ef2930.json with key 264032199693565953 (DocumentPartKey [key=264032199693565953, hash=61474787, revision=0, version=1])
-2018-05-16 15:08:57.958 [hz.Inventory-0.cached.thread-34] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 52998 results for docId: 264032199693565953; new size is: 4
-
-2018-05-16 15:09:44.550 [hz.Inventory-0.cached.thread-37] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document ae10fa81-52c1-411d-b407-f523cd543eff.json with key -5158799220542537727 (DocumentPartKey [key=-5158799220542537727, hash=-1201126543, revision=0, version=1])
-2018-05-16 15:09:44.566 [hz.Inventory-0.cached.thread-37] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 401 results for docId: -5158799220542537727; new size is: 3
-
-2018-05-16 15:11:41.809 [hz.Inventory-0.cached.thread-18] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document 090bdfc7-df0e-4e45-91fa-fe36f50d94ec.json with key -2046255190138421247 (DocumentPartKey [key=-2046255190138421247, hash=-476430913, revision=0, version=1])
-2018-05-16 15:11:41.818 [hz.Inventory-0.cached.thread-18] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 401 results for docId: -2046255190138421247; new size is: 1
-
-2018-05-16 15:13:30.275 [hz.Inventory-0.cached.thread-6] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document 8baaee7d-b866-448d-be4e-5af472ef2930.json with key 264032199693565953 (DocumentPartKey [key=264032199693565953, hash=61474787, revision=0, version=1])
-2018-05-16 15:13:30.339 [hz.Inventory-0.cached.thread-6] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 401 results for docId: 264032199693565953; new size is: 0
-
-2018-05-16 16:37:31.984 [hz.Inventory-0.cached.thread-11] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document 96c1a158-a3f6-4df7-9396-fd58567e0f08.json with key DocumentPartKey [key=-1333881043861635071, hash=-310568382, revision=0, version=1]
-2018-05-16 16:37:33.866 [hz.Inventory-0.cached.thread-11] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 49166 results for docId: -1333881043861635071; new size is: 39
-
-2018-05-16 16:41:05.657 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document d76a4464-f082-4c70-bbee-fb5f8dff0690.json with key DocumentPartKey [key=-5774554392413863935, hash=-1344493216, revision=0, version=1]
-2018-05-16 16:41:05.942 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 4180 results for docId: -5774554392413863935; new size is: 1
-
-2018-05-16 16:43:04.827 [hz.Inventory-0.cached.thread-24] INFO  com.bagri.server.hazelcast.impl.DocumentManagementImpl - storeDocumentInternal; going to invalidate query results for document 554c3f2d-a638-4543-8f42-f33e0af0bf7b.json with key DocumentPartKey [key=-3304032170883940351, hash=-769279937, revision=0, version=1]
-2018-05-16 16:43:04.845 [hz.Inventory-0.cached.thread-24] INFO  com.bagri.server.hazelcast.impl.QueryManagementImpl - removeQueryResults.exit; deleted 401 results for docId: -3304032170883940351; new size is: 1
-
-*/

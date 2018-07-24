@@ -5,6 +5,7 @@ import static com.bagri.core.Constants.pn_schema_address;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_password;
 import static com.bagri.core.Constants.pn_schema_user;
+import static com.bagri.support.util.PropUtils.enrichBDBProperties;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.getHazelcastClientByName;
 
 import java.util.Arrays;
@@ -15,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.core.api.SchemaRepository;
-import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.xquery.api.XQProcessor;
@@ -99,6 +99,7 @@ public class RepositoryProviderImpl implements RepositoryProvider {
 	    props.setProperty(pn_schema_name, schemaName);
 	    props.setProperty(pn_schema_user, userName);
 	    props.setProperty(pn_schema_password, password);
+	    enrichBDBProperties(System.getProperties(), props, "bdb.client.", false);
 
 		XQProcessor proc = new XQProcessorClient();
 		BagriXQDataFactory xqFactory = new BagriXQDataFactory();

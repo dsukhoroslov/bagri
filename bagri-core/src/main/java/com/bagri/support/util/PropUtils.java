@@ -21,6 +21,23 @@ import com.bagri.core.system.Schema;
 public class PropUtils {
 	
 	/**
+	 * 
+	 * @param source the properties to take values from. Usually System properties
+	 * @param target the properties to enrich from source
+	 * @param prefix copied property names will start with this prefix 
+	 * @param override to override property if it is exist in target or not
+	 */
+	public static void enrichBDBProperties(Properties source, Properties target, String prefix, boolean override) {
+		for (String name: source.stringPropertyNames()) {
+			if (name.startsWith(prefix)) {
+				if (override || !target.containsKey(name)) {
+					target.setProperty(name, source.getProperty(name));
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Load Properties from file
 	 * 
 	 * @param fileName the file name to load Properties from
