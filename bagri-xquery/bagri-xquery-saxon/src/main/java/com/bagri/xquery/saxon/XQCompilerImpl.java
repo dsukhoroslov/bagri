@@ -146,7 +146,8 @@ public class XQCompilerImpl implements XQCompiler {
 			public String extractFunction(UserFunction fn) {
 				String decl = getFunctionDeclaration(fn); 
 				AnnotationList atns = fn.getAnnotations(); 
-				logger.trace("lookupFunctions; fn annotations: {}", atns);
+				// AnnotationList.toString() throws NPE!
+				logger.trace("lookupFunctions; fn annotations: {}", atns.size());
 				StringBuilder buff = new StringBuilder();
 				for (Annotation atn: atns) {
 					if (Annotation.PRIVATE.equals(atn.getAnnotationQName())) {

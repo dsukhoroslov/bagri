@@ -48,7 +48,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     private Future<?> execution = null; 
     private IMap<Long, QueryResult> resCache;
     private ReplicatedMap<Integer, Query> xqCache;
-    private AtomicLong runIdx = new AtomicLong(0);
+    
+    private AtomicLong memberIdx = new AtomicLong(0);
     
 	public QueryManagementImpl() {
 		// what should we do here? 
@@ -107,7 +108,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	private String getClientId() {
-		return repo.getClientId();
+		return repo.getChildId();
 	}
 	
 	@Override
@@ -294,12 +295,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			if (runKey == null) {
 				// this is for any/default cases: balance job between nodes...
 				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
-				int cnt = (int) (runIdx.incrementAndGet() % members.size());
+				int cnt = (int) (memberIdx.incrementAndGet() % members.size());
 				Iterator<Member> itr = members.iterator();
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();
 				}
-				logger.trace("submitQueryTask; routing task to node: {}; runIdx: {}; cnt: {}", owner, runIdx, cnt);
+				logger.trace("submitQueryTask; routing task to node: {}; memberIdx: {}; cnt: {}", owner, memberIdx, cnt);
 				results.add(execService.submitToMember(task, owner));
 			} else {
 				owner = repo.getHazelcastClient().getPartitionService().getPartition(runKey).getOwner();
@@ -309,7 +310,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return results;
 	}	
 
-	@SuppressWarnings({ "unchecked", "resource" })
+	@SuppressWarnings({ "resource" })
 	private <T> List<ResultCursor<T>> getResults(List<Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
 
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));

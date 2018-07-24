@@ -1,10 +1,11 @@
 package com.bagri.server.hazelcast.task.auth;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.server.hazelcast.impl.SchemaRepositoryImpl;
+import com.hazelcast.spring.context.SpringAware;
 
+@SpringAware
 public class UserAuthenticator extends com.bagri.client.hazelcast.task.auth.UserAuthenticator {
 
 	private transient SchemaRepositoryImpl repo;

@@ -134,7 +134,7 @@ public class PopulationManagementImpl implements PopulationManagement, ManagedSe
 		this.nodeEngine = nodeEngine;
 		this.schemaName = properties.getProperty(pn_schema_name);
 		this.popClusterSize = Integer.parseInt(properties.getProperty(pn_schema_population_size, "0"));
-		this.useCatalog = Boolean.parseBoolean(properties.getProperty(pn_schema_population_size, "0"));
+		this.useCatalog = Boolean.parseBoolean(properties.getProperty(pn_schema_population_use_catalog, "true"));
 		if (useCatalog) {
 			String dataPath = properties.getProperty(pn_schema_store_data_path);
 			String nodeNum = properties.getProperty(pn_node_instance);
