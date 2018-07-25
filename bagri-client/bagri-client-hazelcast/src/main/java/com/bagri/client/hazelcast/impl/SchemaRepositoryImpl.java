@@ -233,7 +233,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 			}
 			
 			ChildIdsRegistrator cir = new ChildIdsRegistrator(clientId, childIdsPool);
-			hzClient.getExecutorService(PN_XDM_SCHEMA_POOL).submit(cir);
+			hzClient.getExecutorService(PN_XDM_SCHEMA_POOL).submitToAllMembers(cir);
 			// we don't need wait for response?
 		}
 	}
