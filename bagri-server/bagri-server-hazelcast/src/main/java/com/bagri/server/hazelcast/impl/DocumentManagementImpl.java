@@ -373,6 +373,20 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					} catch (IOException ex) {
 						logger.info("getDocumentInternal; error reading content", ex);
 					}
+					
+		    		String fName = doc.getUri();
+		    		int pos = fName.lastIndexOf(".");
+        			String srcFormat;
+        			if (pos > 0) {
+        				srcFormat = fName.substring(pos + 1).toUpperCase();
+        			} else {
+        				srcFormat = repo.getSchema().getProperty(pn_schema_format_default);
+        			}
+					
+        			ContentConverter<Object, ?> cc2 = getConverter(props, srcFormat, null);
+        			if (cc != null) {
+        				content = cc2.convertTo(content);
+        			}
 				}
 				
 				if (content == null) {
