@@ -203,6 +203,11 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 	}
 
 	@Override
+	public XPathContext makeNewContext(XPathContext callingContext) {
+		return callingContext;
+	}
+
+	@Override
 	public GroundedValue reduce() {
 		return this;
 	}
@@ -210,6 +215,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 	@Override
 	public Sequence get(AtomicValue key) {
 		logger.trace("get.enter; key: {}", key);
+		Sequence result = null;
 		String sKey = key.getStringValue();
 		if (sKey.startsWith("@")) {
 			sKey = sKey.substring(1);
@@ -217,14 +223,15 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		Object value = source.get(sKey);
 		if (value != null) {
 			try {
-				return SaxonUtils.objectToItem(value, config);
+				result = SaxonUtils.objectToItem(value, config);
 			} catch (XPathException ex) {
 				logger.error("get.error; key: {}", key, ex); 
 			}
 		} else if ("map".equals(sKey)) {
-			return this;
+			result = this;
 		}
-		return null;
+		logger.trace("get.exit; returning {} for key: {}", result, key);
+		return result;
 	}
 
 	@Override
@@ -330,10 +337,12 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 			} catch (NoSuchElementException ex) {
 				// noop
 			}
+			AtomicValue result = null;
 			if (key != null) {
-				return new StringValue(key);
+				result = new StringValue(key);
 			}
-			return null;
+			logger.trace("MapKeyIterator.next.exit; returning {}", result);
+			return result;
 		}
 
 		//@Override
@@ -359,16 +368,22 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		@Override
 		public KeyValuePair next() {
 			logger.trace("MapKeyValueIterator.next.enter");
+			KeyValuePair result = null;
 			Map.Entry<String, Object> pair = pairs.next();
 			if (pair != null) {
 				try {
 					Item value = SaxonUtils.objectToItem(pair.getValue(), config);
-					return new KeyValuePair(new StringValue(pair.getKey()), value); 
+					if (value == null) {
+						result = new KeyValuePair(new StringValue(pair.getKey()), EmptySequence.getInstance()); 
+					} else {
+						result = new KeyValuePair(new StringValue(pair.getKey()), value);
+					}
 				} catch (XPathException ex) {
 					logger.error("MapKeyValueIterator.next.error;", ex);
 				}
 			}
-			return null;
+			logger.trace("MapKeyValueIterator.next.exit; returning {} for entry {}", result, pair);
+			return result;
 		}
 
 		@Override

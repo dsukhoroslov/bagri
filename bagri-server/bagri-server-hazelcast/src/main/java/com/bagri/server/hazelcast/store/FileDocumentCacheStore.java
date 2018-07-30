@@ -237,13 +237,14 @@ java.nio.BufferUnderflowException: null
 				Path path = Paths.get(fullUri);
 		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
+        			String srcFormat = "JSON"; //take file ext..
         			Document newDoc;
         			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
         			if (doc == null) {
-        				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
+        				newDoc = docManager.createDocument(docKey, docUri, content, srcFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
         						Files.getOwner(path).getName(), TX_INIT, null);
         			} else {
-        				newDoc = docManager.createDocument(docKey, docUri, content, dataFormat, doc.getCreatedAt(), 
+        				newDoc = docManager.createDocument(docKey, docUri, content, srcFormat, doc.getCreatedAt(), 
         						doc.getCreatedBy(), doc.getTxStart(), doc.getCollections());
         			}
        				return newDoc;

@@ -199,6 +199,11 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 	}
 
 	@Override
+	public XPathContext makeNewContext(XPathContext callingContext) {
+		return callingContext;
+	}
+
+	@Override
 	public ArrayItem remove(int index) {
 		// remove inplace??
         List<Object> list = new ArrayList<>(source.size() - 1);

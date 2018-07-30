@@ -568,9 +568,16 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 	//@Override
 	@SuppressWarnings("unchecked")
-	public Document createDocument(DocumentKey docKey, String uri, Object content, String dataFormat, Date createdAt, String createdBy,
+	public Document createDocument(DocumentKey docKey, String uri, Object content, String srcFormat, Date createdAt, String createdBy,
 			long txStart, int[] collections) throws BagriException {
 
+		Properties props = new Properties();
+		ContentConverter<Object, ?> cc = getConverter(props, srcFormat, null);
+		if (cc != null) {
+			content = cc.convertTo(content);
+		}
+		//ParseResults pRes = parseContent(docKey, content, dataFormat, null);
+		String dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
 		ParseResults pRes = parseContent(docKey, content, dataFormat, null);
 
 		List<Long> fragments = null;
