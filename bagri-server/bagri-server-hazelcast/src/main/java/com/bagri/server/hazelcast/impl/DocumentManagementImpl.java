@@ -373,18 +373,20 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 					} catch (IOException ex) {
 						logger.info("getDocumentInternal; error reading content", ex);
 					}
-					
-		    		String fName = doc.getUri();
-		    		int pos = fName.lastIndexOf(".");
+
         			String srcFormat;
+					String defFormat = repo.getSchema().getProperty(pn_schema_format_default);
+		    		int pos = doc.getUri().lastIndexOf(".");
         			if (pos > 0) {
-        				srcFormat = fName.substring(pos + 1).toUpperCase();
+        				srcFormat = doc.getUri().substring(pos + 1).toUpperCase();
         			} else {
-        				srcFormat = repo.getSchema().getProperty(pn_schema_format_default);
+        				srcFormat = defFormat;
         			}
 					
-        			ContentConverter<Object, ?> cc2 = getConverter(props, srcFormat, null);
-        			if (cc != null) {
+        			Properties props2 = new Properties();
+        			props.setProperty(pn_document_data_format, defFormat);
+        			ContentConverter<Object, ?> cc2 = getConverter(props2, srcFormat, null);
+        			if (cc2 != null) {
         				content = cc2.convertTo(content);
         			}
 				}
@@ -586,6 +588,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			long txStart, int[] collections) throws BagriException {
 
 		Properties props = new Properties();
+		props.setProperty(pn_document_data_format, repo.getSchema().getProperty(pn_schema_format_default));
 		ContentConverter<Object, ?> cc = getConverter(props, srcFormat, null);
 		if (cc != null) {
 			content = cc.convertTo(content);

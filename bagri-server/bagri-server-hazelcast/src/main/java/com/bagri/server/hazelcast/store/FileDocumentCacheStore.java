@@ -237,11 +237,10 @@ java.nio.BufferUnderflowException: null
 				Path path = Paths.get(fullUri);
 		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
-		    		String fName = path.toString();
-		    		int pos = fName.lastIndexOf(".");
+		    		int pos = fullUri.lastIndexOf(".");
         			String srcFormat;
         			if (pos > 0) {
-        				srcFormat = fName.substring(pos + 1).toUpperCase();
+        				srcFormat = fullUri.substring(pos + 1).toUpperCase();
         			} else {
         				srcFormat = dataFormat;
         			}

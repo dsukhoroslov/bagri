@@ -58,7 +58,7 @@ public class SchemaPopulator extends SchemaProcessingTask implements Callable<Bo
 				    	logger.error("call.error; on schema population", ex);
 					}
 				} else {
-			    	logger.info("call.exit; cluster is in {} state, skipping population", hz.getCluster().getClusterState());
+			    	logger.info("call.exit; cluster not finished migration yet, the state is {} now, skipping population", hz.getCluster().getClusterState());
 				}
 			}
 		}
