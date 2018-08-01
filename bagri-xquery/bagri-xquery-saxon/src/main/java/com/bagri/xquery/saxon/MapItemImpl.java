@@ -1,5 +1,8 @@
 package com.bagri.xquery.saxon;
 
+import static com.bagri.xquery.saxon.SaxonUtils.objectToItem;
+import static com.bagri.xquery.saxon.SaxonUtils.itemToObject;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -109,7 +112,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public boolean deepEquals(Function other, XPathContext context, AtomicComparer comparer, int flags) throws XPathException {
-		logger.trace("deepEquals.enter; other: {}; comparer: {}; flags: {}", other, comparer, flags);
+		//logger.trace("deepEquals.enter; other: {}; comparer: {}; flags: {}", other, comparer, flags);
         if (other instanceof MapItem && ((MapItem) other).size() == size()) {
             AtomicIterator keys = keys();
             AtomicValue key;
@@ -175,7 +178,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		//for (Map.Entry<String, Object> e: source.entrySet()) {
 		//	if (idx == n) {
 		//		try {
-		//			return SaxonUtils.objectToItem(e.getValue(), config);
+		//			return objectToItem(e.getValue(), config);
 		//		} catch (XPathException ex) {
 		//			logger.error("itemAt.error; n = {}, idx = {}", n, idx, ex);
 		//			return null;
@@ -214,7 +217,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public Sequence get(AtomicValue key) {
-		logger.trace("get.enter; key: {}", key);
+		//logger.trace("get.enter; key: {}", key);
 		Sequence result = null;
 		String sKey = key.getStringValue();
 		if (sKey.startsWith("@")) {
@@ -223,20 +226,20 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 		Object value = source.get(sKey);
 		if (value != null) {
 			try {
-				result = SaxonUtils.objectToItem(value, config);
+				result = objectToItem(value, config);
 			} catch (XPathException ex) {
 				logger.error("get.error; key: {}", key, ex); 
 			}
 		} else if ("map".equals(sKey)) {
 			result = this;
 		}
-		logger.trace("get.exit; returning {} for key: {}", result, key);
+		//logger.trace("get.exit; returning {} for key: {}", result, key);
 		return result;
 	}
 
 	@Override
 	public int size() {
-		logger.trace("size.enter; size: {}", source.size());
+		//logger.trace("size.enter; size: {}", source.size());
 		return source.size();
 	}
 
@@ -247,13 +250,13 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 	@Override
 	public AtomicIterator keys() {
-		logger.trace("keys.enter");
+		//logger.trace("keys.enter");
 		return new MapKeyIterator(source.keySet());
 	}
 
 	@Override
 	public Iterator<KeyValuePair> iterator() {
-		logger.trace("iterator.enter");
+		//logger.trace("iterator.enter");
 		return new MapKeyValueIterator(source.entrySet()); 
 	}
 
@@ -261,7 +264,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 	public MapItem addEntry(AtomicValue key, Sequence value) {
 		try {
 			String sKey = key.getStringValue();
-			Object sVal = SaxonUtils.itemToObject((Item) value);
+			Object sVal = itemToObject((Item) value);
 			source.put(sKey, sVal);
 		} catch (XPathException ex) {
 			logger.error("addEntry.error; key: {}, value: {}", key, value, ex);
@@ -330,7 +333,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 		@Override
 		public AtomicValue next() {
-			logger.trace("MapKeyIterator.next.enter");
+			//logger.trace("MapKeyIterator.next.enter");
 			String key = null;
 			try {
 				key = keys.next();
@@ -341,7 +344,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 			if (key != null) {
 				result = new StringValue(key);
 			}
-			logger.trace("MapKeyIterator.next.exit; returning {}", result);
+			//logger.trace("MapKeyIterator.next.exit; returning {}", result);
 			return result;
 		}
 
@@ -367,12 +370,12 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 
 		@Override
 		public KeyValuePair next() {
-			logger.trace("MapKeyValueIterator.next.enter");
+			//logger.trace("MapKeyValueIterator.next.enter");
 			KeyValuePair result = null;
 			Map.Entry<String, Object> pair = pairs.next();
 			if (pair != null) {
 				try {
-					Item value = SaxonUtils.objectToItem(pair.getValue(), config);
+					Item value = objectToItem(pair.getValue(), config);
 					if (value == null) {
 						result = new KeyValuePair(new StringValue(pair.getKey()), EmptySequence.getInstance()); 
 					} else {
@@ -382,7 +385,7 @@ public class MapItemImpl extends AbstractItem implements MapItem {
 					logger.error("MapKeyValueIterator.next.error;", ex);
 				}
 			}
-			logger.trace("MapKeyValueIterator.next.exit; returning {} for entry {}", result, pair);
+			//logger.trace("MapKeyValueIterator.next.exit; returning {} for entry {}", result, pair);
 			return result;
 		}
 

@@ -114,7 +114,7 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
         out.startElement("array");
         out.emitAttribute("size", arrayLength() + "");
         for (Object o: source) {
-            Literal.exportValue(SaxonUtils.objectToItem(o, config), out);
+            Literal.exportValue(objectToItem(o, config), out);
         }
         out.endElement();
 	}
@@ -142,7 +142,7 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
             SequenceIterator iter = item.iterate();
             while ((item = iter.next()) != null) {
                 AtomicSequence atoms = item.atomize();
-                for (AtomicValue atom : atoms) {
+                for (AtomicValue atom: atoms) {
                     list.add(atom);
                 }
             }
@@ -180,22 +180,36 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 
 	@Override
 	public ArrayItem concat(ArrayItem other) {
-        List<Object> list = new ArrayList<>(source.size() + other.arrayLength());
-        list.addAll(source);
+        //List<Object> list = new ArrayList<>(source.size() + other.arrayLength());
+        //list.addAll(source);
+        //if (other instanceof ArrayItemImpl) {
+        //	for (Object o: ((ArrayItemImpl) other).source) {
+        //		list.add(o);
+        //	}
+        //} else {
+        //	try {
+		//        for (int i=0; i < other.arrayLength(); i++) {
+		//            list.add(itemToObject(other.itemAt(i)));
+		//        }
+        //	} catch (XPathException ex) {
+		//		logger.error("concat.error;", ex);
+        //	}
+        //}
+        //return new ArrayItemImpl(list, config);
         if (other instanceof ArrayItemImpl) {
         	for (Object o: ((ArrayItemImpl) other).source) {
-        		list.add(o);
+        		source.add(o);
         	}
         } else {
-        	try {
-		        for (int i=0; i < other.arrayLength(); i++) {
-		            list.add(itemToObject(other.itemAt(i)));
-		        }
-        	} catch (XPathException ex) {
-				logger.error("concat.error;", ex);
-        	}
+    		for (int i=0; i < other.arrayLength(); i++) {
+    			try {
+    				source.add(itemToObject(other.itemAt(i)));
+    		    } catch (XPathException ex) {
+    				logger.error("concat.error;", ex);
+    		    }
+    		}
         }
-        return new ArrayItemImpl(list, config);
+        return this;
 	}
 
 	@Override
@@ -205,22 +219,30 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 
 	@Override
 	public ArrayItem remove(int index) {
-		// remove inplace??
-        List<Object> list = new ArrayList<>(source.size() - 1);
-        list.addAll(source.subList(0, index));
-        list.addAll(source.subList(index + 1, source.size()));
-        return new ArrayItemImpl(list, config);
+		// remove inplace..
+		source.remove(index);
+		return this;
+        //List<Object> list = new ArrayList<>(source.size() - 1);
+        //list.addAll(source.subList(0, index));
+        //list.addAll(source.subList(index + 1, source.size()));
+        //return new ArrayItemImpl(list, config);
 	}
 
 	@Override
 	public ArrayItem removeSeveral(IntSet positions) {
-        List<Object> list = new ArrayList<>(source.size() - positions.size());
-        for (int i=0; i < source.size(); i++) {
-            if (!positions.contains(i)) {
-                list.add(source.get(i));
+        //List<Object> list = new ArrayList<>(source.size() - positions.size());
+        //for (int i=0; i < source.size(); i++) {
+        //    if (!positions.contains(i)) {
+        //        list.add(source.get(i));
+        //    }
+        //}
+        //return new ArrayItemImpl(list, config);
+        for (int i=source.size() - 1; i >= 0; i--) {
+            if (positions.contains(i)) {
+                source.remove(i);
             }
         }
-        return new ArrayItemImpl(list, config);
+		return this;
 	}
 
 	@Override
@@ -254,8 +276,8 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 
 	@Override
 	public ArrayItem put(int index, Sequence newValue) throws XPathException {
-		// TODO Auto-generated method stub
-		return null;
+		source.set(index, itemToObject((Item) newValue));
+		return this;
 	}
 
 	private class ArrayIterator implements Iterator<Sequence> {
@@ -273,10 +295,10 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 
 		@Override
 		public Sequence next() {
-			Object o = itr.next();
-			if (o != null) {
+			Object value = itr.next();
+			if (value != null) {
 				try {
-					return objectToItem(o, config);
+					return objectToItem(value, config);
 				} catch (XPathException ex) {
 					logger.error("ArrayIterator.next.error;", ex);
 				}

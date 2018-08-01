@@ -77,7 +77,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 	}
 
 	@ManagedOperation(description="clear Query cache")
-	public boolean clear() {
+	public boolean clearCache() {
 		
 		SchemaQueryCleaner task = new SchemaQueryCleaner(schemaName);
 		Map<Member, Future<Boolean>> results = execService.submitToAllMembers(task);
@@ -88,7 +88,7 @@ public class QueryManagement extends SchemaFeatureManagement {
 					result = false;
 				}
 			} catch (InterruptedException | ExecutionException ex) {
-				logger.error("clear.error; ", ex);
+				logger.error("clearCache.error; ", ex);
 			}
 		}
 		return result;

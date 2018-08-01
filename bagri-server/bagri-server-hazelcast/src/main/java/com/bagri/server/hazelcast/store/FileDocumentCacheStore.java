@@ -194,6 +194,14 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
     //	return null;
 	//}
 	
+	private String getSourceFormat(String uri) {
+		int pos = uri.lastIndexOf(".");
+		if (pos > 0) {
+			return uri.substring(pos + 1).toUpperCase();
+		}
+		return dataFormat;
+	}
+	
 	private Document loadDocument(DocumentKey docKey) {
     	String docUri = null;
     	Document doc = null;
@@ -237,13 +245,7 @@ java.nio.BufferUnderflowException: null
 				Path path = Paths.get(fullUri);
 		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
-		    		int pos = fullUri.lastIndexOf(".");
-        			String srcFormat;
-        			if (pos > 0) {
-        				srcFormat = fullUri.substring(pos + 1).toUpperCase();
-        			} else {
-        				srcFormat = dataFormat;
-        			}
+        			String srcFormat = getSourceFormat(fullUri);
         			Document newDoc;
         			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
         			if (doc == null) {
@@ -322,7 +324,10 @@ java.nio.BufferUnderflowException: null
 		
 		String fullUri = getFullUri(docUri);
 		try {
-			// must return doc in default format (XML/JSON)
+			// must return doc in source format (XML/JSON)
+			Properties props = new Properties();
+			String srcFormat = getSourceFormat(fullUri);
+			props.setProperty(pn_document_data_format, srcFormat);
 			DocumentAccessor doc = 	docManager.getDocument(key, props);
 			String content = doc.getContent();
 			if (content == null) {
@@ -342,6 +347,7 @@ java.nio.BufferUnderflowException: null
 	public void store(DocumentKey key, Document value) {
 		logger.trace("store.enter; key: {}; value: {}", key, value);
 		ensureRepository();
+		// got document after merge
 		DocumentManagement docManager = (DocumentManagement) xdmRepo.getDocumentManagement();
 		Exception ex = storeDocument(docManager, key, value);
 		if (ex != null) {

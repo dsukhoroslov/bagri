@@ -49,7 +49,7 @@ public class QueryManagementBeanTest extends ManagementBeanTest {
 	
 	@Override
 	protected String[] getExpectedOperations() {
-		return new String[] {"getSchema", "clear", "cancelQuery", "parseQuery", "runQuery", "runPreparedQuery", "getInvocationStatistics",
+		return new String[] {"getSchema", "clearCache", "cancelQuery", "parseQuery", "runQuery", "runPreparedQuery", "getInvocationStatistics",
 				"resetStatistics", "getQueryCacheStatistics", "getFetchSize", "setFetchSize", "getQueryTimeout", "setQueryTimeout"};
 	}
 
