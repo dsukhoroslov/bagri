@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
@@ -48,12 +49,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
 	private ResultCursor cursor;
 	private CollectionFinderImpl clnFinder;
+	
 	// local cache for XQueryExpressions.
 	// may be make it static, synchronized? for XQProcessorServer instances..
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
     
-    private static NamePool defNamePool = new NamePool();
-    private static DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
+    private NamePool defNamePool = new NamePool();
+    private DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
     
 	private ThreadLocal<DynamicQueryContext> thDContext = new ThreadLocal<DynamicQueryContext>() {
 		
@@ -106,7 +108,6 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		return thDContext.get();
 	}
 	
-
     @Override
 	public Iterator<Object> executeXCommand(String command, Map<String, Object> params, XQStaticContext ctx) throws XQException {
 		
@@ -306,13 +307,14 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     		if (props != null) {
     			setStaticContext(sqc, props);
     		}
+    		//logger.info("getXQuery; this: {}; queries: {}", this, queries.size());
        	    sqc.setModuleURIResolver(config.getModuleURIResolver());
 	        xqExp = sqc.compileQuery(query);
 	        if (logger.isTraceEnabled()) {
 	        	logger.trace("getXQuery; query: \n{}; \nexpression: {}", explainQuery(xqExp), 
 	        			xqExp.getExpression().getExpressionName());
 	        }
-        	queries.put(queryKey, xqExp);
+        	queries.putIfAbsent(queryKey, xqExp);
     	} 
     	return xqExp;
     }

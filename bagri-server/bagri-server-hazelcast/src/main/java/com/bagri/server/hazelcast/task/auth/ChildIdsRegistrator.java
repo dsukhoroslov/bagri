@@ -1,5 +1,7 @@
 package com.bagri.server.hazelcast.task.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.core.api.SchemaRepository;
@@ -10,7 +12,9 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class ChildIdsRegistrator extends com.bagri.client.hazelcast.task.auth.ChildIdsRegistrator {
 
-    @Autowired
+	private static final transient Logger logger = LoggerFactory.getLogger(ChildIdsRegistrator.class);
+
+	@Autowired
     @Override
 	public void setRepository(SchemaRepository repo) {
 		this.repo = repo;
@@ -18,14 +22,16 @@ public class ChildIdsRegistrator extends com.bagri.client.hazelcast.task.auth.Ch
 
     @Override
 	public Void call() throws Exception {
-    	SchemaRepositoryImpl sri = (SchemaRepositoryImpl) repo;
-    	ClientManagementImpl cmi = (ClientManagementImpl) sri.getClientManagement();
+    	SchemaRepositoryImpl xRepo = (SchemaRepositoryImpl) repo;
+    	ClientManagementImpl cmi = (ClientManagementImpl) xRepo.getClientManagement();
     	String userName = cmi.getClientUser(clientId);
+    	logger.trace("registering client: {}", clientId);
     	for (String childId: childIds) {
+        	logger.trace("registering child: {}", childId);
     		cmi.addClient(childId, userName);
-    		sri.getXQProcessor(childId);
+    		xRepo.getXQProcessor(childId);
     	}
-    	sri.setClientId(clientId);
+    	xRepo.setClientId(clientId);
     	return null;
     }
 

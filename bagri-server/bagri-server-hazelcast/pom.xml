@@ -20,11 +20,11 @@
         <run.jvm.args0>-XX:+UnlockDiagnosticVMOptions -XX:+ExplicitGCInvokesConcurrent</run.jvm.args0>
         <!--run.jvm.args0>-XX:+ExplicitGCInvokesConcurrent -XX:+UnlockCommercialFeatures</run.jvm.args0-->
         <!--run.jvm.args0>-XX:+UnlockCommercialFeatures -XX:+FlightRecorder</run.jvm.args0-->
-        <!--run.jvm.args1>-server -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSConcurrentMTEnabled -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1-->
-        <run.jvm.args1>-server -XX:+UseG1GC -XX:G1ReservePercent=10 -XX:InitiatingHeapOccupancyPercent=50 -XX:MaxGCPauseMillis=50 -XX:-OmitStackTraceInFastThrow</run.jvm.args1>
+        <run.jvm.args1>-server -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSConcurrentMTEnabled -XX:ParGCCardsPerStrideChunk=2048</run.jvm.args1>
+        <!--run.jvm.args1>-server -XX:+UseG1GC -XX:G1ReservePercent=10 -XX:InitiatingHeapOccupancyPercent=50 -XX:MaxGCPauseMillis=50 -XX:-OmitStackTraceInFastThrow</run.jvm.args1-->
 
-        <!--run.jvm.args2>-XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:NewRatio=5</run.jvm.args2-->
-        <run.jvm.args2>-XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseStringDeduplication -XX:G1HeapRegionSize=32m</run.jvm.args2>
+        <run.jvm.args2>-XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:NewRatio=5</run.jvm.args2>
+        <!--run.jvm.args2>-XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseStringDeduplication -XX:G1HeapRegionSize=32m</run.jvm.args2-->
 
         <!-- -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -->
         <!-- -XX:GCLogFileSize=50M -XX:NumberOfGCLogFiles=10 -XX:+UseGCLogFileRotation -->

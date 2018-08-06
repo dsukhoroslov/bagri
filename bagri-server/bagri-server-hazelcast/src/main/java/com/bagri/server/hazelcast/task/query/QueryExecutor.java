@@ -22,7 +22,7 @@ import com.hazelcast.spring.context.SpringAware;
 @SpringAware
 public class QueryExecutor<T> extends com.bagri.client.hazelcast.task.query.QueryExecutor<T> {
 
-	//private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(QueryExecutor.class);
 	
 	private transient QueryManagement queryMgr;
     
@@ -51,6 +51,8 @@ public class QueryExecutor<T> extends com.bagri.client.hazelcast.task.query.Quer
     		checkPermission(Permission.Value.modify);
     	}
 
+    	//logger.info("call; clientId: {}; repo id: {}", clientId, repo.getClientId());
+    	
     	TransactionIsolation tiLevel = ((SchemaRepositoryImpl) repo).getTransactionLevel(context); 
     	if ((tiLevel == null) || (txId == TX_NO && readOnly)) {
 			return queryMgr.executeQuery(query, params, context);
