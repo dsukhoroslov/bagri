@@ -278,7 +278,11 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		if (childIdsPool == null) {
 			return clientId;
 		}
-		int idx = (int) (childIdx.incrementAndGet() % childIdsPool.length);
+		long cIdx = childIdx.incrementAndGet();
+		if (cIdx == Long.MAX_VALUE) {
+			childIdx.set(0);
+		}
+		int idx = (int) (cIdx % childIdsPool.length);
 		return childIdsPool[idx];
 	}
 

@@ -205,6 +205,8 @@
                                             <sysproperty key="bdb.access.filename" value="access.xml" />
                                             <sysproperty key="bdb.cluster.node.role" value="admin" />
                                             <sysproperty key="bdb.cluster.node.schemas" value="" />
+                                            <sysproperty key="bdb.client.idCount" value="64" />
+                                            <sysproperty key="bdb.client.sharedConnection" value="false" />
                                             <classpath>
                                                 <path refid="maven.compile.classpath" />
                                                 <path refid="maven.runtime.classpath" />
@@ -225,7 +227,7 @@
                                 <configuration>
                                     <tasks if="run-server">
                                         <java fork="true" classname="com.bagri.server.hazelcast.BagriCacheServer">
-                                            <jvmarg line="-Xms8g -Xmx8g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}" />
+                                            <jvmarg line="-Xms6g -Xmx6g ${run.jvm.args0} ${run.jvm.args1} ${run.jvm.args2} ${run.jvm.args3}" />
                                             <sysproperty key="node.logdir" value="./logs" />
                                             <sysproperty key="node.name" value="first" />
                                             <sysproperty key="bdb.node.instance" value="${node.instance}" />

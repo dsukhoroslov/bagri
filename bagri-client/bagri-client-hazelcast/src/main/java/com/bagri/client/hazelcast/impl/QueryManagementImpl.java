@@ -130,7 +130,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			}
 		}
 		
-		Callable<ResultCursor<String>> task = new QueryUrisProvider(getClientId(), repo.getTransactionId(), query, params, props);
+		Callable<ResultCursor<String>> task = new QueryUrisProvider(props.getProperty(pn_client_id), repo.getTransactionId(), query, params, props);
 		List<ResultCursor<String>> results = executeQueryTask(task, params, props, qKey);
 		ResultCursor<String> cursor = convertResults(results, 0);
 		logger.trace("getDocumentUris.exit; returning: {}", cursor);
@@ -166,7 +166,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			cursor = executeSplitQuery(query, params, props, splitBy, useCache);
 		}
 		if (cursor == null) {
-			Callable<ResultCursor<T>> task = new QueryExecutor(getClientId(), repo.getTransactionId(), query, params, props);
+			Callable<ResultCursor<T>> task = new QueryExecutor(props.getProperty(pn_client_id), repo.getTransactionId(), query, params, props);
 			List<ResultCursor<T>> results = executeQueryTask(task, params, props, qKey);
 			cursor = convertResults(results, 0);
 		}
@@ -175,7 +175,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, final Properties props, String splitBy, boolean useCache) throws BagriException {
+	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, Properties props, String splitBy, boolean useCache) throws BagriException {
 		Object param = params.get(splitBy);
 		if (param != null && param instanceof Collection) {
 			Collection collect = (Collection) param;
@@ -206,8 +206,13 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 							continue;
 						}
 					}
+
+					Properties splitProps = new Properties();
+					splitProps.putAll(props);
+					String childId = getClientId();
+					splitProps.setProperty(pn_client_id, childId);
 					
-					Callable<ResultCursor<T>> task = new QueryExecutor(getClientId(), repo.getTransactionId(), query, splitParams, props);
+					Callable<ResultCursor<T>> task = new QueryExecutor(childId, repo.getTransactionId(), query, splitParams, splitProps);
 					if (doBatch) {
 						futures.addAll(submitQueryTask(task, params, props, splitQKey));
 					} else {
@@ -310,7 +315,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return results;
 	}	
 
-	@SuppressWarnings({ "resource" })
 	private <T> List<ResultCursor<T>> getResults(List<Future<ResultCursor<T>>> futures, Properties props) throws BagriException {
 
 		boolean asynch = Boolean.parseBoolean(props.getProperty(pn_client_fetchAsynch, "false"));
