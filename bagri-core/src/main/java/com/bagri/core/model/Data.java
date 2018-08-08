@@ -15,7 +15,7 @@ public class Data implements Comparable<Data> {
     	
     
     public Data(String name) {
-        this.name = name;
+        this.name = name.intern();
     }
     
     /**

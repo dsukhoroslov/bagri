@@ -36,9 +36,9 @@
 				<hz:property name="hazelcast.max.no.heartbeat.seconds">100</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.cluster.port:3331}" port-auto-increment="true">
-				<hz:outbound-ports>
+				<!--hz:outbound-ports>
 					<hz:ports>3330-3430</hz:ports> 
-				</hz:outbound-ports>
+				</hz:outbound-ports-->
 				<hz:join>
 					<hz:multicast enabled="${bdb.cluster.multicast.enabled:false}" multicast-timeout-seconds="${bdb.cluster.connect.timeout:10}">
 						<!--hz:trusted-interfaces>

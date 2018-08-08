@@ -69,13 +69,16 @@ JAVA_OPTS="\
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dbdb.log.level=info \
 -Dbdb.config.path=../config \
--Dbdb.config.context.file=spring/admin-system-context.xml \
+-Dbdb.config.context.file=file:../config/spring/admin-system-context.xml \
 -Dbdb.config.properties.file=admin.properties \
 -Dbdb.cluster.node.name=admin \
 -Dbdb.cluster.node.role=admin \
 -Dbdb.cluster.node.schemas= \
 -Dbdb.config.filename=../config/config.xml \
 -Dbdb.access.filename=../config/access.xml \
+-Dbdb.client.poolSize=32 \
+-Dbdb.client.idCount=64 \
+-Dbdb.client.sharedConnection=true \
 -Djava.rmi.server.hostname=127.0.0.1 \
 "
 

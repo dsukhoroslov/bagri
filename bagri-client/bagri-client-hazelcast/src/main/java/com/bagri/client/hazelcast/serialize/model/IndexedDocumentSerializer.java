@@ -26,7 +26,7 @@ public class IndexedDocumentSerializer implements StreamSerializer<IndexedDocume
 	public IndexedDocument read(ObjectDataInput in) throws IOException {
 		
 		long[] ids = in.readLongArray();
-		List<Long> docIds = new ArrayList<Long>(ids.length);
+		List<Long> docIds = new ArrayList<>(ids.length);
 		for (long docId: ids) {
 			docIds.add(docId);
 		}

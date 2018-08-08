@@ -39,8 +39,8 @@ public class Path implements Comparable<Path> {
 	 */
 	public Path(String path, String root, NodeKind kind, int pathId, int parentId, int postId, 
 			int dataType, Occurrence occurrence) {
-		this.path = path;
-		this.root = root;
+		this.path = path.intern();
+		this.root = root.intern();
 		this.kind = kind;
 		this.pathId = pathId;
 		this.parentId = parentId;

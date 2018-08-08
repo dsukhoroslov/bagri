@@ -26,21 +26,19 @@
 				<hz:property name="hazelcast.backpressure.enabled">false</hz:property>
 				<hz:property name="hazelcast.index.copy.behavior">NEVER</hz:property>
 				<!--hz:property name="hazelcast.socket.buffer.direct">true</hz:property-->
-				<hz:property name="hazelcast.wait.seconds.before.join">5</hz:property>
 				<hz:property name="hazelcast.partition.count">${bdb.schema.partition.count}</hz:property>
 				<hz:property name="hazelcast.operation.thread.count">${bdb.schema.partition.pool}</hz:property>
 				<hz:property name="hazelcast.operation.generic.thread.count">${bdb.schema.partition.pool}</hz:property>
 				<hz:property name="hazelcast.socket.send.buffer.size">${bdb.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.socket.receive.buffer.size">${bdb.schema.buffer.size}</hz:property>
 				<hz:property name="hazelcast.query.predicate.parallel.evaluation">${bdb.schema.query.parallel}</hz:property>
-				<hz:property name="hazelcast.backpressure.enabled">false</hz:property>				
 				<hz:property name="hazelcast.max.no.heartbeat.seconds">100</hz:property>
 				<hz:property name="hazelcast.map.load.chunk.size">${bdb.schema.population.chunk.size:500}</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.schema.ports.first}" port-auto-increment="true">
-				<hz:outbound-ports>
+				<!--hz:outbound-ports>
 					<hz:ports>${bdb.schema.ports.first}-${bdb.schema.ports.last}</hz:ports> 
-				</hz:outbound-ports>
+				</hz:outbound-ports-->
 				<hz:join>
 					<hz:multicast enabled="${bdb.schema.multicast.enabled}" multicast-timeout-seconds="${bdb.schema.connect.timeout:10}">
 						<!--hz:trusted-interfaces>
@@ -72,6 +70,7 @@
 					<hz:index attribute="pathId" ordered="true"/>
 					<hz:index attribute="root"/>
 				</hz:indexes>
+				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
 			</hz:map>
 			
 			<hz:map name="xdm-key" in-memory-format="BINARY" async-backup-count="${bdb.schema.data.backup.async}" 
@@ -203,6 +202,7 @@
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
+					<hz:serializer type-class="java.util.HashMap" class-name="com.bagri.server.hazelcast.serialize.HashMapSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 

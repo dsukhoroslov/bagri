@@ -37,6 +37,8 @@ set java_opts=%java_opts% -Dbdb.config.context.file=file:..\config\spring\admin-
 set java_opts=%java_opts% -Dbdb.config.properties.file=admin.properties
 set java_opts=%java_opts% -Dbdb.cluster.node.role=admin -Dbdb.cluster.node.schemas=
 set java_opts=%java_opts% -Dbdb.config.filename=..\config\config.xml -Dbdb.access.filename=..\config\access.xml
+set java_opts=%java_opts% -Dbdb.client.poolSize=32 -Dbdb.client.idCount=64 
+set java_opts=%java_opts% -Dbdb.client.sharedConnection=true 
 
 rem specify JMX options
 set java_opts=%java_opts% -Dcom.sun.management.jmxremote.authenticate=false

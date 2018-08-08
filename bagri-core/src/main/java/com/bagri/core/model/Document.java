@@ -73,8 +73,8 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	public Document(long docKey, String uri, String root, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String format, int bytes, int elts) {
 		this.documentKey = docKey; //toKey(hash, revision, version);
-		this.uri = uri;
-		this.root = root;
+		this.uri = uri.intern();
+		this.root = root.intern();
 		this.txStart = txStart;
 		this.txFinish = txFinish;
 		this.createdAt = createdAt.getTime();
