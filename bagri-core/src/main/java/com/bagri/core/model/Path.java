@@ -81,7 +81,7 @@ public class Path implements Comparable<Path> {
 			return null;
 		}
 		
-		String[] segments = path.split("/");
+		String[] segments = path.split(Document.def_root);
 		if (segments.length > 0) {
 			return segments[segments.length-1];
 		} 

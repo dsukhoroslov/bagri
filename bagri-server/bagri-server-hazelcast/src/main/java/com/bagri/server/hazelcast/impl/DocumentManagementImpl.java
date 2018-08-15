@@ -561,6 +561,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	//	}
 	//	return null;
 	//}
+	
+	private String getDocumentFormat(String dataFormat) {
+		if ("MAP".equals(dataFormat)) {
+			return Document.cte_map_utf8;
+		}
+		if ("JSON".equals(dataFormat)) {
+			return Document.cte_json_utf8;
+		}
+		if ("XML".equals(dataFormat)) {
+			return Document.cte_xml_utf8;
+		}
+		return dataFormat + "/" + def_encoding;
+	}
 
 	private Collection getTypedCollection(Schema schema, String typePath) {
 		for (Collection collect: schema.getCollections()) {
@@ -593,14 +606,13 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (cc != null) {
 			content = cc.convertTo(content);
 		}
-		//ParseResults pRes = parseContent(docKey, content, dataFormat, null);
 		String dataFormat = repo.getSchema().getProperty(pn_schema_format_default);
 		ParseResults pRes = parseContent(docKey, content, dataFormat, null);
 
 		List<Long> fragments = null;
 		List<Data> data = pRes.getResults();
 		int length = pRes.getContentLength();
-		String root = "/"; //TODO: make constant for this
+		String root = Document.def_root; 
 		if (data != null) { 
 			Object[] ids = loadElements(docKey.getKey(), data);
 			if (ids == null) {
@@ -612,7 +624,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		}
 
 		Document doc;
-		String format = dataFormat + "/" + def_encoding;
+		String format = getDocumentFormat(dataFormat);
 		if (fragments == null || fragments.size() == 0) {
 			doc = new Document(docKey.getKey(), uri, root, txStart, TX_NO, createdAt, createdBy, format, length, pRes.getResultSize());
 		} else {
@@ -689,10 +701,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
 			long fraPath = docKey;
 			long fraPost = 0;
-			int size = 1;
-			if (fragments.size() > 0) {
-				size = data.size() / fragments.size();
-			}
 			for (Data xdm: data) {
 				pathIds.add(xdm.getPathId());
 				if (fragments.contains(xdm.getPathId())) {
@@ -792,7 +800,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		if (rSize > 0 && cacheElements) {
 			processElements(docId, data);
 		}
-		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), user, dataFormat + "/" + def_encoding, length, rSize);
+		String format = getDocumentFormat(dataFormat);
+		Document newDoc = new Document(docId, uri, root, txId, TX_NO, new Date(), user, format, length, rSize);
 
 		String collections = props.getProperty(pn_document_collections);
 		if (collections != null) {

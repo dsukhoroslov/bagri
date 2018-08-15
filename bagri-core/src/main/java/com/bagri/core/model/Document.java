@@ -23,6 +23,11 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	
 	public static final int dvFirst = 1;
 	public static final int clnDefault = -1;
+	
+	public static final String def_root = "/";
+	public static final String cte_map_utf8 = "MAP/" + def_encoding;
+	public static final String cte_xml_utf8 = "XML/" + def_encoding;
+	public static final String cte_json_utf8 = "JSON/" + def_encoding;
 
 	private long documentKey;
 	private String uri;
@@ -54,7 +59,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	 * @param elts the size of document in elements
 	 */
 	public Document(long docKey, String uri, String root, String owner, long txId, int bytes, int elts) {
-		this(docKey, uri, root, txId, 0, new Date(), owner, "XML/" + def_encoding, bytes, elts);
+		this(docKey, uri, root, txId, 0, new Date(), owner, cte_xml_utf8, bytes, elts);
 	}
 
 	/**
@@ -72,14 +77,14 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	 */
 	public Document(long docKey, String uri, String root, long txStart, long txFinish, Date createdAt, 
 			String createdBy, String format, int bytes, int elts) {
-		this.documentKey = docKey; //toKey(hash, revision, version);
-		this.uri = uri.intern();
-		this.root = root.intern();
+		this.documentKey = docKey; 
+		this.uri = uri; //.intern();
+		this.root = root; //.intern();
 		this.txStart = txStart;
 		this.txFinish = txFinish;
 		this.createdAt = createdAt.getTime();
 		this.createdBy = createdBy.intern();
-		this.format = format.intern();
+		this.format = format; //.intern();
 		this.bytes = bytes;
 		this.elements = elts;
 	}
@@ -130,7 +135,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	 * @return the document's content type
 	 */
 	public String getContentType() {
-		int pos = format.indexOf("/");
+		int pos = format.indexOf(def_root); //"/");
 		if (pos > 0) {
 			return format.substring(0, pos);
 		} else if (pos == 0 && format.length() > 1) {
@@ -143,7 +148,7 @@ public class Document implements Comparable<Document>, Convertable<Map<String, O
 	 * @return the document's content type
 	 */
 	public String getEncoding() {
-		int pos = format.indexOf("/");
+		int pos = format.indexOf(def_root); //"/");
 		if (pos >= 0) {
 			return format.substring(pos + 1);
 		}

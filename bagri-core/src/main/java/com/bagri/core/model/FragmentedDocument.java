@@ -25,15 +25,15 @@ public class FragmentedDocument extends Document {
 	 * {@inheritDoc}
 	 */
 	public FragmentedDocument(long docKey, String uri, String root, String owner, long txId, int bytes, int elts) {
-		this(docKey, uri, root, txId, 0, new Date(), owner, def_encoding, bytes, elts);
+		this(docKey, uri, root, txId, 0, new Date(), owner, cte_xml_utf8, bytes, elts);
 	}
 
 	/**
 	 * {@inheritDoc} 
 	 */
 	public FragmentedDocument(long docKey, String uri, String root, long txStart, long txFinish, Date createdAt, 
-			String createdBy, String encoding, int bytes, int elts) {
-		super(docKey, uri, root, txStart, txFinish, createdAt, createdBy, encoding, bytes, elts);
+			String createdBy, String format, int bytes, int elts) {
+		super(docKey, uri, root, txStart, txFinish, createdAt, createdBy, format, bytes, elts);
 	}
 	
 	public long[] getFragments() {

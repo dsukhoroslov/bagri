@@ -36,9 +36,6 @@
 				<hz:property name="hazelcast.map.load.chunk.size">${bdb.schema.population.chunk.size:500}</hz:property>
 			</hz:properties>
 			<hz:network port="${bdb.schema.ports.first}" port-auto-increment="true">
-				<!--hz:outbound-ports>
-					<hz:ports>${bdb.schema.ports.first}-${bdb.schema.ports.last}</hz:ports> 
-				</hz:outbound-ports-->
 				<hz:join>
 					<hz:multicast enabled="${bdb.schema.multicast.enabled}" multicast-timeout-seconds="${bdb.schema.connect.timeout:10}">
 						<!--hz:trusted-interfaces>
@@ -51,6 +48,7 @@
 					<hz:aws enabled="${bdb.schema.aws.enabled:false}" connection-timeout-seconds="${bdb.schema.connect.timeout:10}"/>
 				</hz:join>
 			</hz:network>
+			<hz:partition-group enabled="true" group-type="HOST_AWARE" />
 
 			<hz:executor-service name="xdm-trans-pool" pool-size="${bdb.schema.thread.pool}" />
 			<hz:executor-service name="xdm-exec-pool" pool-size="${bdb.schema.thread.pool}" />
@@ -88,9 +86,9 @@
 				</hz:map-store>
 				<hz:indexes>
 					<hz:index attribute="__key#hash"/>
-					<hz:index attribute="txStart"/>
+					<!--hz:index attribute="txStart"/>
 					<hz:index attribute="txFinish"/>
-					<hz:index attribute="typeRoot"/>
+					<hz:index attribute="typeRoot"/-->
 					<hz:index attribute="uri" ordered="true"/>
 				</hz:indexes>
 				<hz:merge-policy batch-size="100">PutIfAbsentMergePolicy</hz:merge-policy>
@@ -264,7 +262,6 @@
 	<hz:map id="xdm-transaction" name="xdm-transaction" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-client" name="xdm-client" instance-ref="hzInstance" />
 	<hz:replicatedMap id="xdm-query" name="xdm-query" instance-ref="hzInstance" />
-	<!--hz:replicatedMap id="dict-path" name="dict-path" instance-ref="hzInstance" /-->
 	<hz:replicatedMap id="dict-index" name="dict-index" instance-ref="hzInstance" />
 
 	<hz:idGenerator id="xdm.document" name="xdm.document" instance-ref="hzInstance"/>
@@ -360,12 +357,6 @@
     	<constructor-arg value="${bdb.schema.thread.pool}"/>
 	</bean>
   
-	<!--bean id="popManager" class="com.bagri.server.hazelcast.management.PopulationManager">
-		<constructor-arg ref="hzInstance" />
-		<property name="schemaName" value="${bdb.schema.name}"/>
-		<property name="populationSize" value="${bdb.schema.population.size}"/>
-	</bean-->
-
 	<bean id="accManager" class="com.bagri.server.hazelcast.impl.AccessManagementImpl">
 		<property name="schemaName" value="${bdb.schema.name}"/>
 		<property name="schemaPass" value="${bdb.schema.password}"/>
