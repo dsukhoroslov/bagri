@@ -98,28 +98,43 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		}
 	}
     
-	private void processPathFiles(Path root, List<Path> files) throws IOException {
+	private void processPathFiles(Path root, Path current, List<Path> files) throws IOException {
 		DataFormat df = xdmRepo.getDataFormat(dataFormat);
-		StringBuilder ext = new StringBuilder();
+		final List<String> exts;
 		if (df != null) {
-			int cnt = 0;
-			for (String e: df.getExtensions()) {
-				if (cnt > 0) {
-					ext.append(",");
-				}
-				ext.append("*.").append(e);
-				cnt++;
+			exts = new ArrayList<>(df.getExtensions().size());
+			for (String ext: df.getExtensions()) {
+				exts.add("." + ext);
 			}
 		} else {
-			ext.append("*.").append(dataFormat.toLowerCase());
+			exts = new ArrayList<>(1);
+			exts.add("." + dataFormat.toLowerCase());
 		}
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(root, ext.toString())) {
+		
+		DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
+
+			@Override
+			public boolean accept(Path entry) throws IOException {
+				if (Files.isDirectory(entry)) {
+					return true;
+				}
+				
+				for (String ext: exts) {
+					if (entry.toString().endsWith(ext)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+		
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(current, filter)) {
 		    for (Path path: stream) {
 		        if (Files.isDirectory(path)) {
-		            processPathFiles(path, files);
+		            processPathFiles(root, path, files);
 		        } else {
-		    		//logger.trace("processPathFiles; path: {}; uri: {}", path.toString(), path.toUri().toString());
-		            files.add(path.getFileName());
+		    		//logger.info("processPathFiles; path: {}; relative: {}", path.toString(), root.relativize(path));
+		            files.add(root.relativize(path));
 		        }
 		    }
 		}
@@ -153,14 +168,14 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	    Map<DocumentKey, String> uris = new HashMap<>();
 		try {
 			List<Path> files = new ArrayList<>();
-			processPathFiles(root, files);
+			processPathFiles(root, root, files);
 			DocumentKey docKey; 
 			int keyPart = files.size();
 			if (populationPercent < 100) {
 				keyPart = keyPart*populationPercent/100;
 			}
 			for (Path path: files) {
-				String uri = path.getFileName().toString();
+				String uri = path.toString();
 				int revision = 0;
 				do {
 					docKey = xdmRepo.getFactory().newDocumentKey(uri, revision, dvFirst);
@@ -172,7 +187,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 					break;
 				}
 			}
-			docIds = new HashSet<>(uris.keySet());
+			docIds = uris.keySet(); //new HashSet<>(uris.keySet());
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
@@ -242,6 +257,7 @@ java.nio.BufferUnderflowException: null
     	if (docUri != null) {
        		try {
 	    		String fullUri = getFullUri(docUri);
+	    		//logger.info("loadDoc; uri: {}", fullUri); 
 				Path path = Paths.get(fullUri);
 		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
