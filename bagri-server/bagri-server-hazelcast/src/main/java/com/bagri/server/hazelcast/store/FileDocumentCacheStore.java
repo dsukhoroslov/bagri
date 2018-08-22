@@ -100,19 +100,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			logger.info("ensureRepository; repo: {}", xdmRepo);
 		}
 	}
-    
-	private void processPathFiles(Path root, Path current, List<Path> files) throws IOException {
-		DataFormat df = xdmRepo.getDataFormat(dataFormat);
-		final List<String> exts;
-		if (df != null) {
-			exts = new ArrayList<>(df.getExtensions().size());
-			for (String ext: df.getExtensions()) {
-				exts.add("." + ext);
-			}
-		} else {
-			exts = new ArrayList<>(1);
-			exts.add("." + dataFormat.toLowerCase());
-		}
+	
+	private void processPathFiles(Path root, Path current, final List<String> exts, List<Path> files) throws IOException {
 		
 		DirectoryStream.Filter<Path> filter = new DirectoryStream.Filter<Path>() {
 
@@ -131,16 +120,38 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			}
 		};
 		
+		int count = 0;
+		int found = 0;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(current, filter)) {
 		    for (Path path: stream) {
+				count++;
 		        if (Files.isDirectory(path)) {
-		            processPathFiles(root, path, files);
+		            processPathFiles(root, path, exts, files);
 		        } else {
-		    		//logger.info("processPathFiles; path: {}; relative: {}", path.toString(), root.relativize(path));
 		            files.add(root.relativize(path));
+		            found++;
 		        }
 		    }
 		}
+		logger.debug("processPathFiles.exit; current: {}; files processed: {}; files accepted: {}", current.toString(), count, found);
+	}
+    
+	private List<Path> getPathFiles(Path root) throws IOException {
+		DataFormat df = xdmRepo.getDataFormat(dataFormat);
+		final List<String> exts;
+		if (df != null) {
+			exts = new ArrayList<>(df.getExtensions().size());
+			for (String ext: df.getExtensions()) {
+				exts.add("." + ext);
+			}
+		} else {
+			exts = new ArrayList<>(1);
+			exts.add("." + dataFormat.toLowerCase());
+		}
+		
+		List<Path> files = new ArrayList<>();
+		processPathFiles(root, root, exts, files);
+		return files;
 	}
 	
 	private String getFullUri(String fileName) {
@@ -170,8 +181,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	    Path root = Paths.get(dataPath);
 	    Map<DocumentKey, String> uris = new HashMap<>();
 		try {
-			List<Path> files = new ArrayList<>();
-			processPathFiles(root, root, files);
+			List<Path> files = getPathFiles(root);
 			DocumentKey docKey; 
 			int keyCount = files.size();
 			if (popCount > 0) {
@@ -181,6 +191,10 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 					keyCount = keyCount*popPercent/100;
 				}
 			}
+			if (keyCount > files.size()) {
+				keyCount = files.size();
+			}
+			logger.info("loadAllKeys; going to load {} keys out of {} files", keyCount, files.size());
 			for (Path path: files) {
 				String uri = path.toString();
 				int revision = 0;
