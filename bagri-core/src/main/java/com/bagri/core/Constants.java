@@ -132,6 +132,7 @@ public class Constants {
     public static final String pn_schema_store_data_path = "bdb.schema.store.data.path";
     public static final String pn_schema_store_tx_buffer_size = "bdb.schema.store.tx.buffer.size";
     public static final String pn_schema_store_read_only = "bdb.schema.store.read-only";
+    public static final String pn_schema_store_load_count = "bdb.schema.store.load.count";
     public static final String pn_schema_store_load_percent = "bdb.schema.store.load.percent";
     public static final String pn_schema_population_pool = "bdb.schema.population.pool";
     public static final String pn_schema_population_size = "bdb.schema.population.size";

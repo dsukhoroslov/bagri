@@ -6,6 +6,7 @@ import static com.bagri.core.Constants.pn_document_data_format;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.pn_schema_name;
 import static com.bagri.core.Constants.pn_schema_store_data_path;
+import static com.bagri.core.Constants.pn_schema_store_load_count;
 import static com.bagri.core.Constants.pn_schema_store_load_percent;
 import static com.bagri.core.api.TransactionManagement.TX_INIT;
 import static com.bagri.core.model.Document.dvFirst;
@@ -48,10 +49,11 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 	private String dataPath;
     private String schemaName;
     private String dataFormat;
-    private int populationPercent;
     private HazelcastInstance hzi;
     private SchemaRepositoryImpl xdmRepo;
     private PopulationManagementImpl popManager;
+    private int popCount;
+    private int popPercent;
     private Properties props;
     
 	@Override
@@ -70,7 +72,8 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		if (schemaName == null) {
 			logger.warn("init; schemaName not set, please check node profile properties"); 
 		}
-		populationPercent = Integer.parseInt(properties.getProperty(pn_schema_store_load_percent, "100"));
+		popPercent = Integer.parseInt(properties.getProperty(pn_schema_store_load_percent, "100"));
+		popCount = Integer.parseInt(properties.getProperty(pn_schema_store_load_count, "0"));
 	}
 
 	@Override
@@ -170,9 +173,13 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			List<Path> files = new ArrayList<>();
 			processPathFiles(root, root, files);
 			DocumentKey docKey; 
-			int keyPart = files.size();
-			if (populationPercent < 100) {
-				keyPart = keyPart*populationPercent/100;
+			int keyCount = files.size();
+			if (popCount > 0) {
+				keyCount = popCount;
+			} else {
+				if (popPercent < 100) {
+					keyCount = keyCount*popPercent/100;
+				}
 			}
 			for (Path path: files) {
 				String uri = path.toString();
@@ -183,11 +190,11 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 				} while (uris.get(docKey) != null);				
 				uris.put(docKey, uri);
 				// for partial load..
-				if (uris.size() >= keyPart) {
+				if (uris.size() >= keyCount) {
 					break;
 				}
 			}
-			docIds = uris.keySet(); //new HashSet<>(uris.keySet());
+			docIds = uris.keySet(); 
 		} catch (IOException ex) {
 			logger.error("loadAllKeys.error;", ex);
 		}
@@ -257,7 +264,6 @@ java.nio.BufferUnderflowException: null
     	if (docUri != null) {
        		try {
 	    		String fullUri = getFullUri(docUri);
-	    		//logger.info("loadDoc; uri: {}", fullUri); 
 				Path path = Paths.get(fullUri);
 		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
