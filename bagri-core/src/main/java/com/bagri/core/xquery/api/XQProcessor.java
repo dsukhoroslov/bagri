@@ -218,4 +218,9 @@ public interface XQProcessor {
 	 * clears local query cache
 	 */
 	void clearLocalCache();
+	
+	/**
+	 * free resources allocated by the processor
+	 */
+	void close();
 }

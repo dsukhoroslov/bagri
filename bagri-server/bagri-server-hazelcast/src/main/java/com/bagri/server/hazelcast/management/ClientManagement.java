@@ -5,10 +5,8 @@ import static com.bagri.core.server.api.CacheConstants.CN_XDM_CLIENT;
 import static com.bagri.support.util.JMXUtils.compositeToTabular;
 import static com.bagri.support.util.JMXUtils.propsToComposite;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
@@ -20,9 +18,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
-import com.hazelcast.client.impl.HazelcastClientProxy;
-import com.hazelcast.core.IMap;
+import com.hazelcast.core.Client;
 import com.hazelcast.core.ReplicatedMap;
 
 /**
@@ -82,15 +78,27 @@ public class ClientManagement extends SchemaFeatureManagement {
 		//super.resetStatistics(new StatisticsReseter(schemaName, "txManager")); 
 	}
 
-	//@ManagedOperation(description="Disconnects active client")
-	//@ManagedOperationParameters({
-	//	@ManagedOperationParameter(name = "clientId", description = "Client identifier")})
-	//public boolean disconnectClient(String clientId) {
+	@ManagedOperation(description="Disconnects active client")
+	@ManagedOperationParameters({
+		@ManagedOperationParameter(name = "clientId", description = "Client identifier")})
+	public boolean disconnectClient(String clientId) {
 		// not equals to kill node! just kill the particular client
 		// don't see how to implement this. must perform client.doShutdown on the client side..
-		// thus, client should listen on some command topic! 
-	//	return false; 
-	//}
+		// thus, client should listen on some command topic!
+		for (Client c: this.hzClient.getClientService().getConnectedClients()) {
+			if (clientId.equals(c.getUuid())) {
+				logger.info("disconnectClient; found client: {}", c);
+				break;
+			}
+		}
+		// then remove it from clients, at least
+		return clientCache.remove(clientId) != null;
+	}
+	
+	@ManagedOperation(description="Clears client cache")
+	public void clearClients() {
+		clientCache.clear();
+	}
 
 
 }

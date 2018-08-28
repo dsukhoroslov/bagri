@@ -267,6 +267,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		logger.debug("clearLocalCache.enter; cache size before clear: {}", queries.size());
 		queries.clear();
 	}
+	
+	@Override
+	public void close() {
+		super.close();
+		clearLocalCache();
+		logger.info("close; processor: {}", this);
+	}
 
 	@Override
 	public String toString() {

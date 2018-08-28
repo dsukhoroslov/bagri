@@ -117,7 +117,6 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
     			clientsCache.remove(entry.getKey());
     		}
 		}
-		//XQProcessor proc = processors.remove(client.getUuid());
 	}
 	
 	private boolean removeClient(String clientId) {
@@ -134,8 +133,9 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 			}
 		}
 		int sizeAfter = hzInstance.getDistributedObjects().size(); 
-		logger.debug("removeClient.exit; queue {} {} for client: {}; size before: {}, after: {}", 
-				qName, removed ? "destroyed" : "skipped", clientId, sizeBefore, sizeAfter); 
+		boolean r2 = repo.removeXQProcessor(clientId);
+		logger.debug("removeClient.exit; queue {} {} for client: {}; size before: {}, after: {}; processor removed: {}", 
+				qName, removed ? "destroyed" : "skipped", clientId, sizeBefore, sizeAfter, r2); 
 		return removed;
 	}
 
@@ -162,7 +162,7 @@ public class ClientManagementImpl implements ClientManagement, ClientListener, E
 
 	@Override
 	public void mapCleared(MapEvent event) {
-		// do nothing
+		repo.closeXQProcessors();
 	}
 
 	@Override

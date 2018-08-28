@@ -453,4 +453,8 @@ public abstract class XQProcessorImpl extends XQProcessorBase {
             throw new XQException(ex.getMessage());
         }
     }
+    
+    public void close() {
+    	//config.clearSchemaCache();
+    }
 }

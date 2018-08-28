@@ -85,7 +85,6 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private HazelcastInstance hzInstance;
 
     private Map<String, XQProcessor> processors = new ConcurrentHashMap<>();
-	private Map<String, ContentSerializer<?>> serializers = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<>();
 	
 	@Override
@@ -210,6 +209,13 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		}
 	}
 
+	public void closeXQProcessors() {
+		for (XQProcessor xqp: processors.values()) {
+			xqp.close();
+		}
+		processors.clear();
+	}
+
 	public XQProcessor getXQProcessor(String clientId) {
 		XQProcessor result;
 		if (clientId == null) {
@@ -224,6 +230,15 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		}
 		logger.trace("getXQProcessor.exit; returning: {}, for client: {}", result, clientId); 
 		return result;
+	}
+	
+	boolean removeXQProcessor(String clientId) {
+		XQProcessor proc = processors.remove(clientId);
+		if (proc != null) {
+			proc.close();
+			return true;
+		}
+		return false;
 	}
 	
 	private XQProcessor newXQProcessor() {
