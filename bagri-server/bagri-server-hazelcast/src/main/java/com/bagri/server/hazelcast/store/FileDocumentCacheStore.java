@@ -178,6 +178,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			return docIds;
 		}
 	    
+		long size = 0;
 	    Path root = Paths.get(dataPath);
 	    Map<DocumentKey, String> uris = new HashMap<>();
 		try {
@@ -195,6 +196,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 				keyCount = files.size();
 			}
 			logger.info("loadAllKeys; going to load {} keys out of {} files", keyCount, files.size());
+
 			for (Path path: files) {
 				String uri = path.toString();
 				int revision = 0;
@@ -203,6 +205,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 					revision++;
 				} while (uris.get(docKey) != null);				
 				uris.put(docKey, uri);
+				size += Files.size(path);
 				// for partial load..
 				if (uris.size() >= keyCount) {
 					break;
@@ -216,7 +219,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		if (logger.isTraceEnabled()) {
 			logger.trace("loadAllKeys.exit; got mappings: {}", uris);
 		} else {
-			logger.info("loadAllKeys.exit; returning keys: {}", docIds.size());
+			logger.info("loadAllKeys.exit; returning {} keys; total size to load is {} bytes", docIds.size(), size);
 		}
 		return docIds;
 	}
