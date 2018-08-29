@@ -128,7 +128,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 		        if (Files.isDirectory(path)) {
 		            processPathFiles(root, path, exts, files);
 		        } else {
-		            files.add(root.relativize(path));
+		            files.add(path);
 		            found++;
 		        }
 		    }
@@ -198,7 +198,7 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			logger.info("loadAllKeys; going to load {} keys out of {} files", keyCount, files.size());
 
 			for (Path path: files) {
-				String uri = path.toString();
+				String uri = root.relativize(path).toString();
 				int revision = 0;
 				do {
 					docKey = xdmRepo.getFactory().newDocumentKey(uri, revision, dvFirst);
