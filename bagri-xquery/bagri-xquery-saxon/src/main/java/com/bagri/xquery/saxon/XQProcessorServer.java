@@ -36,6 +36,7 @@ import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.Operand;
 import net.sf.saxon.expr.UserFunctionCall;
 import net.sf.saxon.functions.IntegratedFunctionCall;
+import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.TraceListener;
 import net.sf.saxon.om.NamePool;
@@ -53,9 +54,10 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	// local cache for XQueryExpressions.
 	// may be make it static, synchronized? for XQProcessorServer instances..
     private Map<Integer, XQueryExpression> queries = new HashMap<>();
+    //private static Map<Integer, XQueryExpression> queries = new ConcurrentHashMap<>();
     
-    private NamePool defNamePool = new NamePool();
-    private DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
+    private static NamePool defNamePool = new NamePool();
+    private static DocumentNumberAllocator defDocNumberAllocator = new DocumentNumberAllocator();
     
 	private ThreadLocal<DynamicQueryContext> thDContext = new ThreadLocal<DynamicQueryContext>() {
 		
@@ -92,6 +94,8 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
     	clnFinder = new CollectionFinderImpl((com.bagri.core.server.api.SchemaRepository) xRepo);
     	config.setCollectionFinder(clnFinder);
         config.setDefaultCollection("");
+        //config.setConfigurationProperty(FeatureKeys., value);
+        //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
         SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
         config.setSourceResolver(sResolver);
         //config.registerExternalObjectModel(sResolver);

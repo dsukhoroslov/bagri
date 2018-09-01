@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,8 @@ import net.sf.saxon.trans.XPathException;
 public class ResourceCollectionImpl implements ResourceCollection {
 	
     private static final Logger logger = LoggerFactory.getLogger(ResourceCollectionImpl.class);
+    
+    private static final Map<Long, Resource> resourceCache = new ConcurrentHashMap<Long, Resource>();
 	
 	private String uri;
     private SchemaRepository repo;
@@ -141,22 +145,27 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		public Resource next() {
 			Long docKey = ResourceCollectionImpl.this.next();
 			if (docKey != null) {
-				try {
-					DocumentManagement docMgr = (DocumentManagement) repo.getDocumentManagement(); 
-					String type = docMgr.getDocumentContentType(docKey);
-					
-					// we can check isDocVisible here, thus don't do this at loadData phase.. 
-					if ("MAP".equals(type)) {
-						logger.trace("ResourceIterator.next; returning new MapResource for docKey {}", docKey);
-				        return new MapResourceImpl(docMgr, docKey);
-					} else if ("JSON".equals(type)) {
-				        return new JsonResourceImpl(docMgr, docKey);
-					} else {
-						return new XmlResourceImpl(docMgr, docKey);
+				Resource res = resourceCache.get(docKey);
+				if (res == null) {
+					try {
+						DocumentManagement docMgr = (DocumentManagement) repo.getDocumentManagement(); 
+						String type = docMgr.getDocumentContentType(docKey);
+						
+						// we can check isDocVisible here, thus don't do this at loadData phase.. 
+						if ("MAP".equals(type)) {
+							logger.trace("ResourceIterator.next; returning new MapResource for docKey {}", docKey);
+					        res = new MapResourceImpl(docMgr, docKey);
+						} else if ("JSON".equals(type)) {
+					        res = new JsonResourceImpl(docMgr, docKey);
+						} else {
+							res = new XmlResourceImpl(docMgr, docKey);
+						}
+						resourceCache.putIfAbsent(docKey, res);
+					} catch (BagriException ex) {
+						logger.error("next.error", ex);
 					}
-				} catch (BagriException ex) {
-					logger.error("next.error", ex);
 				}
+				return res;
 			}
 			return null;
 		}
