@@ -2,11 +2,14 @@ package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.bg_schema;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -28,8 +31,9 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	
     private static final Logger logger = LoggerFactory.getLogger(ResourceCollectionImpl.class);
     
-    private static final Map<Long, Resource> resourceCache = new ConcurrentHashMap<Long, Resource>();
-	
+    //private static final Map<Long, Resource> resourceCache = new ConcurrentHashMap<Long, Resource>();
+    private static final Map<Long, Reference<Resource>> resourceCache = Collections.synchronizedMap(new WeakHashMap<Long, Reference<Resource>>()); 
+    
 	private String uri;
     private SchemaRepository repo;
 	private ExpressionContainer query;
@@ -145,8 +149,9 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		public Resource next() {
 			Long docKey = ResourceCollectionImpl.this.next();
 			if (docKey != null) {
-				Resource res = resourceCache.get(docKey);
-				if (res == null) {
+				Reference<Resource> ref = resourceCache.get(docKey);
+				if (ref == null) {
+					Resource res;
 					try {
 						DocumentManagement docMgr = (DocumentManagement) repo.getDocumentManagement(); 
 						String type = docMgr.getDocumentContentType(docKey);
@@ -160,12 +165,13 @@ public class ResourceCollectionImpl implements ResourceCollection {
 						} else {
 							res = new XmlResourceImpl(docMgr, docKey);
 						}
-						resourceCache.putIfAbsent(docKey, res);
+						ref = new WeakReference<Resource>(res);
+						resourceCache.putIfAbsent(docKey, ref);
 					} catch (BagriException ex) {
 						logger.error("next.error", ex);
 					}
 				}
-				return res;
+				return ref.get();
 			}
 			return null;
 		}
