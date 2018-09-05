@@ -149,9 +149,12 @@ public class ResourceCollectionImpl implements ResourceCollection {
 		public Resource next() {
 			Long docKey = ResourceCollectionImpl.this.next();
 			if (docKey != null) {
+				Resource res = null;
 				Reference<Resource> ref = resourceCache.get(docKey);
-				if (ref == null) {
-					Resource res;
+				if (ref != null) {
+					res = ref.get();
+				}
+				if (res == null) {
 					try {
 						DocumentManagement docMgr = (DocumentManagement) repo.getDocumentManagement(); 
 						String type = docMgr.getDocumentContentType(docKey);
@@ -171,7 +174,8 @@ public class ResourceCollectionImpl implements ResourceCollection {
 						logger.error("next.error", ex);
 					}
 				}
-				return ref.get();
+				logger.trace("ResourceIterator.next; returning res: {}", res);
+				return res;
 			}
 			return null;
 		}
