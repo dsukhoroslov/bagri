@@ -68,7 +68,7 @@ public class Transaction implements Convertable<Map<String, Object>> {
 		this.txId = txId;
 		this.startedAt = startedAt;
 		this.finishedAt = finishedAt;
-		this.startedBy = startedBy.intern();
+		this.startedBy = startedBy;
 		this.txIsolation = txIsolation;
 		this.txState = txState;
 	}

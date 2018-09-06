@@ -17,22 +17,22 @@ public class CompressingDocumentAccessorImpl extends DocumentAccessorImpl {
 		return cli_CompressingDocumentAccessor;
 	}
 
-	protected InternalSerializationService getSerializationService() {
-		HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-		return (InternalSerializationService) proxy.getSerializationService();
-	}
+	//protected InternalSerializationService getSerializationService() {
+	//	HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
+	//	return (InternalSerializationService) proxy.getSerializationService();
+	//}
 
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		repo = SchemaRepositoryImpl.getRepository();
-		InternalSerializationService ss = getSerializationService();
+		//repo = SchemaRepositoryImpl.getRepository();
+		InternalSerializationService ss = in.getSerializationService();
 		ObjectDataInput odi = ss.createObjectDataInput(IOUtil.decompress(in.readByteArray()));
 		super.readData(odi);
 	}
 	
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		InternalSerializationService ss = getSerializationService();
+		InternalSerializationService ss = out.getSerializationService();
 		ObjectDataOutput tmp = ss.createObjectDataOutput();
 		super.writeData(tmp);
 		out.writeByteArray(IOUtil.compress(tmp.toByteArray()));

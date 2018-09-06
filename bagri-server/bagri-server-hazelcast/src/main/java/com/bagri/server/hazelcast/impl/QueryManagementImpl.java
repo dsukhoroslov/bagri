@@ -62,7 +62,6 @@ import com.bagri.support.stats.StatisticsEvent;
 import com.bagri.support.stats.watch.StopWatch;
 import com.bagri.support.util.PropUtils;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.PartitionService;
 import com.hazelcast.core.ReplicatedMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
@@ -81,6 +80,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	//private TransactionManagementImpl txMgr;
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
+	private DataDistributionService ddSvc;
 	
     private ReplicatedMap<Integer, Query> xqCache;
     private IMap<Long, QueryResult> xrCache;
@@ -116,6 +116,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
     	this.xddCache = docMgr.getDocumentCache();
     	this.xdmCache = docMgr.getElementCache();
     	docMgr.setRepository(repo);
+    }
+
+    public void setDistrService(DataDistributionService ddSvc) {
+    	this.ddSvc = ddSvc;
     }
 
     public void setQueryCache(ReplicatedMap<Integer, Query> cache) {
@@ -387,6 +391,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return queryPathKeys(local, found, pex, ec.getParam(pex));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Set<Long> queryPathKeys(boolean local, Set<Long> found, PathExpression pex, Object value) throws BagriException {
 
 		logger.trace("queryPathKeys.enter; localOnly: {}; found: {}; value: {}", local, (found == null ? "null" : found.size()), value);
@@ -534,11 +539,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		// filter out external docKeys; size should be docKeys.size / cluster size
 		KeyFactory factory = repo.getFactory();
 		Set<Long> localKeys = new HashSet<>();
-		PartitionService ps = repo.getHzInstance().getPartitionService();
 		for (Long key: docKeys) {
 			DocumentKey docKey = factory.newDocumentKey(key);
-			// owner can be null when we're in transition state!
-			if (ps.getPartition(docKey).getOwner().localMember()) {
+			if (ddSvc.isLocalKey(docKey)) {
 				localKeys.add(key);
 			}
 		}
@@ -625,9 +628,10 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				// otherwise filter out documents with wrong collectionIds here
 				// TODO: at query processing it can be cheaper to skip this check at all and
 				// perform it at result iteration time.
-				Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
-				ctx.setDocKeys(result);
-				return result.keySet();
+				//Map<Long, String> result = checkDocumentsCommited(ids, exp.getRoot().getCollectionId());
+				//ctx.setDocKeys(result);
+				//return result.keySet();
+				return ids;
 			}
 		}
 
@@ -642,9 +646,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		List<Long> result = new ArrayList<>(keys.size());
 		for (DocumentKey docKey: keys) {
 			// we must provide only visible docIds! but can do it later during lazy iteration..
-			if (docMgr.checkDocumentVisible(docKey.getKey(), 0) != null) {
+			//if (docMgr.checkDocumentVisible(docKey.getKey(), 0) != null) {
 				result.add(docKey.getKey());
-			}
+			//}
 		}
 		// We don't want to cache all docIds here in result? 
 		return result;
@@ -872,27 +876,17 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		if (resList.size() > 0 && ctx.getDocKeys().size() == 0) {
-			logger.warn("fetchAndCacheResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
+			logger.debug("fetchAndCacheResults.exit; got inconsistent query results; params: {}, docKeys: {}, results: {}", 
 					params, ctx.getDocKeys(), resList);
-		} else {
-			long qrKey = getResultsKey(query, params);
-			//String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
-			Object qResult;
-			//if (pv_client_submitTo_all.equals(runOn)) {
-				QueryResultProcessor xqp = new QueryResultProcessor(params, ctx.getDocKeys(), resList);
-				// or, use xrCache.executeOnKey(..) ?
-				xrCache.submitToKey(qrKey, xqp);
-				qResult = xqp;
-			//} else {
-			//	QueryResult xqr = new QueryResult(params, ctx.getDocKeys(), resList);
-				// what is better to use here: putAsync or set ?
-			//	xrCache.set(qrKey, xqr);
-			//	qResult = xqr;
-			//}
-			updateStats(query, 1, resList.size());
-			// got java.util.ConcurrentModificationException printing qResult!
-			logger.trace("fetchAndCacheResults.exit; stored results: {} {} {} for key: {}", params, ctx.getDocKeys(), resList, qrKey);
-		}
+		} 
+		
+		long qrKey = getResultsKey(query, params);
+		QueryResultProcessor xqp = new QueryResultProcessor(params, ctx.getDocKeys(), resList);
+		// or, use xrCache.executeOnKey(..) ?
+		xrCache.submitToKey(qrKey, xqp);
+		updateStats(query, 1, resList.size());
+		// got java.util.ConcurrentModificationException printing qResult!
+		logger.trace("fetchAndCacheResults.exit; stored results: {} {} {} for key: {}", params, ctx.getDocKeys(), resList, qrKey);
 	}
 	
 	private <T> List<Object> collectResults(Iterator<T> results, ResultCursorBase<T> cursor) {
@@ -958,7 +952,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				}
 			} else {
 				if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
-					cursor = new CompressingCursorImpl<>(repo, fetchSize);
+					cursor = new CompressingCursorImpl<>(fetchSize);
 				} else {
 					cursor = new FixedCursorImpl<>(fetchSize);
 				}

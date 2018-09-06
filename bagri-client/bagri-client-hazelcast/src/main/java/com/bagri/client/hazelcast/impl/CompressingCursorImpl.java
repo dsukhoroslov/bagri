@@ -4,11 +4,9 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import com.bagri.core.api.SchemaRepository;
-import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.nio.IOUtil;
 import com.hazelcast.nio.ObjectDataInput;
@@ -16,20 +14,20 @@ import com.hazelcast.nio.ObjectDataOutput;
 
 public class CompressingCursorImpl<T> extends FixedCursorImpl<T> {
 	
-	protected SchemaRepository repo;
+	//protected SchemaRepository repo;
 	
 	public CompressingCursorImpl() {
 		super();
 	}
 	
-	public CompressingCursorImpl(SchemaRepository repo, int size) {
+	public CompressingCursorImpl(/*SchemaRepository repo,*/ int size) {
 		super(size);
-		this.repo = repo;
+		//this.repo = repo;
 	}
 
-	public CompressingCursorImpl(SchemaRepository repo, Collection<T> results) {
+	public CompressingCursorImpl(/*SchemaRepository repo,*/ Collection<T> results) {
 		super(results);
-		this.repo = repo;
+		//this.repo = repo;
 	}
 	
 	@Override
@@ -37,18 +35,13 @@ public class CompressingCursorImpl<T> extends FixedCursorImpl<T> {
 		return cli_CompressingCursor;
 	}
 	
-	protected InternalSerializationService getSerializationService() {
-		HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-		return (InternalSerializationService) proxy.getSerializationService();
-	}
-
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		int sz = in.readInt();
 		if (sz > 0) {
 			results = new ArrayList<>(sz);
-			repo = SchemaRepositoryImpl.getRepository();
-			InternalSerializationService ss = getSerializationService();
+			//repo = SchemaRepositoryImpl.getRepository();
+			InternalSerializationService ss = in.getSerializationService(); 
 			byte[] data = in.readByteArray();
 			byte[] data2 = IOUtil.decompress(data);
 			//logger.info("readData; compressed size: {}; decompressed size: {}", data.length, data2.length);
@@ -64,7 +57,7 @@ public class CompressingCursorImpl<T> extends FixedCursorImpl<T> {
 		int sz = size();
 		out.writeInt(sz);
 		if (sz > 0) {
-			InternalSerializationService ss = getSerializationService();
+			InternalSerializationService ss = out.getSerializationService(); 
 			ObjectDataOutput tmp = ss.createObjectDataOutput();
 			writeResults(tmp);
 			byte[] data = tmp.toByteArray();

@@ -11,13 +11,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.client.hazelcast.task.ContextAwareTask;
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.api.ResultCursor;
-import com.hazelcast.client.impl.HazelcastClientProxy;
-import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -48,11 +45,6 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 		// nothing..
 	}
 
-	protected InternalSerializationService getSerializationService() {
-		HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-		return (InternalSerializationService) proxy.getSerializationService();
-	}
-
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void readData(ObjectDataInput in) throws IOException {
@@ -66,9 +58,8 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 			ContentSerializer cs = repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
-					InternalSerializationService ss = getSerializationService();
 					for (int i=0; i < size; i++) {
-						documents.put(in.readUTF(), readCompressedContent(ss, in, cs));
+						documents.put(in.readUTF(), readCompressedContent(in, cs));
 					}
 				} else {
 					for (int i=0; i < size; i++) {
@@ -80,9 +71,8 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 		} 
 
 		if (compress) {
-			InternalSerializationService ss = getSerializationService();
 			for (int i=0; i < size; i++) {
-				documents.put(in.readUTF(), readCompressedData(ss, in));
+				documents.put(in.readUTF(), readCompressedData(in));
 			}
 		} else {
 			for (int i=0; i < size; i++) {
@@ -102,10 +92,9 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 			ContentSerializer cs = repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
-					InternalSerializationService ss = getSerializationService();
 					for (Map.Entry<String, Object> entry: documents.entrySet()) {
 						out.writeUTF(entry.getKey());
-						writeCompressedContent(ss, out, cs, entry.getValue());
+						writeCompressedContent(out, cs, entry.getValue());
 					}
 				} else {
 					for (Map.Entry<String, Object> entry: documents.entrySet()) {
@@ -118,10 +107,9 @@ public class DocumentsCreator extends ContextAwareTask implements Callable<Resul
 		} 
 
 		if (compress) {
-			InternalSerializationService ss = getSerializationService();
 			for (Map.Entry<String, Object> entry: documents.entrySet()) {
 				out.writeUTF(entry.getKey());
-				writeCompressedData(ss, out, entry.getValue());
+				writeCompressedData(out, entry.getValue());
 			}
 		} else {
 			for (Map.Entry<String, Object> entry: documents.entrySet()) {

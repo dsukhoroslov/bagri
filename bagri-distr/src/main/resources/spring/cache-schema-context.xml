@@ -408,6 +408,7 @@
 	<bean id="queryManager" class="com.bagri.server.hazelcast.impl.QueryManagementImpl">
 		<property name="queryCache" ref="xdm-query"/>
 		<property name="resultCache" ref="xdm-result"/>
+		<property name="distrService" ref="distrService"/>
 		<property name="execPool" ref="execService"/>
 		<property name="statsQueue" ref="queryCacheQueue"/>
    		<!--property name="repository" ref="xdmRepo" /-->

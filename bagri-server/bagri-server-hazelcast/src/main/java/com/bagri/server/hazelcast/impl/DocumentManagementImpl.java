@@ -1,6 +1,7 @@
 package com.bagri.server.hazelcast.impl;
 
 import com.bagri.client.hazelcast.impl.BoundedCursorImpl;
+import com.bagri.client.hazelcast.impl.CompressingCursorImpl;
 import com.bagri.client.hazelcast.impl.FixedCursorImpl;
 import com.bagri.client.hazelcast.impl.QueuedCursorImpl;
 import com.bagri.client.hazelcast.task.doc.DocumentProvider;
@@ -31,7 +32,6 @@ import com.bagri.core.system.Fragment;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerAction.Order;
 import com.bagri.core.system.TriggerAction.Scope;
-import com.bagri.server.hazelcast.impl.CompressingCursorImpl;
 import com.bagri.server.hazelcast.predicate.CollectionPredicate;
 import com.bagri.server.hazelcast.predicate.DocumentPredicateBuilder;
 import com.bagri.server.hazelcast.task.doc.DocumentProcessor;
@@ -456,7 +456,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		} else {
 			if (Boolean.parseBoolean(props.getProperty(pn_document_compress, "false"))) {
-				cursor = new CompressingCursorImpl<>(repo, fetchSize);
+				cursor = new CompressingCursorImpl<>(fetchSize);
 			} else {
 				cursor = new FixedCursorImpl<>(fetchSize);
 			}

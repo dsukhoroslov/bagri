@@ -9,11 +9,8 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import com.bagri.client.hazelcast.impl.SchemaRepositoryImpl;
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentAccessor;
-import com.hazelcast.client.impl.HazelcastClientProxy;
-import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -45,11 +42,6 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		// nothing..
 	}
 	
-	protected InternalSerializationService getSerializationService() {
-		HazelcastClientProxy proxy = (HazelcastClientProxy) ((SchemaRepositoryImpl) repo).getHazelcastClient();
-		return (InternalSerializationService) proxy.getSerializationService();
-	}
-
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void readData(ObjectDataInput in) throws IOException {
@@ -61,7 +53,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 			ContentSerializer cs = repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
-					content = readCompressedContent(getSerializationService(), in, cs);
+					content = readCompressedContent(in, cs);
 				} else {
 					content = cs.readContent(in);
 				}
@@ -70,7 +62,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		} 
 
 		if (compress) {
-			content = readCompressedData(getSerializationService(), in);
+			content = readCompressedData(in);
 		} else {
 			content = in.readObject();
 		}
@@ -86,7 +78,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 			ContentSerializer cs = repo.getSerializer(format);
 			if (cs != null) {
 				if (compress) {
-					writeCompressedContent(getSerializationService(), out, cs, content);
+					writeCompressedContent(out, cs, content);
 				} else {
 					cs.writeContent(out, content);
 				}
@@ -95,7 +87,7 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		} 
 
 		if (compress) {
-			writeCompressedData(getSerializationService(), out, content);
+			writeCompressedData(out, content);
 		} else {
 			out.writeObject(content);
 		}
