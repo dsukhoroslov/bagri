@@ -7,7 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.core.ManagedContext;
+import com.bagri.server.hazelcast.impl.ContentDataPool;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -29,15 +29,17 @@ public class InternHashMapSerializer implements StreamSerializer<HashMap<String,
 	public HashMap<String, Object> read(ObjectDataInput in) throws IOException {
 		int size = in.readInt();
 		HashMap<String, Object> map = new HashMap<>(size);
-		ManagedContext mc = in.getSerializationService().getManagedContext();
-		logger.info("read; context: {}", mc);
+		//ContentDataPool cdPool = ContentDataPool.getDataPool();
 		for (int i=0; i < size; i++) {
 			String key = in.readUTF();
+			//key = cdPool.intern(key);
+			key = key.intern();
 			Object value = in.readObject();
 			if (value instanceof String) {
+				//value = cdPool.intern((String) value);
 				value = ((String) value).intern();
 			}
-			map.put(key.intern(), value);
+			map.put(key, value);
 		}
 		return map;
 	}
