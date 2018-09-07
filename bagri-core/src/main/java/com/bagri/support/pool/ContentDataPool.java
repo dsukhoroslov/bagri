@@ -1,11 +1,11 @@
-package com.bagri.server.hazelcast.impl;
+package com.bagri.support.pool;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ContentDataPool {
 
-	private final Map<String, String> stringPool = new HashMap<>();
+	private final Map<String, String> stringPool = new ConcurrentHashMap<>();
 	
 	private static final ContentDataPool cdPool = new ContentDataPool();
 	
