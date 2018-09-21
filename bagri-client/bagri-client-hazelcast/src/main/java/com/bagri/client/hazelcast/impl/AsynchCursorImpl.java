@@ -1,5 +1,7 @@
 package com.bagri.client.hazelcast.impl;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +13,8 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements Execut
     private final static Logger logger = LoggerFactory.getLogger(AsynchCursorImpl.class);
 	
 	private int expected = 1;
-	private volatile int failures = 0;
-	private volatile int received = 0;
+	private AtomicInteger failures = new AtomicInteger(0);
+	private AtomicInteger received = new AtomicInteger(0);
 	
 	public AsynchCursorImpl() {
 		super();
@@ -30,8 +32,10 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements Execut
 
 	@Override
 	public boolean isComplete() {
-		logger.trace("isComplete; expected: {}, received: {}, failures: {}", expected, received, failures);
-		return expected == received + failures;
+		int r = received.get();
+		int f = failures.get();
+		logger.trace("isComplete; expected: {}, received: {}, failures: {}", expected, r, f);
+		return expected == r + f;
 	}
 
 	@Override
@@ -45,12 +49,12 @@ public class AsynchCursorImpl<T> extends CombinedCursorImpl<T> implements Execut
 	@Override
 	public void onResponse(ResultCursor<T> response) {
 		addResults(response);
-		received++;
+		received.incrementAndGet();
 	}
 
 	@Override
 	public void onFailure(Throwable t) {
-		failures++;
+		failures.incrementAndGet();
 	}
 
 }
