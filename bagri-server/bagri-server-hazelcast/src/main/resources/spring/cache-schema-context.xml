@@ -200,7 +200,7 @@
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
-					<hz:serializer type-class="java.util.HashMap" class-name="com.bagri.server.hazelcast.serialize.InternHashMapSerializer"/>
+					<hz:serializer type-class="java.util.HashMap" class-name="com.bagri.client.hazelcast.serialize.HashMapSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 

@@ -6,6 +6,7 @@ import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.api.TransactionIsolation;
 import com.bagri.core.api.TransactionState;
 import com.bagri.core.model.Transaction;
+import com.bagri.support.pool.ContentDataPool;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -24,10 +25,11 @@ public class TransactionSerializer implements StreamSerializer<Transaction> {
 	@Override
 	public Transaction read(ObjectDataInput in) throws IOException {
 		
+		ContentDataPool cdPool = ContentDataPool.getDataPool();
 		Transaction xTrans = new Transaction(in.readLong(),
 				in.readLong(),
 				in.readLong(),
-				in.readUTF(),
+				cdPool.intern(in.readUTF()),
 				TransactionIsolation.values()[in.readInt()],
 				TransactionState.values()[in.readInt()]);
 		xTrans.updateCounters(in.readInt(), in.readInt(), in.readInt());

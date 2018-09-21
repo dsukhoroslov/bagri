@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import com.bagri.support.pool.ContentDataPool;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -26,12 +27,13 @@ public abstract class QueryAwareTask extends ContextAwareTask {
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		query = in.readUTF();
+		ContentDataPool cdPool = ContentDataPool.getDataPool();
+		query = cdPool.intern(in.readUTF());
 		int size = in.readInt();
 		if (size > 0) {
 			params = new HashMap<>(size);
 			for (int i=0; i < size; i++) {
-				params.put(in.readUTF(), in.readObject());
+				params.put(cdPool.intern(in.readUTF()), in.readObject());
 			}
 		}
 	}

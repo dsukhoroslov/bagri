@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.model.Document;
+import com.bagri.support.pool.ContentDataPool;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
@@ -21,15 +22,16 @@ public class DocumentSerializer implements StreamSerializer<Document> {
 
 	@Override
 	public Document read(ObjectDataInput in) throws IOException {
+		ContentDataPool cdPool = ContentDataPool.getDataPool();
 		Document xDoc = new Document(
 				in.readLong(),
-				in.readUTF(),
-				in.readUTF(),
+				cdPool.intern(in.readUTF()),
+				cdPool.intern(in.readUTF()),
 				in.readLong(),
 				in.readLong(),
 				new java.util.Date(in.readLong()),
-				in.readUTF(),
-				in.readUTF(),
+				cdPool.intern(in.readUTF()),
+				cdPool.intern(in.readUTF()),
 				in.readInt(),
 				in.readInt());
 		xDoc.setCollections(in.readIntArray());

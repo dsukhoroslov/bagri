@@ -9,6 +9,7 @@ import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.system.Permission;
+import com.bagri.support.pool.ContentDataPool;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
@@ -43,7 +44,8 @@ public abstract class ClientAwareTask implements IdentifiedDataSerializable {
 	
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
-		clientId = in.readUTF();
+		ContentDataPool cdPool = ContentDataPool.getDataPool();
+		clientId = cdPool.intern(in.readUTF());
 	}
 
 	@Override

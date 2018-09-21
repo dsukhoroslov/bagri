@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import com.bagri.client.hazelcast.task.ContextAwareTask;
+import com.bagri.support.pool.ContentDataPool;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -29,7 +30,8 @@ public abstract class DocumentAwareTask extends ContextAwareTask implements Part
 	@Override
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
-		uri = in.readUTF();
+		ContentDataPool cdPool = ContentDataPool.getDataPool();
+		uri = cdPool.intern(in.readUTF());
 	}
 
 	@Override

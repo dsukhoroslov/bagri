@@ -34,6 +34,8 @@ public class SystemSerializationFactory implements DataSerializableFactory {
 	public static final int cli_PathIndexKey = 122; 
 	public static final int cli_QueryParamsKey = 123;
 	public static final int cli_UrlHashKey = 124;
+
+	public static final int cli_HashMap = 130;
 	
 	@Override
 	public IdentifiedDataSerializable create(int typeId) {

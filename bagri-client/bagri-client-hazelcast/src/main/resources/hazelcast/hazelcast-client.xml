@@ -68,6 +68,7 @@
 			<serializer type-class="com.bagri.core.system.TriggerAction" class-name="com.bagri.client.hazelcast.serialize.system.TriggerActionSerializer"/>
 			<serializer type-class="com.bagri.core.system.JavaTrigger" class-name="com.bagri.client.hazelcast.serialize.system.JavaTriggerSerializer"/>
 			<serializer type-class="com.bagri.core.system.XQueryTrigger" class-name="com.bagri.client.hazelcast.serialize.system.XQueryTriggerSerializer"/>
+			<serializer type-class="java.util.HashMap" class-name="com.bagri.client.hazelcast.serialize.HashMapSerializer"/>
 		</serializers>
 	</serialization>
 

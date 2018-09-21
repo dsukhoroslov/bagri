@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.bagri.core.api.ContentSerializer;
+import com.bagri.support.pool.ContentDataPool;
 
 public class StringMapContentSerializer implements ContentSerializer<Map<String, String>> {
 
@@ -14,8 +15,9 @@ public class StringMapContentSerializer implements ContentSerializer<Map<String,
 	public Map<String, String> readContent(DataInput in) throws IOException {
 		int size = in.readInt();
 		Map<String, String> content = new HashMap<>(size);
+		ContentDataPool cdPool = ContentDataPool.getDataPool();
 		for (int i=0; i < size; i++) {
-			content.put(in.readUTF(), in.readUTF());
+			content.put(cdPool.intern(in.readUTF()), in.readUTF());
 		}
 		return content;
 	}
