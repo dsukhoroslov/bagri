@@ -131,7 +131,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		}
 		
 		Callable<ResultCursor<String>> task = new QueryUrisProvider(props.getProperty(pn_client_id), repo.getTransactionId(), query, params, props);
-		List<ResultCursor<String>> results = executeQueryTask(task, params, props, qKey);
+		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
+		List<ResultCursor<String>> results = executeQueryTask(task, params, props, fetchType, qKey);
 		ResultCursor<String> cursor = convertResults(results, 0);
 		logger.trace("getDocumentUris.exit; returning: {}", cursor);
 		return cursor;
@@ -163,11 +164,11 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
 		props.setProperty(pn_client_fetchAsynch, String.valueOf(pv_client_fetchType_queue.equals(fetchType)));
 		if (splitBy != null) {
-			cursor = executeSplitQuery(query, params, props, splitBy, useCache);
+			cursor = executeSplitQuery(query, params, props, fetchType, splitBy, useCache);
 		}
 		if (cursor == null) {
 			Callable<ResultCursor<T>> task = new QueryExecutor(props.getProperty(pn_client_id), repo.getTransactionId(), query, params, props);
-			List<ResultCursor<T>> results = executeQueryTask(task, params, props, qKey);
+			List<ResultCursor<T>> results = executeQueryTask(task, params, props, fetchType, qKey);
 			cursor = convertResults(results, 0);
 		}
 		logger.debug("executeQuery.exit; returning: {}", cursor);
@@ -175,7 +176,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, Properties props, String splitBy, boolean useCache) throws BagriException {
+	private <T> ResultCursor<T> executeSplitQuery(String query, Map<String, Object> params, Properties props, String fetchType, String splitBy, boolean useCache) throws BagriException {
 		Object param = params.get(splitBy);
 		if (param != null && param instanceof Collection) {
 			Collection collect = (Collection) param;
@@ -185,7 +186,6 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 				CombinedCursorImpl<T> cci = new CombinedCursorImpl<>(limit); 
 				Iterator<Object> itr = collect.iterator();
 
-				String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
 				boolean doBatch = pv_client_fetchType_batch.equals(fetchType);
 				List<Future<ResultCursor<T>>> futures = null;
 				if (doBatch) {
@@ -214,9 +214,9 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 					
 					Callable<ResultCursor<T>> task = new QueryExecutor(childId, repo.getTransactionId(), query, splitParams, splitProps);
 					if (doBatch) {
-						futures.addAll(submitQueryTask(task, params, props, splitQKey));
+						futures.addAll(submitQueryTask(task, splitParams, splitProps, splitQKey));
 					} else {
-						for (ResultCursor<T> cr: executeQueryTask(task, params, props, splitQKey)) {
+						for (ResultCursor<T> cr: executeQueryTask(task, splitParams, splitProps, fetchType, splitQKey)) {
 							cci.addResults(cr);
 						}
 					}
@@ -232,11 +232,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		return null;
 	}
 	
-	private <T> List<ResultCursor<T>> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, long qKey) throws BagriException {
+	private <T> List<ResultCursor<T>> executeQueryTask(Callable<ResultCursor<T>> task, Map<String, Object> params, Properties props, String fetchType, long qKey) throws BagriException {
 		
 		List<Future<ResultCursor<T>>> futures = submitQueryTask(task, params, props, qKey);
 	
-		String fetchType = props.getProperty(pn_client_fetchType, pv_client_fetchType_fixed);
+		// TODO: make ResultCursor cancellable, move cancellation handling into cursor itself..? 
+		
 		if (pv_client_fetchType_asynch.equals(fetchType)) {
 			int fetchSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, "0"));
 			AsynchCursorImpl<T> cursor = new AsynchCursorImpl<>(fetchSize, futures.size());
@@ -299,8 +300,12 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 			Member owner = null;
 			if (runKey == null) {
 				// this is for any/default cases: balance job between nodes...
+				long cIdx = memberIdx.incrementAndGet();
+				if (cIdx == Long.MAX_VALUE) {
+					memberIdx.set(0);
+				}
 				Collection<Member> members = repo.getHazelcastClient().getCluster().getMembers();
-				int cnt = (int) (memberIdx.incrementAndGet() % members.size());
+				int cnt = (int) (cIdx % members.size());
 				Iterator<Member> itr = members.iterator();
 				for (int i=0; i <= cnt; i++) {
 					owner = itr.next();

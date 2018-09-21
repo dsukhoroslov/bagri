@@ -81,6 +81,7 @@ JAVA_OPTS="\
 -Dbdb.client.sharedConnection=true \
 -Djava.rmi.server.hostname=127.0.0.1 \
 "
+## if bdb.client.sharedConnection == false then set hazelcast.client.event.thread.count=1
 
 logdir="${apphome}/logs/${nodeName}"
 rundir="${apphome}/run"

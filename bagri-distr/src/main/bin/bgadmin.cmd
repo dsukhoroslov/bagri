@@ -40,6 +40,8 @@ set java_opts=%java_opts% -Dbdb.config.filename=..\config\config.xml -Dbdb.acces
 set java_opts=%java_opts% -Dbdb.client.poolSize=32 -Dbdb.client.idCount=64 
 set java_opts=%java_opts% -Dbdb.client.sharedConnection=true 
 
+rem if bdb.client.sharedConnection == false then set hazelcast.client.event.thread.count=1
+
 rem specify JMX options
 set java_opts=%java_opts% -Dcom.sun.management.jmxremote.authenticate=false
 set java_opts=%java_opts% -Dcom.sun.management.jmxremote.ssl=false
