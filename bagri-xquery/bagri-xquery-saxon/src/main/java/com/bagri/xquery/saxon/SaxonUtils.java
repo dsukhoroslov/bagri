@@ -49,6 +49,7 @@ import com.bagri.xquery.saxon.ext.tx.BeginTransaction;
 import com.bagri.xquery.saxon.ext.tx.CommitTransaction;
 import com.bagri.xquery.saxon.ext.tx.RollbackTransaction;
 import com.bagri.xquery.saxon.ext.util.GetUuid;
+import com.bagri.xquery.saxon.ext.util.GetUuid2;
 import com.bagri.xquery.saxon.ext.util.LogOutput;
 
 import net.sf.saxon.Configuration;
@@ -294,7 +295,6 @@ public class SaxonUtils {
         return new ObjectValue(value);
     }
     
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Item convertToAtomicItem(Object value, Configuration config, BuiltInAtomicType type) throws XPathException {
         if (value == null) {
             return null;
@@ -881,6 +881,7 @@ public class SaxonUtils {
 	
 	public static void registerExtensions(Configuration config, SchemaRepository xRepo) {
         config.registerExtensionFunction(new GetUuid());
+        config.registerExtensionFunction(new GetUuid2());
         config.registerExtensionFunction(new LogOutput());
         config.registerExtensionFunction(new HttpGet());
         if (xRepo == null) {
