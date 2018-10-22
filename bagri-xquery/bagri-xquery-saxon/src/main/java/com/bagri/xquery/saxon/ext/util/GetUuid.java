@@ -9,8 +9,10 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
 import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.om.Sequence;
+import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.type.BuiltInAtomicType;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.value.StringValue;
 
@@ -28,12 +30,12 @@ public class GetUuid extends ExtensionFunctionDefinition {
 	
 	@Override 
 	public int getMaximumNumberOfArguments() { 
-		return 0; 
+		return 2; 
 	} 	
 
 	@Override
 	public SequenceType[] getArgumentTypes() {
-		return new SequenceType[] {}; 
+		return new SequenceType[] {BuiltInAtomicType.INT.zeroOrOne(), BuiltInAtomicType.INT.zeroOrOne()}; 
 	}
 	
 	@Override
@@ -48,6 +50,14 @@ public class GetUuid extends ExtensionFunctionDefinition {
 
 			@Override
 			public Sequence call(XPathContext context, Sequence[] arguments) throws XPathException {
+				if (arguments.length > 0) {
+					long most = (Long) SequenceTool.convertToJava(arguments[0].head());
+					long least = 0;
+					if (arguments.length > 1) {
+						least = (Long) SequenceTool.convertToJava(arguments[1].head());
+					}
+					return StringValue.makeStringValue(new UUID(most, least).toString());
+				}
 				return StringValue.makeStringValue(UUID.randomUUID().toString());
 			}
 		};

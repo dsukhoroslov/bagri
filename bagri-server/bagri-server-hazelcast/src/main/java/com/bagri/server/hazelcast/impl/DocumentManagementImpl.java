@@ -621,6 +621,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 			fragments = (List<Long>) ids[0];
 			root = pRes.getContentRoot();
+			indexManager.indexDocument(docKey.getKey(), data);
 		}
 
 		Document doc;
@@ -637,7 +638,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			((FragmentedDocument) doc).setFragments(fa);
 		}
 		
-		indexManager.indexDocument(docKey.getKey(), data);
+		//indexManager.indexDocument(docKey.getKey(), data);
 
 		if (collections != null && collections.length > 0) {
 			doc.setCollections(collections);
