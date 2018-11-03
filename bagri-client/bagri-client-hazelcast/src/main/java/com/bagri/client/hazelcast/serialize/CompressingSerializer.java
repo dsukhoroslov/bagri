@@ -17,7 +17,7 @@ public class CompressingSerializer {
 	}
 
 	public static void writeCompressedData(ObjectDataOutput out, Object data) throws IOException {
-		InternalSerializationService ss = out.getSerializationService();
+		InternalSerializationService ss = (InternalSerializationService) out.getSerializationService();
 		ObjectDataOutput tmp = ss.createObjectDataOutput();
 		tmp.writeObject(data);
 		out.writeByteArray(IOUtil.compress(tmp.toByteArray()));
@@ -30,7 +30,7 @@ public class CompressingSerializer {
 	}
 
 	public static void writeCompressedContent(ObjectDataOutput out, ContentSerializer<Object> cs, Object data) throws IOException {
-		InternalSerializationService ss = out.getSerializationService();
+		InternalSerializationService ss = (InternalSerializationService) out.getSerializationService();
 		ObjectDataOutput tmp = ss.createObjectDataOutput();
 		cs.writeContent(tmp, data);
 		out.writeByteArray(IOUtil.compress(tmp.toByteArray()));

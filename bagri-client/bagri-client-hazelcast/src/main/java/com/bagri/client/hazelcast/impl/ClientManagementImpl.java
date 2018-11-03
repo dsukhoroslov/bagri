@@ -26,7 +26,7 @@ import com.bagri.xqj.BagriXQDataFactory;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
-import com.hazelcast.client.impl.HazelcastClientProxy;
+import com.hazelcast.client.impl.clientside.HazelcastClientProxy;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ReplicatedMap;
@@ -95,7 +95,7 @@ public class ClientManagementImpl {
     	HazelcastInstance hzClient = cc.hzInstance; 
     	if (cc.addClient(clientId)) {
     		ReplicatedMap<String, Properties> clientProps = hzClient.getReplicatedMap(CN_XDM_CLIENT);
-    		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
+    		HazelcastClientProxy proxy = (HazelcastClientProxy) hzClient; 
     		props.setProperty(pn_client_memberId, proxy.client.getClientClusterService().getLocalClient().getUuid());
     		props.setProperty(pn_client_connectedAt, new java.util.Date(proxy.getCluster().getClusterTime()).toString());
     		clientProps.put(clientId, props);

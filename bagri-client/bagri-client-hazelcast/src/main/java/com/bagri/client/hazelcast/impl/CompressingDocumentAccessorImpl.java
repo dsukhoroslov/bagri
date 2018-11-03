@@ -4,7 +4,7 @@ import static com.bagri.client.hazelcast.serialize.SystemSerializationFactory.cl
 
 import java.io.IOException;
 
-import com.hazelcast.client.impl.HazelcastClientProxy;
+//import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.nio.IOUtil;
 import com.hazelcast.nio.ObjectDataInput;
@@ -32,7 +32,7 @@ public class CompressingDocumentAccessorImpl extends DocumentAccessorImpl {
 	
 	@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
-		InternalSerializationService ss = out.getSerializationService();
+		InternalSerializationService ss = (InternalSerializationService) out.getSerializationService();
 		ObjectDataOutput tmp = ss.createObjectDataOutput();
 		super.writeData(tmp);
 		out.writeByteArray(IOUtil.compress(tmp.toByteArray()));

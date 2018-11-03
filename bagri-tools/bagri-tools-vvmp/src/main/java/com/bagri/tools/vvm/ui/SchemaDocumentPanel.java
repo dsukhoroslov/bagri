@@ -180,9 +180,9 @@ public class SchemaDocumentPanel extends JPanel {
         docToolbar.setFloatable(false);
         add(docToolbar, BorderLayout.PAGE_START);
         mgrSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        mgrSplitter.setDividerLocation(0.7);
         mgrSplitter.setLeftComponent(getCollectionManagementPanel());
         mgrSplitter.setRightComponent(createDocumentTreePanel());
+        mgrSplitter.setDividerLocation(0.7);
         add(mgrSplitter, BorderLayout.CENTER);
     }
     
@@ -265,7 +265,7 @@ public class SchemaDocumentPanel extends JPanel {
 	        clnInfoPanel.add(new JLabel("created by:"));
 	        clnInfoPanel.add(new JLabel(""));
 	        clnInfoPanel.setPreferredSize(new Dimension(1000, 90));
-	        clnInfoPanel.setMinimumSize(new Dimension(1000, 90));
+	        //clnInfoPanel.setMinimumSize(new Dimension(1000, 90));
 	        clnInfoPanel.setBorder(BorderFactory.createTitledBorder("collection: "));
 	        splitPane.setTopComponent(clnInfoPanel);
 	
@@ -283,6 +283,7 @@ public class SchemaDocumentPanel extends JPanel {
 	        splitPane.setBottomComponent(panel);
 	        clnPanel.add(splitPane, BorderLayout.CENTER);
 	        splitPane.setDividerLocation(0.2);
+	        clnPanel.setPreferredSize(new Dimension(1000, 500));
     	}
     	return clnPanel;
     }
@@ -336,15 +337,15 @@ public class SchemaDocumentPanel extends JPanel {
 			docInfoPanel.add(new JLabel("owner:"));
 			docInfoPanel.add(new JLabel("format:"));
 			docInfoPanel.setPreferredSize(new Dimension(1000, 120));
-			docInfoPanel.setMinimumSize(new Dimension(1000, 120));
+			//docInfoPanel.setMinimumSize(new Dimension(1000, 120));
 			docInfoPanel.setBorder(BorderFactory.createTitledBorder("document: "));
 	        splitPane.setTopComponent(docInfoPanel);
 	
 	        contentArea = new JTextArea();
 	        contentArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 	        JScrollPane areaScrollPane = new JScrollPane(contentArea);
-	        //areaScrollPane.setPreferredSize(new Dimension(1000, 500));
-	        areaScrollPane.setMinimumSize(new Dimension(1000, 500));
+	        areaScrollPane.setPreferredSize(new Dimension(1000, 500));
+	        //areaScrollPane.setMinimumSize(new Dimension(1000, 500));
 	        contentArea.setEditable(false);
 	        contentArea.setCaretPosition(0);
 	        splitPane.setBottomComponent(areaScrollPane);

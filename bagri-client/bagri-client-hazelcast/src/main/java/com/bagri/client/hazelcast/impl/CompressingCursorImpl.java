@@ -57,7 +57,7 @@ public class CompressingCursorImpl<T> extends FixedCursorImpl<T> {
 		int sz = size();
 		out.writeInt(sz);
 		if (sz > 0) {
-			InternalSerializationService ss = out.getSerializationService(); 
+			InternalSerializationService ss = (InternalSerializationService) out.getSerializationService(); 
 			ObjectDataOutput tmp = ss.createObjectDataOutput();
 			writeResults(tmp);
 			byte[] data = tmp.toByteArray();

@@ -56,7 +56,7 @@ import com.bagri.server.hazelcast.task.schema.SchemaUpdater;
 import com.bagri.server.hazelcast.util.HazelcastUtils;
 import com.bagri.support.util.PropUtils;
 import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
+import com.hazelcast.client.impl.clientside.HazelcastClientInstanceImpl;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.IMap;

@@ -42,6 +42,7 @@ import com.hazelcast.query.Predicates;
 import com.hazelcast.spi.ManagedService;
 import com.hazelcast.spi.NodeEngine;
 import com.hazelcast.util.IterationType;
+import com.hazelcast.wan.impl.CallerProvenance;
 
 public class DataDistributionService implements ManagedService {
 
@@ -83,7 +84,7 @@ public class DataDistributionService implements ManagedService {
 				return null;
 			}
 	
-			Object data = cache.get(dKey, false);
+			Object data = cache.get(dKey, false, nodeEngine.getThisAddress());
 			if (data != null && convert) {
 				data = nodeEngine.toObject(data);
 			} 
@@ -112,7 +113,7 @@ public class DataDistributionService implements ManagedService {
 		
 		Data dKey = nodeEngine.toData(key);
 		// will it delete backups?!
-		cache.delete(dKey);
+		cache.delete(dKey, CallerProvenance.NOT_WAN);
 	}
 	
 	public <T> T removeCachedObject(String cacheName, Object key, boolean convert) {
@@ -124,7 +125,7 @@ public class DataDistributionService implements ManagedService {
 		
 		Data dKey = nodeEngine.toData(key);
 		// will it remove backups?!
-		Object data = cache.remove(dKey);
+		Object data = cache.remove(dKey, CallerProvenance.NOT_WAN);
 		if (data != null) {
 			if (convert) {
 				data = nodeEngine.toObject(data);
@@ -449,7 +450,7 @@ public class DataDistributionService implements ManagedService {
 		logger.trace("storeData; going to store key: {}; on partition: {}", key, partId);
 		RecordStore<?> rs = mapCtx.getExistingRecordStore(partId, storeName);
 		if (rs != null) {
-			return rs.put(nodeEngine.toData(key), value, 0);
+			return rs.put(nodeEngine.toData(key), value, 0, 0);
 		}
 		return null;
 	}

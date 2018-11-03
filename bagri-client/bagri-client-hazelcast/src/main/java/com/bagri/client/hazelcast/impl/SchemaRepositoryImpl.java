@@ -26,7 +26,9 @@ import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
+
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.client.impl.clientside.HazelcastClientProxy;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements SchemaRepository {
 	
@@ -63,7 +65,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	
 	public SchemaRepositoryImpl(HazelcastInstance hzInstance) {
 		this.hzClient = hzInstance;
-		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient;
+		HazelcastClientProxy proxy = (HazelcastClientProxy) hzClient;
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 
 		clientMgr = new ClientManagementImpl();
@@ -157,7 +159,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		clientId = UUID.randomUUID().toString();
 		logger.debug("initializeFromProperties; initializing with props: {}", props);
 		hzClient = clientMgr.connect(clientId, props);
-		com.hazelcast.client.impl.HazelcastClientProxy proxy = (com.hazelcast.client.impl.HazelcastClientProxy) hzClient; 
+		HazelcastClientProxy proxy = (HazelcastClientProxy) hzClient; 
 		schemaName = proxy.getClientConfig().getGroupConfig().getName();
 		initializeServices(props);
 		initializeSerializers(props);
