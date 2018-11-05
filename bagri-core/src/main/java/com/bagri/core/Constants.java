@@ -140,12 +140,14 @@ public class Constants {
     public static final String pn_schema_population_buffer_size = "bdb.schema.population.buffer.size";
     public static final String pn_schema_population_use_catalog = "bdb.schema.population.use.catalog";
     public static final String pn_schema_fetch_size = "bdb.schema.fetch.size";
+    public static final String pn_schema_content_compress = "bdb.schema.content.compress";
     public static final String pn_schema_publish_counters = "bdb.schema.publish.counters";
     public static final String pn_schema_query_cache = "bdb.schema.query.cache";
     public static final String pn_schema_tx_level = "bdb.schema.transaction.level";
     public static final String pn_schema_tx_timeout = "bdb.schema.transaction.timeout";
     public static final String pn_schema_cache_content = "bdb.schema.cache.content";
     public static final String pn_schema_cache_elements = "bdb.schema.cache.elements";
+    public static final String pn_schema_cache_resources = "bdb.schema.cache.resources";
     public static final String pn_schema_index_asynch = "bdb.schema.index.asynch";
     
     public static final String pn_schema_health_check = "bdb.schema.health.management.enabled";

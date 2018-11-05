@@ -38,7 +38,6 @@ import net.sf.saxon.expr.UserFunctionCall;
 import net.sf.saxon.functions.IntegratedFunctionCall;
 import net.sf.saxon.lib.FeatureKeys;
 import net.sf.saxon.lib.ModuleURIResolver;
-import net.sf.saxon.lib.TraceListener;
 import net.sf.saxon.om.NamePool;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.query.DynamicQueryContext;
@@ -48,12 +47,13 @@ import net.sf.saxon.tree.util.DocumentNumberAllocator;
 
 public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	
-	private ResultCursor cursor;
+	//private ResultCursor<?> cursor;
 	private CollectionFinderImpl clnFinder;
 	
 	// local cache for XQueryExpressions.
 	// may be make it static, synchronized? for XQProcessorServer instances..
-    private Map<Integer, XQueryExpression> queries = new HashMap<>();
+    private static Map<Integer, XQueryExpression> queries = Collections.synchronizedMap(new HashMap<>());
+    //private Map<Integer, XQueryExpression> queries = new HashMap<>();
     //private static Map<Integer, XQueryExpression> queries = new ConcurrentHashMap<>();
     
     private static NamePool defNamePool = new NamePool();
@@ -126,7 +126,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		// and think about command results!..
 	    DocumentManagement dMgr = getRepository().getDocumentManagement();
 	    try {
-			if (command.startsWith("storeDocument")) {
+			if (command.equals(cmd_store_document)) {
 				XQItemAccessor item = getBoundItem(params, "uri");
 				String uri = item.getAtomicValue();
 				item = getBoundItem(params, "doc");
@@ -137,7 +137,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 				List<Object> result = new ArrayList<>(1);
 				result.add(doc);
 				return result.iterator();
-			} else if (command.startsWith("removeDocument")) {
+			} else if (command.equals(cmd_remove_document)) {
 				XQItemAccessor item = getBoundItem(params, "uri");
 				String uri = item.getAtomicValue();
 				dMgr.removeDocument(uri, null);
@@ -183,6 +183,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
    	    	DynamicQueryContext dqc = getDynamicContext();
 					
    	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
+   	   	    // what it is for!?
    	   	    xqExp.explainPathMap();
    	   	    //TraceListener tl; tl. 
    	   	    //xqExp.newController(dqc).makePipelineConfiguration().
@@ -223,7 +224,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	}
 	
 	@Override
-    public ResultCursor executeXQuery(String query, XQStaticContext ctx) throws XQException {
+    public <T> ResultCursor<T> executeXQuery(String query, XQStaticContext ctx) throws XQException {
 		// implement it? what for..?
    		throw new XQException("Not implemented on the server side. Use another executeXQuery method taking Properties as a parameter instead");
     }
@@ -239,15 +240,15 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		return new Query(query, isQueryReadOnly(query), qb);
 	}
     
-	@Override
-	public ResultCursor getResults() {
-		return cursor;
-	}
+	//@Override
+	//public <T> ResultCursor<T> getResults() {
+	//	return (ResultCursor<T>) cursor;
+	//}
 
-	@Override
-	public void setResults(ResultCursor cursor) {
-		this.cursor = cursor;
-	}
+	//@Override
+	//public <T> void setResults(ResultCursor<T> cursor) {
+	//	this.cursor = cursor;
+	//}
 	
 	@Override
 	public boolean isQueryReadOnly(final String query, Properties props) throws XQException {
@@ -270,12 +271,13 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 	public void clearLocalCache() {
 		logger.debug("clearLocalCache.enter; cache size before clear: {}", queries.size());
 		queries.clear();
+		ResourceCollectionImpl.clear();
 	}
 	
 	@Override
 	public void close() {
 		super.close();
-		clearLocalCache();
+		//clearLocalCache();
 		logger.info("close; processor: {}", this);
 	}
 

@@ -134,17 +134,17 @@ public class XQProcessorClient extends XQProcessorImpl implements XQProcessor {
 		return null;
 	}
     
-	@Override
-	public ResultCursor getResults() {
+	//@Override
+	//public ResultCursor getResults() {
 		// throw ex?
-		return null;
-	}
+	//	return null;
+	//}
 
-	@Override
-	public void setResults(ResultCursor cursor) {
+	//@Override
+	//public void setResults(ResultCursor cursor) {
 		// no-op 
 		// throw ex?
-	}
+	//}
 
 	private Properties collectProperties(XQStaticContext ctx) throws XQException {
 		Properties props = context2Props(ctx);

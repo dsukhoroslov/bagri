@@ -1,25 +1,24 @@
 package com.bagri.xquery.saxon;
 
 import static com.bagri.core.Constants.bg_schema;
+import static com.bagri.core.Constants.pn_schema_cache_resources;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.query.ExpressionContainer;
 import com.bagri.core.server.api.DocumentManagement;
 import com.bagri.core.server.api.QueryManagement;
+import com.bagri.core.server.api.SchemaRepository;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.Resource;
@@ -31,7 +30,6 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	
     private static final Logger logger = LoggerFactory.getLogger(ResourceCollectionImpl.class);
     
-    //private static final Map<Long, Resource> resourceCache = new ConcurrentHashMap<Long, Resource>();
     private static final Map<Long, Reference<Resource>> resourceCache = Collections.synchronizedMap(new WeakHashMap<Long, Reference<Resource>>()); 
     
 	private String uri;
@@ -39,18 +37,27 @@ public class ResourceCollectionImpl implements ResourceCollection {
 	private ExpressionContainer query;
 	private Collection<Long> docIds = null;
 	private Iterator<Long> iter = null;
+	private boolean cacheResources = false;
 	
 	
-	public ResourceCollectionImpl(String uri, Collection<Long> docIds) {
-		this.uri = uri;
-		this.docIds = new ArrayList<>(docIds);
-		this.iter = docIds.iterator();
-	}
+	//public ResourceCollectionImpl(String uri, Collection<Long> docIds) {
+	//	this.uri = uri;
+	//	this.docIds = new ArrayList<>(docIds);
+	//	this.iter = docIds.iterator();
+	//}
 
 	public ResourceCollectionImpl(String uri, SchemaRepository repo, ExpressionContainer query) {
 		this.uri = uri;
 		this.repo = repo;
 		this.query = query;
+		String cr = repo.getSchema().getProperty(pn_schema_cache_resources);
+		if (cr != null) {
+			this.cacheResources = Boolean.parseBoolean(cr);
+		}
+	}
+	
+	public static void clear() {
+		resourceCache.clear();
 	}
 	
 	private void loadData() { 
@@ -133,7 +140,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 
 		@Override
 		public void remove() {
-			throw new UnsupportedOperationException("method remove is not supported");
+			throw new UnsupportedOperationException("remove() not supported");
 		}
 		
 	}
@@ -150,9 +157,12 @@ public class ResourceCollectionImpl implements ResourceCollection {
 			Long docKey = ResourceCollectionImpl.this.next();
 			if (docKey != null) {
 				Resource res = null;
-				Reference<Resource> ref = resourceCache.get(docKey);
-				if (ref != null) {
-					res = ref.get();
+				Reference<Resource> ref;
+				if (cacheResources) {
+					ref = resourceCache.get(docKey);
+					if (ref != null) {
+						res = ref.get();
+					}
 				}
 				if (res == null) {
 					try {
@@ -168,8 +178,10 @@ public class ResourceCollectionImpl implements ResourceCollection {
 						} else {
 							res = new XmlResourceImpl(docMgr, docKey);
 						}
-						ref = new WeakReference<Resource>(res);
-						resourceCache.putIfAbsent(docKey, ref);
+						if (cacheResources) {
+							ref = new WeakReference<Resource>(res);
+							resourceCache.putIfAbsent(docKey, ref);
+						}
 					} catch (BagriException ex) {
 						logger.error("next.error", ex);
 					}
@@ -182,7 +194,7 @@ public class ResourceCollectionImpl implements ResourceCollection {
 
 		@Override
 		public void remove() {
-			throw new UnsupportedOperationException("method remove is not supported");
+			throw new UnsupportedOperationException("remove() not supported");
 		}
 		
 	}

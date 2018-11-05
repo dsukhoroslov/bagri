@@ -78,6 +78,13 @@ public interface XQProcessor {
      */
     Collection<String> prepareXQuery(String query, XQStaticContext ctx) throws XQException;
 
+    /**
+     * 
+     * @param query the plain text query representation
+     * @param props Properties containing query processing instructions. Besides standard XQJ properties may contain additional XDM properties: ..
+     * @return an Iterator over query results
+     * @throws XQException in case of query processing error
+     */
     Iterator<Object> executeXQuery(String query, Properties props) throws XQException;
     
     /**
@@ -105,7 +112,7 @@ public interface XQProcessor {
      * @return a cursor over query results
      * @throws XQException in case of query processing error
      */
-    ResultCursor executeXQuery(String query, XQStaticContext ctx) throws XQException;
+    <T> ResultCursor<T> executeXQuery(String query, XQStaticContext ctx) throws XQException;
     
     /**
      * bounds variable name with value in internal XQuery processing context
@@ -178,14 +185,14 @@ public interface XQProcessor {
      * 
      * @return cursor over cached results
      */
-    ResultCursor getResults();
-    
+    //<T> ResultCursor<T> getResults();
+     
     /**
      * for internal use on server side only
      * 
      * @param cursor the ResultCursor supporting results pagination
      */
-    void setResults(ResultCursor cursor);
+    //<T> void setResults(ResultCursor<T> cursor);
     
     /**
      * cancels currently executing query or command

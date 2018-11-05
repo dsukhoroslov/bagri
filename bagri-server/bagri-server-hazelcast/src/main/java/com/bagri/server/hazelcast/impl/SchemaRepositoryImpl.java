@@ -204,6 +204,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	}
 	
 	public void clearXQProcessors() {
+		// used at QueryManager.clearCache
 		for (XQProcessor xqp: processors.values()) {
 			xqp.clearLocalCache();
 		}

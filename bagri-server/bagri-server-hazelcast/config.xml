@@ -901,10 +901,12 @@
                 <!-- cache settings -->
                 <entry name="bdb.schema.cache.content">true</entry>
                 <entry name="bdb.schema.cache.elements">false</entry>
+                <entry name="bdb.schema.cache.resources">false</entry>
+                <entry name="bdb.schema.content.compress">true</entry>
                 <entry name="bdb.schema.cont.backup.async">0</entry>
                 <entry name="bdb.schema.cont.backup.sync">0</entry>
                 <entry name="bdb.schema.cont.backup.read">false</entry>
-                <entry name="bdb.schema.cont.max.size">100</entry>
+                <entry name="bdb.schema.cont.max.size">50</entry>
                 <entry name="bdb.schema.data.cache">NEVER</entry>
                 <entry name="bdb.schema.data.stats.enabled">true</entry>
                 <entry name="bdb.schema.dict.backup.async">1</entry>

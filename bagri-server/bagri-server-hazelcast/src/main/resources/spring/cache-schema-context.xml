@@ -381,6 +381,7 @@
 		<property name="execPool" ref="execService"/>
 		<property name="cacheContent" value="${bdb.schema.cache.content:true}"/>
 		<property name="cacheElements" value="${bdb.schema.cache.elements:true}"/>
+		<property name="compressContent" value="${bdb.schema.content.compress:false}"/>
 	</bean>
 
 	<bean id="healthManager" class="com.bagri.server.hazelcast.impl.HealthManagementImpl">

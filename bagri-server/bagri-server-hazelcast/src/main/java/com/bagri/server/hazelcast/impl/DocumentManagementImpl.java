@@ -43,8 +43,12 @@ import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.map.impl.MapEntrySimple;
 import com.hazelcast.map.listener.EntryEvictedListener;
+import com.hazelcast.nio.IOUtil;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -95,6 +99,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 	
 	private boolean cacheContent;
 	private boolean cacheElements; 
+	private boolean compressContent = false;
 
     private boolean enableStats = true;
 	private BlockingQueue<StatisticsEvent> queue;
@@ -135,6 +140,10 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     public void setCacheElements(boolean cacheElements) {
     	this.cacheElements = cacheElements;
+    }
+
+    public void setCompressContent(boolean compressContent) {
+    	this.compressContent = compressContent;
     }
 
     public void setDocumentIdGenerator(IdGenerator<Long> docGen) {
@@ -284,8 +293,19 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 		return doc;
 	}
 
-	private Object getDocumentContent(DocumentKey docKey) {
-		return ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
+	private Object getDocumentContent(DocumentKey docKey) throws BagriException {
+		Object content = ddSvc.getCachedObject(CN_XDM_CONTENT, docKey, binaryContent);
+		if (compressContent) {
+			InternalSerializationService ss = ddSvc.getSerializationService();
+			byte[] buff = IOUtil.decompress((byte[]) content);
+			ObjectDataInput odi = ss.createObjectDataInput(buff);
+			try {
+				content = odi.readObject();
+			} catch (IOException ex) {
+				throw new BagriException(ex, ecDocument);
+			}
+		}
+		return content;
 	}
 
 	@Override
@@ -393,9 +413,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 				
 				if (content == null) {
 					logger.debug("getDocumentInternal; new content is null");
-				} else if (cacheContent) {
-					// do this asynchronously!?
-					cntCache.set(docKey, content);
+				} else {
+					storeContent(docKey, content);
 				}
 			}
 			if (cc != null) {
@@ -657,11 +676,8 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 		updateStats(null, true, doc.getElements(), doc.getFragments().length);
-		
-		if (cacheContent) {
-			//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
-			cntCache.set(docKey, content);
-		}
+
+		storeContent(docKey, content);
 
 		// invalidate cached query results on load. what for..?
 		//Set<Integer> paths = (Set<Integer>) ids[1];
@@ -842,10 +858,7 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			}
 		}
 
-		if (cacheContent) {
-			//ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
-			cntCache.set(docKey, content);
-		}
+		storeContent(docKey, content);
 		
 		triggerManager.applyTrigger(newDoc, Order.after, scope);
 
@@ -1037,6 +1050,24 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 			result = new ParseResults(0, null);
 		}
 		return result;
+	}
+	
+	private void storeContent(DocumentKey docKey, Object content) throws BagriException {
+		if (cacheContent) {
+			// ddSvc.storeData(docKey, content, CN_XDM_CONTENT);
+			// do this asynchronously!?
+			if (compressContent) {
+				InternalSerializationService ss = ddSvc.getSerializationService();
+				ObjectDataOutput tmp = ss.createObjectDataOutput();
+				try {
+					tmp.writeObject(content);
+					content = IOUtil.compress(tmp.toByteArray());
+				} catch (IOException ex) {
+					throw new BagriException(ex, ecDocument);
+				}
+			}
+			cntCache.set(docKey, content);
+		}
 	}
 
 	@Override

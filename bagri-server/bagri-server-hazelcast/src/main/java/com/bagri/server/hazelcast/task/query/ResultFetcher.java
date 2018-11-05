@@ -21,7 +21,7 @@ public class ResultFetcher extends com.bagri.client.hazelcast.task.query.ResultF
     @Override
 	public Boolean call() throws Exception {
     	XQProcessor xqp = ((SchemaRepositoryImpl) repo).getXQProcessor(clientId);
-    	ResultCursor cursor = xqp.getResults();
+    	//ResultCursor cursor = xqp.getResults();
     	//int cnt = ((QueuedCursorImpl) cursor).serialize(((SchemaRepositoryImpl) repo).getHzInstance());
     	return false; //cnt > 0;
     }
