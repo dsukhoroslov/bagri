@@ -103,8 +103,8 @@ public class SchemaMonitoringPanel extends JPanel {
         //add(capChart.getChart(), BorderLayout.CENTER);
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, volChart.getChart(), capChart.getChart());
-		//splitPane.setResizeWeight(0.5);
 		add(splitPane, BorderLayout.CENTER);        
+		splitPane.setDividerLocation(0.5);
 
         onRefresh();
     }

@@ -101,7 +101,7 @@
         <jackson.version>2.9.5</jackson.version>
         <aalto.version>1.0.0</aalto.version>
 
-        <jetty.version>9.2.25.v20180606</jetty.version>
+        <jetty.version>9.4.12.v20180830</jetty.version>
         <!--jetty.version>9.2.18.v20160721</jetty.version-->
         <!--jetty.version>9.4.10.v20180503</jetty.version-->
 

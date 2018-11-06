@@ -900,13 +900,13 @@
                 <entry name="bdb.schema.password">password</entry>
                 <!-- cache settings -->
                 <entry name="bdb.schema.cache.content">true</entry>
-                <entry name="bdb.schema.cache.elements">false</entry>
+                <entry name="bdb.schema.cache.elements">true</entry>
                 <entry name="bdb.schema.cache.resources">false</entry>
                 <entry name="bdb.schema.content.compress">true</entry>
                 <entry name="bdb.schema.cont.backup.async">0</entry>
                 <entry name="bdb.schema.cont.backup.sync">0</entry>
                 <entry name="bdb.schema.cont.backup.read">false</entry>
-                <entry name="bdb.schema.cont.max.size">50</entry>
+                <entry name="bdb.schema.cont.max.size">100</entry>
                 <entry name="bdb.schema.data.cache">NEVER</entry>
                 <entry name="bdb.schema.data.stats.enabled">true</entry>
                 <entry name="bdb.schema.dict.backup.async">1</entry>
@@ -917,13 +917,13 @@
                 <entry name="bdb.schema.data.backup.read">false</entry>
                 <entry name="bdb.schema.query.backup.async">0</entry>
                 <entry name="bdb.schema.query.backup.sync">0</entry>
-                <entry name="bdb.schema.query.backup.read">false</entry>
+                <entry name="bdb.schema.query.backup.read">true</entry>
                 <entry name="bdb.schema.query.max.size">100</entry>
                 <entry name="bdb.schema.trans.backup.async">0</entry>
                 <entry name="bdb.schema.trans.backup.sync">1</entry>
                 <entry name="bdb.schema.trans.backup.read">false</entry>
                 <!-- connection settings -->
-                <entry name="bdb.schema.buffer.size">128</entry>
+                <entry name="bdb.schema.buffer.size">64</entry>
                 <entry name="bdb.schema.connect.timeout">5</entry>
                 <entry name="bdb.schema.aws.enabled">false</entry>
                 <entry name="bdb.schema.multicast.enabled">false</entry>
@@ -935,28 +935,29 @@
                 <entry name="bdb.schema.format.default">XML</entry>
                 <entry name="bdb.schema.store.enabled">true</entry>
                 <entry name="bdb.schema.store.type">File</entry>
-                <entry name="bdb.schema.store.data.path">C:\Work\MP\data\mp_xml</entry>
+                <entry name="bdb.schema.store.data.path">/home/dsukhoroslov/data/mp_xml</entry>
                 <entry name="bdb.schema.store.tx.buffer.size">2048</entry>
-		<entry name="bdb.schema.store.load.percent">100</entry>
-		<entry name="bdb.schema.store.load.count">0</entry>
+                <entry name="bdb.schema.store.load.percent">100</entry>
+                <entry name="bdb.schema.store.load.count">0</entry>
                 <entry name="bdb.schema.population.size">1</entry>
                 <entry name="bdb.schema.population.pool">4</entry>
-                <entry name="bdb.schema.population.buffer.size">1000000</entry>
+                <entry name="bdb.schema.population.chunk.size">100</entry>
+                <entry name="bdb.schema.population.buffer.size">100000</entry>
                 <entry name="bdb.schema.population.use.catalog">false</entry>
                 <!-- transaction settings -->
                 <entry name="bdb.schema.transaction.level">readCommited</entry>
                 <entry name="bdb.schema.transaction.timeout">60000</entry>
                 <!-- executor settings -->
                 <entry name="bdb.schema.partition.count">271</entry>
-                <entry name="bdb.schema.partition.pool">16</entry>
+                <entry name="bdb.schema.partition.pool">32</entry>
                 <entry name="bdb.schema.thread.pool">16</entry>
                 <!-- query settings -->
                 <entry name="bdb.schema.query.cache">true</entry>
                 <entry name="bdb.schema.query.parallel">true</entry>
                 <!-- health settings -->
                 <entry name="bdb.schema.health.management.enabled">false</entry>
-                <entry name="bdb.schema.health.threshold.low">250</entry>
-                <entry name="bdb.schema.health.threshold.high">250</entry>
+                <entry name="bdb.schema.health.threshold.low">25</entry>
+                <entry name="bdb.schema.health.threshold.high">25</entry>
                 <!-- XQJ settings -->
                 <entry name="xqj.schema.baseUri">file:/../data/mp/</entry>
                 <entry name="xqj.schema.queryLanguageTypeAndVersion">1</entry>
@@ -975,7 +976,7 @@
                 <entry name="xqj.schema.orderingMode">2</entry>
             </properties>
             <collections>
-                <collection id="1" name="CLN_Product_Catalog">
+                <collection id="1" name="CLN_Catalog">
                     <version>1</version>
                     <createdAt>2016-05-20T01:01:26.965+03:00</createdAt>
                     <createdBy>admin</createdBy>
@@ -986,17 +987,30 @@
             </collections>
             <fragments/>
             <indexes>
-                <index name="IDX_Offer_ID">
+                <index name="IDX_Offer_Category">
                     <version>1</version>
                     <createdAt>2018-01-25T13:36:26.965+03:00</createdAt>
                     <createdBy>admin</createdBy>
                     <docType>/xmlCatalog</docType>
-                    <path>/xmlCatalog/offers/offer/@id</path>
-                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <path>/xmlCatalog/offers/offer/@categoryId</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:int</dataType>
                     <caseSensitive>false</caseSensitive>
-                    <range>false</range>
+                    <range>true</range>
                     <unique>false</unique>
                     <description>Offer ID</description>
+                    <enabled>true</enabled>
+                </index>
+                <index name="IDX_Param_Name">
+                    <version>1</version>
+                    <createdAt>2018-01-25T13:36:26.965+03:00</createdAt>
+                    <createdBy>admin</createdBy>
+                    <docType>/xmlCatalog</docType>
+                    <path>/xmlCatalog/offers/offer/param/@name</path>
+                    <dataType xmlns:xs="http://www.w3.org/2001/XMLSchema">xs:string</dataType>
+                    <caseSensitive>true</caseSensitive>
+                    <range>false</range>
+                    <unique>false</unique>
+                    <description>Offer param name</description>
                     <enabled>true</enabled>
                 </index>
             </indexes>
@@ -1175,8 +1189,6 @@
             <handlerClass>com.bagri.core.server.api.df.xml.XmlHandler</handlerClass>
             <enabled>true</enabled>
             <properties>
-                <entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringContentSerializer</entry>
-                <entry name="bdb.schema.parser.schemas"></entry>
                 <entry name="javax.xml.stream.isSupportingExternalEntities">true</entry>
                 <entry name="javax.xml.stream.isNamespaceAware">true</entry>
                 <entry name="javax.xml.stream.isCoalescing">false</entry>
@@ -1185,6 +1197,8 @@
                 <entry name="javax.xml.stream.resolver"></entry>
                 <entry name="javax.xml.stream.allocator"></entry>
                 <entry name="javax.xml.stream.reporter"></entry>
+                <entry name="bdb.client.contentSerializer">com.bagri.client.hazelcast.serialize.StringContentSerializer</entry>
+                <entry name="bdb.schema.parser.schemas"></entry>
                 <entry name="bdb.schema.builder.pretty">false</entry>
                 <entry name="bdb.schema.builder.ident">4</entry>
             </properties>
@@ -1214,8 +1228,8 @@
             <properties>
                 <entry name="bdb.schema.store.data.path">../data</entry>
                 <entry name="bdb.schema.store.read-only">false</entry>
-		<entry name="bdb.schema.store.load.percent">100</entry>
-		<entry name="bdb.schema.store.load.count">0</entry>
+                <entry name="bdb.schema.store.load.percent">100</entry>
+                <entry name="bdb.schema.store.load.count">0</entry>
             </properties>
         </dataStore>
     </dataStores>
