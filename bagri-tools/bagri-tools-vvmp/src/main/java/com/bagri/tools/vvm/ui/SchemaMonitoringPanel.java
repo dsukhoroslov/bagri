@@ -97,7 +97,7 @@ public class SchemaMonitoringPanel extends JPanel {
         panel.add(nodes); //, BorderLayout.EAST);
         header.add(panel);
         
-        header.setPreferredSize(new Dimension(500, 50));
+        header.setPreferredSize(new Dimension(1000, 50));
         header.setBackground(capChart.getChart().getBackground());
         add(header, BorderLayout.NORTH); //PAGE_START);
         //add(capChart.getChart(), BorderLayout.CENTER);
@@ -130,6 +130,7 @@ public class SchemaMonitoringPanel extends JPanel {
         descriptor.setXAxisDescription("partitions");
         descriptor.setYAxisDescription("cost (Kb)");
         capChart = ChartFactory.createSimpleXYChart(descriptor);
+        capChart.getChart().setPreferredSize(new Dimension(550, 600));
         //chart.setZoomingEnabled(true);
     	
     	//CategoryDataset dataset = null;
@@ -158,8 +159,9 @@ public class SchemaMonitoringPanel extends JPanel {
         descriptor.setXAxisDescription("time");
         descriptor.setYAxisDescription("units");
         volChart = ChartFactory.createSimpleXYChart(descriptor);
+        volChart.getChart().setPreferredSize(new Dimension(450, 600));
 
-   		new VolumeStatsGenerator(volChart, schemaService, schemaName).start();
+   		new VolumeStatsProvider(volChart, schemaService, schemaName).start();
     }    
     
     private void onRefresh() {
@@ -245,13 +247,13 @@ public class SchemaMonitoringPanel extends JPanel {
 
     }
     
-    private static class VolumeStatsGenerator extends Thread {
+    private static class VolumeStatsProvider extends Thread {
 
     	private String schema;
         private SimpleXYChartSupport chart;
         private SchemaManagementService service;
 
-        private VolumeStatsGenerator(SimpleXYChartSupport chart, SchemaManagementService service, String schema) {
+        private VolumeStatsProvider(SimpleXYChartSupport chart, SchemaManagementService service, String schema) {
             this.chart = chart;
             this.service = service;
             this.schema = schema;

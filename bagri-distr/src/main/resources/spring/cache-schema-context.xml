@@ -200,7 +200,7 @@
 					<hz:serializer type-class="javax.xml.xquery.XQItemType" implementation="xqItemTypeSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQItem" implementation="xqItemSerializer"/>
 					<hz:serializer type-class="javax.xml.xquery.XQSequence" implementation="xqSequenceSerializer"/>
-					<hz:serializer type-class="java.util.HashMap" class-name="com.bagri.server.hazelcast.serialize.HashMapSerializer"/>
+					<hz:serializer type-class="java.util.HashMap" class-name="com.bagri.client.hazelcast.serialize.HashMapSerializer"/>
 				</hz:serializers>
 			</hz:serialization>
 
@@ -381,6 +381,7 @@
 		<property name="execPool" ref="execService"/>
 		<property name="cacheContent" value="${bdb.schema.cache.content:true}"/>
 		<property name="cacheElements" value="${bdb.schema.cache.elements:true}"/>
+		<property name="compressContent" value="${bdb.schema.content.compress:false}"/>
 	</bean>
 
 	<bean id="healthManager" class="com.bagri.server.hazelcast.impl.HealthManagementImpl">

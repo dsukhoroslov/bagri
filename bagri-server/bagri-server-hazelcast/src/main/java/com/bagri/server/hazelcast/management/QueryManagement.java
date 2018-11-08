@@ -5,10 +5,11 @@ package com.bagri.server.hazelcast.management;
 
 import static com.bagri.core.Constants.*;
 import static com.bagri.support.util.PropUtils.getOutputProperties;
-import static com.bagri.support.util.FileUtils.EOL;
 import static com.bagri.support.util.XQUtils.props2Context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -39,7 +40,6 @@ import com.bagri.server.hazelcast.task.schema.SchemaQueryCleaner;
 import com.bagri.server.hazelcast.task.stats.StatisticSeriesCollector;
 import com.bagri.server.hazelcast.task.stats.StatisticsReseter;
 import com.bagri.support.stats.StatsAggregator;
-import com.bagri.support.util.FileUtils;
 import com.bagri.xqj.BagriXQConnection;
 import com.hazelcast.core.Member;
 
@@ -138,10 +138,10 @@ public class QueryManagement extends SchemaFeatureManagement {
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
 		@ManagedOperationParameter(name = "useXDM", description = "use XDM (true) or XQJ query interface"),
 		@ManagedOperationParameter(name = "props", description = "Query processing properties")})
-	public String runQuery(String query, boolean useXDM, Properties props) {
+	public String[] runQuery(String query, boolean useXDM, Properties props) {
 		logger.debug("runQuery.enter; got query: {}, properties: {}", query, props);
 		
-		String result = null;
+		String[] result = null;
 		try {
 			if (useXDM) {
 				ResultCursor<XQItemAccessor> cursor = queryMgr.executeQuery(query, null, props);
@@ -153,52 +153,57 @@ public class QueryManagement extends SchemaFeatureManagement {
 				props2Context(props, ctx);
 			    XQExpression xqExp = xqConn.createExpression(ctx);
 			    XQResultSequence xqSec = xqExp.executeQuery(query);
-			    result = xqSec.getSequenceAsString(props);
+			    result = extractResult(xqSec, props);
 			    xqExp.close();
 			}	
 		} catch (Exception ex) {
 			logger.error("runQuery.error", ex); 
 			throw new RuntimeException(ex.getMessage());
 		}
-		logger.debug("runQuery.exit; returning: {}", result);
+		logger.debug("runQuery.exit; returning {} items", result.length);
 		return result;
 	}
 	
-	private String extractResult(ResultCursor<XQItemAccessor> cursor, Properties props) throws BagriException {
+	private String[] extractResult(ResultCursor<XQItemAccessor> cursor, Properties props) throws BagriException {
 		try {
-			StringBuilder buff = new StringBuilder();
+			List<String> buff = new ArrayList<>();
 			XQProcessor xqp = ((BagriXQConnection) xqConn).getProcessor();
 			Properties outProps = getOutputProperties(props);
-			//int fSize = Integer.parseInt(props.getProperty(pn_client_fetchSize, String.valueOf(fetchSize)));
-			//if (fSize > 0) {
-			//	int cnt = 0;
-			//	while (cursor.next() && cnt < fSize) {
-			//		buff.append(xqp.convertToString(cursor.getXQItem(), outProps));
-			//		cnt++;
-			//	}
-			//} else {
-				for (XQItemAccessor item: cursor) {
-					buff.append(xqp.convertToString(item, outProps));
-					buff.append(EOL);
-				}
-			//}
-			return buff.toString();
+			for (XQItemAccessor item: cursor) {
+				buff.add(xqp.convertToString(item, outProps));
+			}
+			return buff.toArray(new String[buff.size()]);
 		} catch (Exception ex) {
 			logger.error("extractResult.error", ex); 
 			throw new BagriException(ex, BagriException.ecQuery);
 		}
 	}
 	
+	private String[] extractResult(XQResultSequence sequence, Properties props) throws BagriException {
+		try {
+			List<String> buff = new ArrayList<>();
+			if (sequence.first()) {
+				do {
+					buff.add(sequence.getItemAsString(props));
+				} while (sequence.next());
+			}
+			return buff.toArray(new String[buff.size()]);
+		} catch (Exception ex) {
+			logger.error("extractResult.error", ex); 
+			throw new BagriException(ex, BagriException.ecQuery);
+		}
+	}
+
 	@ManagedOperation(description="Run XQuery. Returns string output specified by XQuery")
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
 		@ManagedOperationParameter(name = "useXDM", description = "use XDM (true) or XQJ query interface"),
 		@ManagedOperationParameter(name = "bindings", description = "A map of query parameters"),
 		@ManagedOperationParameter(name = "props", description = "Query processing properties")})
-	public String runPreparedQuery(String query, boolean useXDM, CompositeData bindings, Properties props) {
+	public String[] runPreparedQuery(String query, boolean useXDM, CompositeData bindings, Properties props) {
 		logger.debug("runPreparedQuery.enter; got bindings: {}, properties: {}", bindings, props);
 		
-		String result;
+		String[] result;
 		try {
 			if (useXDM) {
 				Set<String> keys = bindings.getCompositeType().keySet();
@@ -218,14 +223,14 @@ public class QueryManagement extends SchemaFeatureManagement {
 			    	xqpExp.bindObject(new QName(key), bindings.get(key), null); 
 			    }
 			    XQResultSequence xqSec = xqpExp.executeQuery();
-			    result = xqSec.getSequenceAsString(props);
+			    result = extractResult(xqSec, props);
 			    xqpExp.close();
 			}
 		} catch (Exception ex) {
 			logger.error("runPreparedQuery.error", ex); 
 			throw new RuntimeException(ex.getMessage());
 		}
-		logger.debug("runPreparedQuery.exit; returning: {}", result);
+		logger.debug("runPreparedQuery.exit; returning {} items", result.length);
 	    return result;
 	}
 

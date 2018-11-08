@@ -63,7 +63,7 @@ public class SchemaQueryPanel extends JPanel {
     private JButton cancelQuery;
     private JButton queryProps;
     private JButton clearResults;
-    private JLabel lbTime;
+    private JLabel lbStats;
     private Properties properties;
     private Map<String, TypedValue> bindings = new HashMap<>(); 
     private long parseTime;
@@ -137,9 +137,9 @@ public class SchemaQueryPanel extends JPanel {
         queryToolbar.add(cancelQuery);
         queryToolbar.addSeparator();
         
-        lbTime = new JLabel();
-        lbTime.setVisible(false);
-        queryToolbar.add(lbTime);
+        lbStats = new JLabel();
+        lbStats.setVisible(false);
+        queryToolbar.add(lbStats);
         //queryToolbar.addSeparator();
         
         queryToolbar.setFloatable(false);
@@ -226,11 +226,19 @@ public class SchemaQueryPanel extends JPanel {
     private void onRunQuery() {
 		final String qry = queryText.getText();
 		if (qry != null && qry.trim().length() > 0) {
-			lbTime.setVisible(false);
+			lbStats.setVisible(false);
 			long stamp = System.currentTimeMillis();
 			try {
 	    		java.util.List<String> vars = schemaService.parseQuery(schema.getSchemaName(), qry, properties);
             	parseTime = System.currentTimeMillis() - stamp;
+	    		if (vars.size() > 0) {
+	            	for (int i=vars.size() - 1; i >=0; i--) {
+	            		String s = vars.get(i);
+	            		if (s.startsWith("literal_")) {
+	            			vars.remove(i);
+	            		}
+	            	}        		
+            	}
 	    		if (vars.size() > 0) {
 		    		final BindQueryVarsDialog dlg = new BindQueryVarsDialog(vars, bindings, SchemaQueryPanel.this);
 		    		dlg.setSuccessListener(new ActionListener() {
@@ -344,9 +352,15 @@ public class SchemaQueryPanel extends JPanel {
     	if (result instanceof Exception) {
     		handleServiceException((Exception) result);
     	} else {
-    		queryResult.setText((result == null) ? "Null" : result.toString());
-        	lbTime.setText("Parse time: " + parseTime + " ms; Query time: " + runTime + " ms");
-    		lbTime.setVisible(true);
+    		String EOL = System.getProperty("line.separator");
+    		queryResult.setText(""); //(result == null) ? "Null" : result.toString());
+    		String[] ra = (String[]) result;
+    		for (String r: ra) {
+    			queryResult.append(r);
+    			queryResult.append(EOL);
+    		}
+        	lbStats.setText("Parse time: " + parseTime + " ms; Query time: " + runTime + " ms; Result count: " + ra.length);
+    		lbStats.setVisible(true);
     	}
     }
     
@@ -354,7 +368,7 @@ public class SchemaQueryPanel extends JPanel {
     private /*static*/ class QueryRunner extends Thread {
     	
     	private String query;
-    	private boolean useXDM = false;
+    	private boolean useXDM;
     	private Map<String, Object> params;
     	private Properties props;
     	
