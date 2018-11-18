@@ -103,7 +103,7 @@ public class MapHandler extends ContentHandlerBase implements ContentHandler {
 		JacksonConverter() {
 			ObjectMapper mapper = new ObjectMapper();
 			r = mapper.readerFor(String.class);
-			w = mapper.writerFor(Map.class);
+			w = mapper.writerFor(Map.class).withDefaultPrettyPrinter();
 		}
 
 		@Override

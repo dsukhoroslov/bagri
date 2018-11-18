@@ -69,6 +69,7 @@ public class Constants {
 	
     public static final String pn_document_collections = "bdb.document.collections";
     public static final String pn_document_compress = "bdb.document.compress";
+    public static final String pn_document_content = "bdb.document.content";
     public static final String pn_document_data_format = "bdb.document.data.format";
     public static final String pn_document_headers = "bdb.document.headers";
     public static final String pn_document_data_source = "bdb.document.data.source";

@@ -198,19 +198,14 @@ public class QueryManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "query", description = "A query request provided in XQuery syntax"),
 		@ManagedOperationParameter(name = "useXDM", description = "use XDM (true) or XQJ query interface"),
-		@ManagedOperationParameter(name = "bindings", description = "A map of query parameters"),
+		@ManagedOperationParameter(name = "params", description = "A map of query parameters"),
 		@ManagedOperationParameter(name = "props", description = "Query processing properties")})
-	public String[] runPreparedQuery(String query, boolean useXDM, CompositeData bindings, Properties props) {
-		logger.debug("runPreparedQuery.enter; got bindings: {}, properties: {}", bindings, props);
+	public String[] runPreparedQuery(String query, boolean useXDM, Map<String, Object> params, Properties props) {
+		logger.debug("runPreparedQuery.enter; got params: {}, properties: {}", params, props);
 		
 		String[] result;
 		try {
 			if (useXDM) {
-				Set<String> keys = bindings.getCompositeType().keySet();
-				Map<String, Object> params = new HashMap<>(keys.size()); 
-			    for (String key: keys) {
-			    	params.put(key, bindings.get(key)); 
-			    }
 				ResultCursor<XQItemAccessor> cursor = queryMgr.executeQuery(query, params, props);
 				result = extractResult(cursor, props);
 				cursor.close();
@@ -219,12 +214,13 @@ public class QueryManagement extends SchemaFeatureManagement {
 				props2Context(schemaManager.getEntity().getProperties(), ctx);
 				props2Context(props, ctx);
 				XQPreparedExpression xqpExp = xqConn.prepareExpression(query, ctx);
-			    for (String key: bindings.getCompositeType().keySet()) {
-			    	xqpExp.bindObject(new QName(key), bindings.get(key), null); 
+			    for (Map.Entry<String, Object> e: params.entrySet()) {
+			    	xqpExp.bindObject(new QName(e.getKey()), e.getValue(), null); 
 			    }
 			    XQResultSequence xqSec = xqpExp.executeQuery();
 			    result = extractResult(xqSec, props);
 			    xqpExp.close();
+			    // unbind ?
 			}
 		} catch (Exception ex) {
 			logger.error("runPreparedQuery.error", ex); 

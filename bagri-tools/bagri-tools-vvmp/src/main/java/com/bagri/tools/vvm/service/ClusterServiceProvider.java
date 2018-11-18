@@ -2,14 +2,8 @@ package com.bagri.tools.vvm.service;
 
 import javax.management.*;
 import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeDataSupport;
-import javax.management.openmbean.CompositeType;
-import javax.management.openmbean.OpenDataException;
-import javax.management.openmbean.OpenType;
-import javax.management.openmbean.SimpleType;
 import javax.management.openmbean.TabularData;
 
-import com.bagri.support.util.JMXUtils;
 import com.bagri.tools.vvm.model.*;
 
 import java.util.*;
@@ -345,11 +339,10 @@ public class ClusterServiceProvider implements ClusterManagementService, SchemaM
 	                    , new Object[] {query, direct, props}
 	                    , new String[] {String.class.getName(), boolean.class.getName(), Properties.class.getName()});
         	} else {
-            	CompositeData bindings = JMXUtils.mapToComposite("param", "desc", params);
 	            result = connection.invoke(getSchemaObjectName("QueryManagement", schemaName)
 	                    , "runPreparedQuery"
-	                    , new Object[] {query, direct, bindings, props}
-	                    , new String[] {String.class.getName(), boolean.class.getName(), CompositeData.class.getName(), Properties.class.getName()});
+                		, new Object[] {query, direct, params, props}
+                		, new String[] {String.class.getName(), boolean.class.getName(), Map.class.getName(), Properties.class.getName()});
         	}
             return result;
         } catch (Throwable e) {

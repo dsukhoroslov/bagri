@@ -96,7 +96,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
         config.setDefaultCollection("");
         //config.setConfigurationProperty(FeatureKeys., value);
         //config.setConfigurationProperty(FeatureKeys.PRE_EVALUATE_DOC_FUNCTION, Boolean.TRUE);
-        SourceResolverImpl sResolver = new SourceResolverImpl(xRepo);
+        SourceResolverImpl sResolver = new SourceResolverImpl(xRepo, config);
         config.setSourceResolver(sResolver);
         //config.registerExternalObjectModel(sResolver);
         config.setURIResolver(sResolver);
@@ -181,6 +181,12 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 			//	}
 			//}
    	    	DynamicQueryContext dqc = getDynamicContext();
+   	    	
+   	    	Object content = props.get(pn_document_content);
+   	    	if (content != null) {
+   	    		SourceResolverImpl sResolver = (SourceResolverImpl) config.getSourceResolver();
+   	    		sResolver.setDocumentContent(content);
+   	    	}
 					
    	   	    XQueryExpression xqExp = getXQuery(qKey, query, null);
    	   	    // what it is for!?

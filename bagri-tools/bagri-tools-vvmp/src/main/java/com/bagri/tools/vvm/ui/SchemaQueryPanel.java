@@ -12,12 +12,9 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 import javax.swing.ButtonGroup;
@@ -35,7 +32,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultEditorKit;
 import javax.xml.transform.OutputKeys;
 
-import com.bagri.tools.vvm.event.ApplicationEvent;
 import com.bagri.tools.vvm.event.EventBus;
 import com.bagri.tools.vvm.model.Schema;
 import com.bagri.tools.vvm.model.TypedValue;
