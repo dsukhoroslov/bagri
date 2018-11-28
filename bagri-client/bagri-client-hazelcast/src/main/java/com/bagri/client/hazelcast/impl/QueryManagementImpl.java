@@ -288,6 +288,7 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 						logger.debug("submitQueryTask; the routing parameter '{}' not found: {}", param, params);
 					} else {
 						if (pv_client_submitTo_param_hash_owner.equalsIgnoreCase(runOn)) {
+							// do we need to use distribution strategy here??
 							runKey = runKey.toString().hashCode();
 						}
 					}

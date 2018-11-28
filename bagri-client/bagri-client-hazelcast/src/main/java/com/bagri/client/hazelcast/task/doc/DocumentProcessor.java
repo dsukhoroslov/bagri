@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import com.bagri.core.DocumentKey;
+import com.bagri.core.api.DocumentDistributionStrategy;
 import com.bagri.core.model.Document;
 import com.hazelcast.core.Offloadable;
 import com.hazelcast.core.ReadOnly;
@@ -21,8 +22,8 @@ public abstract class DocumentProcessor extends DocumentAwareTask implements Ent
 		super();
 	}
 
-	public DocumentProcessor(String clientId, long txId, Properties props, String uri) {
-		super(clientId, txId, props, uri);
+	public DocumentProcessor(String clientId, long txId, Properties props, String uri, DocumentDistributionStrategy distributor) {
+		super(clientId, txId, props, uri, distributor);
 	}
 	
 	@Override

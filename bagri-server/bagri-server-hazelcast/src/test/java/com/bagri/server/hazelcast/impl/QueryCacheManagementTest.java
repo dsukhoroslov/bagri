@@ -58,7 +58,7 @@ public class QueryCacheManagementTest extends BagriManagementTest {
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", null, "securities", true);
 			schema.addCollection(collection);
 			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
 			xdmRepo.setClientId(client_id);

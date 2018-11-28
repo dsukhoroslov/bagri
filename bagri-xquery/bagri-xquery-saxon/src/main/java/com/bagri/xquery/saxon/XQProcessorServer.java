@@ -240,7 +240,7 @@ public class XQProcessorServer extends XQProcessorImpl implements XQProcessor {
 		QueryBuilder qb = clnFinder.getQuery();
 		if (qb == null) {
 			// not 'collection' query?
-			// TODO: yes, fix it for updating query!
+			// yes, it is 'document' or updating query, there is no QueryBuilder for it anyway!
 			return null;
 		}
 		return new Query(query, isQueryReadOnly(query), qb);

@@ -507,7 +507,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 	}
 
 	
-	Collection addCollection(String name, String docType, String description) {
+	Collection addCollection(String name, String docType, String uriPattern, String description) {
 		Schema schema = getEntity();
 		int id = 0; 
 		for (Collection collect: schema.getCollections()) {
@@ -516,7 +516,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 			}
 		}
 		id++;
-		Collection collection = new Collection(1, new Date(), getCurrentUser(), id, name, docType, description, true);
+		Collection collection = new Collection(1, new Date(), getCurrentUser(), id, name, docType, uriPattern, description, true);
 		if (schema.addCollection(collection)) {
 			// store schema!
 			flushEntity(schema);

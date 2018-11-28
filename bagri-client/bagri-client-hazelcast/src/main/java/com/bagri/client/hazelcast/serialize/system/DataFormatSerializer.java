@@ -15,7 +15,7 @@ public class DataFormatSerializer extends EntitySerializer implements StreamSeri
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMDataFormat;
+		return DomainSerializationFactory.cli_DataFormat;
 	}
 
 	@Override

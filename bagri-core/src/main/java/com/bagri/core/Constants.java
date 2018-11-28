@@ -71,6 +71,7 @@ public class Constants {
     public static final String pn_document_compress = "bdb.document.compress";
     public static final String pn_document_content = "bdb.document.content";
     public static final String pn_document_data_format = "bdb.document.data.format";
+    public static final String pn_document_distribution = "bdb.document.distribution";
     public static final String pn_document_headers = "bdb.document.headers";
     public static final String pn_document_data_source = "bdb.document.data.source";
     public static final String pn_document_map_merge = "bdb.document.map.merge";
@@ -123,6 +124,9 @@ public class Constants {
     public static final String pn_log_level = "bdb.log.level";
     public static final String pn_node_instance = "bdb.node.instance";
     public static final String pn_spring_context = "bdb.spring.context";
+
+    public static final String pn_schema_data_distribution = "bdb.schema.data.distribution";
+    public static final String pv_distribution_first_dot = "first-dot";
     
     public static final String pn_schema_members = "bdb.schema.members";
     public static final String pn_schema_ports_first = "bdb.schema.ports.first";

@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 
 import com.bagri.core.api.ContentSerializer;
 import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.DocumentDistributionStrategy;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 
@@ -23,8 +24,8 @@ public class DocumentCreator extends DocumentAwareTask implements Callable<Docum
 		super();
 	}
 
-	public DocumentCreator(String clientId, long txId, Properties props, String uri, Object content) {
-		super(clientId, txId, props, uri);
+	public DocumentCreator(String clientId, long txId, Properties props, String uri, DocumentDistributionStrategy distributor, Object content) {
+		super(clientId, txId, props, uri, distributor);
 		this.content = content;
 	}
 

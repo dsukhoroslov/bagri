@@ -562,7 +562,8 @@ public class QueryManagementImpl extends QueryManagementBase implements QueryMan
 		if (cacheResults) {
 			String runOn = props.getProperty(pn_client_submitTo, pv_client_submitTo_any);
 			boolean localOnly = pv_client_submitTo_all.equals(runOn);
-			if (isQuery && !localOnly) {
+			boolean useCache = Boolean.parseBoolean(props.getProperty(pn_client_queryCache, "true"));
+			if (isQuery && useCache && !localOnly) {
 				int qKey = getQueryKey(query);
 				if (xqCache.containsKey(qKey)) {
 					resList = (List<T>) getQueryResults(query, params, props);

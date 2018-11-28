@@ -13,7 +13,7 @@ public class FragmentSerializer extends EntitySerializer implements StreamSerial
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMFragment;
+		return DomainSerializationFactory.cli_Fragment;
 	}
 
 	@Override

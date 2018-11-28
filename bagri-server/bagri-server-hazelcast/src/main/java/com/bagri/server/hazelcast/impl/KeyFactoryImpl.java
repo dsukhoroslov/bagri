@@ -37,7 +37,7 @@ public final class KeyFactoryImpl implements KeyFactory {
 	 */
 	@Override
 	public DocumentKey newDocumentKey(String documentUri, int revision, int version) {
-		return new DocumentPartKey(documentUri.hashCode(), revision, version);
+		return new DocumentPartKey(repo.getDistributionStrategy().getDistributionHash(documentUri), revision, version);
 	}
 	
 	/**
@@ -54,6 +54,12 @@ public final class KeyFactoryImpl implements KeyFactory {
 	@Override
 	public IndexKey newIndexKey(int pathId, Object value) {
 		return new PathIndexKey(pathId, value);
+	}
+	
+	private SchemaRepositoryImpl repo;
+	
+	void setRepository(SchemaRepositoryImpl repo) {
+		this.repo = repo;
 	}
 
 }

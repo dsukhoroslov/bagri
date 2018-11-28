@@ -33,7 +33,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 		"fragments",
 		"indexes",
 		"resources",
-		"triggers"
+		"triggers",
+		"views"
 })
 @XmlRootElement
 public class Schema extends Entity {
@@ -70,6 +71,10 @@ public class Schema extends Entity {
 	@XmlElement(name="trigger")
 	@XmlElementWrapper(name="triggers")
 	private List<TriggerDefinition> triggers = new ArrayList<>();
+	
+	@XmlElement(name="view")
+	@XmlElementWrapper(name="views")
+	private Set<MaterializedView> views = new HashSet<>();
 	
 	/**
 	 * default constructor
@@ -505,6 +510,69 @@ public class Schema extends Entity {
 	}
 	
 	/**
+	 * 
+	 * @return views registered in schema
+	 */
+	public Set<MaterializedView> getViews() {
+		return views;
+	}
+	
+	/**
+	 * 
+	 * @param view the new materialized view to register in schema
+	 * @return true if view has been added, false otherwise
+	 */
+	public boolean addView(MaterializedView view) {
+		return views.add(view);
+	}
+	
+	/**
+	 * 
+	 * @param name the name of schema view to enable
+	 * @param enable the new enable value
+	 * @return true if the view enable flag has been changed, false otherwise
+	 */
+	public boolean enableView(String name, boolean enable) {
+		for (MaterializedView view: views) {
+			if (name.equals(view.getName())) {
+				return view.setEnabled(enable);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param name the name of the view to search for
+	 * @return the view instance if it is found, null otherwise
+	 */
+	public MaterializedView getView(String name) {
+		for (MaterializedView view: views) {
+			if (name.equals(view.getName())) {
+				return view;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param name the name of the view to remove from schema
+	 * @return true if trigger has been removed, false otherwise
+	 */
+	public MaterializedView removeView(String name) {
+		for (MaterializedView view: views) {
+			if (name.equals(view.getName())) {
+				if (views.remove(view)) {
+					return view;
+				}
+				break;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -545,6 +613,7 @@ public class Schema extends Entity {
 		result.put("indexes", indexes.size());
 		result.put("resources", resources.size());
 		result.put("triggers", triggers.size());
+		result.put("views", views.size());
 		return result;
 	}
 
@@ -558,7 +627,8 @@ public class Schema extends Entity {
 			", created at=" + getCreatedAt() + ", by=" + getCreatedBy() + 
 			", props=" + props + ", indexes=" + indexes + 
 			", triggers=" + triggers + ", fragments=" + fragments + 
-			", collections=" + collections + ", resources=" + resources + "]";
+			", collections=" + collections + ", resources=" + resources + 
+			", views=" + views + "]";
 	}
 	
 }

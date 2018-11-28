@@ -80,9 +80,9 @@ public class DocumentManagementImplTest extends DocumentManagementTest {
 	public void queryDocumentsTest() throws Exception {
 
 		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
-		Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "products", "", "all products", true);
+		Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "products", "", null, "all products", true);
 		schema.addCollection(collection);
-		collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 2, "orders", "", "all orders", true);
+		collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 2, "orders", "", null, "all orders", true);
 		schema.addCollection(collection);
 
 		String doc1 = "<product id=\"product-1\"><type>product</type><name>Pokemon Red</name><price>29.99</price></product>";

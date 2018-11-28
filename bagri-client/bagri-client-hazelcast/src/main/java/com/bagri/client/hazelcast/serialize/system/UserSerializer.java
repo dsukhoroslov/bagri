@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Permission;
-import com.bagri.core.system.Role;
 import com.bagri.core.system.User;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
@@ -20,10 +19,11 @@ public class UserSerializer extends EntitySerializer implements StreamSerializer
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMUser;
+		return DomainSerializationFactory.cli_User;
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public User read(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);
 		String login = in.readUTF(); 

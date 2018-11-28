@@ -74,7 +74,7 @@ public class QueryManagementImplTest extends BagriManagementTest {
 			xdmRepo.setLibraries(new ArrayList<Library>());
 			xdmRepo.setModules(new ArrayList<Module>());
 			com.bagri.core.system.Collection collection = new com.bagri.core.system.Collection(1, new Date(), 
-					JMXUtils.getCurrentUser(), 1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+					JMXUtils.getCurrentUser(), 1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", null, "securities", true);
 			schema.addCollection(collection);
 			((ClientManagementImpl) xdmRepo.getClientManagement()).addClient(client_id, user_name);
 			xdmRepo.setClientId(client_id);

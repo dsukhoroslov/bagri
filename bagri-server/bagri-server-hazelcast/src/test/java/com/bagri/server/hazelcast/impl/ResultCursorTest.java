@@ -67,7 +67,7 @@ public class ResultCursorTest extends BagriManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			//schema.setProperty(pn_baseURI, sampleRoot);
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", null, "securities", true);
 			schema.addCollection(collection);
 			repo.setSchema(schema);
 			repo.setDataFormats(getBasicDataFormats());

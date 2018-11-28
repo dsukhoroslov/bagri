@@ -17,7 +17,7 @@ public class DataTypeSerializer implements StreamSerializer<DataType> {
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMType;
+		return DomainSerializationFactory.cli_Type;
 	}
 
 	@Override

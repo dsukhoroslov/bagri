@@ -21,7 +21,7 @@ public class FunctionSerializer implements StreamSerializer<Function> {
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMFunction;
+		return DomainSerializationFactory.cli_Function;
 	}
 
 	@Override

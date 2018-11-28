@@ -66,7 +66,7 @@ public class ConfigTest {
 		props.setProperty("bdb.schema.password", "test");
 		Schema schema = new Schema(1, new Date(), "test", "Test", "description", false, props);
 		Collection collection = new Collection(1, new Date(), "test", 1, "cln_security",  
-				"/{http://tpox-benchmark.com/security}Security", "description", true);
+				"/{http://tpox-benchmark.com/security}Security", null, "description", true);
 		schema.addCollection(collection);
 		Index index = new Index(1, new Date(), "test", "idx_test",  
 				"/{http://tpox-benchmark.com/security}Security", "/Security", "/Security/Symbol",
@@ -79,6 +79,11 @@ public class ConfigTest {
 		TriggerDefinition xqTrigger = new XQueryTrigger(1, new Date(), "test", "sample_module",	"trg:function", true, true, "cln_security");
 		xqTrigger.addAction(0, Order.before, Scope.commit);
 		schema.addTrigger(xqTrigger);
+		Resource res = new Resource(1, new Date(), "test", "sample_resource", "/test", "description", "test_module", true);
+		schema.addResource(res);
+		MaterializedView view = new MaterializedView(1, new Date(), "test", "sample_view", 1, "test query", "description", true);
+		schema.addView(view);
+		
 		Config config = new Config();
 		config.getSchemas().add(schema);
 		

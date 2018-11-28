@@ -13,7 +13,7 @@ public class ModuleSerializer extends EntitySerializer implements StreamSerializ
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMModule;
+		return DomainSerializationFactory.cli_Module;
 	}
 
 	@Override

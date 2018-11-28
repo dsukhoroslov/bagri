@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.core.DocumentKey;
+import com.bagri.core.api.BagriException;
 import com.bagri.core.api.DocumentAccessor;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.DocumentManagement;
@@ -250,24 +251,6 @@ public class FileDocumentCacheStore implements MapStore<DocumentKey, Document>, 
 			logger.error("loadDocument.error; error getting document from PM; docKey {}", docKey, ex);
 		}
 
-/*
- after cluster rebalancing got errors for lost documents: 
- 
-2018-07-05 21:39:47.944 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.store.DocumentMemoryStore - getString; too long: 65536
-2018-07-05 21:39:47.944 [hz.Inventory-0.cached.thread-23] INFO  com.bagri.server.hazelcast.store.DocumentMemoryStore - getString; too long: 942749486
-2018-07-05 21:39:48.161 [hz.Inventory-0.cached.thread-23] ERROR com.bagri.server.hazelcast.impl.QueryManagementImpl - runQuery.error: 
-java.nio.BufferUnderflowException: null
-	at java.nio.DirectByteBuffer.get(DirectByteBuffer.java:271)
-	at java.nio.ByteBuffer.get(ByteBuffer.java:715)
-	at com.bagri.server.hazelcast.store.MemoryMappedStore.getString(MemoryMappedStore.java:304)
-	at com.bagri.server.hazelcast.store.DocumentMemoryStore.readEntry(DocumentMemoryStore.java:135)
-	at com.bagri.server.hazelcast.store.DocumentMemoryStore.readEntry(DocumentMemoryStore.java:23)
-	at com.bagri.server.hazelcast.store.MemoryMappedStore.getEntry(MemoryMappedStore.java:110)
-	at com.bagri.server.hazelcast.impl.PopulationManagementImpl.getDocument(PopulationManagementImpl.java:188)
-	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.loadDocument(FileDocumentCacheStore.java:187)
-	at com.bagri.server.hazelcast.store.FileDocumentCacheStore.load(FileDocumentCacheStore.java:236)
-*/
-   		
    		if (doc != null) {
 	    	if (!doc.isActive()) {
 	    		// no need to load content for inactive docs
@@ -285,16 +268,16 @@ java.nio.BufferUnderflowException: null
 		    	if (Files.exists(path)) {
         			String content = FileUtils.readTextFile(fullUri);
         			String srcFormat = getSourceFormat(fullUri);
-        			Document newDoc;
+        			Map<DocumentKey, Document> newDocs;
         			DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement(); 
         			if (doc == null) {
-        				newDoc = docManager.createDocument(docKey, docUri, content, srcFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
+        				newDocs = docManager.createDocument(docKey, docUri, content, srcFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
         						Files.getOwner(path).getName(), TX_INIT, null);
         			} else {
-        				newDoc = docManager.createDocument(docKey, docUri, content, srcFormat, doc.getCreatedAt(), 
+        				newDocs = docManager.createDocument(docKey, docUri, content, srcFormat, doc.getCreatedAt(), 
         						doc.getCreatedBy(), doc.getTxStart(), doc.getCollections());
         			}
-       				return newDoc;
+       				return newDocs.get(docKey);
 		    	}
     		} catch (Exception ex) {
     			logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, docUri, docKey, ex);
@@ -305,13 +288,68 @@ java.nio.BufferUnderflowException: null
     	return null;
     }
     
+	private Map<DocumentKey, Document> loadDocuments(DocumentKey docKey) throws BagriException { 
+    	String docUri = null;
+    	Document doc = null;
+   		try {
+	    	doc = popManager.getDocument(docKey.getKey());
+		} catch (Exception ex) {
+			logger.error("loadDocument.error; error getting document from PM; docKey {}", docKey, ex);
+		}
+
+   		if (doc != null) {
+	    	if (!doc.isActive()) {
+	    		// no need to load content for inactive docs
+	    		Map<DocumentKey, Document> docs = new HashMap<>(1);
+	    		docs.put(docKey, doc);
+	    		return docs;
+	    	}
+	       	docUri = doc.getUri();
+	    } else {
+	    	docUri = popManager.getKeyMapping(docKey);
+	    }
+	
+    	if (docUri != null) {
+    		String fullUri = getFullUri(docUri);
+			Path path = Paths.get(fullUri);
+	    	if (Files.exists(path)) {
+   				Map<DocumentKey, Document> newDocs;
+       			try {
+	       			String content = FileUtils.readTextFile(fullUri);
+    	   			String srcFormat = getSourceFormat(fullUri);
+       				DocumentManagementImpl docManager = (DocumentManagementImpl) xdmRepo.getDocumentManagement();
+	       			if (doc == null) {
+	       				newDocs = docManager.createDocument(docKey, docUri, content, srcFormat, new Date(Files.getLastModifiedTime(path).toMillis()), 
+	       						Files.getOwner(path).getName(), TX_INIT, null);
+	       			} else {
+	       				newDocs = docManager.createDocument(docKey, docUri, content, srcFormat, doc.getCreatedAt(), 
+	       						doc.getCreatedBy(), doc.getTxStart(), doc.getCollections());
+	       			}
+        		} catch (Exception ex) {
+        			logger.error("loadDocument.error; error loading document {} with uri {} for key {}", doc, docUri, docKey, ex);
+        			throw new BagriException(ex, BagriException.ecInOut);
+        			// TODO: notify popManager about this?!
+        			// implement some retry policy here? skip/raise/retry
+        		}
+   				Map<DocumentKey, String> uris = new HashMap<>(newDocs.size());
+   				for (Map.Entry<DocumentKey, Document> e: newDocs.entrySet()) {
+   					uris.put(e.getKey(), e.getValue().getUri());
+   				}
+   				popManager.deleteKeyMapping(docKey);
+       	   		popManager.setKeyMappings(uris);
+   				return newDocs;
+	    	}
+		}
+    	return null;
+    }
+    
 	@Override
 	public Document load(DocumentKey key) {
-		try {
-			throw new RuntimeException();
-		} catch (Exception ex) {
-			logger.error("load", ex);
-		}
+		//try {
+		//	throw new RuntimeException();
+		//} catch (Exception ex) {
+		//	logger.error("load", ex);
+		//}
 		
 		logger.debug("load.enter; key: {}", key);
 		Document result = null;
@@ -330,19 +368,25 @@ java.nio.BufferUnderflowException: null
 		if (popManager.isPopulationAllowed()) {
 			ensureRepository();
 			popManager.addLoadingCounts(keys.size());
+			int errors = 0;
 			int skipped = 0;
 			result = new HashMap<>(keys.size());
 		    for (DocumentKey key: keys) {
 		    	if (popManager.isPopulationAllowed()) {
-			    	Document doc = loadDocument(key);
-			    	if (doc != null) {
-			    		result.put(key, doc);
-			    	}
+		    		try {
+			    		Map<DocumentKey, Document> docs = loadDocuments(key);
+			    		if (docs != null) {
+			    			result.putAll(docs);
+			    		}
+		    		} catch (BagriException ex) {
+		    			// already logged
+		    			errors++;
+		    		}
 		    	} else {
 		    		skipped++;
 		    	}
 		    }
-			popManager.addLoadedCounts(keys.size() - result.size() - skipped, result.size());
+			popManager.addLoadedCounts(errors, result.size());
 		} else {
 			result = new HashMap<>(1);
 		}

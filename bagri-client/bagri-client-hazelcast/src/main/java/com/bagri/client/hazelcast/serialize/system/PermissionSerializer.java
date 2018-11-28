@@ -17,7 +17,7 @@ public class PermissionSerializer implements StreamSerializer<Permission> {
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMPermission;
+		return DomainSerializationFactory.cli_Permission;
 	}
 
 	@Override

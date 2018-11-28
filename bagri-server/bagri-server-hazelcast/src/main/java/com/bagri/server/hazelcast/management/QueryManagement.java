@@ -8,15 +8,12 @@ import static com.bagri.support.util.PropUtils.getOutputProperties;
 import static com.bagri.support.util.XQUtils.props2Context;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import javax.xml.namespace.QName;
 import javax.xml.xquery.XQConnection;

@@ -7,25 +7,26 @@ public class DomainSerializationFactory implements DataSerializableFactory {
 
 	public static final int cli_factory_id = 1000; 
 	
-	public static final int cli_XDMRole = 1;
-	public static final int cli_XDMUser = 2;
-	public static final int cli_XDMNode = 3;
-	public static final int cli_XDMSchema = 4;
-	public static final int cli_XDMPermission = 5;
-	public static final int cli_XDMIndex = 6;
-	public static final int cli_XDMModule = 7;
-	public static final int cli_XDMLibrary = 8;
-	public static final int cli_XDMType = 9;
-	public static final int cli_XDMFunction = 10;
-	public static final int cli_XDMParameter = 11;
-	public static final int cli_XDMTriggerAction = 12;
-	public static final int cli_XDMJavaTrigger = 13;
-	public static final int cli_XDMXQueryTrigger = 14;
-	public static final int cli_XDMFragment = 15;
-	public static final int cli_XDMCollection = 16;
-	public static final int cli_XDMDataFormat = 17;
-	public static final int cli_XDMDataStore = 18;
-	public static final int cli_XDMResource = 19;
+	public static final int cli_Role = 1;
+	public static final int cli_User = 2;
+	public static final int cli_Node = 3;
+	public static final int cli_Schema = 4;
+	public static final int cli_Permission = 5;
+	public static final int cli_Index = 6;
+	public static final int cli_Module = 7;
+	public static final int cli_Library = 8;
+	public static final int cli_Type = 9;
+	public static final int cli_Function = 10;
+	public static final int cli_Parameter = 11;
+	public static final int cli_TriggerAction = 12;
+	public static final int cli_JavaTrigger = 13;
+	public static final int cli_XQueryTrigger = 14;
+	public static final int cli_Fragment = 15;
+	public static final int cli_Collection = 16;
+	public static final int cli_DataFormat = 17;
+	public static final int cli_DataStore = 18;
+	public static final int cli_Resource = 19;
+	public static final int cli_MaterializedView = 20;
 	
 	public static final int cli_XDMDocument = 50;
 	public static final int cli_XDMElement = 51; 

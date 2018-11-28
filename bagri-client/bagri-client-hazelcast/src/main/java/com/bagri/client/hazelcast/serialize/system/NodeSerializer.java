@@ -14,7 +14,7 @@ public class NodeSerializer extends EntitySerializer implements StreamSerializer
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMNode;
+		return DomainSerializationFactory.cli_Node;
 	}
 
 	@Override

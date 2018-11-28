@@ -61,13 +61,13 @@ public class TpoxQueryTest extends ClientQueryManagementTest {
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_xqj_baseURI, sampleRoot);
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", null, "securities", true);
 			schema.addCollection(collection);
 			collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					2, "CLN_Customer", "/{http://tpox-benchmark.com/custacc}Customer", "customers", true);
+					2, "CLN_Customer", "/{http://tpox-benchmark.com/custacc}Customer", null, "customers", true);
 			schema.addCollection(collection);
 			collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					3, "CLN_Order", "/{http://www.fixprotocol.org/FIXML-4-4}FIXML", "orders", true);
+					3, "CLN_Order", "/{http://www.fixprotocol.org/FIXML-4-4}FIXML", null, "orders", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());

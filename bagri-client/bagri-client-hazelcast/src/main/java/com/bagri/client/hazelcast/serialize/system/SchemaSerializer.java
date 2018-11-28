@@ -8,6 +8,7 @@ import com.bagri.client.hazelcast.serialize.DomainSerializationFactory;
 import com.bagri.core.system.Collection;
 import com.bagri.core.system.Fragment;
 import com.bagri.core.system.Index;
+import com.bagri.core.system.MaterializedView;
 import com.bagri.core.system.Resource;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerDefinition;
@@ -19,7 +20,7 @@ public class SchemaSerializer extends EntitySerializer implements StreamSerializ
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMSchema;
+		return DomainSerializationFactory.cli_Schema;
 	}
 
 	@Override
@@ -58,6 +59,11 @@ public class SchemaSerializer extends EntitySerializer implements StreamSerializ
 			TriggerDefinition trg = in.readObject();
 			xSchema.addTrigger(trg);
 		}
+		size = in.readInt();
+		for (int i=0; i < size; i++) {
+			MaterializedView view = in.readObject();
+			xSchema.addView(view);
+		}
 		return xSchema;
 	}
 
@@ -87,6 +93,10 @@ public class SchemaSerializer extends EntitySerializer implements StreamSerializ
 		out.writeInt(xSchema.getTriggers().size());
 		for (TriggerDefinition trigger: xSchema.getTriggers()) {
 			out.writeObject(trigger);
+		}
+		out.writeInt(xSchema.getViews().size());
+		for (MaterializedView view: xSchema.getViews()) {
+			out.writeObject(view);
 		}
 	}
 

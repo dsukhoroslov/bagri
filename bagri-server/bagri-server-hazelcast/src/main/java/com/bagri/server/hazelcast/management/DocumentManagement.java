@@ -144,7 +144,7 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	public CompositeData getDocumentElements(String uri) {
 		//
 		//docManager.
-		DocumentStructureProvider task = new DocumentStructureProvider(null, uri); 
+		DocumentStructureProvider task = new DocumentStructureProvider(null, uri, schemaManager.getRepository().getDistributionStrategy()); 
 		Future<CompositeData> result = execService.submitToKeyOwner(task, uri); 
 		try {
 			return result.get();
@@ -197,7 +197,8 @@ public class DocumentManagement extends SchemaFeatureManagement {
 			DocumentAccessor doc = docManager.getDocument(uri, props);
 			CompositeData result = null;
 			if (doc != null) {
-				Partition part = hzClient.getPartitionService().getPartition(doc.getUri().hashCode());
+				int hash = schemaManager.getRepository().getDistributionStrategy().getDistributionHash(uri);
+				Partition part = hzClient.getPartitionService().getPartition(hash);
 				Map<String, Object> location = new HashMap<>(2);
 				location.put("partition", part.getPartitionId());
 				location.put("owner", part.getOwner().toString());
@@ -322,11 +323,12 @@ public class DocumentManagement extends SchemaFeatureManagement {
 	@ManagedOperationParameters({
 		@ManagedOperationParameter(name = "name", description = "Collection name to create"),
 		@ManagedOperationParameter(name = "docType", description = "Root path for document type, if needed"),
+		@ManagedOperationParameter(name = "uriPattern", description = "URI Pattern for documents, if needed"),
 		@ManagedOperationParameter(name = "description", description = "Collection description")})
-	public void addCollection(String name, String docType, String description) {
+	public void addCollection(String name, String docType, String uriPattern, String description) {
 		logger.trace("addCollection.enter;");
 		long stamp = System.currentTimeMillis();
-		Collection collect = schemaManager.addCollection(name, docType, description);
+		Collection collect = schemaManager.addCollection(name, docType, uriPattern, description);
 		if (collect == null) {
 			throw new IllegalStateException("Collection '" + name + "' in schema '" + schemaName + "' already exists");
 		}

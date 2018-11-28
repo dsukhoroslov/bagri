@@ -15,18 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bagri.client.hazelcast.PartitionStatistics;
-import com.bagri.client.hazelcast.UrlHashKey;
 import com.bagri.core.DataKey;
 import com.bagri.core.DocumentKey;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.model.Document;
 import com.bagri.core.model.Elements;
+import com.bagri.core.server.api.SchemaRepository;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.map.impl.MapService;
 import com.hazelcast.map.impl.MapServiceContext;
@@ -50,6 +49,7 @@ public class DataDistributionService implements ManagedService {
 
 	private KeyFactory factory;
     private NodeEngine nodeEngine;
+    private SchemaRepository repo;
     
     public void setFactory(KeyFactory factory) {
     	this.factory = factory;
@@ -69,6 +69,10 @@ public class DataDistributionService implements ManagedService {
 	@Override
 	public void shutdown(boolean terminate) {
 		logger.info("shutdown; terminate: {}", terminate); 
+	}
+	
+	public void setRepository(SchemaRepository repo) {
+		this.repo = repo;
 	}
 	
 	public <T> T getCachedObject(String cacheName, Object key, boolean convert) {
@@ -189,7 +193,7 @@ public class DataDistributionService implements ManagedService {
 	}
 	
 	public RecordStore<?> getRecordStore(String uri, String storeName) {
-		Integer hash = uri.hashCode();
+		int hash = repo.getDistributionStrategy().getDistributionHash(uri);
 		int partId = getPartitionId(hash);
 		return getRecordStore(partId, storeName);
 	}
@@ -203,7 +207,7 @@ public class DataDistributionService implements ManagedService {
 	public DocumentKey getLastRevisionKeyForUri(String uri) {
 		MapService svc = nodeEngine.getService(MapService.SERVICE_NAME);
 		MapServiceContext mapCtx = svc.getMapServiceContext();
-		Integer hash = uri.hashCode();
+		Integer hash = repo.getDistributionStrategy().getDistributionHash(uri);
 		Query query = new Query(CN_XDM_DOCUMENT, Predicates.equal("__key#hash", hash), IterationType.ENTRY, null, null); 
 		DocumentKey last = null;
 		boolean foundUri = false;

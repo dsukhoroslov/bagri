@@ -13,7 +13,7 @@ public class ResourceSerializer extends EntitySerializer implements StreamSerial
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMResource;
+		return DomainSerializationFactory.cli_Resource;
 	}
 
 	@Override

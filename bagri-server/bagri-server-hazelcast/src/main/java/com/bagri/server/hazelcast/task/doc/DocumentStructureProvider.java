@@ -13,6 +13,7 @@ import javax.management.openmbean.CompositeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bagri.client.hazelcast.task.doc.DocumentAwareTask;
+import com.bagri.core.api.DocumentDistributionStrategy;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.model.Element;
 import com.bagri.core.model.Elements;
@@ -32,8 +33,8 @@ public class DocumentStructureProvider extends DocumentAwareTask implements Call
 		super();
 	}
 	
-	public DocumentStructureProvider(String clientId, String uri) {
-		super(clientId, 0, new Properties(), uri);
+	public DocumentStructureProvider(String clientId, String uri, DocumentDistributionStrategy distributor) {
+		super(clientId, 0, new Properties(), uri, distributor);
 	}
 
     @Autowired

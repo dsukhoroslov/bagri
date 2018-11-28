@@ -70,7 +70,7 @@ public class DocumentPredicateTest {
 			Schema schema = repos[i].getSchema();
 			if (schema == null) {
 				schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
-				Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), map_cln_id, "maps", "", "custom", true);
+				Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), map_cln_id, "maps", "", null, "custom", true);
 				schema.addCollection(collection);
 				repos[i].setSchema(schema);
 				repos[i].setDataFormats(getBasicDataFormats());

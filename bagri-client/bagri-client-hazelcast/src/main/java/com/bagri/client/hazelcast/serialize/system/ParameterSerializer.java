@@ -18,7 +18,7 @@ public class ParameterSerializer implements StreamSerializer<Parameter> {
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMParameter;
+		return DomainSerializationFactory.cli_Parameter;
 	}
 
 	@Override

@@ -1,10 +1,12 @@
 package com.bagri.server.hazelcast.impl;
 
 import static com.bagri.core.Constants.ctx_repo;
-import static com.bagri.core.Constants.pn_client_txLevel;
 import static com.bagri.core.Constants.ctx_popService;
+import static com.bagri.core.Constants.pn_client_txLevel;
+import static com.bagri.core.Constants.pn_schema_data_distribution;
 import static com.bagri.core.Constants.pn_schema_format_default;
 import static com.bagri.core.Constants.pv_client_txLevel_skip;
+import static com.bagri.core.Constants.pv_distribution_first_dot;
 import static com.bagri.core.server.api.CacheConstants.*;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.hasStorageMembers;
 import static com.bagri.server.hazelcast.util.HazelcastUtils.findSystemInstance;
@@ -25,15 +27,16 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.bagri.client.hazelcast.serialize.ByteMapContentSerializer;
-import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
 import com.bagri.core.KeyFactory;
 import com.bagri.core.api.TransactionManagement;
 import com.bagri.core.api.AccessManagement;
 import com.bagri.core.api.BagriException;
 import com.bagri.core.api.ContentSerializer;
+import com.bagri.core.api.DocumentDistributionStrategy;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.TransactionIsolation;
+import com.bagri.core.api.impl.DefaultDocumentDistributor;
+import com.bagri.core.api.impl.FirstDotDistributor;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 import com.bagri.core.model.Path;
 import com.bagri.core.server.api.ClientManagement;
@@ -56,7 +59,6 @@ import com.bagri.core.system.Module;
 import com.bagri.core.system.Schema;
 import com.bagri.core.system.TriggerDefinition;
 import com.bagri.core.xquery.api.XQProcessor;
-import com.bagri.server.hazelcast.serialize.TaskSerializationFactory;
 import com.hazelcast.core.HazelcastInstance;
 
 public class SchemaRepositoryImpl extends SchemaRepositoryBase implements ApplicationContextAware, SchemaRepository {
@@ -83,6 +85,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
+	private DocumentDistributionStrategy distributor;
 
     private Map<String, XQProcessor> processors = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<>();
@@ -475,6 +478,26 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 				setDataFormats(formats.values());
 			}
 		}
+		
+		String distrClass = xdmSchema.getProperty(pn_schema_data_distribution);
+		if (distrClass != null) {
+			if (pv_distribution_first_dot.equals(distrClass)) {
+				distributor = new FirstDotDistributor();
+			} else {
+				try {
+					Class<?> cls = Class.forName(distrClass);
+					Object instance = cls.newInstance();
+					distributor = (DocumentDistributionStrategy) instance;
+				} catch (Exception ex) {
+					logger.warn("afterInit; can't instantiate distributor for class: {}", distrClass);
+					distributor = new DefaultDocumentDistributor();
+				}
+			}
+		} else {
+			distributor = new DefaultDocumentDistributor();
+		}
+		logger.info("afterInit; distributor: {}", distributor);
+		((KeyFactoryImpl) xdmFactory).setRepository(this);
 	}
 	
 	public boolean isInitialized() {
@@ -574,6 +597,11 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 	public Object getCacheEngine() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public DocumentDistributionStrategy getDistributionStrategy() {
+		return distributor;
 	}
 	
 	

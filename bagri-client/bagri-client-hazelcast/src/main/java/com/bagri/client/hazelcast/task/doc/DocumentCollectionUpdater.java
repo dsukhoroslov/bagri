@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import com.bagri.core.DocumentKey;
+import com.bagri.core.api.DocumentDistributionStrategy;
 import com.bagri.core.model.Document;
 import com.bagri.core.server.api.TransactionManagement;
 import com.hazelcast.map.EntryBackupProcessor;
@@ -28,8 +29,8 @@ public class DocumentCollectionUpdater extends DocumentAwareTask implements Entr
 		super();
 	}
 	
-	public DocumentCollectionUpdater(String clientId, Properties props, String uri, boolean add, String[] collections) {
-		super(clientId, TransactionManagement.TX_NO, props, uri);
+	public DocumentCollectionUpdater(String clientId, Properties props, String uri, DocumentDistributionStrategy distributor, boolean add, String[] collections) {
+		super(clientId, TransactionManagement.TX_NO, props, uri, distributor);
 		this.add = add;
 		this.collections = collections;
 	}

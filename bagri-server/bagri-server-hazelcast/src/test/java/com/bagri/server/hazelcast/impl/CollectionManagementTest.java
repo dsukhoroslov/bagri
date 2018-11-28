@@ -55,10 +55,10 @@ public class CollectionManagementTest extends BagriManagementTest {
 			Properties props = loadProperties("src/test/resources/test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", "securities", true);
+					1, "CLN_Security", "/{http://tpox-benchmark.com/security}Security", null, "securities", true);
 			schema.addCollection(collection);
 			collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
-					2, "CLN_Custom", "", "custom", true);
+					2, "CLN_Custom", "", null, "custom", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 

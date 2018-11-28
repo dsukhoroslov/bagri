@@ -19,7 +19,7 @@ public class TriggerActionSerializer implements StreamSerializer<TriggerAction> 
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMTriggerAction;
+		return DomainSerializationFactory.cli_TriggerAction;
 	}
 
 	@Override

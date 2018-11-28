@@ -1,62 +1,59 @@
 package com.bagri.core.system;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Represents document's collection
- * 
+ * Represents some (periodic) part of XDM document instance
+ *  
  * @author Denis Sukhoroslov
- *
+ * @since 09.2015 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = "http://www.bagridb.com/schema/system", propOrder = {
-		"id",
 		"name", 
-		"docType", 
-		"uriPattern",
+		"collectionId", 
+		"query",
 		"description",
+		"parameters",
 		"enabled"
 })
-public class Collection extends Entity {
+public class MaterializedView extends Entity {
 	
-	public static final int default_collection = 0;
-	
-	@XmlAttribute(required = true)
-	private int id;
-		
 	@XmlAttribute(required = true)
 	@XmlID
 	private String name;
+		
+	@XmlElement(required = true)
+	private int collectionId;
+	
+	@XmlElement(required = true)
+	private String query;
 
-	@XmlElement(required = false)
-	private String docType;
-	
-	@XmlElement(required = false)
-	private String uriPattern;
-	
-	@XmlTransient
-	private Pattern compiledPattern;
-	
 	@XmlElement(required = false)
 	private String description;
 		
+	@XmlElement(name="parameter")
+	@XmlElementWrapper(name="parameters")
+	private List<Parameter> parameters = new ArrayList<>();
+	
 	@XmlElement(required = false, defaultValue = "true")
 	private boolean enabled = true;
 
 	/**
 	 * default constructor
 	 */
-	public Collection() {
+	public MaterializedView() {
 		// for JAXB
 		super();
 	}
@@ -66,35 +63,25 @@ public class Collection extends Entity {
 	 * @param version the version
 	 * @param createdAt the date/time of version creation
 	 * @param createdBy the user who has created the version
-	 * @param id the collection id
-	 * @param name the collection name
-	 * @param docType the collection document type
-	 * @param uriPattern the collection URI pattern
-	 * @param description the collection description
-	 * @param enabled the collection enable flag
+	 * @param name the fragment name
+	 * @param docType the fragment document type
+	 * @param path the fragment path
+	 * @param description the fragment description
+	 * @param enabled the fragment enable flag
 	 */
-	public Collection(int version, Date createdAt, String createdBy, int id, String name, 
-			String docType, String uriPattern, String description, boolean enabled) {
+	public MaterializedView(int version, Date createdAt, String createdBy, String name, 
+			int collectionId, String query, String description, boolean enabled) {
 		super(version, createdAt, createdBy);
-		this.id = id;
 		this.name = name;
-		this.docType = docType;
-		this.uriPattern = uriPattern;
+		this.collectionId = collectionId;
+		this.query = query;
 		this.description = description;
 		this.enabled = enabled;
 	}
 
 	/**
 	 * 
-	 * @return the collection id
-	 */
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * 
-	 * @return the collection name
+	 * @return the fragment name
 	 */
 	public String getName() {
 		return name;
@@ -102,7 +89,7 @@ public class Collection extends Entity {
 
 	/**
 	 * 
-	 * @return the collection description
+	 * @return the fragment description
 	 */
 	public String getDescription() {
 		return description;
@@ -110,37 +97,31 @@ public class Collection extends Entity {
 	
 	/**
 	 * 
-	 * @return the collection document type in Clark form
+	 * @return the view's collection ID
 	 */
-	public String getDocumentType() {
-		return docType;
+	public int getCollectionId() {
+		return collectionId;
 	}
 
 	/**
 	 * 
-	 * @return the collection URI regex pattern
+	 * @return the view's query expression
 	 */
-	public String getUriPattern() {
-		return uriPattern;
+	public String getQuery() {
+		return query;
 	}
 	
 	/**
 	 * 
-	 * @return the compiled URI Pattern
+	 * @return the list of view's query parameters
 	 */
-	public Pattern getCompiledPattern() {
-		if (uriPattern == null) {
-			return null;
-		}
-		if (compiledPattern == null) {
-			compiledPattern = Pattern.compile(uriPattern);
-		}
-		return compiledPattern;
+	public List<Parameter> getParameters() {
+		return parameters;
 	}
-
+	
 	/**
 	 * 
-	 * @return the collection enable flag
+	 * @return the fragment enable flag
 	 */
 	public boolean isEnabled() {
 		return enabled;
@@ -148,7 +129,7 @@ public class Collection extends Entity {
 	
 	/**
 	 * 
-	 * @param enabled set collection enable flag
+	 * @param enabled set fragment enable flag
 	 * @return true if flag has been changed, false otherwise
 	 */
 	public boolean setEnabled(boolean enabled) {
@@ -165,7 +146,7 @@ public class Collection extends Entity {
 	 */
 	@Override
 	public int hashCode() {
-		return id;
+		return name.hashCode();
 	}
 
 	/**
@@ -182,8 +163,8 @@ public class Collection extends Entity {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		Collection other = (Collection) obj;
-		return id == other.id; 
+		MaterializedView other = (MaterializedView) obj;
+		return name.equals(other.name); 
 	}
 
 	/**
@@ -192,11 +173,11 @@ public class Collection extends Entity {
 	@Override
 	public Map<String, Object> convert() {
 		Map<String, Object> result = super.convert();
-		result.put("id", id);
 		result.put("name", name);
-		result.put("document type", docType == null ? "" : docType);
-		result.put("uri pattern", uriPattern == null ? "" : uriPattern);
+		result.put("collection id", collectionId);
+		result.put("query", query);
 		result.put("description", description);
+		result.put("parameters", parameters.size());
 		result.put("enabled", enabled);
 		return result;
 	}
@@ -206,11 +187,12 @@ public class Collection extends Entity {
 	 */
 	@Override
 	public String toString() {
-		return "Collection [id=" + id + ", name=" + name
-				+ ", version=" + getVersion() + ", docType=" + docType
-				+ ", uriPattern=" + uriPattern + ", created at=" + getCreatedAt()
-				+ ", by=" + getCreatedBy() + ", description=" + description
+		return "Fragment [name=" + name + ", version=" + getVersion()
+				+ ", collectionId=" + collectionId + ", query=" + query 
+				+ ", created at=" + getCreatedAt() + ", by=" + getCreatedBy()
+				+ ", description=" + description + ", parameters=" + parameters.size()
 				+ ", enabled=" + enabled + "]";
 	}
 	
+
 }

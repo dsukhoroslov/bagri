@@ -59,7 +59,7 @@ public class MapDocumentManagementTest extends BagriManagementTest {
 			Properties props = loadProperties("src/test/resources/test.properties");
 			schema = new Schema(1, new java.util.Date(), "test", "test", "test schema", true, props);
 			schema.setProperty(pn_schema_format_default, "MAP");
-			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "maps", "", "custom", true);
+			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "maps", "", null, "custom", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());

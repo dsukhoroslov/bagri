@@ -59,7 +59,7 @@ public class JsonQueryManagementTest extends BagriManagementTest {
 			schema.setProperty(pn_schema_format_default, "JSON");
 			Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 
 					//1, "securities", "/{http://tpox-benchmark.com/security}Security", "all securities", true);
-					1, "securities", "/Security", "all securities", true);
+					1, "securities", "/Security", null, "all securities", true);
 			schema.addCollection(collection);
 			xdmRepo.setSchema(schema);
 			xdmRepo.setDataFormats(getBasicDataFormats());

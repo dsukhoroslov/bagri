@@ -33,6 +33,7 @@ import com.bagri.support.util.FileUtils;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.SourceResolver;
 import net.sf.saxon.lib.UnparsedTextURIResolver;
+import net.sf.saxon.om.DocumentURI;
 import net.sf.saxon.trans.XPathException;
 
 /**
@@ -61,8 +62,10 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
      */
 	@Override
 	public Source resolve(String href, String base) throws TransformerException {
-		logger.trace("resolve. href: {}; base: {}", href, base);
-		return resolveSource(new StreamSource(href), config);
+		logger.trace("resolve.enter; href: {}; base: {}", href, base);
+		Source result = resolveSource(new StreamSource(href), config);
+		logger.trace("resolve.exit; returning: {}", result);
+		return result;
 	}
 
 	/**
@@ -70,7 +73,11 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 	 */
 	@Override
 	public Source resolveSource(Source source, Configuration conf) throws XPathException {
-		logger.trace("resolveSource. source: {}; config: {}", source.getSystemId(), conf);
+		logger.trace("resolveSource. source: {}; config: {}; this: {}", source.getSystemId(), conf, this);
+		
+		if (source instanceof StreamSource && ((StreamSource) source).getReader() != null) {
+			return source;
+		}
 		
 		URI uri;
 		String original = source.getSystemId();
@@ -82,12 +89,19 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 			throw new XPathException(ex);
 		}
 		
+		//try {
+		//	throw new Exception("");
+		//} catch (Exception ex) {
+		//	logger.error("resolveSource.error: {}", this, ex);
+		//}
+		
 		String content = resolveContent(uri); 
 		if (content != null && content.trim().length() > 0) {
-			logger.trace("resolveSource; got content: {}", content.length());
+			logger.trace("resolveSource; got content: {}; config: {}", content.length(), config);
 			StreamSource ss = new StreamSource(new StringReader(content));
 			// original or encoded??
 			ss.setSystemId(original);
+			//conf.getGlobalDocumentPool().add(conf.buildDocumentTree(ss), uri.toString());
 			return ss;
 		}
 		logger.trace("resolveSource. got empty content: '{}'", content);

@@ -112,9 +112,9 @@ public class JsonDocumentManagementTest extends DocumentManagementTest {
 	public void queryJsonDocumentsTest() throws Exception {
 		
 		Schema schema = ((SchemaRepositoryImpl) xRepo).getSchema();
-		Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "products", "", "all products", true);
+		Collection collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 1, "products", "", null, "all products", true);
 		schema.addCollection(collection);
-		collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 2, "orders", "", "all orders", true);
+		collection = new Collection(1, new Date(), JMXUtils.getCurrentUser(), 2, "orders", "", null, "all orders", true);
 		schema.addCollection(collection);
 		
 		String doc1 = "{\"id\": \"product-1\", \"type\": \"product\", \"name\": \"Pokemon Red\", \"price\": 29.99}";

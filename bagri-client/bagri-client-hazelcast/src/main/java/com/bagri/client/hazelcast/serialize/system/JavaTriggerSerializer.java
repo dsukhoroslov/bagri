@@ -15,7 +15,7 @@ public class JavaTriggerSerializer extends TriggerDefinitionSerializer implement
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMJavaTrigger;
+		return DomainSerializationFactory.cli_JavaTrigger;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import com.bagri.core.api.DocumentAccessor;
+import com.bagri.core.api.DocumentDistributionStrategy;
 
 public class DocumentRemover extends DocumentAwareTask implements Callable<DocumentAccessor> {
 
@@ -13,8 +14,8 @@ public class DocumentRemover extends DocumentAwareTask implements Callable<Docum
 		super();
 	}
 
-	public DocumentRemover(String clientId, long txId, Properties props, String uri) {
-		super(clientId, txId, props, uri);
+	public DocumentRemover(String clientId, long txId, Properties props, String uri, DocumentDistributionStrategy distributor) {
+		super(clientId, txId, props, uri, distributor);
 	}
 
 	@Override

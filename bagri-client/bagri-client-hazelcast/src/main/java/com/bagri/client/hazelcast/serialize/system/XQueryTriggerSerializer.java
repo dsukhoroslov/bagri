@@ -15,7 +15,7 @@ public class XQueryTriggerSerializer extends TriggerDefinitionSerializer impleme
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMXQueryTrigger;
+		return DomainSerializationFactory.cli_XQueryTrigger;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ public class LibrarySerializer extends EntitySerializer implements StreamSeriali
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMLibrary;
+		return DomainSerializationFactory.cli_Library;
 	}
 
 	@Override

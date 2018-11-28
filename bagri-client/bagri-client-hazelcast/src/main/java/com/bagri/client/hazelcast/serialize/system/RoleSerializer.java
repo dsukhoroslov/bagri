@@ -19,10 +19,11 @@ public class RoleSerializer extends EntitySerializer implements StreamSerializer
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMRole;
+		return DomainSerializationFactory.cli_Role;
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Role read(ObjectDataInput in) throws IOException {
 		Object[] entity = super.readEntity(in);
 		String name = in.readUTF(); 

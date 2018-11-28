@@ -14,7 +14,7 @@ public class DataStoreSerializer extends EntitySerializer implements StreamSeria
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMDataStore;
+		return DomainSerializationFactory.cli_DataStore;
 	}
 
 	@Override

@@ -15,7 +15,7 @@ public class IndexSerializer extends EntitySerializer implements StreamSerialize
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMIndex;
+		return DomainSerializationFactory.cli_Index;
 	}
 
 	@Override

@@ -60,7 +60,8 @@ public class DocumentManagementImpl implements DocumentManagement {
 	}
 	
 	private DocumentKey getDocumentKey(String uri) {
-		return new DocumentPartKey(uri.hashCode(), 0, 1);
+		int hash = repo.getDistributionStrategy().getDistributionHash(uri);
+		return new DocumentPartKey(hash, 0, 1);
 	}
 
 	private Properties checkDocumentProperties(Properties props) {
@@ -80,7 +81,7 @@ public class DocumentManagementImpl implements DocumentManagement {
 	public DocumentAccessor getDocument(String uri, Properties props) throws BagriException {
 		logger.trace("getDocument.enter; got uri: {}; props: {}", uri, props);
 		props = checkDocumentProperties(props);
-		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri);
+		DocumentProvider task = new DocumentProvider(repo.getClientId(), repo.getTransactionId(), props, uri, repo.getDistributionStrategy());
 		DocumentKey key = getDocumentKey(uri);
 		Object result = xddCache.executeOnKey(key, task);
 		logger.trace("getDocument.exit; got content: {}", result);
@@ -106,7 +107,7 @@ public class DocumentManagementImpl implements DocumentManagement {
 		}
 		repo.getHealthManagement().checkClusterState();
 		props = checkDocumentProperties(props);
-		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, content);
+		DocumentCreator task = new DocumentCreator(repo.getClientId(), repo.getTransactionId(), props, uri, repo.getDistributionStrategy(), content);
 		task.setRepository(repo);
 		DocumentAccessor result = runSimpleDocumentTask(task, props);
 		logger.trace("storeDocument.exit; returning: {}", result);
@@ -133,7 +134,7 @@ public class DocumentManagementImpl implements DocumentManagement {
 		logger.trace("removeDocument.enter; uri: {}", uri);
 		repo.getHealthManagement().checkClusterState();
 		props = checkDocumentProperties(props);
-		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), props, uri);
+		DocumentRemover task = new DocumentRemover(repo.getClientId(), repo.getTransactionId(), props, uri, repo.getDistributionStrategy());
 		DocumentAccessor result = runSimpleDocumentTask(task, props);
 		logger.trace("removeDocument.exit; returning: {}", result);
 		return result;
@@ -232,7 +233,7 @@ public class DocumentManagementImpl implements DocumentManagement {
 
 	private int updateDocumentCollections(String uri, boolean add, String[] collections) {
 		Properties props = checkDocumentProperties(null);
-		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), props, uri, add, collections);
+		DocumentCollectionUpdater task = new DocumentCollectionUpdater(repo.getClientId(), props, uri, repo.getDistributionStrategy(), add, collections);
 		DocumentKey key = getDocumentKey(uri);
 		return (Integer) xddCache.executeOnKey(key, task);
 	}

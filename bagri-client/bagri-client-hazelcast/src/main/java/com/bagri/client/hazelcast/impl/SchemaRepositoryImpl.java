@@ -20,11 +20,13 @@ import com.bagri.client.hazelcast.serialize.StringContentSerializer;
 import com.bagri.client.hazelcast.serialize.StringMapContentSerializer;
 import com.bagri.client.hazelcast.task.auth.ChildIdsRegistrator;
 import com.bagri.core.api.ContentSerializer;
+import com.bagri.core.api.DocumentDistributionStrategy;
 import com.bagri.core.api.DocumentManagement;
 import com.bagri.core.api.HealthCheckState;
 import com.bagri.core.api.QueryManagement;
 import com.bagri.core.api.SchemaRepository;
 import com.bagri.core.api.TransactionManagement;
+import com.bagri.core.api.impl.DefaultDocumentDistributor;
 import com.bagri.core.api.impl.SchemaRepositoryBase;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -44,6 +46,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	private ClientManagementImpl clientMgr;
 	private HazelcastInstance hzClient;
 	private Map<String, ContentSerializer<?>> css = new HashMap<>(); //ConcurrentHashMap<>();
+	private DocumentDistributionStrategy distributor;
 	
 	public static SchemaRepository getRepository() {
 		SchemaRepository r = repo.get();
@@ -106,6 +109,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_contentSerializer + "." + "SMAP", StringMapContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
+		setProperty(props, pn_document_distribution, null);
 		return props;
 	}
 	
@@ -148,6 +152,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 		setProperty(props, pn_client_contentSerializer + "." + "JSON", StringContentSerializer.class.getName());
 		setProperty(props, pn_client_contentSerializer + "." + "XML", StringContentSerializer.class.getName());
 
+		setProperty(props, pn_document_distribution, null);
 		//-Dbdb.document.compress=false
 		//-Dbdb.document.data.format=BMAP
 		//-Dbdb.document.map.merge=true
@@ -224,6 +229,19 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 			if (value != null) {
 				((QueryManagementImpl) getQueryManagement()).setDefaultTxLevel(value);
 			}
+			value = props.getProperty(pn_document_distribution);
+			if (value != null) {
+				try {
+					Class<?> procClass = Class.forName(value);
+					Object instance = procClass.newInstance();
+					distributor = (DocumentDistributionStrategy) instance;
+				} catch (Exception ex) {
+					logger.warn("initializeServices; can't instantiate distributor for class: {}", value);
+					distributor = new DefaultDocumentDistributor();
+				}
+			} else {
+				distributor = new DefaultDocumentDistributor();
+			}
 		}
 	}
 	
@@ -298,6 +316,11 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	}
 	
 	@Override
+	public DocumentDistributionStrategy getDistributionStrategy() {
+		return distributor;
+	}
+	
+	@Override
 	public String getUserName() {
 		return clientMgr.getUserName(clientId);
 	}
@@ -318,5 +341,19 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Schema
 	long getTransactionId() {
 		return ((TransactionManagementImpl) this.getTxManagement()).getTxId();
 	}
-	
+
 }
+
+/*
+bdb.client.contentSerializer.MAP=com.bagri.client.hazelcast.serialize.ObjectMapContentSerializer, 
+bdb.client.loginTimeout=30, bdb.schema.address=127.0.0.1:10400, bdb.client.connectAttempts=3, 
+bdb.client.member=ab45fb92-d290-4ea0-8a5f-c470a87c8fc2, 
+bdb.client.contentSerializer.JSON=com.bagri.client.hazelcast.serialize.StringContentSerializer, 
+bdb.client.contentSerializers=MAP BMAP SMAP JSON XML, bdb.client.fetchSize=50, 
+bdb.client.contentSerializer.XML=com.bagri.client.hazelcast.serialize.StringContentSerializer, 
+bdb.client.connectedAt=Thu Nov 22 02:57:06 MSK 2018, 
+bdb.client.contentSerializer.SMAP=com.bagri.client.hazelcast.serialize.StringMapContentSerializer, 
+bdb.schema.password=5f4dcc3b5aa765d61d8327deb882cf99, bdb.schema.name=MP_GPC, bdb.client.bufferSize=32, 
+bdb.client.contentSerializer.BMAP=com.bagri.client.hazelcast.serialize.ByteMapContentSerializer, 
+bdb.schema.user=admin
+*/

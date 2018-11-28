@@ -13,7 +13,7 @@ public class CollectionSerializer extends EntitySerializer implements StreamSeri
 
 	@Override
 	public int getTypeId() {
-		return DomainSerializationFactory.cli_XDMCollection;
+		return DomainSerializationFactory.cli_Collection;
 	}
 
 	@Override
@@ -27,6 +27,7 @@ public class CollectionSerializer extends EntitySerializer implements StreamSeri
 				in.readUTF(),
 				in.readUTF(),
 				in.readUTF(),
+				in.readUTF(),
 				in.readBoolean());
 		return xCollection;
 	}
@@ -37,6 +38,7 @@ public class CollectionSerializer extends EntitySerializer implements StreamSeri
 		out.writeInt(xCollection.getId());
 		out.writeUTF(xCollection.getName());
 		out.writeUTF(xCollection.getDocumentType());
+		out.writeUTF(xCollection.getUriPattern());
 		out.writeUTF(xCollection.getDescription());
 		out.writeBoolean(xCollection.isEnabled());
 	}
