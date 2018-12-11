@@ -117,12 +117,13 @@ public class SourceResolverImpl implements SourceResolver, URIResolver, Unparsed
 	
 	private Object resolveUri(URI uri) throws UnsupportedEncodingException {
 		Object result;
-		if (bg_schema.equals(uri.getScheme())) {
-			// skip leading "/"
-			result = new Long(uri.getPath().substring(1));
+		String decoded = uri.getSchemeSpecificPart();
+		if (decoded.startsWith(bg_schema)) {
+			// skip leading "bgdb:/" for uri "bgdb:/3073296241296146433"
+			result = new Long(uri.getPath().substring(6));
 		} else {
 			String src = URLDecoder.decode(uri.toString(), def_encoding);
-			if ("file".equals(uri.getScheme())) {
+			if (decoded.startsWith("file:")) {
 				// here we search by fileName
 				src = FileUtils.getPathName(src);
 			}

@@ -85,7 +85,7 @@ public class DocumentPredicateBuilder {
 
 	private static Comparable<?> toValue(String attr, String value) {
 		switch (attr) {
-		    //case "key": 
+		    case "documentKey": return new Long(value);
 		    case "version": return new Integer(value); 
 		    case "uri": return value;
 		    //case "type"

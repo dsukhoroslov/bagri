@@ -187,7 +187,6 @@ public class DocumentManagementImpl extends DocumentManagementBase implements Do
 
     public void setDistrService(DataDistributionService ddSvc) {
     	this.ddSvc = ddSvc;
-    	ddSvc.setRepository(repo);
     }
 
     public void setExecPool(ExecutorService execSvc) {

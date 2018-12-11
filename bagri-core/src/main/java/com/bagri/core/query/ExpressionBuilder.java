@@ -175,6 +175,7 @@ public class ExpressionBuilder {
 					case comp: handleComparison(token); break;
 					case path: handlePath(token); break;
 					case param: handleParam(token); break;
+					case scan: handleFullScan(token); break;
 					default: 
 					  // unexpected token..
 					  return false;
@@ -183,7 +184,11 @@ public class ExpressionBuilder {
 			
 			if (brCount == 0) {
 				if (root == null) {
-					if (tokens.size() == 3) {
+					if (tokens.size() == 1) {
+						if (tokens.get(0).type == TokenType.scan) {
+							addExpression(new AlwaysExpression(collectId));
+						}
+					} else if (tokens.size() == 3) {
 						Token param = tokens.get(tokens.size() - 1);
 						Token comp = tokens.get(tokens.size() - 2);
 						Token path = tokens.get(tokens.size() - 3);
@@ -248,6 +253,11 @@ public class ExpressionBuilder {
 				}
 			}
 			tokens.clear();
+		}
+		
+		private void handleFullScan(Token token) {
+			tokens.clear();
+			tokens.add(token);
 		}
 	
 		private void handleComparison(Token token) {
@@ -365,7 +375,8 @@ public class ExpressionBuilder {
 		close, // )
 		comp, // =, !=, <, <=, >, >=, in, like, between, and, or, not... 
 		path, // starts with /
-		param;
+		param,
+		scan; // full-scan
 	}
 	
 	private static class Token {
@@ -388,6 +399,9 @@ public class ExpressionBuilder {
 			}
 			if (")".equals(token)) {
 				return TokenType.close;
+			}
+			if ("full-scan".equals(token)) {
+				return TokenType.scan;
 			}
 			if (token.startsWith("/")) {
 				return TokenType.path;

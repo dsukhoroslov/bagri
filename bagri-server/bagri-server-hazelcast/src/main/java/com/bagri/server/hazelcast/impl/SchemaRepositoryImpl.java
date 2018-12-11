@@ -85,7 +85,7 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
     private TriggerManagement triggerMgr;
     private ApplicationContext appContext;
     private HazelcastInstance hzInstance;
-	private DocumentDistributionStrategy distributor;
+	private DocumentDistributionStrategy distributor = new DefaultDocumentDistributor();
 
     private Map<String, XQProcessor> processors = new ConcurrentHashMap<>();
 	private ConcurrentHashMap<String, ContentHandler> handlers = new ConcurrentHashMap<>();
@@ -172,6 +172,10 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 		((TriggerManagementImpl) triggerMgr).setRepository(this);
 	}
 	
+    public void setDistrService(DataDistributionService ddSvc) {
+    	ddSvc.setRepository(this);
+    }
+
 	@Override
 	public String getClientId() {
 		return thClient.get();
@@ -490,11 +494,8 @@ public class SchemaRepositoryImpl extends SchemaRepositoryBase implements Applic
 					distributor = (DocumentDistributionStrategy) instance;
 				} catch (Exception ex) {
 					logger.warn("afterInit; can't instantiate distributor for class: {}", distrClass);
-					distributor = new DefaultDocumentDistributor();
 				}
 			}
-		} else {
-			distributor = new DefaultDocumentDistributor();
 		}
 		logger.info("afterInit; distributor: {}", distributor);
 		((KeyFactoryImpl) xdmFactory).setRepository(this);

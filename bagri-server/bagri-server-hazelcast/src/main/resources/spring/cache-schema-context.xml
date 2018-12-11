@@ -447,6 +447,7 @@
 		<property name="clientManagement" ref="clientManager"/>
 		<property name="modelManagement" ref="modelManager"/>
 		<property name="documentManagement" ref="docManager"/>
+		<property name="distrService" ref="distrService"/>
 		<!--property name="healthManagement" ref="healthManager"/-->
    		<property name="indexManagement" ref="idxManager" />
    		<property name="triggerManagement" ref="trManager" />
