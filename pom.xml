@@ -90,13 +90,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <jcache.version>1.0.0</jcache.version>
-        <hazelcast.version>3.11</hazelcast.version>
+        <hazelcast.version>3.11.1</hazelcast.version>
 
         <xqj.version>1.0</xqj.version>
         <xstream.version>1.4.10</xstream.version>
         <xerces.version>2.11.0</xerces.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <saxon.version>9.8.0-14</saxon.version>
+        <saxon.version>9.9.1-1</saxon.version>
         <json.version>1.0.4</json.version>
         <jackson.version>2.9.5</jackson.version>
         <aalto.version>1.0.0</aalto.version>

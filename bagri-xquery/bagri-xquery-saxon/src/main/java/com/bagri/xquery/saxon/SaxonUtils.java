@@ -70,7 +70,6 @@ import net.sf.saxon.om.SequenceTool;
 import net.sf.saxon.om.StandardNames;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.iter.AtomicIterator;
-import net.sf.saxon.tree.tiny.Statistics;
 import net.sf.saxon.tree.tiny.TinyBuilder;
 import net.sf.saxon.type.AtomicType;
 import net.sf.saxon.type.BuiltInAtomicType;
@@ -179,7 +178,7 @@ public class SaxonUtils {
         	return itemToMap((MapItem) item);
         }
         if (item instanceof ObjectValue) {
-        	Object value = ((ObjectValue) item).getObject();
+        	Object value = ((ObjectValue<?>) item).getObject();
         	if (value instanceof XQItem) {
         		//
         		//return ((XQItem) value).getObject();
@@ -450,7 +449,7 @@ public class SaxonUtils {
         // Saxon extension to the XQJ specification
         PipelineConfiguration pipe = cfg.makePipelineConfiguration();
         TinyBuilder b = new TinyBuilder(pipe);
-        b.setStatistics(Statistics.SOURCE_DOCUMENT_STATISTICS);
+        b.setStatistics(cfg.getTreeStatistics().SOURCE_DOCUMENT_STATISTICS);
         Sender.send(src, b, null);
         NodeInfo node = b.getCurrentRoot();
         b.reset();
@@ -528,7 +527,7 @@ public class SaxonUtils {
 	
 	public static List<Object> itemToList(ArrayItem ai) throws XPathException {
 		List<Object> result = new ArrayList<>(ai.arrayLength());
-    	for (Sequence sq: ai) {
+    	for (Sequence<?> sq: ai) {
     		result.add(itemToObject(sq.head().atomize().head()));
     	}
     	return result;
@@ -539,7 +538,7 @@ public class SaxonUtils {
     	AtomicIterator itr = mi.keys();
 		Map<String, Object> result = new HashMap<>(mi.size());
     	while ((key = itr.next()) != null) {
-    		Sequence value = mi.get(key);
+    		Sequence<?> value = mi.get(key);
     		result.put(key.getStringValue(), itemToObject(value.head().atomize().head()));
     	}
     	return result;
@@ -858,13 +857,13 @@ public class SaxonUtils {
     
 	public static Properties sequence2Properties(Sequence sq) throws XPathException {
 		Properties props = new Properties();
-		Item head = sq.head();
+		Item<?> head = sq.head();
 		if (head instanceof MapItem) {
 			props.putAll(itemToMap((MapItem) head));
 		} else {
-			SequenceIterator itr = sq.iterate();
+			SequenceIterator<?> itr = sq.iterate();
 			do {
-				Item item = itr.next();
+				Item<?> item = itr.next();
 				if (item != null) {
 					String prop = item.getStringValue();
 					int pos = prop.indexOf("=");

@@ -56,6 +56,8 @@ import net.sf.saxon.expr.flwor.LocalVariableBinding;
 import net.sf.saxon.expr.parser.ContextItemStaticInfo;
 import net.sf.saxon.expr.parser.ExpressionTool;
 import net.sf.saxon.expr.parser.Token;
+import net.sf.saxon.functions.CollectionFn;
+import net.sf.saxon.functions.UriCollection;
 import net.sf.saxon.lib.CollectionFinder;
 import net.sf.saxon.lib.ResourceCollection;
 import net.sf.saxon.om.AxisInfo;
@@ -355,7 +357,8 @@ public class CollectionFinderImpl implements CollectionFinder {
 
 		if (ex instanceof SystemFunctionCall) {
 			SystemFunctionCall clx = (SystemFunctionCall) ex;
-			if (clx.isCallOnSystemFunction("collection") || clx.isCallOnSystemFunction("uri-collection")) {
+			//if (clx.isCallOnSystemFunction("collection") || clx.isCallOnSystemFunction("uri-collection")) {
+			if (clx.isCallOn(CollectionFn.class) || clx.isCallOn(UriCollection.class)) {
 				String collectUri = "";
 				if (clx.getArity() > 0) {
 					Expression arg = clx.getArg(0);

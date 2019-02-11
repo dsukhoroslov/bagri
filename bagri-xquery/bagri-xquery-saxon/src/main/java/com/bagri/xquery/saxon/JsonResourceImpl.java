@@ -47,7 +47,7 @@ public class JsonResourceImpl extends ResourceImplBase {
 			}
 		}
         //MapItem options = new HashTrieMap(context);
-		Map<String, Sequence> options = new HashMap<>();
+		Map<String, Sequence<?>> options = new HashMap<>();
         options.put("liberal", BooleanValue.FALSE);
         options.put("duplicates", new StringValue("use-first"));
         options.put("escape", BooleanValue.FALSE);

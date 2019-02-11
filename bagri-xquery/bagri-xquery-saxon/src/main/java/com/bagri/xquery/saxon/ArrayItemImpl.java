@@ -4,7 +4,6 @@ import static com.bagri.xquery.saxon.SaxonUtils.objectToItem;
 import static com.bagri.xquery.saxon.SaxonUtils.itemToObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -13,32 +12,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.saxon.Configuration;
-import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.OperandRole;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.sort.AtomicComparer;
 import net.sf.saxon.functions.DeepEqual;
+import net.sf.saxon.ma.arrays.AbstractArrayItem;
+import net.sf.saxon.ma.arrays.ArrayFunctionSet;
 import net.sf.saxon.ma.arrays.ArrayItem;
-import net.sf.saxon.ma.arrays.ArrayItemType;
-import net.sf.saxon.om.AbstractItem;
 import net.sf.saxon.om.AtomicArray;
 import net.sf.saxon.om.AtomicSequence;
 import net.sf.saxon.om.Function;
+import net.sf.saxon.om.GroundedValue;
 import net.sf.saxon.om.Item;
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.om.SequenceIterator;
-import net.sf.saxon.om.StructuredQName;
-import net.sf.saxon.query.AnnotationList;
-import net.sf.saxon.trace.ExpressionPresenter;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.type.FunctionItemType;
 import net.sf.saxon.type.TypeHierarchy;
 import net.sf.saxon.value.AtomicValue;
 import net.sf.saxon.value.IntegerValue;
 import net.sf.saxon.value.SequenceType;
 import net.sf.saxon.z.IntSet;
 
-public class ArrayItemImpl extends AbstractItem implements ArrayItem {
+public class ArrayItemImpl extends AbstractArrayItem { //implements ArrayItem {
 	
     private static final Logger logger = LoggerFactory.getLogger(ArrayItemImpl.class);
 	
@@ -50,25 +45,25 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 		this.config = config;
 	}
 
-	@Override
-	public boolean isMap() {
-		return false;
-	}
+	//@Override
+	//public boolean isMap() {
+	//	return false;
+	//}
 
-	@Override
-	public boolean isArray() {
-		return true;
-	}
+	//@Override
+	//public boolean isArray() {
+	//	return true;
+	//}
 
-	@Override
-	public FunctionItemType getFunctionItemType() {
-        return ArrayItemType.ANY_ARRAY_TYPE;
-	}
+	//@Override
+	//public FunctionItemType getFunctionItemType() {
+    //    return ArrayItemType.ANY_ARRAY_TYPE;
+	//}
 
-	@Override
-	public StructuredQName getFunctionName() {
-		return null;
-	}
+	//@Override
+	//public StructuredQName getFunctionName() {
+	//	return null;
+	//}
 
 	@Override
 	public int getArity() {
@@ -81,9 +76,10 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 	}
 
 	@Override
-	public Sequence call(XPathContext context, Sequence[] args) throws XPathException {
-		logger.trace("call.enter; got args: {}", args == null ? null : Arrays.toString(args));
-        return get((int) ((IntegerValue) args[0].head()).longValue() - 1);
+	public GroundedValue<?> call(XPathContext context, Sequence[] arguments) throws XPathException {
+		//	logger.trace("call.enter; got args: {}", args == null ? null : Arrays.toString(args));
+        IntegerValue value = (IntegerValue) arguments[0].head();
+        return get(ArrayFunctionSet.checkSubscript(value) - 1);
 	}
 
 	@Override
@@ -104,42 +100,47 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
         }
 	}
 
-	@Override
-	public String getDescription() {
-		return "array";
-	}
+	//@Override
+	//public String getDescription() {
+	//	return "array";
+	//}
 
-	@Override
-	public void export(ExpressionPresenter out) throws XPathException {
-        out.startElement("array");
-        out.emitAttribute("size", arrayLength() + "");
-        for (Object o: source) {
-            Literal.exportValue(objectToItem(o, config), out);
-        }
-        out.endElement();
-	}
+	//@Override
+	//public void export(ExpressionPresenter out) throws XPathException {
+    //    out.startElement("array");
+    //    out.emitAttribute("size", arrayLength() + "");
+    //    for (Object o: source) {
+    //        Literal.exportValue(objectToItem(o, config), out);
+    //    }
+    //    out.endElement();
+	//}
 
-	@Override
-	public boolean isTrustedResultType() {
-		return false;
-	}
+	//@Override
+	//public boolean isTrustedResultType() {
+	//	return false;
+	//}
 
-	@Override
-	public String getStringValue() {
-        throw new UnsupportedOperationException("An array does not have a string value");
-	}
+	//@Override
+	//public String getStringValue() {
+    //    throw new UnsupportedOperationException("An array does not have a string value");
+	//}
 
-	@Override
-	public CharSequence getStringValueCS() {
-        throw new UnsupportedOperationException("An array does not have a string value");
-	}
+	//@Override
+	//public CharSequence getStringValueCS() {
+    //    throw new UnsupportedOperationException("An array does not have a string value");
+	//}
+
+	//@Override
+	//public AnnotationList getAnnotations() {
+	//	return null;
+	//}
 
 	@Override
 	public AtomicSequence atomize() throws XPathException {
         List<AtomicValue> list = new ArrayList<>(source.size());
         for (Object o: source) {
-            Item item = objectToItem(o, config);
-            SequenceIterator iter = item.iterate();
+            Item<?> item = objectToItem(o, config);
+            SequenceIterator<?> iter = item.iterate();
             while ((item = iter.next()) != null) {
                 AtomicSequence atoms = item.atomize();
                 for (AtomicValue atom: atoms) {
@@ -156,7 +157,7 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 	}
 
 	@Override
-	public Sequence get(int index) throws XPathException {
+	public GroundedValue<?> get(int index) throws XPathException {
         if (index < 0 || index >= source.size()) {
             throw new XPathException("Array index (" + (index+1) + ") out of range (1 to " + source.size() + ")");
         }
@@ -174,7 +175,7 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 	}
 
 	@Override
-	public Iterator<Sequence> iterator() {
+	public Iterator<Function> iterator() {
 		return new ArrayIterator(source);
 	}
 
@@ -212,10 +213,10 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
         return this;
 	}
 
-	@Override
-	public XPathContext makeNewContext(XPathContext callingContext) {
-		return callingContext;
-	}
+	//@Override
+	//public XPathContext makeNewContext(XPathContext callingContext, ContextOriginator originator) {
+	//	return callingContext;
+	//}
 
 	@Override
 	public ArrayItem remove(int index) {
@@ -252,8 +253,8 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 	}
 
 	@Override
-	public List<Sequence> getMembers() {
-    	List<Sequence> list = new ArrayList<>(source.size());
+	public Iterable<GroundedValue<?>> members() {
+    	List<GroundedValue<?>> list = new ArrayList<>(source.size());
     	try {
 	    	for (Object o: source) {
 	    		list.add(objectToItem(o, config));
@@ -269,18 +270,28 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 	}
 	
 	@Override
-	public AnnotationList getAnnotations() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ArrayItem put(int index, Sequence newValue) throws XPathException {
-		source.set(index, itemToObject((Item) newValue));
+	public ArrayItem insert(int position, GroundedValue<?> member) {
+		try {
+			source.add(position, itemToObject((Item<?>) member));
+    	} catch (XPathException ex) {
+			logger.error("insert.error;", ex);
+    	}
 		return this;
 	}
 
-	private class ArrayIterator implements Iterator<Sequence> {
+	@Override
+	public ArrayItem put(int index, GroundedValue<?> newValue) throws XPathException {
+		source.set(index, itemToObject((Item<?>) newValue));
+		return this;
+	}
+
+	@Override
+	public ArrayItem subArray(int start, int end) {
+		return new ArrayItemImpl(source.subList(start, end), config);
+	}
+
+
+	private class ArrayIterator implements Iterator<Function> {
 		
 		private Iterator<Object> itr;
 		
@@ -294,11 +305,11 @@ public class ArrayItemImpl extends AbstractItem implements ArrayItem {
 		}
 
 		@Override
-		public Sequence next() {
+		public Function next() {
 			Object value = itr.next();
 			if (value != null) {
 				try {
-					return objectToItem(value, config);
+					return ((Item<Function>) objectToItem(value, config)).head();
 				} catch (XPathException ex) {
 					logger.error("ArrayIterator.next.error;", ex);
 				}
