@@ -196,7 +196,7 @@ public class SchemaManagement extends EntityManagement<Schema> implements Member
     	props.setProperty(pn_schema_name, schemaName);
 		String port = props.getProperty(pn_schema_ports_first);
     	String members = props.getProperty(pn_schema_members);
-    	String[] servers = members.split(", ");
+    	String[] servers = members.split(",");
     	for (int i=0; i < servers.length; i++) {
    			props.setProperty(pn_schema_members, servers[i] + ":" + port);
    			PropertiesPropertySource pps = new PropertiesPropertySource(schemaName, props);

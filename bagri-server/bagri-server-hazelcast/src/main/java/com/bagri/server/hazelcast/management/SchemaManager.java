@@ -261,7 +261,7 @@ public class SchemaManager extends EntityManager<Schema> implements HealthChange
 		}
 		
 		int started = 0;
-		String[] boxes = addresses.split(", ");
+		String[] boxes = addresses.split(",");
 		if (boxes.length > 0 && nodesPerAddress > 0 && nodeSize > 0) {
 			//String bStart = "cmd /K start \"bagri server\" /D %path% bgcache.cmd empty %num% %size%";
 			String bStart = node.getOption(pn_cluster_node_start);

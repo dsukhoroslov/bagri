@@ -867,7 +867,7 @@ public class XQUtils {
 				// conversion from value type to path type
 				String strVal = value.toString();
 				if (strVal.startsWith("[") && strVal.endsWith("]")) {
-					String[] values = strVal.substring(1, strVal.length() - 1).split(", ");
+					String[] values = strVal.substring(1, strVal.length() - 1).split("[, ]+");
 					List newVals = new ArrayList(values.length);
 					for (String val: values) {
 						newVals.add(adjustSearchValue(val, pathType));

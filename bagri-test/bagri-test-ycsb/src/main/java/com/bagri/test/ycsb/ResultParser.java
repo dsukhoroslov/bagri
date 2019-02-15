@@ -91,7 +91,7 @@ public class ResultParser {
 	        	String line = sc.nextLine();
 	        	String pattern = patterns[idx];
 	        	if (line.startsWith(pattern)) {
-	        		String[] parts = line.split(", ");
+	        		String[] parts = line.split("[, ]+");
 	        		results.put(idx, parts);
 	        		if ("[CLEANUP]".equals(pattern)) {
 	        			thCount = Integer.parseInt(parts[2]);
@@ -110,15 +110,8 @@ public class ResultParser {
 	    	thCount = thCount / 2;
 	    	idx++;
 	    }
-		//System.out.println(fileName + "; " + idx);
 	    for (Map.Entry<Integer, String[]> entry: results.entrySet()) {
 	    	int key = entry.getKey();
-	    	//if (key == 5) {
-	    	//	continue;
-	    	//} 
-	    	//if (key > 5) {
-	    	//	key--;
-	    	//}
     		String[] value = entry.getValue();
 	    	String[] line = csv.get(key);
 	    	if (line == null) {
